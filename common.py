@@ -4,9 +4,13 @@ import psutil
 
 
 class Code(Enum):
+    # 成功
     OK = 0
+    # 端口已被占用
     PORT_IS_ALREADY_USED = 100
+    # 路径不存在
     PATH_DOSE_NOT_EXIST = 101
+    # 错误
     ERROR = 500
 
 

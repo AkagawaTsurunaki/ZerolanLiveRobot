@@ -45,6 +45,18 @@ def start():
     :return:
     """
     ...
+    # 如果失败
+    ...
+    if ...:
+        return HttpResponseBody(
+            code=Code.ERROR,
+            msg="LLM 服务启动失败"
+        )
+    # 如果成功
+    return HttpResponseBody(
+        code=Code.OK,
+        msg="LMM 服务启动成功"
+    )
 
 
 def stop():
@@ -52,3 +64,15 @@ def stop():
     停止 ChatGLM3 服务。
     :return:
     """
+    # 如果失败
+    ...
+    if ...:
+        return HttpResponseBody(
+            code=Code.ERROR,
+            msg="LLM 服务停止失败"
+        )
+    # 如果成功
+    return HttpResponseBody(
+        code=Code.OK,
+        msg="LMM 服务停止成功"
+    )
