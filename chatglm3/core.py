@@ -57,5 +57,5 @@ def predict(query: str, history: list, top_p: int, temperature: float, return_pa
         ret_response = response
         ret_history = history
 
-    logger.info(ret_response)
+    logger.info(f'来自 ChatGLM 的消息：{ret_response}')
     return ret_response, ret_history

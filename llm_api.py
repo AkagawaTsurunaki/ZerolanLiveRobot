@@ -8,13 +8,26 @@ from common import HttpResponseBody, Code
 
 app = Flask(__name__)
 
+history = []
+
+
+@app.route('/clear', methods=['GET'])
+def clear_history():
+    """
+    清除会话历史
+    """
+    global history
+    history = []
+
 
 @app.route('/predict', methods=['POST'])
 def handle_request():
+    global history
+
     data = request.get_json()
     req = ModelRequest(**data)
 
-    response, history = predict(req.query, req.history, req.top_p, req.temperature, True)
+    response, history = predict(req.sys_prompt + req.query, req.history, req.top_p, req.temperature, True)
 
     http_response_body = HttpResponseBody(
         code=Code.OK.value,

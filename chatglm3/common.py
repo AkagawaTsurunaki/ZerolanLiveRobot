@@ -22,7 +22,7 @@ class Config:
 class ModelRequest:
     sys_prompt: str
     query: str
-    history: List[str]
+    history: list
     top_p: int
     temperature: float
 
@@ -30,4 +30,4 @@ class ModelRequest:
 @dataclass
 class ModelResponse:
     response: str
-    history: List[str]
+    history: list
