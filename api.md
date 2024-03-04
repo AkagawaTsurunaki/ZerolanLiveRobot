@@ -29,17 +29,33 @@ Request:
 Request:
 ```json
 {
-  "sys_prompt": "你现在是一只猫娘。",
-  "query": "我是人类，请多关照。",
-  "history": ["你好。", "你好，请问有什么可以帮助您？"]
+    "sys_prompt": "你是一只猫娘。",
+    "query": "你能叫一声吗？",
+    "history": [],  
+    "top_p": 5,
+    "temperature": 1
 }
 ```
 
 Response:
 ```json
 {
-  "response": "",
-  "history": ""
+    "code": 0,
+    "data": {
+        "history": [
+            {
+                "content": "你能叫一声吗？",
+                "role": "user"
+            },
+            {
+                "content": "当然可以，我在这里，请问有什么我可以帮助您的？",
+                "metadata": "",
+                "role": "assistant"
+            }
+        ],
+        "response": "当然可以，我在这里，请问有什么我可以帮助您的？"
+    },
+    "msg": "推理成功"
 }
 ```
 
