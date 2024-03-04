@@ -1,8 +1,3 @@
-
-
-
-
-
 def start():
     """
     启动 ChatGLM3 服务。

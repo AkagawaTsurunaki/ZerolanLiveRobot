@@ -1,6 +1,9 @@
+import json
 from dataclasses import dataclass
 from enum import Enum
 import psutil
+
+import chatglm3.common
 
 
 class Code(Enum):
@@ -12,9 +15,16 @@ class Code(Enum):
 
 @dataclass
 class HttpResponseBody:
-    code: Code = Code.OK
-    msg: str = ""
-    data = None
+    code: int
+    msg: str
+    data: chatglm3.common.ModelResponse | chatglm3.common.ModelRequest = None
+
+
+class CodeEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, Enum):
+            return obj.value
+        return json.JSONEncoder.default(self, obj)
 
 
 def is_port_in_use(port):

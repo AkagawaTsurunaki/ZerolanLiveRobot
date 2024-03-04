@@ -5,7 +5,7 @@ import os
 from loguru import logger
 
 from common import is_port_in_use, HttpResponseBody, Code
-from llm.common import Config
+from chatglm3.common import Config
 
 
 def check_config(config: Config):
@@ -23,7 +23,7 @@ def check_config(config: Config):
     if is_port_in_use(config.port):
         logger.error(f"以下端口正在被占用：{config.port}")
         return HttpResponseBody(
-            code=Code.PORT_IS_ALREADY_USED,
+            code=Code.PORT_IS_ALREADY_USED.value,
             msg=f"以下端口正在被占用：{config.port}",
         )
     logger.info(f'LLM 服务地址：{config.host}:{config.port}')
@@ -34,7 +34,7 @@ def check_config(config: Config):
     if not os.path.exists(config.tokenizer_path):
         logger.error(f"Tokenizer 路径不存在：{config.tokenizer_path}")
         return HttpResponseBody(
-            code=Code.PATH_DOSE_NOT_EXIST,
+            code=Code.PATH_DOSE_NOT_EXIST.value,
             msg=f"Tokenizer 路径不存在：{config.tokenizer_path}",
         )
     logger.info(f'Tokenizer 路径：{config.tokenizer_path}')
@@ -45,7 +45,7 @@ def check_config(config: Config):
     if not os.path.exists(config.model_path):
         logger.error(f"Model 路径不存在：{config.model_path}")
         return HttpResponseBody(
-            code=Code.PATH_DOSE_NOT_EXIST,
+            code=Code.PATH_DOSE_NOT_EXIST.value,
             msg=f"Model 路径不存在：{config.model_path}",
         )
     logger.info(f'Model 路径：{config.model_path}')
@@ -59,7 +59,7 @@ def check_config(config: Config):
 
     logger.info("LLM 服务配置成功")
     return HttpResponseBody(
-        code=Code.OK,
+        code=Code.OK.value,
         msg="LLM 服务配置成功"
     )
 
@@ -98,7 +98,7 @@ def arg_parse():
 def handle_config():
     # 1. 先读取配置文件
 
-    config = read_config(default_config_path='./llm/config.json')
+    config = read_config(default_config_path='./chatglm3/config.json')
 
     # 2. 如果命令行参数中，不为空的部分会覆盖配置文件中的值
 

@@ -37,7 +37,10 @@ Request:
 
 Response:
 ```json
-
+{
+  "response": "",
+  "history": ""
+}
 ```
 
 Response:

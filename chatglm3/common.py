@@ -19,7 +19,15 @@ class Config:
 
 
 @dataclass
-class Request:
+class ModelRequest:
     sys_prompt: str
     query: str
+    history: List[str]
+    top_p: int
+    temperature: float
+
+
+@dataclass
+class ModelResponse:
+    response: str
     history: List[str]
