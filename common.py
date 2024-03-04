@@ -1,4 +1,4 @@
-import dataclasses
+from dataclasses import dataclass
 from enum import Enum
 import psutil
 
@@ -10,9 +10,9 @@ class Code(Enum):
     ERROR = 500
 
 
-@dataclasses
+@dataclass
 class HttpResponseBody:
-    code: int = Code.OK
+    code: Code = Code.OK
     msg: str = ""
     data = None
 
