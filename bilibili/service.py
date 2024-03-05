@@ -1,3 +1,4 @@
+import random
 from dataclasses import dataclass
 from typing import List
 
@@ -20,14 +21,20 @@ class Danmaku:
 danmaku_list: List[Danmaku] = []
 
 
-def select(strategy):
+def select_01(k: int) -> Danmaku:
     # 按照某种策略拾取弹幕
-    # e.g. 按照当前时间戳最近的5条中随机挑选最长的一条
-    danmaku = ...
-    danmaku.is_read = True
-    if ...:
-        return danmaku
-    return None
+    # 按照当前时间戳最近的k条中随机挑选msg字段字符串最长的一条（若都相同，则随机）
+    if len(danmaku_list) < k:
+        selected_danmaku = max(danmaku_list, key=lambda danmaku: len(danmaku.msg), default=None)
+    else:
+        recent_danmakus = sorted(danmaku_list, key=lambda danmaku: danmaku.ts, reverse=True)[:k]
+        max_length = max(len(danmaku.msg) for danmaku in recent_danmakus)
+        longest_danmakus = [danmaku for danmaku in recent_danmakus if len(danmaku.msg) == max_length]
+        selected_danmaku = random.choice(longest_danmakus) if longest_danmakus else None
+    # 将选择的弹幕标记为已读
+    if selected_danmaku:
+        selected_danmaku.is_read = True
+    return selected_danmaku
 
 
 def add(danmaku: Danmaku):
