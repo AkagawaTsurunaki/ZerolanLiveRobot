@@ -1,5 +1,4 @@
 import os
-from typing import Final
 
 import torch
 import yaml
@@ -27,8 +26,17 @@ def load_config():
     # 读取配置文件
 
     logger.info('正在读取 ChatGLM3ServiceConfig……')
-    with open('global_config.py', mode='r', encoding='utf-8') as file:
+
+    if not os.path.exists('global_config.yaml'):
+        logger.error('全局配置文件缺失，请在项目根目录下新建 global_config.yaml 进行配置')
+        return
+
+    with open('global_config.yaml', mode='r', encoding='utf-8') as file:
         config: dict = yaml.safe_load(file)
+        config = config.get('ChatGLM3ServiceConfig', None)
+
+    if not config:
+        logger.error('无法读取全局配置文件，格式不正确')
 
     # 检查 Port 是否可用
 
