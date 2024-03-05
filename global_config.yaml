@@ -1,9 +1,12 @@
 # Bilibili 直播配置
 BilibiliLiveConfig:
   # 获取方式[详见](https://nemo2011.github.io/bilibili-api/#/get-credential)
+  # 注意：泄露隐私信息可能引发风险
   SESSDATA: SESSDATA
   bili_jct: bili_jct
   buvid3: buvid3
+  # 直播间 ID
+  room_id: room_id
 # ChatGLM3 服务配置
 ChatGLM3ServiceConfig:
   # 是否以调试模式运行
@@ -18,3 +21,13 @@ ChatGLM3ServiceConfig:
   model_path: /
   # 量化
   quantize: 4
+# GPT-SoVITS 服务配置
+GPTSoVITSServiceConfig:
+  # 是否以调试模式运行
+  debug: False
+  # GPT-SoVITS 服务地址
+  host: 127.0.0.1
+  # GPT-SoVITS 服务端口
+  port: 9880
+  # 音频临时文件夹
+  tmp_dir: gptsovits\.tmp
