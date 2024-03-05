@@ -1,17 +1,16 @@
 from loguru import logger
 
-from chatglm3 import TOKENIZER, MODEL
 
-
-def predict(query: str, history: list, top_p: float = 1., temperature: float = 1.,
+def predict(query: str, history: list = None, top_p: float = 1., temperature: float = 1.,
             return_past_key_values: bool = True) -> (str, list):
+    from . import TOKENIZER, MODEL
     ret_response = ''
     ret_history = None
     past_key_values = None
 
     for response, history, past_key_values in MODEL.stream_chat(TOKENIZER,
                                                                 query,
-                                                                history=history,
+                                                                history=history if history else [],
                                                                 top_p=top_p,
                                                                 temperature=temperature,
                                                                 past_key_values=past_key_values,
