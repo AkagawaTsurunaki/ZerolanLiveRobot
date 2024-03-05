@@ -3,12 +3,12 @@ ChatGLM3ServiceConfig:
   # 是否以调试模式运行
   debug: False
   # ChatGLM3 服务地址
-  host: "127.0.0.1"
+  host: 127.0.0.1
   # ChatGLM3 服务端口
   port: 8721
   # Tokenizer 路径
-  tokenizer_path: "/"
+  tokenizer_path: /
   # 模型路径
-  model_path: "/"
+  model_path: /
   # 量化
   quantize: 4
