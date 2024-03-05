@@ -1,3 +1,9 @@
+# Bilibili 直播配置
+BilibiliLiveConfig:
+  # 获取方式[详见](https://nemo2011.github.io/bilibili-api/#/get-credential)
+  SESSDATA: SESSDATA
+  bili_jct: bili_jct
+  buvid3: buvid3
 # ChatGLM3 服务配置
 ChatGLM3ServiceConfig:
   # 是否以调试模式运行
