@@ -12,6 +12,7 @@ class Code(Enum):
     PATH_DOSE_NOT_EXIST = 101
     BLANK_STRING = 102
     INVALID_NUMBER = 103
+    PATH_IS_NOT_A_DIR = 104
     ERROR = 500
 
 
