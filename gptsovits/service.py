@@ -19,7 +19,7 @@ def write_wav(wav_data):
     return tmp_wav_file_path
 
 
-def predict(text: str, text_language: str):
+async def predict(text: str, text_language: str):
     # 检查语言
     assert text_language in ['zh', 'en', 'ja']
     logger.info(f'[{text_language}] {text}')

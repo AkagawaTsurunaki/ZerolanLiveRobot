@@ -9,6 +9,7 @@ from bilibili import MONITOR
 
 @dataclass
 class Danmaku:
+    is_read: bool  # 弹幕是否被阅读过
     uid: str  # 弹幕发送者UID
     username: str  # 弹幕发送者名称
     msg: str  # 弹幕发送内容
@@ -17,6 +18,16 @@ class Danmaku:
 
 # 弹幕队列
 danmaku_list: List[Danmaku] = []
+
+
+def select(strategy):
+    # 按照某种策略拾取弹幕
+    # e.g. 按照当前时间戳最近的5条中随机挑选最长的一条
+    danmaku = ...
+    danmaku.is_read = True
+    if ...:
+        return danmaku
+    return None
 
 
 def add(danmaku: Danmaku):
@@ -31,7 +42,8 @@ async def recv(event):
     danmaku = Danmaku(uid=event["data"]["info"][2][0],
                       username=event["data"]["info"][2][1],
                       msg=event["data"]["info"][1],
-                      ts=event["data"]["info"][9]['ts'])
+                      ts=event["data"]["info"][9]['ts'],
+                      is_read=False)
     # 注意没带粉丝牌的会导致越界
     # fans_band_level = event["data"]["info"][3][0]  # 粉丝牌的级别
     # fans_band_name = event["data"]["info"][3][1]  # 该粉丝牌的名字
