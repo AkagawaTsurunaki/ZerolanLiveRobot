@@ -3,7 +3,8 @@ from loguru import logger
 from chatglm3 import TOKENIZER, MODEL
 
 
-def predict(query: str, history: list, top_p: float, temperature: float, return_past_key_values: bool) -> (str, list):
+def predict(query: str, history: list, top_p: float = 1., temperature: float = 1.,
+            return_past_key_values: bool = True) -> (str, list):
     ret_response = ''
     ret_history = None
     past_key_values = None
