@@ -53,6 +53,9 @@ class AudioPlayer:
         playsound(wav_file_path, block=block)
         logger.info(f'音频文件播放完毕：{wav_file_path}')
 
+    def is_empty(self):
+        return self.__audio_list.empty()
+
     def start(self):
         while True:
             try:

@@ -4,18 +4,24 @@ import threading
 import requests
 from flask import request, Flask, jsonify
 from loguru import logger
-
+from bilibili import live_dnmk_mng
 from audio_player import AudioPlayer
-from gptsovits import gpt_sovits_api
 from chatglm3.common import ModelResponse
 from common import HttpResponseBody, Code, is_blank
+from config import CentralControllerConfig
+from gptsovits import gpt_sovits_api
 
 app = Flask(__name__)
 global_audio_player = AudioPlayer()
 
+
 def remove_newlines(text):
     cleaned_text = text.replace('\n', '').replace('\r', '')
     return cleaned_text
+
+
+def is_audio_player_empty():
+    return global_audio_player.is_empty()
 
 
 @app.route('/query', methods=['POST'])
@@ -32,6 +38,7 @@ def handle_query_4_llm_gptsovits():
     :return:
     """
     model_req_json = request.get_json()
+
     # 访问模型地址，将响应体解析为 Python 类
     response = requests.post("http://127.0.0.1:8721/predict", json=model_req_json)
     json_dict = json.loads(response.content)
@@ -55,7 +62,13 @@ def handle_query_4_llm_gptsovits():
 
 
 if __name__ == '__main__':
-    thread = threading.Thread(target=global_audio_player.start)
-    thread.start()
-    app.run(host="127.0.0.1", port=10020, debug=False)
-    thread.join()
+    audio_player_thread = threading.Thread(target=global_audio_player.start)
+    manager_thread = threading.Thread(target=live_dnmk_mng.start)
+    audio_player_thread.start()
+    manager_thread.start()
+
+    app.run(host=CentralControllerConfig.host, port=CentralControllerConfig.port, debug=False)
+    # 不要删除这里
+
+    audio_player_thread.join()
+    manager_thread.join()
