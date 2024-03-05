@@ -2,10 +2,9 @@ import json
 import os
 from dataclasses import dataclass
 from enum import Enum
+
 import psutil
 import requests
-
-import chatglm3.common
 
 
 class Code(Enum):
@@ -22,14 +21,7 @@ class Code(Enum):
 class HttpResponseBody:
     code: int
     msg: str
-    data: chatglm3.common.ModelResponse | chatglm3.common.ModelRequest = None
-
-
-class CodeEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, Enum):
-            return obj.value
-        return json.JSONEncoder.default(self, obj)
+    data = None
 
 
 def is_port_in_use(port):
@@ -79,3 +71,29 @@ def get_absolute_path(file_name):
     absolute_path = os.path.join(current_dir, file_name)
 
     return absolute_path
+
+
+def remove_newlines(text):
+    cleaned_text = text.replace('\n', '').replace('\r', '')
+    return cleaned_text
+
+
+@dataclass
+class ModelRequest:
+    sys_prompt: str
+    query: str
+    history: list
+    top_p: float
+    temperature: float
+
+
+@dataclass
+class ModelResponse:
+    response: str
+    history: list
+
+
+@dataclass
+class GPTSoVITSRequest:
+    text: str
+    text_language: str
