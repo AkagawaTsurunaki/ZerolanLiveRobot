@@ -1,20 +1,51 @@
 import os
 
+import yaml
 from loguru import logger
 
-import gptsovits.config as g_conf
+TMP_DIR: str
+SERVER_URL: str
 
-try:
-    if not os.path.exists(g_conf.tmp_dir):
-        os.mkdir(g_conf.tmp_dir)
-        logger.info(f'临时目录创建成功：{g_conf.tmp_dir}')
-except Exception as e:
-    g_conf.tmp_dir = r'gptsovits\.tmp'
-    logger.warning(f'配置文件指定的临时目录无法被创建，使用默认临时目录')
-    logger.warning(f'注意：临时目录如果选择相对路径，有一定概率无法播放音频')
 
-# 临时目录
-TMP_DIR = g_conf.tmp_dir
+def load_config():
+    """
+        检查配置文件是否无误
+        :return: 配置字典
+    """
+    # 读取配置文件
 
-# 检查URL
-SERVER_URL = f"{g_conf.host}:{g_conf.port}"
+    logger.info('正在读取 GPTSoVITSServiceConfig……')
+
+    if not os.path.exists('global_config.yaml'):
+        logger.error('全局配置文件缺失，请在项目根目录下新建 global_config.yaml 进行配置')
+        return
+
+    with open('global_config.yaml', mode='r', encoding='utf-8') as file:
+        config: dict = yaml.safe_load(file)
+        config = config.get('GPTSoVITSServiceConfig', None)
+
+    if not config:
+        logger.error('无法读取 GPTSoVITSServiceConfig，格式不正确')
+
+    global TMP_DIR
+    TMP_DIR = config.get('tmp_dir', r'gptsovits\.tmp')
+    try:
+        if not os.path.exists(TMP_DIR):
+            os.mkdir(TMP_DIR)
+            logger.info(f'临时目录创建成功：{TMP_DIR}')
+    except Exception as e:
+        logger.warning(f'配置文件指定的临时目录无法被创建，使用默认临时目录')
+
+    TMP_DIR = os.path.abspath(TMP_DIR)
+    host = config.get('host', '127.0.0.1')
+    port = config.get('port', 9880)
+    global SERVER_URL
+    SERVER_URL = f"http://{host}:{port}"
+
+
+def init_service(config):
+    ...
+
+
+config = load_config()
+init_service(config)
