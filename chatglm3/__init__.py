@@ -36,7 +36,7 @@ def load_config():
         config = config.get('ChatGLM3ServiceConfig', None)
 
     if not config:
-        logger.error('无法读取全局配置文件，格式不正确')
+        logger.error('无法读取 ChatGLM3ServiceConfig，格式不正确')
 
     # 检查 Port 是否可用
 
