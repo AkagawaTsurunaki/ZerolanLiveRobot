@@ -39,7 +39,7 @@ def init(tokenizer_path: str, model_path: str, quantize: int):
     logger.info(f'LLM 以 {quantize}-bit 加载成功')
 
 
-def predict(query: str, history: list, top_p: int, temperature: float, return_past_key_values: bool) -> (str, list):
+def predict(query: str, history: list, top_p: float, temperature: float, return_past_key_values: bool) -> (str, list):
     global tokenizer, model
     assert tokenizer is not None and model is not None
 
@@ -57,5 +57,5 @@ def predict(query: str, history: list, top_p: int, temperature: float, return_pa
         ret_response = response
         ret_history = history
 
-    logger.info(f'来自 ChatGLM 的消息：{ret_response}')
+    logger.info(f'来自 ChatGLM3 的消息：{ret_response}')
     return ret_response, ret_history

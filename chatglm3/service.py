@@ -4,7 +4,8 @@ import os
 
 from loguru import logger
 
-from common import is_port_in_use, HttpResponseBody, Code
+from chatglm3 import core
+from common import is_port_in_use, HttpResponseBody, Code, is_blank
 from chatglm3.common import Config
 
 
@@ -70,7 +71,8 @@ def read_config(default_config_path: str):
             config_dict = json.load(fp=f)
             config = Config(**config_dict)
             return config
-    except Exception:
+    except Exception as e:
+        logger.warning(e)
         return None
 
 
@@ -118,3 +120,7 @@ def handle_config():
     check_config(config)
 
     return config
+
+
+def predict(query: str, history: list, top_p: float, temperature: float, return_past_key_values: bool = True):
+    return core.predict(query, history, top_p, temperature, return_past_key_values)

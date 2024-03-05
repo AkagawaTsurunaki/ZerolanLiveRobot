@@ -4,6 +4,7 @@ from typing import List
 
 @dataclass
 class Config:
+
     # 是否以调试模式运行
     debug: bool
     # LLM 服务的主机地址
@@ -23,7 +24,7 @@ class ModelRequest:
     sys_prompt: str
     query: str
     history: list
-    top_p: int
+    top_p: float
     temperature: float
 
 
