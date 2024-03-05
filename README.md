@@ -1,3 +1,10 @@
+# ZEROLAN LIVE ROBOT
+
+现有功能：
+1. 读取直播间弹幕
+2. 大语言模型推理
+3. 文本转语音合成
+
 ## 大语言模型
 
 现在我们支持 [ChatGLM3](https://github.com/THUDM/ChatGLM3).
