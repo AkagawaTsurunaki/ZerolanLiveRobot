@@ -1,22 +1,20 @@
+import asyncio
 import json
-import threading
 from dataclasses import asdict
 
 import requests
 from loguru import logger
 
+# 配置 Loguru，设置日志文件和最低日志级别为 INFO
+logger.add("file.log", level="INFO")
+
 from audio_player import service as audio_player_serv
-# from bilibili.service import BilibliLiveService
 from bilibili import service as bili_serv
 from chatglm3.api import ModelRequest, ModelResponse
 from gptsovits import service as tts_serv
 
-import asyncio
-
+# 控制死循环
 FLAG = True
-
-
-# bili_serv = BilibliLiveService()
 
 
 def is_blank(s: str):
@@ -39,21 +37,12 @@ def stream_llm_output(model_req: ModelRequest):
 
     for chunk in response.iter_content(chunk_size=1024, decode_unicode=True):
         if chunk:
-            # decoded_chunk = chunk.decode('utf-8')
-            # print(chunk)
             try:
                 json_value = json.loads(chunk, strict=False)
             except Exception as e:
                 continue
 
-            # 处理接收到的值，这里可以根据实际需求自定义操作
-            model_resp = ModelResponse(**json_value)
-            if len(model_resp.history) != 0:
-                content = model_resp.history[-1].get('content', '')
-                word = model_resp.response[len(content): len(model_resp.response) + 1]
-                print(word, end='')
-
-            yield model_resp
+            yield ModelResponse(**json_value)
 
 
 async def circle():
@@ -68,9 +57,19 @@ async def circle():
         return
     logger.info(danmaku.msg)
     # 封装为一个模型请求体
+    sys_prompt = """
+    你现在是一名猫娘，正在哔哩哔哩上直播，请与观众们友好互动。
+    以下是弹幕的格式
+    '''
+    [用户名] 弹幕所说的话
+    '''
+    """
+    query = f'[{danmaku.username}] {danmaku.msg}'
+
+    # TODO: 历史记忆
     model_req = ModelRequest(
-        sys_prompt='你现在是一名猫娘，正在哔哩哔哩上直播，请与观众们友好互动。',
-        query='现在观众正在向你发送了一条弹幕： \n [赤川鹤鸣] 你好啊！',
+        sys_prompt=sys_prompt,
+        query=query,
         history=[],
         temperature=1.,
         top_p=1.
@@ -125,7 +124,6 @@ async def start_life_cycle():
     # threading.Thread()
     bili_live_start = asyncio.create_task(bili_serv.start())
     while FLAG:
-        logger.debug('zheli ')
         await circle()
         await asyncio.sleep(1)
     await bili_live_start
