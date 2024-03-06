@@ -1,16 +1,29 @@
 import os
 
+import psutil
 import torch
 import yaml
 from loguru import logger
 from transformers import AutoTokenizer, AutoModel
 
-from common import is_port_in_use
+
+def is_port_in_use(port):
+    """
+    检查指定端口是否被占用
+    :param port: int, 待检查的端口号
+    :return: bool, 如果端口被占用返回 True，否则返回 False
+    """
+    for proc in psutil.process_iter():
+        for con in proc.connections():
+            if con.status == 'LISTEN' and con.laddr.port == port:
+                return True
+    return False
 
 
 class ChatGLM3Service:
 
     def __init__(self):
+        self.DEBUG = False
         self.HOST = "127.0.0.1"
         self.PORT = 8721
         self.TOKENIZER_PATH = 'THUDM/chatglm3-6b'
@@ -42,6 +55,10 @@ class ChatGLM3Service:
 
         if not config:
             logger.error('无法读取 ChatGLM3ServiceConfig，格式不正确')
+
+        # 是否以 DEBUG 模式启动
+
+        self.DEBUG = config.get('debug', False)
 
         # 检查 Port 是否可用
 
@@ -105,10 +122,9 @@ class ChatGLM3Service:
 
         # 加载 Tokenizer
 
-        global TOKENIZER
         logger.info('Tokenizer 正在加载……')
-        TOKENIZER = AutoTokenizer.from_pretrained(tokenizer_path, trust_remote_code=True)
-        if TOKENIZER is not None:
+        self.TOKENIZER = AutoTokenizer.from_pretrained(tokenizer_path, trust_remote_code=True)
+        if self.TOKENIZER is not None:
             logger.info('Tokenizer 加载成功')
         else:
             logger.critical('Tokenizer 加载失败')
@@ -116,9 +132,8 @@ class ChatGLM3Service:
 
         # 加载 LLM
 
-        global MODEL
         logger.info('LLM 正在加载……')
-        MODEL = AutoModel.from_pretrained(model_path, trust_remote_code=True).quantize(quantize).cuda().to(
+        self.MODEL = AutoModel.from_pretrained(model_path, trust_remote_code=True).quantize(quantize).cuda().to(
             device).eval()
         logger.info(f'LLM 以 {quantize}-bit 加载成功')
 
@@ -128,13 +143,13 @@ class ChatGLM3Service:
         ret_history = None
         past_key_values = None
 
-        for response, history, past_key_values in MODEL.stream_chat(TOKENIZER,
-                                                                    query,
-                                                                    history=history if history else [],
-                                                                    top_p=top_p,
-                                                                    temperature=temperature,
-                                                                    past_key_values=past_key_values,
-                                                                    return_past_key_values=return_past_key_values):
+        for response, history, past_key_values in self.MODEL.stream_chat(self.TOKENIZER,
+                                                                         query,
+                                                                         history=history if history else [],
+                                                                         top_p=top_p,
+                                                                         temperature=temperature,
+                                                                         past_key_values=past_key_values,
+                                                                         return_past_key_values=return_past_key_values):
             ret_response = response
             ret_history = history
 
@@ -142,13 +157,13 @@ class ChatGLM3Service:
         return ret_response, ret_history
 
     def stream_predict(self, query: str, history: list = None, top_p: float = 1., temperature: float = 1.,
-                       return_past_key_values: bool = True) -> (str, list):
+                       return_past_key_values: bool = True):
         past_key_values = None
 
-        yield MODEL.stream_chat(TOKENIZER,
-                                query,
-                                history=history if history else [],
-                                top_p=top_p,
-                                temperature=temperature,
-                                past_key_values=past_key_values,
-                                return_past_key_values=return_past_key_values)
+        yield self.MODEL.stream_chat(self.TOKENIZER,
+                                     query,
+                                     history=history if history else [],
+                                     top_p=top_p,
+                                     temperature=temperature,
+                                     past_key_values=past_key_values,
+                                     return_past_key_values=return_past_key_values)
