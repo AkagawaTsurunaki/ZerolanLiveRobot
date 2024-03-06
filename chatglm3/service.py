@@ -65,8 +65,8 @@ class ChatGLM3Service:
         port = config.get('port', self.PORT)
 
         if is_port_in_use(port):
-            logger.error(f"以下端口正在被占用：{port}")
-            return
+            logger.critical(f"以下端口正在被占用：{port}")
+            exit()
 
         host = config.get('host', self.HOST)
 

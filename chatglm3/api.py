@@ -42,7 +42,8 @@ def stream_llm_output():
                     )
             ):
                 model_resp = ModelResponse(response=response, history=history)
-                yield jsonify(asdict(model_resp)).data + b'\n'
+                # yield jsonify(asdict(model_resp)).data + b'\n'
+                yield jsonify(asdict(model_resp)).data
 
     return Response(stream_with_context(generate_output(model_req)), content_type='application/json')
 

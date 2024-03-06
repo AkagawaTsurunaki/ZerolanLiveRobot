@@ -1,4 +1,4 @@
-from dataclasses import asdict
+from dataclasses import asdict, dataclass
 import os.path
 import uuid
 
@@ -6,7 +6,12 @@ import requests
 from loguru import logger
 
 from gptsovits import SERVER_URL, TMP_DIR
-from common import GPTSoVITSRequest
+
+
+@dataclass
+class GPTSoVITSRequest:
+    text: str
+    text_language: str
 
 
 def write_wav(wav_data):
