@@ -1,16 +1,14 @@
 import asyncio
-import json
-from dataclasses import asdict
 
-import requests
 from loguru import logger
 from audio_player import service as audio_player_serv
 from bilibili import service as bili_serv
-from chatglm3.api import ModelRequest, ModelResponse
+from chatglm3.api import ModelRequest, stream_chat
 from gptsovits import service as tts_serv
 
 # 控制死循环
 FLAG = True
+LANG = 'zh'
 
 
 def is_blank(s: str):
@@ -26,19 +24,6 @@ def is_blank(s: str):
     if "".isspace():
         return True
     return False
-
-
-def stream_llm_output(model_req: ModelRequest):
-    response = requests.post('http://127.0.0.1:8721/predict', stream=True, json=asdict(model_req))
-
-    for chunk in response.iter_content(chunk_size=None, decode_unicode=True):
-        if chunk:
-            # try:
-            json_value = json.loads(chunk, strict=False)
-            # except Exception as e:
-            #     continue
-
-            yield ModelResponse(**json_value)
 
 
 async def circle():
@@ -84,7 +69,7 @@ async def circle():
     now = ''
 
     # async for resp, _, _ in llm_serv.stream_predict(danmaku.msg):
-    for model_resp in stream_llm_output(model_req):
+    for model_resp in stream_chat(model_req):
         resp = model_resp.response
         # 按照标点符号切割句子
         if not resp:
@@ -100,16 +85,16 @@ async def circle():
         # TTS 任务
         if is_blank(sentence):
             continue
-        task_tts = asyncio.create_task(tts_serv.predict(sentence, 'zh'))
+        wav_file_path = tts_serv.predict(sentence, LANG)
 
-        # 音频播放任务
-        task_audio_play = asyncio.create_task(audio_player_serv.play(wav_file_path=await task_tts, transcript=resp))
+        # 如果音频文件不为空（如果服务器出错，则为空），则播放音频
+        if not wav_file_path:
+            logger.warning(f'这条语音未能合成：[{LANG}] {sentence}')
+            continue
+        audio_player_serv.play(wav_file_path=wav_file_path, transcript=resp)
 
         # 继续LLM的运算
         await asyncio.sleep(0)  # 让出控制权，让事件循环执行其他任务
-
-        # 等待音频播放完成
-        await task_audio_play
 
 
 async def start_life_cycle():

@@ -1,5 +1,7 @@
+import json
 from dataclasses import asdict
 
+import requests
 from flask import Flask, Response, jsonify, stream_with_context, request
 
 from chatglm3.service import ChatGLM3Service
@@ -54,3 +56,16 @@ def run_api():
     global llm_serv
     llm_serv = ChatGLM3Service()
     app.run(host=llm_serv.HOST, port=llm_serv.PORT, debug=llm_serv.DEBUG)
+
+
+def stream_chat(model_req: ModelRequest):
+    response = requests.post('http://127.0.0.1:8721/predict', stream=True, json=asdict(model_req))
+
+    for chunk in response.iter_content(chunk_size=None, decode_unicode=True):
+        if chunk:
+            # try:
+            json_value = json.loads(chunk, strict=False)
+            # except Exception as e:
+            #     continue
+
+            yield ModelResponse(**json_value)

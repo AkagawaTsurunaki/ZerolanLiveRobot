@@ -1,6 +1,7 @@
 from dataclasses import asdict, dataclass
 import os.path
 import uuid
+from http import HTTPStatus
 
 import requests
 from loguru import logger
@@ -24,14 +25,18 @@ def write_wav(wav_data):
     return tmp_wav_file_path
 
 
-async def predict(text: str, text_language: str):
+def predict(text: str, text_language: str):
     # 检查语言
     assert text_language in ['zh', 'en', 'ja']
     logger.info(f'🤖 [{text_language}] {text}')
 
     # 将数据发送给GPT-SOVITS 服务器
-    data_dict = asdict(GPTSoVITSRequest(text, text_language))
-    response = requests.post(SERVER_URL, json=data_dict)
-
-    # 将音频文件写入临时目录
-    return write_wav(response.content)
+    req = GPTSoVITSRequest(text, text_language)
+    response = requests.post(SERVER_URL, json=asdict(req))
+    # 请求正常时写入音频
+    if response.status_code == HTTPStatus.OK:
+        # 将音频文件写入临时目录
+        return write_wav(response.content)
+    elif response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR:
+        return None
+    return None
