@@ -4,10 +4,6 @@ from dataclasses import asdict
 
 import requests
 from loguru import logger
-
-# 配置 Loguru，设置日志文件和最低日志级别为 INFO
-logger.add("file.log", level="INFO")
-
 from audio_player import service as audio_player_serv
 from bilibili import service as bili_serv
 from chatglm3.api import ModelRequest, ModelResponse
