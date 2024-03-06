@@ -23,7 +23,7 @@ class ModelRequest:
 @dataclass
 class ModelResponse:
     response: str
-    history: list
+    history: list[dict]
 
 
 @app.route('/predict', methods=['POST'])

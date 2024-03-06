@@ -59,19 +59,9 @@ async def recv(event):
     logger.info(f'[{danmaku.username}]({danmaku.uid}): {danmaku.msg}')
 
     add(danmaku)
-    # if main.is_audio_player_empty():
-    #     model_req = ModelRequest(
-    #         sys_prompt='你是一只猫娘。',
-    #         query=f'{danmaku.msg}',
-    #         top_p=1.,
-    #         temperature=1.,
-    #         history=[])
-    #     response = requests.post(url=f'http://{CentralControllerConfig.host}:{CentralControllerConfig.port}/query',
-    #                              json=asdict(model_req))
-    #     danmaku_list.clear()
 
 
 # 启动监听
-def start():
+async def start():
     logger.info('Bilibili 直播间监听启动')
-    sync(MONITOR.connect())
+    await MONITOR.connect()

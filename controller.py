@@ -1,14 +1,22 @@
 import json
+import threading
 from dataclasses import asdict
 
 import requests
+from loguru import logger
 
 from audio_player import service as audio_player_serv
+# from bilibili.service import BilibliLiveService
 from bilibili import service as bili_serv
 from chatglm3.api import ModelRequest, ModelResponse
 from gptsovits import service as tts_serv
 
 import asyncio
+
+FLAG = True
+
+
+# bili_serv = BilibliLiveService()
 
 
 def is_blank(s: str):
@@ -40,8 +48,11 @@ def stream_llm_output(model_req: ModelRequest):
 
             # 处理接收到的值，这里可以根据实际需求自定义操作
             model_resp = ModelResponse(**json_value)
-            print(model_resp.response)
-            # print(model_resp.response)
+            if len(model_resp.history) != 0:
+                content = model_resp.history[-1].get('content', '')
+                word = model_resp.response[len(content): len(model_resp.response) + 1]
+                print(word, end='')
+
             yield model_resp
 
 
@@ -50,11 +61,12 @@ async def circle():
     # if not audio_player_serv.is_over():
     #     return
     #
-    # # 查看是否有可以选择的弹幕
-    # danmaku = bili_serv.select_01(k=5)
-    # if not danmaku:
-    #     return
+    # 查看是否有可以选择的弹幕
+    danmaku = bili_serv.select_01(k=5)
 
+    if not danmaku:
+        return
+    logger.info(danmaku.msg)
     # 封装为一个模型请求体
     model_req = ModelRequest(
         sys_prompt='你现在是一名猫娘，正在哔哩哔哩上直播，请与观众们友好互动。',
@@ -110,9 +122,13 @@ async def start_life_cycle():
     启动生命周期
     :return:
     """
-    while True:
+    # threading.Thread()
+    bili_live_start = asyncio.create_task(bili_serv.start())
+    while FLAG:
+        logger.debug('zheli ')
         await circle()
         await asyncio.sleep(1)
+    await bili_live_start
 
 
 if __name__ == '__main__':
