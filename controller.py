@@ -55,7 +55,7 @@ async def circle():
 
     if not danmaku:
         return
-    logger.info(danmaku.msg)
+    logger.info(f'✅ 选择了 1 条弹幕：[{danmaku.username}]({danmaku.uid}) {danmaku.msg}')
     # 封装为一个模型请求体
     sys_prompt = """
     你现在是一名猫娘，正在哔哩哔哩上直播，请与观众们友好互动。

@@ -27,7 +27,7 @@ def write_wav(wav_data):
 async def predict(text: str, text_language: str):
     # 检查语言
     assert text_language in ['zh', 'en', 'ja']
-    logger.info(f'[{text_language}] {text}')
+    logger.info(f'🤖 [{text_language}] {text}')
 
     # 将数据发送给GPT-SOVITS 服务器
     data_dict = asdict(GPTSoVITSRequest(text, text_language))
