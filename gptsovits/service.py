@@ -2,6 +2,7 @@ from dataclasses import asdict, dataclass
 import os.path
 import uuid
 from http import HTTPStatus
+from urllib.parse import urljoin
 
 import requests
 from loguru import logger
@@ -13,6 +14,13 @@ from gptsovits import SERVER_URL, TMP_DIR
 class GPTSoVITSRequest:
     text: str
     text_language: str
+
+
+@dataclass
+class GPTSoVITSChangeRefer:
+    refer_wav_path: str
+    prompt_text: str
+    prompt_language: str
 
 
 def write_wav(wav_data):
@@ -40,3 +48,25 @@ def predict(text: str, text_language: str):
     elif response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR:
         return None
     return None
+
+
+def change_prompt(refer_wav_path: str, prompt_text: str, prompt_language: str):
+    """
+    修改提示。
+
+    :param refer_wav_path: 参考音频文件路径。
+    :param prompt_text: 新的提示内容。
+    :param prompt_language: 提示内容的语言，只能是 'zh'（中文）、'en'（英文）或 'ja'（日文）。
+    :return: 返回 True 表示修改成功，False 表示修改失败。
+    """
+    if not os.path.exists(refer_wav_path):
+        return False
+    if prompt_text is None or prompt_text == '':
+        return False
+    if not prompt_language in ['zh', 'en', 'ja']:
+        return False
+    data = GPTSoVITSChangeRefer(refer_wav_path, prompt_text, prompt_language)
+    change_prompt_url = urljoin(SERVER_URL, '/change_refer')
+    response = requests.post(change_prompt_url, json=asdict(data))
+
+    return response.status_code == HTTPStatus.OK and response.json()['code'] == 0
