@@ -31,12 +31,12 @@ def is_blank(s: str):
 def stream_llm_output(model_req: ModelRequest):
     response = requests.post('http://127.0.0.1:8721/predict', stream=True, json=asdict(model_req))
 
-    for chunk in response.iter_content(chunk_size=1024, decode_unicode=True):
+    for chunk in response.iter_content(chunk_size=None, decode_unicode=True):
         if chunk:
-            try:
-                json_value = json.loads(chunk, strict=False)
-            except Exception as e:
-                continue
+            # try:
+            json_value = json.loads(chunk, strict=False)
+            # except Exception as e:
+            #     continue
 
             yield ModelResponse(**json_value)
 
