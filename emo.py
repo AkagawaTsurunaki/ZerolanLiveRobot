@@ -18,7 +18,7 @@ class Emotion:
 
 
 emo_list: List[Emotion] = []
-emo_list_file_path = 'gptsovits/prompts/'
+emo_list_file_path = 'gptsovits/prompts/default.yaml'
 
 
 def load_emo_list(tts_name: str):
