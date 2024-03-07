@@ -1,5 +1,6 @@
 import json
 from dataclasses import asdict
+from http import HTTPStatus
 
 import requests
 from flask import Flask, Response, jsonify, stream_with_context, request
@@ -29,6 +30,15 @@ class ModelResponse:
 
 
 @app.route('/predict', methods=['POST'])
+def directly_llm_output():
+    model_req = ModelRequest(**request.json)
+
+    response, history = llm_serv.predict(model_req.query, model_req.history, model_req.top_p, model_req.temperature,
+                                         True)
+    return jsonify(ModelResponse(response, history))
+
+
+@app.route('/streampredict', methods=['POST'])
 def stream_llm_output():
     model_req = ModelRequest(**request.json)
 
@@ -50,7 +60,6 @@ def stream_llm_output():
     return Response(stream_with_context(generate_output(model_req)), content_type='application/json')
 
 
-# if __name__ == '__main__':
 def run_api():
     # Warning: 启动 debug 模式会导致模型被加载两次，请注意这一点。
     global llm_serv
@@ -58,27 +67,18 @@ def run_api():
     app.run(host=llm_serv.HOST, port=llm_serv.PORT, debug=llm_serv.DEBUG)
 
 
-def quick_chat(query: str):
-    model_req = ModelRequest(
-        query=query,
-        history=[],
-        temperature=1.,
-        top_p=1.,
-        sys_prompt=''
-    )
+def quick_chat(model_req: ModelRequest):
     response = requests.post('http://127.0.0.1:8721/predict', json=asdict(model_req))
-    model_resp = ModelResponse(**(response.json()))
-    return model_resp.response
+    if response.status_code == HTTPStatus.OK:
+        json_value = json.loads(response.content)
+        model_resp = ModelResponse(**json_value)
+        return model_resp.response
 
 
 def stream_chat(model_req: ModelRequest):
-    response = requests.post('http://127.0.0.1:8721/predict', stream=True, json=asdict(model_req))
+    response = requests.post('http://127.0.0.1:8721/streampredict', stream=True, json=asdict(model_req))
 
     for chunk in response.iter_content(chunk_size=None, decode_unicode=True):
         if chunk:
-            # try:
             json_value = json.loads(chunk, strict=False)
-            # except Exception as e:
-            #     continue
-
             yield ModelResponse(**json_value)
