@@ -20,7 +20,7 @@ def load_config():
         logger.error('全局配置文件缺失，请在项目根目录下新建 global_config.yaml 进行配置')
         return
 
-    with open('global_config.yaml', mode='r', encoding='utf-8') as file:
+    with open('./gptsovits/config.yaml', mode='r', encoding='utf-8') as file:
         config: dict = yaml.safe_load(file)
         config = config.get('GPTSoVITSServiceConfig', None)
 
@@ -41,6 +41,8 @@ def load_config():
     port = config.get('port', 9880)
     global SERVER_URL
     SERVER_URL = f"http://{host}:{port}"
+
+    logger.info('GPT-SoVITS 服务配置文件加载完成')
 
 
 def init_service(config):
