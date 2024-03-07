@@ -145,13 +145,13 @@ class ChatGLM3Service:
         ret_history = None
         past_key_values = None
 
-        for response, history, past_key_values in chatglm3.api.stream_chat(self.TOKENIZER,
-                                                                           query,
-                                                                           history=history if history else [],
-                                                                           top_p=top_p,
-                                                                           temperature=temperature,
-                                                                           past_key_values=past_key_values,
-                                                                           return_past_key_values=return_past_key_values):
+        for response, history, past_key_values in self.MODEL.stream_chat(self.TOKENIZER,
+                                                                         query,
+                                                                         history=history if history else [],
+                                                                         top_p=top_p,
+                                                                         temperature=temperature,
+                                                                         past_key_values=past_key_values,
+                                                                         return_past_key_values=return_past_key_values):
             ret_response = response
             ret_history = history
 
@@ -162,10 +162,10 @@ class ChatGLM3Service:
                        return_past_key_values: bool = True):
         past_key_values = None
 
-        yield chatglm3.api.stream_chat(self.TOKENIZER,
-                                       query,
-                                       history=history if history else [],
-                                       top_p=top_p,
-                                       temperature=temperature,
-                                       past_key_values=past_key_values,
-                                       return_past_key_values=return_past_key_values)
+        yield self.MODEL.stream_chat(self.TOKENIZER,
+                                     query,
+                                     history=history if history else [],
+                                     top_p=top_p,
+                                     temperature=temperature,
+                                     past_key_values=past_key_values,
+                                     return_past_key_values=return_past_key_values)
