@@ -1,3 +1,4 @@
+# ChatGLM3 服务配置
 ChatGLM3ServiceConfig:
   # 是否以调试模式运行
   debug: False
