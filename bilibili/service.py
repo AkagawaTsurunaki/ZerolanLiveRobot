@@ -7,9 +7,6 @@ from loguru import logger
 
 from bilibili import MONITOR
 
-# 配置 Loguru，设置日志文件和最低日志级别为 INFO
-logger.add("file.log", level="INFO")
-
 
 @dataclass
 class Danmaku:

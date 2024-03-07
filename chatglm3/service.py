@@ -47,9 +47,9 @@ class ChatGLM3Service:
 
         logger.info('正在读取 ChatGLM3ServiceConfig……')
 
-        if not os.path.exists('global_config.yaml'):
-            logger.error('全局配置文件缺失，请在项目根目录下新建 global_config.yaml 进行配置')
-            return
+        if not os.path.exists('bilibili/config.yaml'):
+            logger.critical('配置文件缺失：bilibili/config.yaml')
+            exit()
 
         with open('chatglm3/config.yaml', mode='r', encoding='utf-8') as file:
             config: dict = yaml.safe_load(file)
