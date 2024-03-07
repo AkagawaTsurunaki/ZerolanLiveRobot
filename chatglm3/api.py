@@ -58,6 +58,19 @@ def run_api():
     app.run(host=llm_serv.HOST, port=llm_serv.PORT, debug=llm_serv.DEBUG)
 
 
+def quick_chat(query: str):
+    model_req = ModelRequest(
+        query=query,
+        history=[],
+        temperature=1.,
+        top_p=1.,
+        sys_prompt=''
+    )
+    response = requests.post('http://127.0.0.1:8721/predict', json=asdict(model_req))
+    model_resp = ModelResponse(**(response.json()))
+    return model_resp.response
+
+
 def stream_chat(model_req: ModelRequest):
     response = requests.post('http://127.0.0.1:8721/predict', stream=True, json=asdict(model_req))
 
