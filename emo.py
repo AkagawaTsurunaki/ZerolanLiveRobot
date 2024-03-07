@@ -18,19 +18,18 @@ class Emotion:
 
 
 emo_list: List[Emotion] = []
-emo_list_file_path = 'gptsovits/prompts/default.yaml'
 
 
-def load_emo_list(tts_name: str):
+def load_emo_list(tts_name: str, emo_list_file_path='gptsovits/prompts/default.yaml'):
     if tts_name == gptsovits.__name__:
         assert os.path.exists(emo_list_file_path), f'音频提示路径不存在：{emo_list_file_path}'
         with open(file=emo_list_file_path, mode='r', encoding='utf-8') as file:
             prompt: dict = yaml.safe_load(file)
             # 每个心情元素
-            for emotion, prompt_info in prompt.keys():
-                refer_wav_path = prompt_info['refer_wav_path']
-                prompt_text = prompt_info['prompt_text']
-                prompt_language = prompt_info['prompt_language']
+            for emotion in prompt.keys():
+                refer_wav_path = prompt[emotion]['refer_wav_path']
+                prompt_text = prompt[emotion]['prompt_text']
+                prompt_language = prompt[emotion]['prompt_language']
 
                 assert os.path.exists(refer_wav_path), f'提示音频路径 refer_wav_path 不存在：{refer_wav_path}'
                 assert prompt_text is None or prompt_text == '', f'提示文本 prompt_text 不能为空'
@@ -66,7 +65,6 @@ def ana_emo(llm_name: str, text: str, prompt: str):
         prompt = prompt.replace('{text}', text)
         # 使用 ChatGLM3 模型
         emotion_id = api.quick_chat(prompt)
-
         for emotion in emo_list:
             if emotion_id == emotion.id:
                 return emotion_id
