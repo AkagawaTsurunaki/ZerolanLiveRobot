@@ -68,7 +68,6 @@ async def circle():
 
     now = ''
 
-    # async for resp, _, _ in llm_serv.stream_predict(danmaku.msg):
     for model_resp in stream_chat(model_req):
         resp = model_resp.response
         # 按照标点符号切割句子
