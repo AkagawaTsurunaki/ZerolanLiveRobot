@@ -1,6 +1,10 @@
 import asyncio
 
 from loguru import logger
+
+import chatglm3
+import emo
+import gptsovits
 from audio_player import service as audio_player_serv
 from bilibili import service as bili_serv
 from chatglm3.api import ModelRequest, stream_chat
@@ -37,13 +41,16 @@ async def circle():
     if not danmaku:
         return
     logger.info(f'✅ 选择了 1 条弹幕：[{danmaku.username}]({danmaku.uid}) {danmaku.msg}')
+
     # 封装为一个模型请求体
+
     sys_prompt = """
-    你现在是一名猫娘，正在哔哩哔哩上直播，请与观众们友好互动。
+    你现在是一名叫幼刀丛雨的猫娘，正在哔哩哔哩上直播，请与观众们友好互动。
     以下是弹幕的格式
     '''
     [用户名] 弹幕所说的话
     '''
+    请注意你的回复不能超过超过50字，对话的情感要丰富，有时生气，有时开心，有时傲娇，有时搞怪。
     """
     query = f'[{danmaku.username}] {danmaku.msg}'
 
@@ -84,6 +91,11 @@ async def circle():
         # TTS 任务
         if is_blank(sentence):
             continue
+
+        # 分析句子的情感倾向
+        emotion = emo.ana_emo(chatglm3.__name__, sentence)
+        logger.info(f'心情：{emotion.id}')
+        tts_serv.change_prompt(emotion.refer_wav_path, emotion.prompt_text, emotion.prompt_language)
         wav_file_path = tts_serv.predict(sentence, LANG)
 
         # 如果音频文件不为空（如果服务器出错，则为空），则播放音频
@@ -102,6 +114,7 @@ async def start_life_cycle():
     :return:
     """
     # threading.Thread()
+    emo.load_emo_list(gptsovits.__name__)
     bili_live_start = asyncio.create_task(bili_serv.start())
     while FLAG:
         await circle()

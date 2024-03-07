@@ -89,8 +89,8 @@ def ana_emo(llm_name: str, text: str):
         # 校验心情 ID 是否合法
         for emotion in emo_list:
             if emotion_id == emotion.id:
-                return emotion_id
+                return emotion
 
-        return emo_list[0].id
+        return emo_list[0]
     else:
         raise NotImplementedError('您输入的模型名称不被支持')
