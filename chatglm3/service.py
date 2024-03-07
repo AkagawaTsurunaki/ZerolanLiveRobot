@@ -51,7 +51,7 @@ class ChatGLM3Service:
             logger.error('全局配置文件缺失，请在项目根目录下新建 global_config.yaml 进行配置')
             return
 
-        with open('global_config.yaml', mode='r', encoding='utf-8') as file:
+        with open('chatglm3/config.yaml', mode='r', encoding='utf-8') as file:
             config: dict = yaml.safe_load(file)
             config = config.get('ChatGLM3ServiceConfig', None)
 
