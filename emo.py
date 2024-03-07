@@ -47,7 +47,7 @@ def load_emo_list(tts_name: str, emo_list_file_path='gptsovits/prompts/default.y
         raise NotImplementedError('您输入的模型名称不被支持')
 
 
-def ana_emo(llm_name: str, text: str, prompt: str):
+def ana_emo(llm_name: str, text: str):
     """
     根据 text 分析其情感（目前仅支持ChatGLM3）
     如果不能分析出具体的情感，那么默认返回第一个情感
@@ -58,6 +58,10 @@ def ana_emo(llm_name: str, text: str, prompt: str):
     :return:
     """
     assert emo_list and len(emo_list) > 0, 'emo_list 必须含有至少一种心情'
+
+    with open(file='template/emo_ana.txt', mode='r', encoding='utf-8') as file:
+        prompt = file.read()
+
     if llm_name == chatglm3.__name__:
         from chatglm3 import api
         for idx, emotion in enumerate(emo_list):
