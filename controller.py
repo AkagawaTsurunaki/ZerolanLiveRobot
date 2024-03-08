@@ -126,7 +126,7 @@ async def start_life_cycle():
     启动生命周期
     :return:
     """
-    # threading.Thread()
+    # 初始化心理模块
     emo.load_emo_list(gptsovits.__name__)
     bili_live_start = asyncio.create_task(bili_serv.start())
     while FLAG:
