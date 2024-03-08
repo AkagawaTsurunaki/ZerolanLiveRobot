@@ -7,3 +7,5 @@ GPTSoVITSServiceConfig:
   port: 9880
   # 音频临时文件夹
   tmp_dir: gptsovits\.tmp
+  # 是否清理临时文件夹
+  clean: False

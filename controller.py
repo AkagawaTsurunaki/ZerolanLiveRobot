@@ -1,5 +1,6 @@
 import asyncio
 import json
+import os.path
 
 from loguru import logger
 
@@ -16,11 +17,33 @@ from gptsovits import service as tts_serv
 FLAG = True
 LANG = 'zh'
 
+# 一些默认路径
+# OBS 字幕文件
+DEFAULT_EMOTION_OUTPUT_PATH = '.tmp/emotion_output/emotion.txt'  # 默认心情标签输出文件夹
+DEFAULT_LLM_OUTPUT_PATH = '.tmp/llm_output/chatglm3.txt'  # 默认大语言模型的输出路径
+DEFAULT_DANMAKU_OUTPUT_PATH = '.tmp/danmaku/bilibili.txt'  # 默认弹幕的输出路径
+# 模板文件
+DEFAULT_CUSTOM_PROMPT_FILE_PATH = 'template/custom_prompt.json'  # 用户自定义的提示词模板
+
 
 def load_sys_prompt():
-    with open(file='template/game_prompt.json', mode='r', encoding='utf-8') as file:
+    """
+    加载用户自定义的提示词模板。
+    如果在默认路径 {DEFAULT_CUSTOM_PROMPT_FILE_PATH} 下找不到对应的文件，那么就会创建一个。
+    :return: ModelRequest
+    """
+
+    # 如果用户没有设置自己的自定义提示词，那么自动使用默认提示词
+    if not os.path.exists(DEFAULT_CUSTOM_PROMPT_FILE_PATH):
+        with open(file=DEFAULT_CUSTOM_PROMPT_FILE_PATH, mode='w+', encoding='utf-8') as file:
+            model_req = ModelRequest(sys_prompt='', query='', temperature=1., top_p=1., history=[])
+            json.dump(obj=model_req, fp=file, ensure_ascii=False, indent=4)
+            logger.warning(f'已生成用户自定义的提示词模板，您可以到以下路径进行具体内容修改：{DEFAULT_CUSTOM_PROMPT_FILE_PATH}')
+
+    with open(file=DEFAULT_CUSTOM_PROMPT_FILE_PATH, mode='r', encoding='utf-8') as file:
         json_value = json.load(file)
         model_req = ModelRequest(**json_value)
+    logger.info(f'LLM 提示词模板加载完毕')
     return model_req
 
 
@@ -28,10 +51,18 @@ default_model_req = load_sys_prompt()
 
 
 def write_output(danmaku, text: str, emotion: Emotion):
-    with open(file='.tmp/emotion_output/emotion.txt', mode='w', encoding='utf-8') as file:
+    """
+    将获取到的弹幕，LLM 输出的文本，和文本所蕴含的情感写入 OBS 字幕文件中。
+    :param danmaku: 弹幕对象
+    :param text: LLM 输出的文本字符串
+    :param emotion: 情感对象
+    """
+    with open(file=DEFAULT_EMOTION_OUTPUT_PATH, mode='w+', encoding='utf-8') as file:
         file.write(emotion.id)
-    with open(file='.tmp/llm_output/chatglm3.txt', mode='w', encoding='utf-8') as file:
-        file.write(f'> {danmaku.username}: {danmaku.msg} \n[{emotion.id}] {text}')
+    with open(file=DEFAULT_LLM_OUTPUT_PATH, mode='w+', encoding='utf-8') as file:
+        file.write(f'{text}')
+    with open(file=DEFAULT_EMOTION_OUTPUT_PATH, mode='w+', encoding='utf-8') as file:
+        file.write(f'{danmaku.username}: {danmaku.msg}')
 
 
 def is_blank(s: str):
@@ -50,7 +81,13 @@ def is_blank(s: str):
 
 
 async def circle():
-
+    """
+    启动 ZerolanLiveRobot 生命周期
+    每一个生命周期中，会先检查是否有可读的弹幕 Danmaku，并将弹幕内容拼接进 LLM 的 ModelRequest 请求中，
+    待 LLM 服务按照流式返回一句整句 Sentence 后，再利用 LLM 服务分析其心情 Emotion，
+    按照 Emotion 更改提示词，
+    :return:
+    """
     # 查看是否有可以选择的弹幕
     danmaku = bili_serv.select_01(k=3)
 
