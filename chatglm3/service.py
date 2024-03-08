@@ -47,8 +47,8 @@ class ChatGLM3Service:
 
         logger.info('正在读取 ChatGLM3ServiceConfig……')
 
-        if not os.path.exists('bilibili/config.yaml'):
-            logger.critical('配置文件缺失：bilibili/config.yaml')
+        if not os.path.exists('chatglm3/config.yaml'):
+            logger.critical('配置文件缺失：chatglm3/config.yaml')
             exit()
 
         with open('chatglm3/config.yaml', mode='r', encoding='utf-8') as file:
