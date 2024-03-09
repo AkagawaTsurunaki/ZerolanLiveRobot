@@ -29,9 +29,19 @@ model = BlipForConditionalGeneration.from_pretrained(MODEL_PATH, torch_dtype=tor
 logger.info('模型 blip-image-captioning-large 加载完毕')
 
 
-def infer(img_path: str, text: str = "a photography of"):
+def infer_by_path(img_path: str, text: str = "a photography of"):
     raw_image = Image.open(img_path).convert('RGB')
 
+    # conditional image captioning
+    inputs = processor(raw_image, text, return_tensors="pt").to("cuda", torch.float16)
+
+    out = model.generate(**inputs)
+    output_text = processor.decode(out[0], skip_special_tokens=True)
+    return output_text
+
+
+def infer(img, text: str = "a photography of"):
+    raw_image = img.convert('RGB')
     # conditional image captioning
     inputs = processor(raw_image, text, return_tensors="pt").to("cuda", torch.float16)
 
