@@ -1,3 +1,4 @@
 ScreenshotConfig:
+  win_title: ''
   k: 0.9
   save_path: /
