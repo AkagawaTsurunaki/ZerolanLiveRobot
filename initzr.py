@@ -90,10 +90,9 @@ def load_gpt_sovits_config(global_config: dict) -> (bool, str, int, str | PathLi
     if not os.path.exists(save_dir):
         os.mkdir(save_dir)
         logger.warning('⚠️ GPT-SoVITS 服务配置中的字段 save_dir 所指向的目录不存在，已自动创建')
-    clean = gpt_sovits_config.get('clean', False)
 
     logger.info('⚙️ GPT-SoVITS 服务配置加载完毕')
-    return debug, host, port, save_dir, clean
+    return debug, host, port, save_dir
 
 
 def load_tone_analysis_service_config(global_config: dict) -> (str | PathLike, str | PathLike):
