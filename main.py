@@ -16,6 +16,7 @@ from obs import service as obs_serv
 from loguru import logger
 
 FLAG = True
+DEFAULT_GLOBAL_CONFIG_PATH = R'config/global_config.yaml'
 logger.remove()
 logger.add(sys.stderr, level="INFO")
 
@@ -30,10 +31,9 @@ async def service_start():
         await asyncio.sleep(1)
     bi_t.join()
 
-if __name__ == '__main__':
-    DEFAULT_GLOBAL_CONFIG_PATH = R'config/global_config.yaml'
 
-    # 处加载配置文件
+if __name__ == '__main__':
+    # 加载配置文件
 
     config = load_global_config(DEFAULT_GLOBAL_CONFIG_PATH)
 
