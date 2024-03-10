@@ -22,8 +22,8 @@ async def service_start():
     # B站监听弹幕启动
     bili_serv_task = asyncio.create_task(bili_serv.start())
 
+    logger.info('💜 ZerolanLiveRobot，启动！')
     while FLAG:
-        logger.info('💜 ZerolanLiveRobot，启动！')
         await life_circle()
         await asyncio.sleep(1)
 

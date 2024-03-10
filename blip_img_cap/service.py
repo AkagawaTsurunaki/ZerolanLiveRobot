@@ -38,7 +38,7 @@ def infer_by_path(img_path: str, text: str = sys_prompt):
     return output_text
 
 
-def infer(img, text: str = "a photography of"):
+def infer(img, text: str = sys_prompt):
     assert is_initialized, f'❌️ blip-image-captioning-large 服务未初始化'
     raw_image = img.convert('RGB')
     # conditional image captioning

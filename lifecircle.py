@@ -106,6 +106,9 @@ async def life_circle():
     # 将上述获取的信息转化为对话的请求
     query = convert_2_query(danmaku, screen_desc)
 
+    if query == '':
+        return
+
     # 其中 resp
     # 第1轮循环 resp = '我'
     # 第2轮循环 resp = '我是'
