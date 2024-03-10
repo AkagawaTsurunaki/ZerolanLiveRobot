@@ -3,7 +3,7 @@
   "query": "{text}",
   "history": [
     {
-      "content": "任务描述：\n你现在将要完成一个分析语句情感的任务，你只能从我给出的这些情感标签中选择合适的词描述语句所蕴含的情感。\n情感标签：{emo_list} \n请注意，只输出情感标签，如果存在不文明和污秽语言，请直接输出“生气”。若不能判断请输出“DEFAULT”，严禁输出其他内容。",
+      "content": "任务描述：\n你现在将要完成一个分析语句情感的任务，你只能从我给出的这些情感标签中选择合适的词描述语句所蕴含的情感。\n情感标签：{tone_list} \n请注意，只输出情感标签，如果存在不文明和污秽语言，请直接输出“生气”。若不能判断请输出“DEFAULT”，严禁输出其他内容。",
       "metadata": "",
       "role": "user"
     },
@@ -18,7 +18,7 @@
       "role": "user"
     },
     {
-      "content": "{emo_id}",
+      "content": "{tone_id}",
       "metadata": "",
       "role": "assistant"
     },
@@ -28,7 +28,7 @@
       "role": "user"
     },
     {
-      "content": "{emo_id}",
+      "content": "{tone_id}",
       "metadata": "",
       "role": "assistant"
     },
@@ -38,7 +38,7 @@
       "role": "user"
     },
     {
-      "content": "{emo_id}",
+      "content": "{tone_id}",
       "metadata": "",
       "role": "assistant"
     },
@@ -48,7 +48,7 @@
       "role": "user"
     },
     {
-      "content": "{emo_id}",
+      "content": "{tone_id}",
       "metadata": "",
       "role": "assistant"
     },
@@ -58,7 +58,7 @@
       "role": "user"
     },
     {
-      "content": "{emo_id}",
+      "content": "{tone_id}",
       "metadata": "",
       "role": "assistant"
     },
@@ -68,7 +68,7 @@
       "role": "user"
     },
     {
-      "content": "{emo_id}",
+      "content": "{tone_id}",
       "metadata": "",
       "role": "assistant"
     }

@@ -91,5 +91,17 @@ def load_gpt_sovits_config(global_config: dict) -> (bool, str, int, str | PathLi
         os.mkdir(save_dir)
         logger.warning('⚠️ GPT-SoVITS 服务配置中的字段 save_dir 所指向的目录不存在，已自动创建')
     clean = gpt_sovits_config.get('clean', False)
+
     logger.info('⚙️ GPT-SoVITS 服务配置加载完毕')
     return debug, host, port, save_dir, clean
+
+
+def load_tone_analysis_service_config(global_config: dict) -> (str | PathLike, str | PathLike):
+    tone_analysis_service_config = global_config.get('tone_analysis_service_config', None)
+    assert tone_analysis_service_config, f'❌️ 语气分析服务配置未填写或格式有误'
+    tone_template_path = tone_analysis_service_config.get('tone_template_path', 'template/tone_list.yaml')
+    assert os.path.exists(tone_template_path), f'❌️ 语气分析服务配置中的字段 tone_template_path 所指向的路径不存在'
+    prompt_for_llm_path = tone_analysis_service_config.get('prompt_for_llm_path', 'template/tone_prompt_4_llm.json')
+    assert os.path.exists(prompt_for_llm_path), f'❌️ 语气分析服务配置中的字段 prompt_for_llm_path 所指向的路径不存在'
+
+    return tone_template_path, prompt_for_llm_path
