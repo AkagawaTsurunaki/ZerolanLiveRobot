@@ -1,0 +1,18 @@
+{
+  "sys_prompt": "",
+  "query": "",
+  "history": [
+    {
+      "content": "",
+      "metadata": "",
+      "role": "user"
+    },
+    {
+      "content": "",
+      "metadata": "",
+      "role": "assistant"
+    }
+  ],
+  "temperature": 1,
+  "top_p": 1
+}
