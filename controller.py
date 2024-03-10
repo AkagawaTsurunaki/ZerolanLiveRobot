@@ -6,14 +6,14 @@ from loguru import logger
 
 import chatglm3
 import emo
-from emo import Emotion
 import gptsovits
 from audio_player import service as audio_player_serv
 from bilibili import service as bili_serv
+from blip_img_cap.infer import infer
 from chatglm3.api import ModelRequest, stream_chat
+from emo import Emotion
 from gptsovits import service as tts_serv
 from scrnshot import win
-from blip_img_cap.infer import infer
 
 # 控制死循环
 FLAG = True
@@ -67,7 +67,6 @@ def write_output(danmaku, text: str, emotion: Emotion):
     with open(file=DEFAULT_EMOTION_OUTPUT_PATH, mode='w+', encoding='utf-8') as file:
         if danmaku:
             file.write(f'{danmaku.username}: {danmaku.msg}')
-
 
 
 def is_blank(s: str):
