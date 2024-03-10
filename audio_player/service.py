@@ -1,4 +1,5 @@
 import os
+import sys
 from os import PathLike
 
 from loguru import logger
@@ -6,6 +7,7 @@ from playsound import playsound
 
 from audio_player import AudioPair
 
+logger.add(sys.stderr, level="INFO")  # 只输出 info 及以上级别的日志信息
 # 用于记录
 audio_list = []
 
