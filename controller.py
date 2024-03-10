@@ -100,8 +100,7 @@ async def circle():
         logger.info(f'✅ [{danmaku.username}]({danmaku.uid}) {danmaku.msg}')
 
     img = win.screen_cap()
-
-    gamescn = infer(img) if img else None
+    gamescn = infer(img, '') if img else None
 
     # 封装为一个模型请求体
 
