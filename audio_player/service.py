@@ -1,18 +1,25 @@
 import os
-import sys
+from dataclasses import dataclass
 from os import PathLike
 
 from loguru import logger
 from playsound import playsound
 
-from audio_player import AudioPair
+
+@dataclass
+class AudioPair:
+    transcript: str
+    wav_file_path: str | PathLike
+
 
 # 用于记录
 audio_list = []
 
+
 def save():
     # TODO: 以json格式保存转录本
     ...
+
 
 def is_over() -> bool:
     # TODO: 查询音频是否已经播完
