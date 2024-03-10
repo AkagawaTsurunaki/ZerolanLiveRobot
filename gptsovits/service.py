@@ -1,6 +1,7 @@
-from dataclasses import asdict, dataclass
 import os.path
+import sys
 import uuid
+from dataclasses import asdict, dataclass
 from http import HTTPStatus
 from urllib.parse import urljoin
 
@@ -8,6 +9,8 @@ import requests
 from loguru import logger
 
 from gptsovits import SERVER_URL, TMP_DIR
+
+logger.add(sys.stderr, level="INFO")  # 只输出 info 及以上级别的日志信息
 
 
 @dataclass
