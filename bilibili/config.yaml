@@ -1,8 +1,0 @@
-# Bilibili 直播配置
-BilibiliLiveConfig:
-  # 获取方式[详见](https://nemo2011.github.io/bilibili-api/#/get-credential)
-  SESSDATA: SESSDATA
-  bili_jct: bili_jct
-  buvid3: buvid3
-  # 直播间 ID
-  room_id: 0
