@@ -16,8 +16,9 @@ def load_global_config(default_global_config_path: str | PathLike) -> dict:
     :param default_global_config_path:
     :return:
     """
-    assert os.path.exists(default_global_config_path), f'❌️ 全局配置文件不存在：路径 {default_global_config_path} 不存在。'
-    global_config =  read_yaml(path=default_global_config_path)
+    assert os.path.exists(
+        default_global_config_path), f'❌️ 全局配置文件不存在：路径 {default_global_config_path} 不存在。'
+    global_config = read_yaml(path=default_global_config_path)
     logger.info('⚙️ 全局配置加载完毕')
     return global_config
 
@@ -29,7 +30,7 @@ def load_bilibili_live_config(global_config: dict) -> (str, str, str, int):
     :raises AssertionError: 如果配置项缺失或格式有误
     """
     bilibili_live_config = global_config.get('bilibili_live_config', None)
-    assert bilibili_live_config, f'❌️ Bilibili 直播配置未填写或格式有误，请您仔细检查配置文件后重试'
+    assert bilibili_live_config, f'❌️ Bilibili 直播配置未填写或格式有误'
     sessdata = bilibili_live_config.get('sessdata', 'SESSDATA')
     assert sessdata != 'SESSDATA', f'❌️ bilibili_live_config 中的字段 sessdata 未填写或格式有误'
     bili_jct = bilibili_live_config.get('bili_jct', 'bili_jct')
@@ -40,3 +41,18 @@ def load_bilibili_live_config(global_config: dict) -> (str, str, str, int):
     assert room_id >= 0, f'❌️ bilibili_live_config 中的字段 room_id 应当是一个非负 int 型整数'
     logger.info('⚙️ Bilibili 直播配置加载完毕')
     return sessdata, bili_jct, buvid3, room_id
+
+
+def load_blip_image_captioning_large_config(global_config: dict) -> (str | PathLike, str):
+    """
+    加载模型 blip-image-captioning-large 的配置
+    :param global_config:
+    :return:
+    """
+    blip_image_captioning_large_config = global_config.get('blip_image_captioning_large_config', None)
+    assert blip_image_captioning_large_config, f'❌️ 模型 blip-image-captioning-large 配置未填写或格式有误'
+    model_path = blip_image_captioning_large_config.get('model_path')
+    if not os.path.exists(model_path):
+        model_path = 'Salesforce/blip-image-captioning-large'
+    text_prompt = blip_image_captioning_large_config.get('text_prompt', 'There')
+    return model_path, text_prompt

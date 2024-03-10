@@ -7,6 +7,8 @@ from bilibili_api import Danmaku
 from bilibili_api.live import LiveDanmaku, LiveRoom
 from loguru import logger
 
+is_initialized = False
+
 
 @dataclass
 class Danmaku:
@@ -33,12 +35,15 @@ def init(sessdata: str, bili_jct: str, buvid3: str, room_id: int):
         bili_jct=bili_jct,
         buvid3=buvid3
     )
-
-    global monitor, sender
+    logger.info('🍻 Bilibili 直播服务正在初始化……')
+    global monitor, sender, is_initialized
     # 监听直播间弹幕
     monitor = LiveDanmaku(room_id, credential=credential)
     # 用来发送弹幕
     sender = LiveRoom(room_id, credential=credential)
+    assert monitor and sender, '❌️ Bilibili 直播服务初始化失败'
+
+    is_initialized = True
     logger.info('🍻 Bilibili 直播服务初始化完毕')
 
     @monitor.on("DANMU_MSG")
@@ -57,11 +62,12 @@ def init(sessdata: str, bili_jct: str, buvid3: str, room_id: int):
 
         add(danmaku)
 
+    return is_initialized
+
 
 # 启动监听
 async def start():
-    logger.info('Bilibili 直播间监听启动')
-    assert monitor, f'Bilibili 直播监视器为 None，服务可能未被正确初始化'
+    logger.info('🍻 Bilibili 直播间监听启动')
     await monitor.connect()
 
 
