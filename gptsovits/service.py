@@ -51,7 +51,6 @@ def load_config():
 
 
 debug, server_url, tmp_dir, clean = load_config()
-logger.add(sys.stderr, level="DEBUG" if debug else 'INFO')  # 只输出 info 及以上级别的日志信息
 
 
 @dataclass
