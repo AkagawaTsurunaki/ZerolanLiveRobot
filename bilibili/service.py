@@ -2,7 +2,7 @@ import random
 from dataclasses import dataclass
 from typing import List
 
-from bilibili_api import Credential
+from bilibili_api import Credential, sync
 from bilibili_api import Danmaku
 from bilibili_api.live import LiveDanmaku, LiveRoom
 from loguru import logger
@@ -66,9 +66,9 @@ def init(sessdata: str, bili_jct: str, buvid3: str, room_id: int):
 
 
 # 启动监听
-async def start():
+def start():
     logger.info('🍻 Bilibili 直播间监听启动')
-    await monitor.connect()
+    sync(monitor.connect())
 
 
 def select_01(k: int) -> Danmaku:

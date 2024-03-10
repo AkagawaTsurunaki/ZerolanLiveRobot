@@ -130,3 +130,15 @@ def load_zerolan_live_robot_config(global_config: dict) -> (str,):
 
     logger.info('⚙️ Zerolan Live Robot 服务服务配置加载完毕')
     return custom_prompt_path,
+
+
+def load_obs_config(global_config: dict):
+    config = global_config.get('obs_config')
+    danmaku_output_path = config.get('danmaku_output_path', '.tmp/danmaku_output/output.txt')
+    assert os.path.exists(danmaku_output_path), f'❌️ OBS 服务配置中的字段 danmaku_output_path 所指向的路径不存在'
+    tone_output_path = config.get('tone_output_path', '.tmp/tone_output/output.txt')
+    assert os.path.exists(tone_output_path), f'❌️ OBS 服务配置中的字段 tone_output_path 所指向的路径不存在'
+    llm_output_path = config.get('llm_output_path', '.tmp/llm_output/output.txt')
+    assert os.path.exists(llm_output_path), f'❌️ OBS 服务配置中的字段 llm_output_path 所指向的路径不存在'
+    return danmaku_output_path, tone_output_path, llm_output_path
+
