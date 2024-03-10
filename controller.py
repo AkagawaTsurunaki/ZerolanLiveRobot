@@ -97,7 +97,7 @@ async def circle():
     danmaku = bili_serv.select_01(k=3)
 
     if danmaku:
-        logger.info(f'✅ 选择了 1 条弹幕：[{danmaku.username}]({danmaku.uid}) {danmaku.msg}')
+        logger.info(f'✅ [{danmaku.username}]({danmaku.uid}) {danmaku.msg}')
 
     img = win.screen_cap()
 
@@ -115,7 +115,7 @@ async def circle():
     else:
         return
 
-    logger.debug(f' {gamescn}')
+    logger.info(f'🎮️ {gamescn}')
     # 其中 resp
     # 第1轮循环 resp = '我'
     # 第2轮循环 resp = '我是'
