@@ -7,8 +7,8 @@ from typing import List
 import yaml
 from loguru import logger
 
-from chatglm3 import api
-from chatglm3.api import ModelRequest
+from chatglm3 import service as chatglm3_serv
+from chatglm3.service import ModelRequest
 
 
 @dataclass
@@ -85,7 +85,7 @@ def analyze_tone(text: str):
     MODEL_REQ.query = MODEL_REQ.query.replace('{text}', text)
 
     # 向 ChatGLM3 查询心情 ID
-    emotion_id = api.quick_chat(MODEL_REQ)
+    emotion_id = chatglm3_serv.predict(MODEL_REQ.query)
 
     # 校验心情 ID 是否合法
     for tone in tone_list:

@@ -7,8 +7,8 @@ from transformers import BlipProcessor, BlipForConditionalGeneration, ProcessorM
 
 is_initialized = False
 
-processor = None
-model = None
+processor: BlipProcessor
+model: BlipForConditionalGeneration
 sys_prompt = ''
 
 

@@ -3,7 +3,7 @@ import os
 
 from loguru import logger
 
-from chatglm3.api import ModelRequest
+from chatglm3.service import ModelRequest
 from controller import DEFAULT_CUSTOM_PROMPT_FILE_PATH
 
 

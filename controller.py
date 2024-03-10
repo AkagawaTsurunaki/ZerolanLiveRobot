@@ -2,10 +2,11 @@ import asyncio
 
 from loguru import logger
 
+from chatglm3 import service as chatglm3_serv
 from audio_player import service as audio_player_serv
 from bilibili import service as bili_serv
 from blip_img_cap.service import infer
-from chatglm3.api import stream_chat
+from chatglm3.service import ModelRequest
 from gptsovits import service as tts_serv
 from obs.service import write_output
 from scrnshot import service as scrn_serv
@@ -25,7 +26,7 @@ DEFAULT_DANMAKU_OUTPUT_PATH = '.tmp/danmaku/bilibili.txt'  # 默认弹幕的输�
 # 模板文件
 DEFAULT_CUSTOM_PROMPT_FILE_PATH = 'template/custom_prompt2.json'  # 用户自定义的提示词模板
 
-default_model_req = load_llm_sys_prompt()
+default_model_req: ModelRequest = load_llm_sys_prompt()
 
 
 async def circle():
@@ -69,7 +70,9 @@ async def circle():
 
     now = ''
 
-    for model_resp in stream_chat(default_model_req):
+    for model_resp in chatglm3_serv.stream_predict(query=default_model_req.sys_prompt + default_model_req.query,
+                                                   history=default_model_req.history, top_p=default_model_req.top_p,
+                                                   temperature=default_model_req.temperature):
         resp = model_resp.response
         # 按照标点符号切割句子
         if not resp:
