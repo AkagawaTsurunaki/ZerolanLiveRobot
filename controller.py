@@ -1,4 +1,6 @@
 import asyncio
+import json
+import os
 
 from loguru import logger
 
@@ -11,7 +13,6 @@ from gptsovits import service as tts_serv
 from obs.service import write_output
 from scrnshot import service as scrn_serv
 from tone_ana import service as tone_serv
-from utils.loader import load_llm_sys_prompt
 from utils.util import is_blank
 
 # 控制死循环
@@ -25,6 +26,29 @@ DEFAULT_LLM_OUTPUT_PATH = '.tmp/llm_output/chatglm3.txt'  # 默认大语言模�
 DEFAULT_DANMAKU_OUTPUT_PATH = '.tmp/danmaku/bilibili.txt'  # 默认弹幕的输出路径
 # 模板文件
 DEFAULT_CUSTOM_PROMPT_FILE_PATH = 'template/custom_prompt2.json'  # 用户自定义的提示词模板
+
+
+def load_llm_sys_prompt():
+    """
+    加载用户自定义的提示词模板。
+    如果在默认路径 {DEFAULT_CUSTOM_PROMPT_FILE_PATH} 下找不到对应的文件，那么就会创建一个。
+    :return: ModelRequest
+    """
+
+    # 如果用户没有设置自己的自定义提示词，那么自动使用默认提示词
+    if not os.path.exists(DEFAULT_CUSTOM_PROMPT_FILE_PATH):
+        with open(file=DEFAULT_CUSTOM_PROMPT_FILE_PATH, mode='w+', encoding='utf-8') as file:
+            model_req = ModelRequest(sys_prompt='', query='', temperature=1., top_p=1., history=[])
+            json.dump(obj=model_req, fp=file, ensure_ascii=False, indent=4)
+            logger.warning(
+                f'已生成用户自定义的提示词模板，您可以到以下路径进行具体内容修改：{DEFAULT_CUSTOM_PROMPT_FILE_PATH}')
+
+    with open(file=DEFAULT_CUSTOM_PROMPT_FILE_PATH, mode='r', encoding='utf-8') as file:
+        json_value = json.load(file)
+        model_req = ModelRequest(**json_value)
+    logger.info(f'LLM 提示词模板加载完毕')
+    return model_req
+
 
 default_model_req: ModelRequest = load_llm_sys_prompt()
 
@@ -92,7 +116,6 @@ async def circle():
             continue
 
         # 更新历史
-
         default_model_req.history = model_resp.history
         logger.debug(f'当前 LLM 历史记录：{len(default_model_req.history)}')
 

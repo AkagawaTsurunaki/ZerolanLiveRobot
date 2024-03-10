@@ -104,6 +104,7 @@ def load_tone_analysis_service_config(global_config: dict) -> (str | PathLike, s
     prompt_for_llm_path = tone_analysis_service_config.get('prompt_for_llm_path', 'template/tone_prompt_4_llm.json')
     assert os.path.exists(prompt_for_llm_path), f'❌️ 语气分析服务配置中的字段 prompt_for_llm_path 所指向的路径不存在'
 
+    logger.info('⚙️ 语气分析服务服务配置加载完毕')
     return tone_template_path, prompt_for_llm_path
 
 
@@ -116,4 +117,5 @@ def load_chatglm3_service_config(global_config: dict):
     assert os.path.exists(model_path), f'❌️ ChatGLM3 服务配置中的字段 model_path 所指向的路径不存在'
     quantize = chatglm3_service_config.get('quantize', 4)
 
+    logger.info('⚙️ ChatGLM3 服务服务配置加载完毕')
     return tokenizer_path, model_path, quantize
