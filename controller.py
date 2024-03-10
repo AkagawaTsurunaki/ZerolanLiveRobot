@@ -12,6 +12,8 @@ from audio_player import service as audio_player_serv
 from bilibili import service as bili_serv
 from chatglm3.api import ModelRequest, stream_chat
 from gptsovits import service as tts_serv
+from scrnshot import win
+from blip_img_cap.infer import infer
 
 # 控制死循环
 FLAG = True
@@ -23,7 +25,7 @@ DEFAULT_EMOTION_OUTPUT_PATH = '.tmp/emotion_output/emotion.txt'  # 默认心情�
 DEFAULT_LLM_OUTPUT_PATH = '.tmp/llm_output/chatglm3.txt'  # 默认大语言模型的输出路径
 DEFAULT_DANMAKU_OUTPUT_PATH = '.tmp/danmaku/bilibili.txt'  # 默认弹幕的输出路径
 # 模板文件
-DEFAULT_CUSTOM_PROMPT_FILE_PATH = 'template/custom_prompt.json'  # 用户自定义的提示词模板
+DEFAULT_CUSTOM_PROMPT_FILE_PATH = 'template/custom_prompt2.json'  # 用户自定义的提示词模板
 
 
 def load_sys_prompt():
@@ -38,7 +40,8 @@ def load_sys_prompt():
         with open(file=DEFAULT_CUSTOM_PROMPT_FILE_PATH, mode='w+', encoding='utf-8') as file:
             model_req = ModelRequest(sys_prompt='', query='', temperature=1., top_p=1., history=[])
             json.dump(obj=model_req, fp=file, ensure_ascii=False, indent=4)
-            logger.warning(f'已生成用户自定义的提示词模板，您可以到以下路径进行具体内容修改：{DEFAULT_CUSTOM_PROMPT_FILE_PATH}')
+            logger.warning(
+                f'已生成用户自定义的提示词模板，您可以到以下路径进行具体内容修改：{DEFAULT_CUSTOM_PROMPT_FILE_PATH}')
 
     with open(file=DEFAULT_CUSTOM_PROMPT_FILE_PATH, mode='r', encoding='utf-8') as file:
         json_value = json.load(file)
@@ -62,7 +65,9 @@ def write_output(danmaku, text: str, emotion: Emotion):
     with open(file=DEFAULT_LLM_OUTPUT_PATH, mode='w+', encoding='utf-8') as file:
         file.write(f'{text}')
     with open(file=DEFAULT_EMOTION_OUTPUT_PATH, mode='w+', encoding='utf-8') as file:
-        file.write(f'{danmaku.username}: {danmaku.msg}')
+        if danmaku:
+            file.write(f'{danmaku.username}: {danmaku.msg}')
+
 
 
 def is_blank(s: str):
@@ -91,15 +96,26 @@ async def circle():
     # 查看是否有可以选择的弹幕
     danmaku = bili_serv.select_01(k=3)
 
-    if not danmaku:
-        return
-    logger.info(f'✅ 选择了 1 条弹幕：[{danmaku.username}]({danmaku.uid}) {danmaku.msg}')
+    if danmaku:
+        logger.info(f'✅ 选择了 1 条弹幕：[{danmaku.username}]({danmaku.uid}) {danmaku.msg}')
+
+    img = win.screen_cap()
+
+    gamescn = infer(img) if img else None
 
     # 封装为一个模型请求体
 
     default_model_req.sys_prompt = ''
-    default_model_req.query = f'[{danmaku.username}] {danmaku.msg}'
+    if gamescn and danmaku:
+        default_model_req.query = '{\n\t' + f'"{danmaku.username}": "{danmaku.msg}"' + '\n\t' + f'"gamescn": "{gamescn}"' + '\n' + '}'
+    elif danmaku:
+        default_model_req.query = '{\n\t' + f'"{danmaku.username}": "{danmaku.msg}"' + '\n' + '}'
+    elif gamescn:
+        default_model_req.query = '{\n\t' + f'"gamescn": "{gamescn}"' + '\n' + '}'
+    else:
+        return
 
+    logger.debug(f' {gamescn}')
     # 其中 resp
     # 第1轮循环 resp = '我'
     # 第2轮循环 resp = '我是'
