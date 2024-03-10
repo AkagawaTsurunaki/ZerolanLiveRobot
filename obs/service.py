@@ -1,8 +1,8 @@
 from controller import DEFAULT_EMOTION_OUTPUT_PATH, DEFAULT_LLM_OUTPUT_PATH
-from emo import Emotion
+from tone_ana.service import Tone
 
 
-def write_output(danmaku, text: str, emotion: Emotion):
+def write_output(danmaku, text: str, emotion: Tone):
     """
     将获取到的弹幕，LLM 输出的文本，和文本所蕴含的情感写入 OBS 字幕文件中。
     :param danmaku: 弹幕对象

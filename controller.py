@@ -1,19 +1,17 @@
 import asyncio
-import json
-import os.path
 
 from loguru import logger
 
-import chatglm3
-import emo
-import gptsovits
 from audio_player import service as audio_player_serv
 from bilibili import service as bili_serv
-from blip_img_cap.infer import infer
-from chatglm3.api import ModelRequest, stream_chat
-from emo import Emotion
+from blip_img_cap.service import infer
+from chatglm3.api import stream_chat
 from gptsovits import service as tts_serv
-from scrnshot import win
+from obs.service import write_output
+from scrnshot import service as scrn_serv
+from tone_ana import service as tone_serv
+from utils.loader import load_llm_sys_prompt
+from utils.util import is_blank
 
 # 控制死循环
 FLAG = True
@@ -27,61 +25,7 @@ DEFAULT_DANMAKU_OUTPUT_PATH = '.tmp/danmaku/bilibili.txt'  # 默认弹幕的输�
 # 模板文件
 DEFAULT_CUSTOM_PROMPT_FILE_PATH = 'template/custom_prompt2.json'  # 用户自定义的提示词模板
 
-
-def load_sys_prompt():
-    """
-    加载用户自定义的提示词模板。
-    如果在默认路径 {DEFAULT_CUSTOM_PROMPT_FILE_PATH} 下找不到对应的文件，那么就会创建一个。
-    :return: ModelRequest
-    """
-
-    # 如果用户没有设置自己的自定义提示词，那么自动使用默认提示词
-    if not os.path.exists(DEFAULT_CUSTOM_PROMPT_FILE_PATH):
-        with open(file=DEFAULT_CUSTOM_PROMPT_FILE_PATH, mode='w+', encoding='utf-8') as file:
-            model_req = ModelRequest(sys_prompt='', query='', temperature=1., top_p=1., history=[])
-            json.dump(obj=model_req, fp=file, ensure_ascii=False, indent=4)
-            logger.warning(
-                f'已生成用户自定义的提示词模板，您可以到以下路径进行具体内容修改：{DEFAULT_CUSTOM_PROMPT_FILE_PATH}')
-
-    with open(file=DEFAULT_CUSTOM_PROMPT_FILE_PATH, mode='r', encoding='utf-8') as file:
-        json_value = json.load(file)
-        model_req = ModelRequest(**json_value)
-    logger.info(f'LLM 提示词模板加载完毕')
-    return model_req
-
-
-default_model_req = load_sys_prompt()
-
-
-def write_output(danmaku, text: str, emotion: Emotion):
-    """
-    将获取到的弹幕，LLM 输出的文本，和文本所蕴含的情感写入 OBS 字幕文件中。
-    :param danmaku: 弹幕对象
-    :param text: LLM 输出的文本字符串
-    :param emotion: 情感对象
-    """
-    with open(file=DEFAULT_EMOTION_OUTPUT_PATH, mode='w+', encoding='utf-8') as file:
-        file.write(emotion.id)
-    with open(file=DEFAULT_LLM_OUTPUT_PATH, mode='w+', encoding='utf-8') as file:
-        file.write(f'{text}')
-    with open(file=DEFAULT_EMOTION_OUTPUT_PATH, mode='w+', encoding='utf-8') as file:
-        if danmaku:
-            file.write(f'{danmaku.username}: {danmaku.msg}')
-
-
-def is_blank(s: str):
-    """
-    判断字符串是否为空字符串
-    :param s: 待判断的字符串
-    :return: 如果字符串为空返回 True，否则返回 False
-    """
-    if s is None:
-        return True
-    if s == '':
-        return True
-    if "".isspace():
-        return True
-    return False
+default_model_req = load_llm_sys_prompt()
 
 
 async def circle():
@@ -98,7 +42,7 @@ async def circle():
     if danmaku:
         logger.info(f'✅ [{danmaku.username}]({danmaku.uid}) {danmaku.msg}')
 
-    img = win.screen_cap()
+    img = scrn_serv.screen_cap()
     gamescn = infer(img, '') if img else None
 
     # 封装为一个模型请求体
@@ -150,7 +94,7 @@ async def circle():
         logger.debug(f'当前 LLM 历史记录：{len(default_model_req.history)}')
 
         # 分析句子的情感倾向
-        emotion = emo.ana_emo(chatglm3.__name__, sentence)
+        emotion = tone_serv.analyze_tone(sentence)
         logger.info(f'心情：{emotion.id}')
 
         # 根据心情切换 Prompt
@@ -177,8 +121,6 @@ async def start_life_cycle():
     启动生命周期
     :return:
     """
-    # 初始化心理模块
-    emo.load_emo_list(gptsovits.__name__)
     bili_live_start = asyncio.create_task(bili_serv.start())
     while FLAG:
         await circle()
