@@ -116,7 +116,6 @@ def add(danmaku: Danmaku):
 
 @monitor.on("DANMU_MSG")
 async def recv(event):
-    logger.debug('asdhkajsdhjks')
     danmaku = Danmaku(uid=event["data"]["info"][2][0],
                       username=event["data"]["info"][2][1],
                       msg=event["data"]["info"][1],
