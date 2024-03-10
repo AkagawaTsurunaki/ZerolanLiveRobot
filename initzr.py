@@ -43,6 +43,27 @@ def load_bilibili_live_config(global_config: dict) -> (str, str, str, int):
     return sessdata, bili_jct, buvid3, room_id
 
 
+def load_screenshot_config(global_config: dict) -> (str, int, str | PathLike):
+    """
+
+    :param global_config:
+    :return:
+    """
+    screenshot_config = global_config.get('screenshot_config', None)
+    assert screenshot_config, f'❌️ 截屏配置未填写或格式有误'
+    win_title = screenshot_config.get('win_title', None)
+    assert win_title, f'❌️ 截屏配置中的字段 win_title 未填写或格式有误'
+    k = screenshot_config.get('k', 0.9)
+    assert 0 < k < 1, f'❌️ 截屏配置中的字段 win_title 必须在 0 ~ 1 之间'
+    save_dir = screenshot_config.get('save_dir', '.tmp/screenshots')
+    if not os.path.exists(save_dir):
+        os.mkdir(save_dir)
+        logger.warning(f'⚠️ 截屏配置中的字段 save_dir 所指向的目录不存在，已自动创建')
+    assert os.path.isdir(save_dir), f'❌️ 截屏配置中的字段 save_dir 所指向的路径不是一个目录'
+    logger.info('⚙️ 截屏配置加载完毕')
+    return win_title, k, save_dir
+
+
 def load_blip_image_captioning_large_config(global_config: dict) -> (str | PathLike, str):
     """
     加载模型 blip-image-captioning-large 的配置
