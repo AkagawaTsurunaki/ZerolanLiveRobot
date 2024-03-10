@@ -76,4 +76,20 @@ def load_blip_image_captioning_large_config(global_config: dict) -> (str | PathL
     if not os.path.exists(model_path):
         model_path = 'Salesforce/blip-image-captioning-large'
     text_prompt = blip_image_captioning_large_config.get('text_prompt', 'There')
+    logger.info('⚙️ 模型 blip-image-captioning-large 配置加载完毕')
     return model_path, text_prompt
+
+
+def load_gpt_sovits_config(global_config: dict) -> (bool, str, int, str | PathLike, bool):
+    gpt_sovits_config = global_config.get('gpt_sovits_service_config', None)
+    assert gpt_sovits_config, f'❌️ GPT-SoVITS 服务配置未填写或格式有误'
+    debug = gpt_sovits_config.get('debug', False)
+    host = gpt_sovits_config.get('host', '127.0.0.1')
+    port = gpt_sovits_config.get('port', 9880)
+    save_dir = gpt_sovits_config.get('save_dir', '.tmp/wav_output')
+    if not os.path.exists(save_dir):
+        os.mkdir(save_dir)
+        logger.warning('⚠️ GPT-SoVITS 服务配置中的字段 save_dir 所指向的目录不存在，已自动创建')
+    clean = gpt_sovits_config.get('clean', False)
+    logger.info('⚙️ GPT-SoVITS 服务配置加载完毕')
+    return debug, host, port, save_dir, clean

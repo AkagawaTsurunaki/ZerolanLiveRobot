@@ -1,56 +1,31 @@
 import os.path
-import sys
 import uuid
 from dataclasses import asdict, dataclass
 from http import HTTPStatus
 from urllib.parse import urljoin
 
 import requests
-import yaml
 from loguru import logger
 
+IS_INITIALIZED = False
 
-def load_config():
-    """
-        检查配置文件是否无误
-        :return: 配置字典
-    """
-    # 读取配置文件
-
-    logger.info('正在读取 GPTSoVITSServiceConfig……')
-
-    if not os.path.exists('gptsovits/config.yaml'):
-        logger.critical('配置文件缺失：gptsovits/config.yaml')
-        exit()
-
-    with open('gptsovits/config.yaml', mode='r', encoding='utf-8') as file:
-        config: dict = yaml.safe_load(file)
-        config = config.get('GPTSoVITSServiceConfig', None)
-
-    if not config:
-        logger.error('无法读取 GPTSoVITSServiceConfig，格式不正确')
-
-    tmp_dir = config.get('tmp_dir', r'gptsovits\.tmp')
-    try:
-        if not os.path.exists(tmp_dir):
-            os.mkdir(tmp_dir)
-            logger.info(f'临时目录创建成功：{tmp_dir}')
-    except Exception as e:
-        logger.warning(f'配置文件指定的临时目录无法被创建，使用默认临时目录')
-
-    tmp_dir = os.path.abspath(tmp_dir)
-    host = config.get('host', '127.0.0.1')
-    port = config.get('port', 9880)
-    server_url = f"http://{host}:{port}"
-    debug = config.get('debug', False)
-    clean = config.get('clean', False)
-
-    logger.info('GPT-SoVITS 服务配置文件加载完成')
-
-    return debug, server_url, tmp_dir, clean
+DEBUG = False
+SERVER_URL = 'http://127.0.0.1:9880'
+SAVE_DIR = '.tmp/wav_output'
+CLEAN = False
 
 
-debug, server_url, tmp_dir, clean = load_config()
+def init(debug, host, port, save_dir, clean):
+    logger.info('👄 GPT-SoVITS 服务初始化中……')
+    global DEBUG, SERVER_URL, SAVE_DIR, CLEAN, IS_INITIALIZED
+    DEBUG = debug
+    SAVE_DIR = save_dir
+    CLEAN = clean
+    SERVER_URL = f"http://{host}:{port}"
+    assert requests.head(SERVER_URL, timeout=5).status_code, f'❌️ GPT-SoVTIS 服务无法连接至 {SERVER_URL}'
+    IS_INITIALIZED = True
+    logger.info('👄 GPT-SoVITS 服务初始化完毕')
+    return IS_INITIALIZED
 
 
 @dataclass
@@ -68,7 +43,7 @@ class GPTSoVITSChangeRefer:
 
 def write_wav(wav_data):
     ran_file_name = uuid.uuid4()
-    tmp_wav_file_path = os.path.join(tmp_dir, f'{ran_file_name}.wav')
+    tmp_wav_file_path = os.path.join(SAVE_DIR, f'{ran_file_name}.wav')
     with open(file=tmp_wav_file_path, mode='wb') as wav_file:
         wav_file.write(wav_data)
         logger.debug(f'音频文件保存至：{tmp_wav_file_path}')
@@ -83,7 +58,7 @@ def predict(text: str, text_language: str):
 
     # 将数据发送给GPT-SOVITS 服务器
     req = GPTSoVITSRequest(text, text_language)
-    response = requests.post(server_url, json=asdict(req))
+    response = requests.post(SERVER_URL, json=asdict(req))
     # 请求正常时写入音频
     if response.status_code == HTTPStatus.OK:
         # 将音频文件写入临时目录
@@ -109,7 +84,7 @@ def change_prompt(refer_wav_path: str, prompt_text: str, prompt_language: str):
     if not prompt_language in ['zh', 'en', 'ja']:
         return False
     data = GPTSoVITSChangeRefer(refer_wav_path, prompt_text, prompt_language)
-    change_prompt_url = urljoin(server_url, '/change_refer')
+    change_prompt_url = urljoin(SERVER_URL, '/change_refer')
     response = requests.post(change_prompt_url, json=asdict(data))
 
     return response.status_code == HTTPStatus.OK and response.json()['code'] == 0
