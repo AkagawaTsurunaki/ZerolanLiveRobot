@@ -1,3 +1,4 @@
+import json
 from dataclasses import dataclass
 
 import psutil
@@ -7,10 +8,11 @@ from transformers import AutoTokenizer, AutoModel
 TOKENIZER: AutoTokenizer
 MODEL: AutoModel
 IS_INITIALIZED = False
+MODEL_PROMPT = None
 
 
 def init(tokenizer_path, model_path, quantize):
-    global TOKENIZER, MODEL, IS_INITIALIZED
+    global TOKENIZER, MODEL, IS_INITIALIZED, MODEL_PROMPT
     TOKENIZER = AutoTokenizer.from_pretrained(tokenizer_path, trust_remote_code=True)
     MODEL = AutoModel.from_pretrained(model_path, trust_remote_code=True).quantize(quantize).to('cuda').eval()
     logger.info(f'💭 ChatGLM3 以 {quantize}-bit 加载完毕')

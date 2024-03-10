@@ -108,7 +108,7 @@ def load_tone_analysis_service_config(global_config: dict) -> (str | PathLike, s
     return tone_template_path, prompt_for_llm_path
 
 
-def load_chatglm3_service_config(global_config: dict):
+def load_chatglm3_service_config(global_config: dict) -> (str | PathLike, str | PathLike, int):
     chatglm3_service_config = global_config.get('chatglm3_service_config', None)
     assert chatglm3_service_config, f'❌️ ChatGLM3 服务配置未填写或格式有误'
     tokenizer_path = chatglm3_service_config.get('tokenizer_path', "THUDM/chatglm3-6b")
@@ -119,3 +119,14 @@ def load_chatglm3_service_config(global_config: dict):
 
     logger.info('⚙️ ChatGLM3 服务服务配置加载完毕')
     return tokenizer_path, model_path, quantize
+
+
+def load_zerolan_live_robot_config(global_config: dict) -> (str,):
+    zerolan_live_robot_config = global_config.get('zerolan_live_robot_config', None)
+    assert zerolan_live_robot_config, f'❌️ Zerolan Live Robot 服务配置未填写或格式有误'
+    custom_prompt_path = zerolan_live_robot_config.get('custom_prompt_path', 'template/custom_prompt2.json')
+    assert os.path.exists(
+        custom_prompt_path), f'❌️ Zerolan Live Robot 服务配置中的字段 custom_prompt_path 所指向的路径不存在'
+
+    logger.info('⚙️ Zerolan Live Robot 服务服务配置加载完毕')
+    return custom_prompt_path,

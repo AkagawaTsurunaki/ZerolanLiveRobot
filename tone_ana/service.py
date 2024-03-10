@@ -1,5 +1,6 @@
 import json
 import os
+import sys
 from dataclasses import dataclass
 from os import PathLike
 from typing import List
@@ -9,6 +10,9 @@ from loguru import logger
 
 from chatglm3 import service as chatglm3_serv
 from chatglm3.service import ModelRequest
+
+logger.remove()
+handler_id = logger.add(sys.stderr, level="INFO")
 
 
 @dataclass

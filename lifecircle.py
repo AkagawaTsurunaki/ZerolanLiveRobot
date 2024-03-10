@@ -1,5 +1,6 @@
 import asyncio
 import json
+from os import PathLike
 from typing import List
 
 from loguru import logger
@@ -8,6 +9,7 @@ from bilibili import service as bili_serv
 from bilibili.service import Danmaku
 from blip_img_cap import service as blip_serv
 from chatglm3 import service as chatglm3_serv
+from chatglm3.service import ModelRequest
 from gptsovits import service as gptsovits_serv
 from scrnshot import service as scrn_serv
 from tone_ana import service as tone_serv
@@ -16,6 +18,17 @@ from utils.util import is_blank
 
 HISTORY: List[dict] = []
 LANG = 'zh'
+IS_INITIALIZED = False
+
+
+def init(custom_prompt_path: str | PathLike):
+    global HISTORY, IS_INITIALIZED
+    with open(file=custom_prompt_path, mode='r', encoding='utf-8') as file:
+        json_value = json.load(file)
+        model_req = ModelRequest(**json_value)
+    HISTORY = model_req.history
+    IS_INITIALIZED = True
+    return IS_INITIALIZED
 
 
 def read_danmaku() -> Danmaku | None:

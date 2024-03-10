@@ -54,8 +54,6 @@ def write_wav(wav_data):
 def predict(text: str, text_language: str):
     # 检查语言
     assert text_language in ['zh', 'en', 'ja']
-    logger.info(f'🤖 [{text_language}] {text}')
-
     # 将数据发送给GPT-SOVITS 服务器
     req = GPTSoVITSRequest(text, text_language)
     response = requests.post(SERVER_URL, json=asdict(req))

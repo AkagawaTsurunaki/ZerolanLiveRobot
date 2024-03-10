@@ -1,9 +1,13 @@
 import os
+import sys
 from dataclasses import dataclass
 from os import PathLike
 
 from loguru import logger
 from playsound import playsound
+
+logger.remove()
+handler_id = logger.add(sys.stderr, level="INFO")
 
 
 @dataclass
