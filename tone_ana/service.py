@@ -1,5 +1,6 @@
 import json
 import os
+import random
 import sys
 from dataclasses import dataclass
 from os import PathLike
@@ -89,12 +90,12 @@ def analyze_tone(text: str):
     MODEL_REQ.query = MODEL_REQ.query.replace('{text}', text)
 
     # 向 ChatGLM3 查询心情 ID
-    emotion_id = chatglm3_serv.predict(MODEL_REQ.query)
+    emotion_id, _ = chatglm3_serv.predict(query=MODEL_REQ.query, history=MODEL_REQ.history)
 
     # 校验心情 ID 是否合法
     for tone in tone_list:
         if emotion_id == tone.id:
             return tone
 
-    # 不合法一律返回第一个
-    return tone_list[0]
+    # 不合法随机返回一个
+    return random.sample(tone_list, 1)[0]
