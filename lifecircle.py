@@ -11,6 +11,7 @@ from blip_img_cap import service as blip_serv
 from chatglm3 import service as chatglm3_serv
 from chatglm3.service import ModelRequest
 from gptsovits import service as gptsovits_serv
+from obs import service as obs_serv
 from scrnshot import service as scrn_serv
 from tone_ana import service as tone_serv
 from audio_player import service as ap_serv
@@ -146,6 +147,8 @@ async def life_circle():
 
         # 播放语音
         ap_serv.play(wav_path, sentence, True)
+
+        obs_serv.write_output(danmaku, sentence, tone)
 
         # 让出控制权，让事件循环执行其他任务
         await asyncio.sleep(0)
