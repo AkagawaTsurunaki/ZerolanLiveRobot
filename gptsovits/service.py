@@ -64,6 +64,21 @@ def predict(text: str, text_language: str):
     return None
 
 
+def predict_with_prompt(text: str, text_language: str, refer_wav_path: str, prompt_text: str, prompt_language: str):
+    req = {
+        "refer_wav_path": refer_wav_path,
+        "prompt_text": prompt_text,
+        "prompt_language": prompt_language,
+        "text": text,
+        "text_language": text_language,
+    }
+    response = requests.post(SERVER_URL, json=req)
+    if response.status_code == HTTPStatus.OK:
+        # 将音频文件写入临时目录
+        return write_wav(response.content)
+    return None
+
+
 def change_prompt(refer_wav_path: str, prompt_text: str, prompt_language: str):
     """
     修改提示。

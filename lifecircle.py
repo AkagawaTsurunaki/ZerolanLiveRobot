@@ -86,12 +86,12 @@ def tts_with_tone(sentence: str):
     # 利用 LLM 分析句子语气
     tone = tone_serv.analyze_tone(sentence)
 
-    # 根据语气切换 TTS 的提示
-    gptsovits_serv.change_prompt(refer_wav_path=tone.refer_wav_path, prompt_text=tone.prompt_text,
-                                 prompt_language=tone.prompt_language)
+    # 根据语气切换 TTS 的提示合成对应的语音
+    wav_file_path = gptsovits_serv.predict_with_prompt(text_language=LANG, text=sentence,
+                                                       refer_wav_path=tone.refer_wav_path,
+                                                       prompt_text=tone.prompt_text,
+                                                       prompt_language=tone.prompt_language)
 
-    # TTS 合成对应的语音
-    wav_file_path = gptsovits_serv.predict(sentence, LANG)
     return tone, wav_file_path
 
 
