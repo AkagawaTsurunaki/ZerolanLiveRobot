@@ -43,8 +43,6 @@ Python >= 3.10
 ```yaml
 # Bilibili 直播配置
 bilibili_live_config:
-  # 是否启动本服务
-  enabled: True
   # 获取方式[详见](https://nemo2011.github.io/bilibili-api/#/get-credential)
   sessdata:
   bili_jct:
@@ -54,9 +52,8 @@ bilibili_live_config:
 ```
 
 其中，
-1. `enabled` 用于指定是否启动该服务，如果你不需要利用 Bilibili 服务器获取直播间的实时弹幕，请将此项设为`False`，否则请设为`True`。
-2. `sessdata`、`bili_jct`、`buvid3` 这三项用于向 Bilibili 服务器校验您的身份，如果不登录将无法获取直播间的弹幕信息。具体如何填写这三个值，详见[此处](https://nemo2011.github.io/bilibili-api/#/get-credential)。请注意，不要将这三项泄露给他人，尤其在直播的时候，这将会有盗号风险。
-3. `room_id` 是您要连接的直播间的ID，通常为直播间URL中的从左到右第一次出现的数字。当然，您可以设置为他人直播间的ID，这样会接受他人直播间的弹幕信息。
+1. `sessdata`、`bili_jct`、`buvid3` 这三项用于向 Bilibili 服务器校验您的身份，如果不登录将无法获取直播间的弹幕信息。具体如何填写这三个值，详见[此处](https://nemo2011.github.io/bilibili-api/#/get-credential)。请注意，不要将这三项泄露给他人，尤其在直播的时候，这将会有盗号风险。
+2. `room_id` 是您要连接的直播间的ID，通常为直播间URL中的从左到右第一次出现的数字。当然，您可以设置为他人直播间的ID，这样会接受他人直播间的弹幕信息。
 
 ### 截屏服务
 
@@ -65,8 +62,6 @@ bilibili_live_config:
 ```yaml
 # 截屏配置
 screenshot_config:
-  # 是否启动本服务
-  enable: True
   # 窗口标题（会自动查找符合该标题的第一个窗口）
   win_title:
   # 缩放因子（为了防止屏幕被截取窗口）
@@ -76,16 +71,13 @@ screenshot_config:
 ```
 
 其中，
-1. `enabled` 用于指定是否启动该服务，如果您的显卡不支持启动 Image-Text Captioning 模型，请将此项设为 False，否则设为 True。
-2. `win_title` 代表要识别的窗口标题，您也可以不填全，这样会在自动匹配的窗口列表中选择第一个窗口进行观测。
-3. `k` 缩放因子，它的作用是防止窗口的边框和标题栏被识别到，从而使 AI 失去沉浸感。取值越小，AI 可识别的范围越小，取值 0 ~ 1 之间。
-4. `save_dir` 截取的图片存放目录，会保存为若干个`时间戳.png`这样的图片。程序停止不会自动清除这里的图片。
+1. `win_title` 代表要识别的窗口标题，您也可以不填全，这样会在自动匹配的窗口列表中选择第一个窗口进行观测。
+2. `k` 缩放因子，它的作用是防止窗口的边框和标题栏被识别到，从而使 AI 失去沉浸感。取值越小，AI 可识别的范围越小，取值 0 ~ 1 之间。
+3. `save_dir` 截取的图片存放目录，会保存为若干个`时间戳.png`这样的图片。程序停止不会自动清除这里的图片。
 
 ```yaml
 # 模型 blip-image-captioning-large 的配置
 blip_image_captioning_large_config:
-  # 是否启动本服务
-  enable: True
   # 模型地址
   model_path: Salesforce/blip-image-captioning-large
   # 模型默认文本提示词（只能是英文）
