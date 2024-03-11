@@ -7,6 +7,8 @@ ZEROLAN LIVE ROBOT 可以自动在 Bilibili 直播间中读取弹幕，同时观
 
 本项目持续开发中，您可以关注Bilibili账号[赤川鶴鳴_Channel](https://space.bilibili.com/1076299680]) ，正在调教猫娘，不定时直播展示最新进展。
 
+Python >= 3.10
+
 ## 基本功能
 
 1. 实时读取 Bilibili 直播间弹幕。
@@ -56,20 +58,51 @@ bilibili_live_config:
 2. `sessdata`、`bili_jct`、`buvid3` 这三项用于向 Bilibili 服务器校验您的身份，如果不登录将无法获取直播间的弹幕信息。具体如何填写这三个值，详见[此处](https://nemo2011.github.io/bilibili-api/#/get-credential)。请注意，不要将这三项泄露给他人，尤其在直播的时候，这将会有盗号风险。
 3. `room_id` 是您要连接的直播间的ID，通常为直播间URL中的从左到右第一次出现的数字。当然，您可以设置为他人直播间的ID，这样会接受他人直播间的弹幕信息。
 
+### 截屏服务
+
+这一部分是为了让 ZEROLAN LIVE ROBOT 可以识别当前画面中的的实时内容，你可以指定ta可以看到的窗口，例如游戏画面。
+
+```yaml
+# 截屏配置
+screenshot_config:
+  # 是否启动本服务
+  enable: True
+  # 窗口标题（会自动查找符合该标题的第一个窗口）
+  win_title:
+  # 缩放因子（为了防止屏幕被截取窗口）
+  k: 0.9
+  # 截取的图片存放位置
+  save_dir: .tmp/screenshots
+```
+
+其中，
+1. `enabled` 用于指定是否启动该服务，如果您的显卡不支持启动 Image-Text Captioning 模型，请将此项设为 False，否则设为 True。
+2. `win_title` 代表要识别的窗口标题，您也可以不填全，这样会在自动匹配的窗口列表中选择第一个窗口进行观测。
+3. `k` 缩放因子，它的作用是防止窗口的边框和标题栏被识别到，从而使 AI 失去沉浸感。取值越小，AI 可识别的范围越小，取值 0 ~ 1 之间。
+4. `save_dir` 截取的图片存放目录，会保存为若干个`时间戳.png`这样的图片。程序停止不会自动清除这里的图片。
+
+```yaml
+# 模型 blip-image-captioning-large 的配置
+blip_image_captioning_large_config:
+  # 是否启动本服务
+  enable: True
+  # 模型地址
+  model_path: Salesforce/blip-image-captioning-large
+  # 模型默认文本提示词（只能是英文）
+  text_prompt: There
+```
+
 ### 配置并启动 GPT-SoVITS 服务
 
 关于本项目采用的 TTS 模型
 [GPT-SoVITS](https://github.com/RVC-Boss/GPT-SoVITS)，这是一个可以支持仅需3到10秒的音频克隆的模型。
 请移步至官方仓库，了解如何下载并使用该模型。
 
-关于 GPT-SoVITS 官方的 API 如何支持中英、日英混读，请参考如下的教程修改。
-https://github.com/jianchang512/gptsovits-api
+关于 GPT-SoVITS 官方的 API 如何支持中英、日英混读，请参考如下的[教程](https://github.com/jianchang512/gptsovits-api)修改。
 
 请按照上述仓库中文档中的操作步骤配置 GPT-SoVITS 服务，并启动 API 服务。
 
-### 修改本项目中的配置文件
-
-
+请记住您的 API 服务的相关配置，
 
 ```yaml
 GPTSoVITSServiceConfig:
@@ -81,8 +114,6 @@ GPTSoVITSServiceConfig:
   port: 9880
   # 音频临时文件夹
   tmp_dir: gptsovits\.tmp
-  # 是否清理临时文件夹
-  clean: False
 ```
 
 其中，
@@ -94,10 +125,6 @@ GPTSoVITSServiceConfig:
 3. `prot`：GPT-SoVITS 服务端口，如果您未进行改动，那么默认端口为`9880`。
 
 4. `tmp_dir`用于临时存放生成的音频文件，您可以选择一个合适的位置，默认为`gptsovits\.tmp`。
-
-5. `clean`
-   用于设置本项目启动时，是否要删除临时文件夹。为了安全起见，项目停止运行后不会立刻删除临时文件夹中的文件。但如果您将此项设置为`True`
-   ，项目启动后会进行清理，所以一定要注意不要将您需要保留的文件放在这个目录下，以免造成丢失。
 
 ### 语气配置
 
