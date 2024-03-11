@@ -2,6 +2,8 @@
 
 # Bilibili 直播配置
 bilibili_live_config:
+  # 是否启动本服务
+  enabled: True
   # 获取方式[详见](https://nemo2011.github.io/bilibili-api/#/get-credential)
   sessdata:
   bili_jct:
