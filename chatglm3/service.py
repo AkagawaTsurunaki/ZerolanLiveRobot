@@ -1,6 +1,3 @@
-import json
-from dataclasses import dataclass
-
 import psutil
 from loguru import logger
 from transformers import AutoTokenizer, AutoModel
@@ -65,16 +62,3 @@ def stream_predict(query: str, history: list = None, top_p: float = 1., temperat
                             return_past_key_values=return_past_key_values)
 
 
-@dataclass
-class ModelRequest:
-    sys_prompt: str
-    query: str
-    history: list
-    top_p: float
-    temperature: float
-
-
-@dataclass
-class ModelResponse:
-    response: str
-    history: list[dict]

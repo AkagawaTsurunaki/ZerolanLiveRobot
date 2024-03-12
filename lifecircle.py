@@ -11,7 +11,7 @@ from bilibili import service as bili_serv
 from bilibili.service import Danmaku
 from blip_img_cap import service as blip_serv
 from chatglm3 import service as chatglm3_serv
-from chatglm3.service import ModelRequest
+from chatglm3.api import ModelRequest
 from gptsovits import service as gptsovits_serv
 from obs import service as obs_serv
 from scrnshot import service as scrn_serv

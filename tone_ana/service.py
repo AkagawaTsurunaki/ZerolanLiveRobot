@@ -10,7 +10,7 @@ import yaml
 from loguru import logger
 
 from chatglm3 import service as chatglm3_serv
-from chatglm3.service import ModelRequest
+from chatglm3.api import ModelRequest
 
 logger.remove()
 handler_id = logger.add(sys.stderr, level="INFO")
