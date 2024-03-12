@@ -1,8 +1,10 @@
 import asyncio
 import json
+from copy import deepcopy
 from os import PathLike
 from typing import List
 
+from flask import Flask
 from loguru import logger
 
 from bilibili import service as bili_serv
@@ -18,17 +20,25 @@ from audio_player import service as ap_serv
 from utils.util import is_blank
 
 HISTORY: List[dict] = []
+RESET_HISTORY = []
 LANG = 'zh'
 IS_INITIALIZED = False
 
 
+def reset_his():
+    global HISTORY
+    HISTORY = deepcopy(RESET_HISTORY)
+
+
 def init(custom_prompt_path: str | PathLike):
-    global HISTORY, IS_INITIALIZED
+    global HISTORY, IS_INITIALIZED, RESET_HISTORY
     with open(file=custom_prompt_path, mode='r', encoding='utf-8') as file:
         json_value = json.load(file)
         model_req = ModelRequest(**json_value)
     HISTORY = model_req.history
+    RESET_HISTORY = deepcopy(model_req.history)
     IS_INITIALIZED = True
+
     return IS_INITIALIZED
 
 
@@ -107,7 +117,7 @@ async def life_circle():
     # 将上述获取的信息转化为对话的请求
     query = convert_2_query(danmaku, screen_desc)
 
-    if query == '':
+    if query is None or query == '':
         return
 
     # 其中 resp
@@ -145,10 +155,9 @@ async def life_circle():
             logger.warning(f'❕ 这条语音未能合成：{sentence}')
             break
 
+        obs_serv.write_output(danmaku, sentence, tone)
         # 播放语音
         ap_serv.play(wav_path, sentence, True)
-
-        obs_serv.write_output(danmaku, sentence, tone)
 
         # 让出控制权，让事件循环执行其他任务
         await asyncio.sleep(0)
