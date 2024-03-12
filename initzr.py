@@ -4,6 +4,8 @@ from os import PathLike
 import yaml
 from loguru import logger
 
+from utils.util import is_valid_port
+
 
 def read_yaml(path: str | PathLike):
     with open(file=path, mode='r', encoding='utf-8') as file:
@@ -108,16 +110,20 @@ def load_tone_analysis_service_config(global_config: dict):
 
 
 def load_chatglm3_service_config(global_config: dict):
-    chatglm3_service_config = global_config.get('chatglm3_service_config', None)
-    assert chatglm3_service_config, f'❌️ ChatGLM3 服务配置未填写或格式有误'
-    tokenizer_path = chatglm3_service_config.get('tokenizer_path', "THUDM/chatglm3-6b")
+    config: dict = global_config.get('chatglm3_service_config', None)
+    assert config, f'❌️ ChatGLM3 服务配置未填写或格式有误'
+    debug = config.get('debug', False)
+    host = config.get('host', '127.0.0.1')
+    port = config.get('port', 8085)
+    assert is_valid_port(port), f'❌️ ChatGLM3 服务配置中的字段 port 所代表的端口号不合法'
+    tokenizer_path = config.get('tokenizer_path', "THUDM/chatglm3-6b")
     assert os.path.exists(tokenizer_path), f'❌️ ChatGLM3 服务配置中的字段 tokenizer_path 所指向的路径不存在'
-    model_path = chatglm3_service_config.get('model_path', "THUDM/chatglm3-6b")
+    model_path = config.get('model_path', "THUDM/chatglm3-6b")
     assert os.path.exists(model_path), f'❌️ ChatGLM3 服务配置中的字段 model_path 所指向的路径不存在'
-    quantize = chatglm3_service_config.get('quantize', 4)
+    quantize = config.get('quantize', 4)
 
     logger.info('⚙️ ChatGLM3 服务配置加载完毕')
-    return tokenizer_path, model_path, quantize
+    return debug, host, port, tokenizer_path, model_path, quantize
 
 
 def load_zerolan_live_robot_config(global_config: dict):

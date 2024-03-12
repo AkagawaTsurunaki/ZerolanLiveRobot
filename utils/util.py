@@ -11,3 +11,25 @@ def is_blank(s: str):
     if "".isspace():
         return True
     return False
+
+
+def is_valid_port(port):
+    try:
+        port = int(port)
+        if 0 < port < 65536:
+            return True
+        else:
+            return False
+    except ValueError:
+        return False
+
+
+def url_join(host, port, protocol='http'):
+    if not host or not port or not protocol:
+        return None
+
+    if protocol not in ['http']:
+        return None
+
+    url = f"{protocol}://{host}:{port}"
+    return url

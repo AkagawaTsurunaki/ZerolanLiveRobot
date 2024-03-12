@@ -1,11 +1,15 @@
-import json
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass
 
 import psutil
 from flask import Flask, jsonify, stream_with_context, Response, request
 from loguru import logger
 from transformers import AutoTokenizer, AutoModel
 
+from utils.util import url_join
+
+DEBUG: bool = False
+HOST: str = '127.0.0.1'
+PORT: int = 8085
 TOKENIZER: AutoTokenizer
 MODEL: AutoModel
 IS_INITIALIZED = False
@@ -98,14 +102,18 @@ def handle_stream_output():
     return Response(stream_with_context(generate_output(llm_query)), content_type='application/json')
 
 
-def init(tokenizer_path, model_path, quantize):
-    global TOKENIZER, MODEL, IS_INITIALIZED, MODEL_PROMPT
+def init(debug, host, port, tokenizer_path, model_path, quantize):
+    global TOKENIZER, MODEL, IS_INITIALIZED, MODEL_PROMPT, DEBUG, SERVICE_URL, HOST, PORT
+    DEBUG = debug
+    HOST = host
+    PORT = port
+    SERVICE_URL = url_join(host, port)
     TOKENIZER = AutoTokenizer.from_pretrained(tokenizer_path, trust_remote_code=True)
     MODEL = AutoModel.from_pretrained(model_path, trust_remote_code=True).quantize(quantize).to('cuda').eval()
-    logger.info(f'💭 ChatGLM3 以 {quantize}-bit 加载完毕')
+    logger.info(f'💭 ChatGLM3 以 {quantize}-bit 加载完毕, API 服务开启于 {SERVICE_URL}')
     IS_INITIALIZED = True
     return IS_INITIALIZED
 
 
 def start():
-    app.run('127.0.0.1', port=8085, debug=False)
+    app.run(host=HOST, port=PORT, debug=DEBUG)
