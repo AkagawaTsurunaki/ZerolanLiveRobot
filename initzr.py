@@ -10,7 +10,7 @@ def read_yaml(path: str | PathLike):
         return yaml.safe_load(file)
 
 
-def load_global_config(default_global_config_path: str | PathLike) -> dict:
+def load_global_config(default_global_config_path: str | PathLike):
     """
     加载全局配置
     :param default_global_config_path:
@@ -23,7 +23,7 @@ def load_global_config(default_global_config_path: str | PathLike) -> dict:
     return global_config
 
 
-def load_bilibili_live_config(global_config: dict) -> (str, str, str, int):
+def load_bilibili_live_config(global_config: dict):
     """
     加载 Bilibili 直播配置
     :return: tuple 包含 sessdata, bili_jct, buvid3, room_id（直播间 ID）四个配置项
@@ -43,7 +43,7 @@ def load_bilibili_live_config(global_config: dict) -> (str, str, str, int):
     return sessdata, bili_jct, buvid3, room_id
 
 
-def load_screenshot_config(global_config: dict) -> (str, int, str | PathLike):
+def load_screenshot_config(global_config: dict):
     """
 
     :param global_config:
@@ -64,7 +64,7 @@ def load_screenshot_config(global_config: dict) -> (str, int, str | PathLike):
     return win_title, k, save_dir
 
 
-def load_blip_image_captioning_large_config(global_config: dict) -> (str | PathLike, str):
+def load_blip_image_captioning_large_config(global_config: dict):
     """
     加载模型 blip-image-captioning-large 的配置
     :param global_config:
@@ -80,7 +80,7 @@ def load_blip_image_captioning_large_config(global_config: dict) -> (str | PathL
     return model_path, text_prompt
 
 
-def load_gpt_sovits_config(global_config: dict) -> (bool, str, int, str | PathLike, bool):
+def load_gpt_sovits_config(global_config: dict):
     gpt_sovits_config = global_config.get('gpt_sovits_service_config', None)
     assert gpt_sovits_config, f'❌️ GPT-SoVITS 服务配置未填写或格式有误'
     debug = gpt_sovits_config.get('debug', False)
@@ -95,7 +95,7 @@ def load_gpt_sovits_config(global_config: dict) -> (bool, str, int, str | PathLi
     return debug, host, port, save_dir
 
 
-def load_tone_analysis_service_config(global_config: dict) -> (str | PathLike, str | PathLike):
+def load_tone_analysis_service_config(global_config: dict):
     tone_analysis_service_config = global_config.get('tone_analysis_service_config', None)
     assert tone_analysis_service_config, f'❌️ 语气分析服务配置未填写或格式有误'
     tone_template_path = tone_analysis_service_config.get('tone_template_path', 'template/tone_list.yaml')
@@ -107,7 +107,7 @@ def load_tone_analysis_service_config(global_config: dict) -> (str | PathLike, s
     return tone_template_path, prompt_for_llm_path
 
 
-def load_chatglm3_service_config(global_config: dict) -> (str | PathLike, str | PathLike, int):
+def load_chatglm3_service_config(global_config: dict):
     chatglm3_service_config = global_config.get('chatglm3_service_config', None)
     assert chatglm3_service_config, f'❌️ ChatGLM3 服务配置未填写或格式有误'
     tokenizer_path = chatglm3_service_config.get('tokenizer_path', "THUDM/chatglm3-6b")
@@ -116,11 +116,11 @@ def load_chatglm3_service_config(global_config: dict) -> (str | PathLike, str | 
     assert os.path.exists(model_path), f'❌️ ChatGLM3 服务配置中的字段 model_path 所指向的路径不存在'
     quantize = chatglm3_service_config.get('quantize', 4)
 
-    logger.info('⚙️ ChatGLM3 服务服务配置加载完毕')
+    logger.info('⚙️ ChatGLM3 服务配置加载完毕')
     return tokenizer_path, model_path, quantize
 
 
-def load_zerolan_live_robot_config(global_config: dict) -> (str,):
+def load_zerolan_live_robot_config(global_config: dict):
     zerolan_live_robot_config = global_config.get('zerolan_live_robot_config', None)
     assert zerolan_live_robot_config, f'❌️ Zerolan Live Robot 服务配置未填写或格式有误'
     custom_prompt_path = zerolan_live_robot_config.get('custom_prompt_path', 'template/custom_prompt2.json')
@@ -140,4 +140,3 @@ def load_obs_config(global_config: dict):
     llm_output_path = config.get('llm_output_path', '.tmp/llm_output/output.txt')
     assert os.path.exists(llm_output_path), f'❌️ OBS 服务配置中的字段 llm_output_path 所指向的路径不存在'
     return danmaku_output_path, tone_output_path, llm_output_path
-
