@@ -2,6 +2,7 @@ import os
 import sys
 from dataclasses import dataclass
 from os import PathLike
+from threading import Event
 from typing import List
 
 from loguru import logger
@@ -53,9 +54,12 @@ def add_audio(wav_file_path: str | PathLike, transcript: str):
     audio_list.append(audiopair)
 
 
-def start():
+def start(add_audio_event: Event):
     while FLAG:
+        add_audio_event.wait()
+        print('THIS IS RUNNING')
         if len(audio_list) > 0:
-            audio_pair = audio_list[-1]
-            if not audio_pair.played:
-                play(audio_pair)
+            for audio_pair in audio_list:
+                if not audio_pair.played:
+                    play(audio_pair)
+            add_audio_event.clear()

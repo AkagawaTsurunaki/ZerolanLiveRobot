@@ -1,4 +1,3 @@
-import asyncio
 import json
 import threading
 from os import PathLike
@@ -8,7 +7,6 @@ from loguru import logger
 
 import audio_player.service
 import chatglm3.api
-from audio_player import service as ap_serv
 from bilibili import service as bili_serv
 from bilibili.service import Danmaku
 from blip_img_cap import service as blip_serv
@@ -82,7 +80,7 @@ def convert_2_query(danmaku: Danmaku, screen_desc: str):
     return None
 
 
-async def tts_with_tone(sentence: str):
+def tts_with_tone(sentence: str):
     """
     自动分析句子语气，并合成语音
     :param sentence: 将要被合成的文本
@@ -96,11 +94,10 @@ async def tts_with_tone(sentence: str):
                                                        refer_wav_path=tone.refer_wav_path,
                                                        prompt_text=tone.prompt_text,
                                                        prompt_language=tone.prompt_language)
-
     return tone, wav_file_path
 
 
-async def life_circle():
+async def life_circle(add_audio_event: threading.Event):
     global HISTORY, LANG
 
     # 尝试抽取弹幕
@@ -113,6 +110,7 @@ async def life_circle():
     query = convert_2_query(danmaku, screen_desc)
 
     if query is None or query == '':
+        logger.debug('生命周期提前结束')
         return
 
     # 其中 resp
@@ -140,15 +138,18 @@ async def life_circle():
         HISTORY = history
 
         # 自动语气语音合成
-        tone, wav_path = await tts_with_tone(sentence)
+        tone, wav_file_path = tts_with_tone(sentence)
 
         logger.info(f'🗒️ 历史记录：{len(HISTORY)} \n💖 语气：{tone.id} \n💭 {sentence}')
 
-        if not wav_path:
+        if not wav_file_path:
             logger.warning(f'❕ 这条语音未能合成：{sentence}')
             break
 
         obs_serv.write_output(danmaku, sentence, tone)
 
         # 播放语音
-        audio_player.service.add_audio(wav_path, sentence)
+        audio_player.service.add_audio(wav_file_path, sentence)
+        add_audio_event.set()
+
+

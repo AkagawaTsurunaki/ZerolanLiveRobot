@@ -32,11 +32,12 @@ def reset():
     return 'OK'
 
 
-async def service_start():
+async def service_start(add_audio_event: threading.Event):
     logger.info('💜 ZerolanLiveRobot，启动！')
     while FLAG:
-        await life_circle()
+        await life_circle(add_audio_event)
         await asyncio.sleep(1)
+
 
 if __name__ == '__main__':
     # 加载配置文件
@@ -67,7 +68,8 @@ if __name__ == '__main__':
     assert init(*zerolan_live_robot_config)
 
     # 启动播放器线程
-    audio_play_thread = threading.Thread(target=audio_player.service.start)
+    add_audio_event = threading.Event()
+    audio_play_thread = threading.Thread(target=audio_player.service.start, args=(add_audio_event,))
     audio_play_thread.start()
 
     # 主控制器线程
@@ -75,7 +77,7 @@ if __name__ == '__main__':
     app_thread.start()
 
     # 启动生命周期
-    asyncio.run(service_start())
+    asyncio.run(service_start(add_audio_event))
 
     bili_thr.join()
     audio_play_thread.join()

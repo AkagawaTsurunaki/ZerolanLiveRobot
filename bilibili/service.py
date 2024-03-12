@@ -58,7 +58,7 @@ def init(sessdata: str, bili_jct: str, buvid3: str, room_id: int):
         # fans_band_name = event["data"]["info"][3][1]  # 该粉丝牌的名字
         # live_host_name = event["data"]["info"][3][2]  # 该粉丝牌对应的主播名字
 
-        logger.info(f'🍥 [{danmaku.username}]({danmaku.uid}): {danmaku.msg}')
+        logger.debug(f'🍥 [{danmaku.username}]({danmaku.uid}): {danmaku.msg}')
 
         add(danmaku)
 
