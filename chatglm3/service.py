@@ -24,16 +24,7 @@ class LLMQuery:
 
 
 @dataclass
-class ModelRequest:
-    sys_prompt: str
-    query: str
-    history: list
-    top_p: float
-    temperature: float
-
-
-@dataclass
-class ModelResponse:
+class LLMResponse:
     response: str
     history: list[dict]
 

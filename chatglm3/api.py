@@ -5,7 +5,7 @@ from urllib.parse import urljoin
 
 import requests
 
-from chatglm3.service import SERVICE_URL, LLMQuery, ModelResponse
+from chatglm3.service import SERVICE_URL, LLMQuery, LLMResponse
 
 
 async def stream_predict(query, history, temperature, top_p):
@@ -16,7 +16,7 @@ async def stream_predict(query, history, temperature, top_p):
 
     for chunk in response.iter_content(chunk_size=None, decode_unicode=True):
         json_val = json.loads(chunk)
-        model_resp = ModelResponse(**json_val)
+        model_resp = LLMResponse(**json_val)
         yield model_resp
 
 
