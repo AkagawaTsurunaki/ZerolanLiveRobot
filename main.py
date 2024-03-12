@@ -2,6 +2,8 @@ import asyncio
 import sys
 import threading
 
+from flask import Flask
+
 from bilibili import service as bili_serv
 from blip_img_cap import service as blip_serv
 from chatglm3 import service as chatglm3_serv
@@ -11,7 +13,7 @@ from initzr import load_global_config, load_bilibili_live_config, load_blip_imag
     load_zerolan_live_robot_config, load_obs_config
 from scrnshot import service as scrn_serv
 from tone_ana import service as tone_serv
-from lifecircle import life_circle, init
+from lifecircle import life_circle, init, reset_his
 from obs import service as obs_serv
 from loguru import logger
 
@@ -20,16 +22,27 @@ DEFAULT_GLOBAL_CONFIG_PATH = R'config/global_config.yaml'
 logger.remove()
 logger.add(sys.stderr, level="INFO")
 
+app = Flask(__name__)
+
+
+@app.route('/reset', methods=['GET'])
+def reset():
+    reset_his()
+    return 'OK'
+
 
 async def service_start():
+    app_thread = threading.Thread(target=app.run, args=('127.0.0.1', 11451, False))
     # B站监听弹幕启动
     bi_t = threading.Thread(target=bili_serv.start)
     bi_t.start()
+    app_thread.start()
     logger.info('💜 ZerolanLiveRobot，启动！')
     while FLAG:
         await life_circle()
         await asyncio.sleep(1)
     bi_t.join()
+    app_thread.join()
 
 
 if __name__ == '__main__':
@@ -58,5 +71,4 @@ if __name__ == '__main__':
         assert init(*zerolan_live_robot_config)
     except Exception:
         logger.critical(f'💥 ZEROLAN LIVE ROBOT 初始化失败：因无法处理的异常而退出')
-
     asyncio.run(service_start())
