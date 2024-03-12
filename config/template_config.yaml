@@ -42,6 +42,9 @@ tone_analysis_service_config:
   prompt_for_llm_path: template/tone_prompt_4_llm.json
 # ChatGLM3 服务配置
 chatglm3_service_config:
+  debug: False
+  host: 127.0.0.1
+  port: 8085
   # Tokenizer 路径
   tokenizer_path: THUDM/chatglm3-6b
   # 模型路径

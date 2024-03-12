@@ -1,48 +1,29 @@
-from dataclasses import dataclass, asdict
+import asyncio
+import json
+from dataclasses import asdict
+from urllib.parse import urljoin
 
-from flask import Flask, Response, jsonify, stream_with_context
-from flask import request
+import requests
 
-import chatglm3.service as serv
-
-app = Flask(__name__)
-
-
-@dataclass
-class ModelRequest:
-    sys_prompt: str
-    query: str
-    history: list
-    top_p: float
-    temperature: float
+from chatglm3.service import SERVICE_URL, LLMQuery, ModelResponse
 
 
-@dataclass
-class ModelResponse:
-    response: str
-    history: list[dict]
+async def stream_predict(query, history, temperature, top_p):
+    llm_query = LLMQuery(query=query, history=history, temperature=temperature, top_p=top_p)
+    llm_query = asdict(llm_query)
+    response = requests.post(url=urljoin(SERVICE_URL, '/streampredict'), stream=True,
+                             json=llm_query)
+
+    for chunk in response.iter_content(chunk_size=None, decode_unicode=True):
+        json_val = json.loads(chunk)
+        model_resp = ModelResponse(**json_val)
+        yield model_resp
 
 
-@app.route('/streampredict', methods=['POST'])
-def handle_stream_output():
-    model_req = ModelRequest(**request.json)
-
-    def generate_output(model_req: ModelRequest):
-        with app.app_context():
-            for response, history, past_key_values in next(
-                    serv.stream_predict(
-                        query=model_req.sys_prompt + model_req.query,
-                        history=model_req.history,
-                        top_p=model_req.top_p,
-                        temperature=model_req.temperature,
-                        return_past_key_values=True
-                    )
-            ):
-                model_resp = ModelResponse(response=response, history=history)
-                yield jsonify(asdict(model_resp)).data + b'\n'
-
-    return Response(stream_with_context(generate_output(model_req)), content_type='application/json')
+async def func():
+    async for model_resp in stream_predict(query='test', history=[], temperature=1., top_p=1.):
+        print(model_resp.response)
 
 
-def start():
-    app.run('127.0.0.1', port=8085, debug=False)
+if __name__ == '__main__':
+    asyncio.run(func())
