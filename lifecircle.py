@@ -1,45 +1,38 @@
 import asyncio
 import json
-from copy import deepcopy
 from os import PathLike
 from typing import List
 
-from flask import Flask
 from loguru import logger
 
+import chatglm3.api
+from audio_player import service as ap_serv
 from bilibili import service as bili_serv
 from bilibili.service import Danmaku
 from blip_img_cap import service as blip_serv
-from chatglm3 import service as chatglm3_serv
-from chatglm3.api import ModelRequest
 from gptsovits import service as gptsovits_serv
 from obs import service as obs_serv
 from scrnshot import service as scrn_serv
 from tone_ana import service as tone_serv
-from audio_player import service as ap_serv
 from utils.util import is_blank
 
 HISTORY: List[dict] = []
-RESET_HISTORY = []
+CUSTOM_PROMPT_PATH: str = 'template/custom_prompt.json'
 LANG = 'zh'
-IS_INITIALIZED = False
 
 
-def reset_his():
-    global HISTORY
-    HISTORY = deepcopy(RESET_HISTORY)
+def load_custom_history():
+    global HISTORY, CUSTOM_PROMPT_PATH
+    with open(file=CUSTOM_PROMPT_PATH, mode='r', encoding='utf-8') as file:
+        json_value: dict = json.load(file)
+        HISTORY = json_value.get('history')
 
 
 def init(custom_prompt_path: str | PathLike):
-    global HISTORY, IS_INITIALIZED, RESET_HISTORY
-    with open(file=custom_prompt_path, mode='r', encoding='utf-8') as file:
-        json_value = json.load(file)
-        model_req = ModelRequest(**json_value)
-    HISTORY = model_req.history
-    RESET_HISTORY = deepcopy(model_req.history)
-    IS_INITIALIZED = True
-
-    return IS_INITIALIZED
+    global CUSTOM_PROMPT_PATH
+    CUSTOM_PROMPT_PATH = custom_prompt_path
+    load_custom_history()
+    return True
 
 
 def read_danmaku() -> Danmaku | None:
@@ -131,9 +124,7 @@ async def life_circle():
 
     last_split_idx = 0
 
-    for response, history, past_key_values in next(chatglm3_serv.stream_predict(query=query, history=HISTORY,
-                                                                                top_p=1.,
-                                                                                temperature=1.)):
+    async for response, history in chatglm3.api.stream_predict(query=query, history=HISTORY, top_p=1., temperature=1.):
         if not response or response[-1] not in ['。', '！', '？', '!', '?']:
             continue
 
