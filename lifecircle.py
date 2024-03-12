@@ -1,10 +1,12 @@
 import asyncio
 import json
+import threading
 from os import PathLike
 from typing import List
 
 from loguru import logger
 
+import audio_player.service
 import chatglm3.api
 from audio_player import service as ap_serv
 from bilibili import service as bili_serv
@@ -80,7 +82,7 @@ def convert_2_query(danmaku: Danmaku, screen_desc: str):
     return None
 
 
-def tts_with_tone(sentence: str):
+async def tts_with_tone(sentence: str):
     """
     自动分析句子语气，并合成语音
     :param sentence: 将要被合成的文本
@@ -138,7 +140,7 @@ async def life_circle():
         HISTORY = history
 
         # 自动语气语音合成
-        tone, wav_path = tts_with_tone(sentence)
+        tone, wav_path = await tts_with_tone(sentence)
 
         logger.info(f'🗒️ 历史记录：{len(HISTORY)} \n💖 语气：{tone.id} \n💭 {sentence}')
 
@@ -147,8 +149,6 @@ async def life_circle():
             break
 
         obs_serv.write_output(danmaku, sentence, tone)
-        # 播放语音
-        ap_serv.play(wav_path, sentence, True)
 
-        # 让出控制权，让事件循环执行其他任务
-        await asyncio.sleep(0)
+        # 播放语音
+        audio_player.service.add_audio(wav_path, sentence)

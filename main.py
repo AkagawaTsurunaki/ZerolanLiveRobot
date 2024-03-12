@@ -5,6 +5,7 @@ import threading
 from flask import Flask
 from loguru import logger
 
+import audio_player.service
 from bilibili import service as bili_serv
 from blip_img_cap import service as blip_serv
 from gptsovits import service as gptsovits_serv
@@ -32,17 +33,10 @@ def reset():
 
 
 async def service_start():
-    app_thread = threading.Thread(target=app.run, args=('127.0.0.1', 11451, False))
-    # B站监听弹幕启动
-
-    app_thread.start()
     logger.info('💜 ZerolanLiveRobot，启动！')
     while FLAG:
         await life_circle()
         await asyncio.sleep(1)
-
-    app_thread.join()
-
 
 if __name__ == '__main__':
     # 加载配置文件
@@ -72,7 +66,19 @@ if __name__ == '__main__':
     assert obs_serv.init(*obs_config)
     assert init(*zerolan_live_robot_config)
 
+    # 启动播放器线程
+    audio_play_thread = threading.Thread(target=audio_player.service.start)
+    audio_play_thread.start()
+
+    # 主控制器线程
+    app_thread = threading.Thread(target=app.run, args=('127.0.0.1', 11451, False))
+    app_thread.start()
+
+    # 启动生命周期
     asyncio.run(service_start())
+
     bili_thr.join()
+    audio_play_thread.join()
+    app_thread.join()
 # except Exception:
 #     logger.critical(f'💥 ZEROLAN LIVE ROBOT 初始化失败：因无法处理的异常而退出')
