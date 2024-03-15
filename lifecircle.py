@@ -1,6 +1,5 @@
 import json
 import threading
-from dataclasses import dataclass
 from os import PathLike
 from typing import List
 
@@ -8,10 +7,12 @@ from loguru import logger
 
 import audio_player.service
 import chatglm3.api
+import minecraft.service
 from bilibili import service as bili_serv
 from bilibili.service import Danmaku
 from blip_img_cap import service as blip_serv
 from gptsovits import service as gptsovits_serv
+from minecraft.service import GameEvent
 from obs import service as obs_serv
 from scrnshot import service as scrn_serv
 from tone_ana import service as tone_serv
@@ -60,12 +61,6 @@ def read_screen() -> str | None:
     return screen_desc
 
 
-@dataclass
-class GameEvent:
-    health: int
-    food: int
-
-
 def convert_2_query(danmaku: Danmaku, screen_desc: str, game_event: GameEvent):
     query = {
         "弹幕": {
@@ -75,8 +70,9 @@ def convert_2_query(danmaku: Danmaku, screen_desc: str, game_event: GameEvent):
         "游戏画面": f'{screen_desc}' if screen_desc else 'None',
         "游戏状态": {
             "生命值": game_event.health,
-            "饥饿值": game_event.food
-        }
+            "饥饿值": game_event.food,
+            "环境": game_event.environment
+        } if game_event else None
     }
     return str(json.dumps(obj=query, indent=4, ensure_ascii=False)) if query else None
 
@@ -99,7 +95,7 @@ def tts_with_tone(sentence: str):
 
 
 def read_game_event():
-    return GameEvent(health=20, food=20)
+    return minecraft.service.select()
 
 
 async def life_circle(add_audio_event: threading.Event):

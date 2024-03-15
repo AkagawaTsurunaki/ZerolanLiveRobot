@@ -6,25 +6,6 @@ const options = {
     version: '1.20.4'
 }
 const bot = mineflayer.createBot(options)
-const welcome = () => {
-    bot.chat('主人好喵~')
-}
-
-async function consume(bot) {
-    try {
-        await bot.consume()
-        console.log('Finished consuming')
-    } catch (err) {
-        console.log(err)
-    }
-}
-
-// console.log(bot)
-console.log(bot.food)
-bot.once('heldItemChanged', () => {
-    consume(bot)
+bot.on('entityHurt', async (entity) => {
+    console.log(entity)
 })
-// consume(bot).then(r => {})
-
-
-
