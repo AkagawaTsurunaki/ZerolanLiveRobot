@@ -1,4 +1,5 @@
 import time
+import attk
 from dataclasses import dataclass
 from typing import List
 
@@ -53,6 +54,7 @@ def create_game_event(env: str):
 def add(event: GameEvent):
     game_event_list.append(event)
 
+
 def bot_chat(msg):
     bot.chat(msg)
 
@@ -64,6 +66,16 @@ def handle_once_spawn(this):
         "startAt": 14,
         "bannedFood": []
     }
+
+@On(bot, 'physicsTick')
+def handle_in_physics_ticks(this):
+    if bot:
+        # and e.displayName == 'Creeper'
+        # f = lambda e : e['type'] == 'hostile' and e['position'].distance_to(bot.entity.postion) < 16
+        entity = bot.nearestEntity()
+        if entity:
+            if entity.type == 'hostile' and bot.entity.position.distanceTo(entity.position) < 4:
+                bot.attack(entity)
 
 
 @On(bot, 'spawn')
