@@ -18,5 +18,5 @@ parser.add_argument('--chatglm3', action='store_true', help='启动 ChatGLM3 服
 
 args = parser.parse_args()
 
-if args.chatglm3:
-    start_llm()
+
+start_llm()
