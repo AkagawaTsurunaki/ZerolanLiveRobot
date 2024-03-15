@@ -1,7 +1,7 @@
 import {Bot} from "mineflayer";
 import {moveToPos} from "./util";
 
-function findBlockToHarvest(bot, maxDistance = 6) {
+function findBlockToHarvest(bot: Bot, maxDistance = 6) {
     return bot.findBlock({
         point: bot.entity.position,
         maxDistance: maxDistance,
@@ -28,6 +28,7 @@ function findBlockToSow(bot: Bot, maxDistance = 16) {
 export function sow(bot: Bot) {
     const blockToSow = findBlockToSow(bot, 16)
     if (blockToSow) {
+        bot.chat('开始')
         moveToPos(bot, blockToSow.position)
     }
 }

@@ -9,4 +9,23 @@ export function moveToPos(bot: Bot, pos: Vec3): void {
 }
 
 
+/**
+ * 寻找最近的玩家
+ * @param bot Bot 对象
+ * @param min_dist 最小搜索半径
+ * @param max_dist 最大搜索半径
+ * @returns {Entity|null}
+ */
+export function findNearestPlayer(bot: Bot, min_dist = 0, max_dist = 255) {
+    const player_filter = e => e.type === 'player'
+    const player = bot.nearestEntity(player_filter)
+    if (player) {
+        const dist = player.position.distanceTo(bot.entity.position)
+        if (min_dist < dist && dist < max_dist) {
+            return player
+        }
+    }
+    return null
+}
+
 

@@ -13,40 +13,40 @@ const bot = mineflayer.createBot({
 bot.loadPlugin(pathfinder)
 bot.loadPlugin(pvp)
 
-/**
- * 寻找最近的玩家
- * @param min_dist 最小搜索半径
- * @param max_dist 最大搜索半径
- * @returns {Entity|null}
- */
-const findNearestPlayer = (min_dist = 0, max_dist = 255) => {
-    let player_filter = e => e.type === 'player'
-    player = bot.nearestEntity(player_filter)
-    dist = player.position.distanceTo(bot.entity.position)
-    if (min_dist < dist && dist < max_dist) {
-        return player
-    }
-    return null
-}
-
-// Pathfinder to the guard position
-function moveTo(pos) {
-    bot.pathfinder.setMovements(new Movements(bot))
-    bot.pathfinder.setGoal(new goals.GoalBlock(pos.x, pos.y, pos.z))
-}
-
-// 装备不死图腾
-const auto_totem = () => {
-    const totemId = bot.registry.itemsByName.totem_of_undying.id // Get the correct id
-    if (bot.registry.itemsByName.totem_of_undying) {
-        setInterval(() => {
-            const totem = bot.inventory.findInventoryItem(totemId, null)
-            if (totem) {
-                bot.equip(totem, 'off-hand')
-            }
-        }, 50)
-    }
-}
+// /**
+//  * 寻找最近的玩家
+//  * @param min_dist 最小搜索半径
+//  * @param max_dist 最大搜索半径
+//  * @returns {Entity|null}
+//  */
+// const findNearestPlayer = (min_dist = 0, max_dist = 255) => {
+//     let player_filter = e => e.type === 'player'
+//     player = bot.nearestEntity(player_filter)
+//     dist = player.position.distanceTo(bot.entity.position)
+//     if (min_dist < dist && dist < max_dist) {
+//         return player
+//     }
+//     return null
+// }
+//
+// // Pathfinder to the guard position
+// function moveTo(pos) {
+//     bot.pathfinder.setMovements(new Movements(bot))
+//     bot.pathfinder.setGoal(new goals.GoalBlock(pos.x, pos.y, pos.z))
+// }
+//
+// // 装备不死图腾
+// const auto_totem = () => {
+//     const totemId = bot.registry.itemsByName.totem_of_undying.id // Get the correct id
+//     if (bot.registry.itemsByName.totem_of_undying) {
+//         setInterval(() => {
+//             const totem = bot.inventory.findInventoryItem(totemId, null)
+//             if (totem) {
+//                 bot.equip(totem, 'off-hand')
+//             }
+//         }, 50)
+//     }
+// }
 
 bot.on('stoppedAttacking', () => {
     const nearestPlayer = findNearestPlayer(5, 50)

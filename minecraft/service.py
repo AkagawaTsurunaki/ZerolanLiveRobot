@@ -1,5 +1,4 @@
 import time
-import attk
 from dataclasses import dataclass
 from typing import List
 
