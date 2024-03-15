@@ -78,24 +78,7 @@ def convert_2_query(danmaku: Danmaku, screen_desc: str, game_event: GameEvent):
             "饥饿值": game_event.food
         }
     }
-    # if danmaku and screen_desc:
-    #     query = {
-    #         danmaku.username: danmaku.msg,
-    #         "screen": screen_desc
-    #     }
-    # elif screen_desc and not danmaku:
-    #     query = {
-    #         "screen": screen_desc
-    #     }
-    # elif not screen_desc and danmaku:
-    #     query = {
-    #         danmaku.username: danmaku.msg
-    #     }
-    # else:
-    #     query = None
-    if query:
-        return str(json.dumps(obj=query, indent=4, ensure_ascii=False))
-    return None
+    return str(json.dumps(obj=query, indent=4, ensure_ascii=False)) if query else None
 
 
 def tts_with_tone(sentence: str):
