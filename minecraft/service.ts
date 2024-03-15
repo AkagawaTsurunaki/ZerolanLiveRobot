@@ -1,5 +1,6 @@
 import {pathfinder} from "mineflayer-pathfinder";
 import {createBot} from "mineflayer";
+import {plugin as autoeat} from "mineflayer-auto-eat"
 import "mineflayer"
 import {sow} from "./farmer"
 import {plugin as pvp} from "mineflayer-pvp";
@@ -7,8 +8,7 @@ import {findNearestPlayer, moveToPos} from "./util";
 import {attackMobs} from "./attack";
 import {faceMe, followMe} from "./follow";
 
-
-const bot = createBot({
+export const bot = createBot({
     host: 'localhost',
     port: 25565,
     username: 'Koneko'
