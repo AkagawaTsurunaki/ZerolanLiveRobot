@@ -85,6 +85,7 @@ def handle_output():
     response, history = predict(query=llm_query.query, history=llm_query.history, temperature=llm_query.temperature,
                                 top_p=llm_query.top_p,
                                 return_past_key_values=True)
+    print(response)
     return jsonify({
         "response": response,
         "history": history
@@ -107,6 +108,7 @@ def handle_stream_output():
                         return_past_key_values=True
                     )
             ):
+                print(response)
                 yield jsonify({
                     "response": response,
                     "history": history
