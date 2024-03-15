@@ -2,7 +2,7 @@ import time
 from dataclasses import dataclass
 from typing import List
 
-from javascript import require, On
+from javascript import require, On, Once
 from loguru import logger
 
 mineflayer = require('mineflayer', 'latest')
@@ -18,6 +18,8 @@ bot = mineflayer.createBot({
     "port": MINECRAFT_SERVER_PORT,
     "username": MINECRAFT_BOT_NAME,
 })
+# 自动进食
+bot.loadPlugin(autoeat.plugin)
 
 # 机器人的实体 ID
 g_bot_entity_id = None
@@ -51,6 +53,18 @@ def create_game_event(env: str):
 def add(event: GameEvent):
     game_event_list.append(event)
 
+def bot_chat(msg):
+    bot.chat(msg)
+
+
+@Once(bot, 'spawn')
+def handle_once_spawn(this):
+    bot.autoEat.options = {
+        "priority": 'foodPoints',
+        "startAt": 14,
+        "bannedFood": []
+    }
+
 
 @On(bot, 'spawn')
 def handle_spawn(this):
@@ -63,6 +77,14 @@ def handle_spawn(this):
 @On(bot, "chat")
 def handle(this, username, message, *args):
     logger.info(f'{username} {message}')
+
+
+@On(bot, 'health')
+def handle_health(this):
+    if bot.food == 20:
+        bot.autoEat.disable()
+    else:
+        bot.autoEat.enable()
 
 
 def bot_hurt():
