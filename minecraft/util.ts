@@ -28,4 +28,11 @@ export function findNearestPlayer(bot: Bot, min_dist = 0, max_dist = 255) {
     return null
 }
 
+/**
+ * 等待指定毫秒数
+ * @param ms
+ */
+export function wait(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
