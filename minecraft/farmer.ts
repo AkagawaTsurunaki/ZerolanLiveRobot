@@ -1,7 +1,11 @@
 import {Bot} from "mineflayer";
 import {moveToPos} from "./util";
+import {Vec3} from "vec3";
 
-function findBlockToHarvest(bot: Bot, maxDistance = 6) {
+function tryFindBlockToHarvest(bot: Bot, maxDistance: number) {
+    if (!bot || !bot.findBlock || typeof bot.findBlock !== 'function') {
+        return null;
+    }
     return bot.findBlock({
         point: bot.entity.position,
         maxDistance: maxDistance,
@@ -12,7 +16,10 @@ function findBlockToHarvest(bot: Bot, maxDistance = 6) {
 }
 
 
-function findBlockToSow(bot: Bot, maxDistance = 16) {
+function tryFindBlockToSow(bot: Bot, maxDistance: number) {
+    if (!bot || !bot.findBlock || typeof bot.findBlock !== 'function') {
+        return null;
+    }
     return bot.findBlock({
         point: bot.entity.position,
         matching: bot.registry.blocksByName.farmland.id,
@@ -25,10 +32,23 @@ function findBlockToSow(bot: Bot, maxDistance = 16) {
 }
 
 
-export function sow(bot: Bot) {
-    const blockToSow = findBlockToSow(bot, 16)
-    if (blockToSow) {
-        bot.chat('开始')
-        moveToPos(bot, blockToSow.position)
+export async function sow(bot: Bot, maxDistance = 16) {
+    try {
+        // 找到可以种的地
+        while (tryFindBlockToSow(bot, maxDistance)) {
+            const blockToSow = tryFindBlockToSow(bot, maxDistance)
+            console.log(blockToSow.metadata)
+            if (blockToSow) {
+                bot.chat('锄大地喵~')
+                moveToPos(bot, blockToSow.position.offset(0, 1, 0))
+                // 种地
+                await bot.equip(bot.registry.itemsByName.wheat_seeds.id, 'hand')
+                await bot.placeBlock(blockToSow, new Vec3(0, 1, 0))
+            }
+            setTimeout(sow, 1000)
+        }
+    } catch (e) {
+        console.log(e)
     }
 }
+
