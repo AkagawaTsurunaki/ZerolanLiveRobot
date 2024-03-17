@@ -2,7 +2,7 @@ import {pathfinder} from "mineflayer-pathfinder";
 import {createBot} from "mineflayer";
 import {plugin as autoeat} from "mineflayer-auto-eat"
 import "mineflayer"
-import {sow} from "./farmer"
+import {fertilize, harvest, sow} from "./farmer"
 import {plugin as pvp} from "mineflayer-pvp";
 import {findNearestPlayer, moveToPos} from "./util";
 import {attackMobs} from "./attack";
@@ -34,7 +34,11 @@ bot.on('chat', async (username, message, translate, jsonMsg, matches) => {
     if (['来', 'lai', 'come'].includes(message)) {
         followMe(bot)
     } else if (['种', 'zhong', 'sow'].includes(message)) {
-        sow(bot)
+        await sow(bot)
+    } else if (['收', 'shou', 'harvest'].includes(message)) {
+        await harvest(bot)
+    } else if (['施肥', 'shifei', 'fertilize'].includes(message)) {
+        await fertilize(bot)
     }
 })
 

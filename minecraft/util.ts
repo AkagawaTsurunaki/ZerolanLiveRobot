@@ -33,6 +33,6 @@ export function findNearestPlayer(bot: Bot, min_dist = 0, max_dist = 255) {
  * @param ms
  */
 export function wait(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
