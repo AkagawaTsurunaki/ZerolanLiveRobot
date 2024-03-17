@@ -91,7 +91,7 @@ export async function fertilize(bot: Bot, maxDistance = 36, interval_ms = 100) {
                     console.log('没有这个工具')
                     bot.chat('没骨粉啊!')
                 }
-                bot.placeBlock(blockToSow, new Vec3(0, 1, 0))
+                bot.placeBlock(blockToSow, new Vec3(0, 1, 0)).catch(() => {})
                 // 太快会对服务器造成负担
                 await wait(interval_ms)
             } else {

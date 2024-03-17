@@ -6,10 +6,13 @@ import {
 } from "../../../../ProgramFiles/Anaconda/Lib/site-packages/bokeh/server/static/js/lib/styles/icons.css";
 
 export function followMe(bot: Bot) {
-    bot.chat('好的喵, 主人!')
     const player_filter = e => e.type === 'player' && e.position.distanceTo(bot.entity.position) > 5
     const player_entity = bot.nearestEntity(player_filter)
-    moveToPos(bot, player_entity.position)
+    if (player_entity) {
+        // bot.chat('好的喵, 主人!')
+        moveToPos(bot, player_entity.position)
+        bot.lookAt(player_entity.position.offset(0, 1, 0))
+    }
 }
 
 export async function faceMe(bot: Bot, position: Vec3, soundCategory) {
