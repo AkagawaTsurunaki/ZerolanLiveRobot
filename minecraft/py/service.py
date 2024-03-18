@@ -63,9 +63,12 @@ def handle_once_spawn(this):
 
 @On(bot, 'physicsTick')
 def handle_in_physics_ticks(this):
-    attack_mobs(bot)
-    add_event(check_health_changed(bot))
-    add_event(check_food_changed(bot))
+    try:
+        add_event(check_health_changed(bot))
+        add_event(check_food_changed(bot))
+        attack_mobs(bot)
+    except Exception as e:
+        print(e)
 
 
 @On(bot, 'spawn')
