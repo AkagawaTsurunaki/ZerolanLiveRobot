@@ -4,9 +4,11 @@ import {plugin as autoeat} from "mineflayer-auto-eat"
 import "mineflayer"
 import {fertilize, harvest, sow} from "./farmer"
 import {plugin as pvp} from "mineflayer-pvp";
-import {findNearestPlayer, moveToPos} from "./util";
+import {findNearestPlayer, moveToPos, postGameEvent, GameEvent} from "./util";
 import {attackEnemy, attackMobs} from "./attack";
 import {faceMe, followMe, wander} from "./follow";
+
+const URL = 'http://127.0.0.1:12546'
 
 export const bot = createBot({
     host: 'localhost',
@@ -57,6 +59,8 @@ bot.on("stoppedAttacking", () => {
 })
 var fun = 0
 bot.on('physicsTick', async () => {
+    const gev = new GameEvent(bot, '你好')
+    postGameEvent(`${URL}/addevent`, gev)
     await attackMobs(bot)
     fun++;
     console.log(fun)

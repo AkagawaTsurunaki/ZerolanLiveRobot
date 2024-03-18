@@ -2,6 +2,7 @@
   "name": "ZerolanLiveRobot",
   "version": "1.0.0",
   "dependencies": {
+    "axios": "^1.6.8",
     "mineflayer": "^4.20.0",
     "mineflayer-auto-eat": "^3.3.6",
     "mineflayer-pathfinder": "^2.4.5",

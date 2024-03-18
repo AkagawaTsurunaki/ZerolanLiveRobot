@@ -1,7 +1,6 @@
 import {moveToPos} from "./util";
 import {Bot} from "mineflayer";
 import {Vec3} from "vec3";
-import {randomIn} from "../../../../ProgramFiles/Anaconda/Lib/site-packages/bokeh/server/static/js/lib/core/util/math";
 
 
 export function followMe(bot: Bot) {
@@ -29,6 +28,6 @@ export async function faceMe(bot: Bot, position: Vec3, soundCategory: string | n
 
 export async function wander(bot: Bot, minRadius = 20, maxRadius = 50) {
     const botPos = bot.entity.position
-    const radius = randomIn(minRadius, maxRadius)
+    // const radius = randomIn(minRadius, maxRadius)
 
 }
