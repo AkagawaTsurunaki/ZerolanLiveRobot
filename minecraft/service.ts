@@ -73,8 +73,3 @@ bot.on('chat', async (username, message, translate, jsonMsg, matches) => {
 bot.on('hardcodedSoundEffectHeard', async (soundId, soundCategory, position, volume, pitch) => {
     await faceMe(bot, position, soundCategory)
 })
-
-bot.on('health', () => {
-    bot.chat(`被攻击了 ${bot.health}`)
-})
-
