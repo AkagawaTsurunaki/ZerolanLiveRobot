@@ -12,7 +12,7 @@ from bilibili import service as bili_serv
 from bilibili.service import Danmaku
 from blip_img_cap import service as blip_serv
 from gptsovits import service as gptsovits_serv
-from minecraft.py.service import GameEvent
+from minecraft.py.common import GameEvent
 from obs import service as obs_serv
 from scrnshot import service as scrn_serv
 from tone_ana import service as tone_serv

@@ -1,9 +1,13 @@
-import time
-from dataclasses import dataclass
+import json
+from dataclasses import asdict
 from typing import List
 
 from javascript import require, On, Once
-from loguru import logger
+
+from minecraft.py.body import bot_hurt, bot_death, check_health_changed, check_food_changed, reset_body_info
+from minecraft.py.common import create_game_event, GameEvent
+from minecraft.py.eater import auto_eat
+from minecraft.py.guard import attack_mobs
 
 mineflayer = require('mineflayer', 'latest')
 autoeat = require('mineflayer-auto-eat')
@@ -21,20 +25,11 @@ bot = mineflayer.createBot({
 # 自动进食
 bot.loadPlugin(autoeat.plugin)
 
-# 机器人的实体 ID
-g_bot_entity_id = None
-
-
-@dataclass
-class GameEvent:
-    read: bool
-    time_stamp: float
-    health: int
-    food: int
-    environment: str | None
-
-
 game_event_list: List[GameEvent] = []
+
+
+def bot_log(msg):
+    bot.chat(msg)
 
 
 def select():
@@ -46,16 +41,10 @@ def select():
     return None
 
 
-def create_game_event(env: str):
-    return GameEvent(time_stamp=time.time(), health=bot.health, food=bot.food, environment=env, read=False)
-
-
-def add(event: GameEvent):
-    game_event_list.append(event)
-
-
-def bot_chat(msg):
-    bot.chat(msg)
+def add_event(event: GameEvent):
+    if event:
+        game_event_list.append(event)
+        bot_log(f'游戏事件 {json.dumps(obj=asdict(event), indent=4, ensure_ascii=False)}')
 
 
 @Once(bot, 'spawn')
@@ -66,52 +55,39 @@ def handle_once_spawn(this):
         "bannedFood": []
     }
 
+
 @On(bot, 'physicsTick')
 def handle_in_physics_ticks(this):
-    if bot:
-        # and e.displayName == 'Creeper'
-        # f = lambda e : e['type'] == 'hostile' and e['position'].distance_to(bot.entity.postion) < 16
-        entity = bot.nearestEntity()
-        if entity:
-            if entity.type == 'hostile' and bot.entity.position.distanceTo(entity.position) < 4:
-                bot.attack(entity)
+    attack_mobs(bot)
+    add_event(check_health_changed(bot))
+    add_event(check_food_changed(bot))
 
 
 @On(bot, 'spawn')
 def handle_spawn(this):
-    global g_bot_entity_id
-    if bot:
-        g_bot_entity_id = bot.entity.id
-        add(create_game_event(env='你重生了'))
+    reset_body_info()
+    add_event(create_game_event(bot=bot, env='你重生了'))
 
 
 @On(bot, "chat")
 def handle(this, username, message, *args):
-    logger.info(f'{username} {message}')
+    ...
 
 
 @On(bot, 'health')
 def handle_health(this):
-    if bot.food == 20:
-        bot.autoEat.disable()
-    else:
-        bot.autoEat.enable()
-
-
-def bot_hurt():
-    event = create_game_event(env='注意！你被攻击了！')
-    add(event)
+    auto_eat_event = auto_eat(bot)
+    add_event(auto_eat_event)
 
 
 @On(bot._client, 'damage_event')
 def handle_damage_event(this, packet, *args):
     entity_id, source_type_id, source_cause_id, source_direct_id = packet.values()
-    if g_bot_entity_id:
-        if g_bot_entity_id == entity_id:
-            bot_hurt()
+    bot_hurt_event = bot_hurt(bot, entity_id)
+    add_event(bot_hurt_event)
 
 
 @On(bot, 'death')
 def death_handle(this, *args):
-    event = create_game_event(env='注意！你已经死亡了！')
-    add(event)
+    bot_death_event = bot_death(bot)
+    add_event(bot_death_event)
