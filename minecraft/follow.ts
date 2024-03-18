@@ -1,9 +1,7 @@
 import {moveToPos} from "./util";
 import {Bot} from "mineflayer";
 import {Vec3} from "vec3";
-import {
-    tool_icon_freehand_draw
-} from "../../../../ProgramFiles/Anaconda/Lib/site-packages/bokeh/server/static/js/lib/styles/icons.css";
+
 
 export function followMe(bot: Bot) {
     const player_filter = e => e.type === 'player' && e.position.distanceTo(bot.entity.position) > 5
