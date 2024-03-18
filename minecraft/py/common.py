@@ -6,7 +6,7 @@ from math import floor
 def create_game_event(bot, env: str):
     if bot:
         return GameEvent(time_stamp=time.time(), health=floor(bot.health), food=bot.food, environment=env, read=False)
-    else :
+    else:
         return None
 
 
