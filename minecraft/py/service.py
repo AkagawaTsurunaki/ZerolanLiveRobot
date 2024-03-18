@@ -11,6 +11,8 @@ from minecraft.py.guard import attack_mobs
 
 mineflayer = require('mineflayer', 'latest')
 autoeat = require('mineflayer-auto-eat')
+pvp = require('mineflayer-pvp')
+pathfinder = require('mineflayer-pathfinder')
 Vec3 = require('vec3').Vec3
 
 MINECRAFT_SERVER_HOST = 'localhost'
@@ -24,6 +26,9 @@ bot = mineflayer.createBot({
 })
 # 自动进食
 bot.loadPlugin(autoeat.plugin)
+# PVP 插件
+bot.loadPlugin(pathfinder.pathfinder)
+bot.loadPlugin(pvp.plugin)
 
 game_event_list: List[GameEvent] = []
 
