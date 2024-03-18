@@ -13,7 +13,7 @@ export function followMe(bot: Bot) {
     }
 }
 
-export async function faceMe(bot: Bot, position: Vec3, soundCategory) {
+export async function faceMe(bot: Bot, position: Vec3, soundCategory: string | number) {
     const distance = bot.entity.position.distanceTo(position)
     if (soundCategory === 'player') {
         if (1 < distance && distance < 20) {
