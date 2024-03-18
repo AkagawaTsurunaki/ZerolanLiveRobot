@@ -5,8 +5,8 @@ import "mineflayer"
 import {fertilize, harvest, sow} from "./farmer"
 import {plugin as pvp} from "mineflayer-pvp";
 import {findNearestPlayer, moveToPos} from "./util";
-import {attackMobs} from "./attack";
-import {faceMe, followMe} from "./follow";
+import {attackEnemy, attackMobs} from "./attack";
+import {faceMe, followMe, wander} from "./follow";
 
 export const bot = createBot({
     host: 'localhost',
@@ -41,6 +41,13 @@ bot.on('health', () => {
     // Disable the plugin if the bot is at 20 food points
     else bot.autoEat.enable() // Else enable the plugin again
 })
+
+bot._client.on('damage_event', (packet) => {
+    const entityId = packet.entityId
+    attackEnemy(bot, entityId)
+
+})
+
 // @ts-ignore
 bot.on("stoppedAttacking", () => {
     const nearestPlayer = findNearestPlayer(bot, 5, 50)
@@ -53,7 +60,7 @@ bot.on('physicsTick', async () => {
     await attackMobs(bot)
     fun++;
     console.log(fun)
-    if (fun % 20 == 0 ) {
+    if (fun % 20 == 0) {
         followMe(bot)
     }
 })
@@ -67,6 +74,8 @@ bot.on('chat', async (username, message, translate, jsonMsg, matches) => {
         await harvest(bot)
     } else if (['施肥', 'shifei', 'fertilize'].includes(message)) {
         await fertilize(bot)
+    } else if (['玩', 'wan', 'play'].includes(message)) {
+        await wander(bot)
     }
 })
 
