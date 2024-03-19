@@ -4,7 +4,7 @@ import {plugin as autoeat} from "mineflayer-auto-eat"
 import "mineflayer"
 import {fertilize, harvest, sow} from "./farmer"
 import {plugin as pvp} from "mineflayer-pvp";
-import {findNearestPlayer, moveToPos, postGameEvent, GameEvent} from "./util";
+import {addRespawnEvent, findNearestPlayer, moveToPos} from "./util";
 import {attackMobs} from "./attack";
 import {faceMe, followMe, wander} from "./follow";
 
@@ -18,7 +18,7 @@ bot.loadPlugin(pathfinder)
 bot.loadPlugin(pvp)
 bot.loadPlugin(autoeat)
 
-bot.once('spawn', () => {
+bot.once('spawn', async () => {
     // @ts-ignore
     bot.autoEat.options = {
         priority: 'foodPoints',
@@ -26,7 +26,10 @@ bot.once('spawn', () => {
         bannedFood: []
     }
 })
-// The bot eats food automatically and emits these events when it starts eating and stops eating.
+
+bot.on('respawn', async () => {
+    await addRespawnEvent(bot)
+})
 
 bot.on('autoeat_started', () => {
     console.log('Auto Eat started!')
@@ -59,7 +62,6 @@ bot.on('physicsTick', async () => {
     // postGameEvent(gev)
     await attackMobs(bot)
     fun++;
-    console.log(fun)
     if (fun % 20 == 0) {
         followMe(bot)
     }
