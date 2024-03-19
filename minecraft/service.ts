@@ -7,6 +7,7 @@ import {plugin as pvp} from "mineflayer-pvp";
 import {addRespawnEvent, findNearestPlayer, moveToPos} from "./util";
 import {attackMobs} from "./attack";
 import {faceMe, followMe, wander} from "./follow";
+import {botHurt} from "./body";
 
 export const bot = createBot({
     host: 'localhost',
@@ -45,8 +46,12 @@ bot.on('health', () => {
     else bot.autoEat.enable() // Else enable the plugin again
 })
 
-bot._client.on('damage_event', (packet) => {
+bot._client.on('damage_event', async (packet) => {
     const entityId = packet.entityId
+    const sourceTypeId = packet.sourceTypeId
+    const sourceCauseId = packet.sourceCauseId
+    const sourceDirectId = packet.sourceDirectId
+    await botHurt(bot, entityId)
 })
 
 // @ts-ignore

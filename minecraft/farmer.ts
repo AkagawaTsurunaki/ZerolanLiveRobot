@@ -1,5 +1,5 @@
 import {Bot} from "mineflayer";
-import {moveToPos, wait} from "./util";
+import {GameEvent, moveToPos, postGameEvent, wait} from "./util";
 import {Vec3} from "vec3";
 
 function tryFindBlockToHarvest(bot: Bot, maxDistance: number) {
@@ -45,7 +45,7 @@ function tryFindBlockToFertilize(bot: Bot, maxDistance: number) {
 }
 
 export async function sow(bot: Bot, maxDistance = 36, interval_ms = 100) {
-    bot.chat('开始锄大地喵~')
+    await postGameEvent(new GameEvent(bot, '开始锄大地喵~开心！'))
     // 找到可以种的地
     while (true) {
         try {
@@ -66,15 +66,13 @@ export async function sow(bot: Bot, maxDistance = 36, interval_ms = 100) {
         } catch (e) {
             console.log(e)
         }
-
     }
-    bot.chat('已经把所有的小种子播撒到里面了哦~')
+    await postGameEvent(new GameEvent(bot, '已经把所有的小种子播撒到里面了哦~'))
 }
 
 
 export async function fertilize(bot: Bot, maxDistance = 36, interval_ms = 100) {
-    bot.chat('开始施肥喵~')
-
+    await postGameEvent(new GameEvent(bot, '开始施肥了，好爽。'))
     // 找到可以种的地
     while (true) {
         try {
@@ -91,7 +89,8 @@ export async function fertilize(bot: Bot, maxDistance = 36, interval_ms = 100) {
                     console.log('没有这个工具')
                     bot.chat('没骨粉啊!')
                 }
-                bot.placeBlock(blockToSow, new Vec3(0, 1, 0)).catch(() => {})
+                bot.placeBlock(blockToSow, new Vec3(0, 1, 0)).catch(() => {
+                })
                 // 太快会对服务器造成负担
                 await wait(interval_ms)
             } else {
@@ -103,13 +102,11 @@ export async function fertilize(bot: Bot, maxDistance = 36, interval_ms = 100) {
         }
 
     }
-
-    bot.chat('已经把所有的小种子播撒到里面了哦~')
+    await postGameEvent(new GameEvent(bot, '施肥完毕，真棒！'))
 }
 
 export async function harvest(bot: Bot, maxDistance = 36, interval_ms = 50) {
-    bot.chat('开始噶韭菜喵~')
-
+    await postGameEvent(new GameEvent(bot, '开始收割作物了。好开心喵！'))
     // 找到可以收割的地
     while (true) {
         try {
@@ -127,8 +124,6 @@ export async function harvest(bot: Bot, maxDistance = 36, interval_ms = 50) {
         } catch (e) {
             console.log(e)
         }
-
     }
-
-    bot.chat('已经把所有的作物都收了哦')
+    await postGameEvent(new GameEvent(bot, '把作物收割好了，真棒！'))
 }
