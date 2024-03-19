@@ -7,12 +7,11 @@ from loguru import logger
 
 import audio_player.service
 import chatglm3.api
-import minecraft.py.service
 from bilibili import service as bili_serv
 from bilibili.service import Danmaku
 from blip_img_cap import service as blip_serv
 from gptsovits import service as gptsovits_serv
-from minecraft.py.common import GameEvent
+from minecraft.common import GameEvent
 from obs import service as obs_serv
 from scrnshot import service as scrn_serv
 from tone_ana import service as tone_serv
@@ -21,6 +20,7 @@ from utils.util import is_blank
 HISTORY: List[dict] = []
 CUSTOM_PROMPT_PATH: str = 'template/custom_prompt.json'
 LANG = 'zh'
+MAX_HISTORY = 60
 
 
 def load_custom_history():
@@ -66,8 +66,8 @@ def convert_2_query(danmaku: Danmaku, screen_desc: str, game_event: GameEvent):
         "弹幕": {
             "用户名": danmaku.username,
             "内容": danmaku.msg
-        } if danmaku else 'None',
-        "游戏画面": f'{screen_desc}' if screen_desc else 'None',
+        } if danmaku else None,
+        "游戏画面": f'{screen_desc}' if screen_desc else None,
         "游戏状态": {
             "生命值": game_event.health,
             "饥饿值": game_event.food,
@@ -95,7 +95,8 @@ def tts_with_tone(sentence: str):
 
 
 def read_game_event():
-    return minecraft.py.service.select()
+    # return minecraft.py.service.select()
+    return None
 
 
 async def life_circle(add_audio_event: threading.Event):
@@ -159,4 +160,10 @@ async def life_circle(add_audio_event: threading.Event):
         add_audio_event.set()
 
         # 向Minecraft中输出信息
-        minecraft.py.service.bot_chat(sentence)
+        # minecraft.py.service.bot_chat(sentence)
+
+    # 当历史记录过多时可能会导致 GPU 占用过高
+    # 故设计一个常量来检测是否超过阈值
+    if HISTORY:
+        if len(HISTORY) > MAX_HISTORY:
+            load_custom_history()
