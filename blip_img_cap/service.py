@@ -38,9 +38,10 @@ def infer_by_path(img_path: str, text: str = sys_prompt):
     return output_text
 
 
-def infer(img, text: str = sys_prompt):
+def infer(img, text: str = None):
     assert is_initialized, f'❌️ blip-image-captioning-large 服务未初始化'
     raw_image = img.convert('RGB')
+    text = sys_prompt if not text else text
     # conditional image captioning
     inputs = processor(raw_image, text, return_tensors="pt").to("cuda", torch.float16)
 

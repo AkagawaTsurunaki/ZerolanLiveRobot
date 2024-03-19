@@ -72,12 +72,12 @@ def load_blip_image_captioning_large_config(global_config: dict):
     :param global_config:
     :return:
     """
-    blip_image_captioning_large_config = global_config.get('blip_image_captioning_large_config', None)
-    assert blip_image_captioning_large_config, f'❌️ 模型 blip-image-captioning-large 配置未填写或格式有误'
-    model_path = blip_image_captioning_large_config.get('model_path')
+    config = global_config.get('blip_image_captioning_large_config', None)
+    assert config, f'❌️ 模型 blip-image-captioning-large 配置未填写或格式有误'
+    model_path = config.get('model_path')
     if not os.path.exists(model_path):
         model_path = 'Salesforce/blip-image-captioning-large'
-    text_prompt = blip_image_captioning_large_config.get('text_prompt', 'There')
+    text_prompt = config.get('text_prompt', 'There')
     logger.info('⚙️ 模型 blip-image-captioning-large 配置加载完毕')
     return model_path, text_prompt
 
