@@ -20,7 +20,11 @@ def init(debug, host, port, save_dir):
     DEBUG = debug
     SAVE_DIR = save_dir
     SERVER_URL = f"http://{host}:{port}"
-    assert requests.head(SERVER_URL, timeout=5).status_code, f'❌️ GPT-SoVTIS 服务无法连接至 {SERVER_URL}'
+    try:
+        assert requests.head(SERVER_URL, timeout=5).status_code
+    except Exception:
+        logger.critical(f'❌️ GPT-SoVTIS 服务无法连接至 {SERVER_URL}')
+        exit()
     IS_INITIALIZED = True
     logger.info('👄 GPT-SoVITS 服务初始化完毕')
     return IS_INITIALIZED
