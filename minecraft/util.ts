@@ -37,17 +37,17 @@ export function wait(ms: number): Promise<void> {
 }
 
 export class GameEvent {
-    private read: boolean;
-    private time_stamp: number
-    private health: number
-    private food: number
-    private environment: string
+    public read: boolean;
+    public time_stamp: number
+    public health: number
+    public food: number
+    public environment: string
 
     public constructor(bot: Bot, environment: string) {
-        this.read = false
-        this.time_stamp = Date.now()
         this.health = bot.health
         this.food = bot.food
+        this.read = false
+        this.time_stamp = Date.now()
         this.environment = environment
     }
 }
@@ -62,5 +62,14 @@ export async function postGameEvent(gameEvent: GameEvent) {
         }
     } catch (e) {
         console.error(e)
+    }
+}
+
+export async function addRespawnEvent(bot: Bot) {
+    if (bot) {
+        const event = new GameEvent(bot, '你重生了。')
+        event.health = 20
+        event.food = 20
+        await postGameEvent(event)
     }
 }
