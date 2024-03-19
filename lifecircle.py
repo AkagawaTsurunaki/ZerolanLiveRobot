@@ -8,12 +8,12 @@ from loguru import logger
 import audio_player.service
 import chatglm3.api
 import minecraft.service
+import obs.service
 from bilibili import service as bili_serv
 from bilibili.service import Danmaku
 from blip_img_cap import service as blip_serv
 from gptsovits import service as gptsovits_serv
 from minecraft.common import GameEvent
-from obs import service as obs_serv
 from scrnshot import service as scrn_serv
 from tone_ana import service as tone_serv
 from utils.util import is_blank
@@ -21,7 +21,7 @@ from utils.util import is_blank
 HISTORY: List[dict] = []
 CUSTOM_PROMPT_PATH: str = 'template/custom_prompt.json'
 LANG = 'zh'
-MAX_HISTORY = 60
+MAX_HISTORY = 40
 
 
 def load_custom_history():
@@ -58,7 +58,6 @@ def read_screen() -> str | None:
     """
     img = scrn_serv.screen_cap()
     screen_desc = blip_serv.infer(img) if img else None
-    logger.info(f'👀 {screen_desc}')
     return screen_desc
 
 
@@ -75,6 +74,8 @@ def convert_2_query(danmaku: Danmaku, screen_desc: str, game_event: GameEvent):
             "环境": game_event.environment
         } if game_event else None
     }
+    if (not query['弹幕']) and (not query['游戏画面']) and (not query['游戏状态']):
+        return None
     return str(json.dumps(obj=query, indent=4, ensure_ascii=False)) if query else None
 
 
@@ -92,6 +93,8 @@ def tts_with_tone(sentence: str):
                                                        refer_wav_path=tone.refer_wav_path,
                                                        prompt_text=tone.prompt_text,
                                                        prompt_language=tone.prompt_language)
+    obs.service.write_tone_output(tone)
+
     return tone, wav_file_path
 
 
@@ -119,6 +122,8 @@ async def life_circle(add_audio_event: threading.Event):
         return
 
     logger.info(query)
+
+    obs.service.write_danmaku_output(danmaku)
 
     # 其中 resp
     # 第1轮循环 resp = '我'
@@ -153,11 +158,10 @@ async def life_circle(add_audio_event: threading.Event):
             logger.warning(f'❕ 这条语音未能合成：{sentence}')
             break
 
-        obs_serv.write_output(danmaku, sentence, tone)
-
         # 播放语音
         audio_player.service.add_audio(wav_file_path, sentence)
         add_audio_event.set()
+        # obs_serv.write_output(danmaku, sentence, tone)
 
         # 向Minecraft中输出信息
         # minecraft.py.service.bot_chat(sentence)

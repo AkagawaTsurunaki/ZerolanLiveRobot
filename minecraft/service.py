@@ -13,6 +13,7 @@ game_event_list: List[GameEvent] = []
 
 @app.route('/addevent', methods=['POST'])
 def handle_add_event():
+    logger.info(request.json)
     game_event = GameEvent(**request.json)
     if game_event:
         game_event_list.append(game_event)

@@ -8,6 +8,8 @@ from typing import List
 from loguru import logger
 from playsound import playsound
 
+import obs.service
+
 logger.remove()
 handler_id = logger.add(sys.stderr, level="INFO")
 
@@ -44,6 +46,8 @@ def play(audio_pair: AudioPair):
     # 为了避免发生 259 错误，请务必使用绝对路径
     # 并且请自行搜索解决编码问题的方法，需要修改playsound源码
     wav_file_path = os.path.abspath(audio_pair.wav_file_path)
+    # 写入文件
+    obs.service.write_llm_output(audio_pair.transcript)
     playsound(wav_file_path)
     audio_pair.played = True
     logger.debug(f'音频文件播放完毕：{wav_file_path}')
