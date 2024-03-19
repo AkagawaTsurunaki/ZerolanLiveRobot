@@ -6,6 +6,7 @@ from flask import Flask
 from loguru import logger
 
 import audio_player.service
+import minecraft.service
 from bilibili import service as bili_serv
 from blip_img_cap import service as blip_serv
 from gptsovits import service as gptsovits_serv
@@ -72,15 +73,20 @@ if __name__ == '__main__':
     audio_play_thread = threading.Thread(target=audio_player.service.start, args=(add_audio_event,))
     audio_play_thread.start()
 
+    # 启动 Minecraft 游戏事件监听线程
+    minecraft_thread = threading.Thread(target=minecraft.service.start)
+    minecraft_thread.start()
+
     # 主控制器线程
     app_thread = threading.Thread(target=app.run, args=('127.0.0.1', 11451, False))
     app_thread.start()
 
     # 启动生命周期
     asyncio.run(service_start(add_audio_event))
-
+    minecraft_thread.join()
     bili_thr.join()
     audio_play_thread.join()
+
     app_thread.join()
 # except Exception:
 #     logger.critical(f'💥 ZEROLAN LIVE ROBOT 初始化失败：因无法处理的异常而退出')

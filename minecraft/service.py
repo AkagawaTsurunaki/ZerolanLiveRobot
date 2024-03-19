@@ -20,4 +20,5 @@ def handle_add_event():
     return jsonify(game_event)
 
 
-app.run(host='127.0.0.1', port=12546, debug=False)
+def start():
+    app.run(host='127.0.0.1', port=12546, debug=False)
