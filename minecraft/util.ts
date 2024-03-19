@@ -52,9 +52,11 @@ export class GameEvent {
     }
 }
 
-export async function postGameEvent(url: string, gameEvent: GameEvent) {
+const URL = 'http://127.0.0.1:12546/addevent'
+
+export async function postGameEvent(gameEvent: GameEvent) {
     try {
-        const response = await axios.post(url, gameEvent)
+        const response = await axios.post(URL, gameEvent)
         if (response.status == 200) {
             console.log('成功发送游戏事件')
         }
