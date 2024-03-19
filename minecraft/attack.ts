@@ -9,10 +9,3 @@ export async function attackMobs(bot: Bot) {
     }
 }
 
-export async function attackEnemy(bot: Bot, entityId: number) {
-    // const enemyFilter = e => e.displayName == 'Phantom'
-    // const entity = bot.nearestEntity(enemyFilter)
-    // if (entity) {
-    //     await bot.pvp.attack(entity)
-    // }
-}
