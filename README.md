@@ -5,7 +5,7 @@
 ZEROLAN LIVE ROBOT 可以自动在 Bilibili 直播间中读取弹幕，同时观察屏幕指定窗口，理解其画面内容，通过大语言模型的推理和文本转语音技术做出回应。
 后续可能会添加更多的功能，例如LIVE2D控制、打游戏等。
 
-本项目持续开发中，您可以关注Bilibili账号[赤川鶴鳴_Channel](https://space.bilibili.com/1076299680]) ，正在调教猫娘，不定时直播展示最新进展。
+本项目持续开发中，您可以关注Bilibili账号[赤川鶴鳴_Channel](https://space.bilibili.com/1076299680])，正在调教猫娘，不定时直播展示最新进展。
 
 Python >= 3.10
 
@@ -13,30 +13,67 @@ Python >= 3.10
 
 1. 实时读取 Bilibili 直播间弹幕。
 2. 识别并理解 Windows 中指定窗口的内容。
-3. 基于大语言模型的游戏实况聊天对话。
-4. 基于语句语气的自调整的情感语音合成。
+3. 基于大语言模型 ChatGLM 3 的游戏实况聊天对话。
+4. 基于 GPT-SoVITS 的语音合成。
+4. 基于 mineflayer 的 Minecraft 智能体。
 
 ## 模型组合选择
 
 运行本项目，您需要有支持 CUDA 的显卡。下表为您展示了一些可能的组合，请根据您的显卡的显存大小，决定使用什么模型组合。
 
-| 组合 | Large Language Model       | Text to Speech | Image-Text Captioning       | 显存占用    |
-|----|----------------------------|----------------|-----------------------------|---------|
-| 1  | ChatGLM3 (4-bit Quantized) | GPT-SoVTIS     | blip-image-captioning-large | 10.1 GB |
-|    |                            |                |                             |         |
+| 组合 | Large Language Model       | Text to Speech | Image-Text Captioning       | OBS              | Minecraft                | 显存占用 |
+| ---- | -------------------------- | -------------- | --------------------------- | ---------------- | ------------------------ | -------- |
+| 1    | ChatGLM3 (4-bit Quantized) | GPT-SoVTIS     | blip-image-captioning-large | 应用高质量编码器 | 1.20.4 无光影 默认材质包 | 10.9 GB  |
+| 2    | ChatGLM3 (4-bit Quantized) | GPT-SoVTIS     | blip-image-captioning-large | 应用高质量编码器 | -                        | 9.3 GB   |
+| 3    | ChatGLM3 (4-bit Quantized) | GPT-SoVTIS     | blip-image-captioning-large | -                | -                        | 8.8 GB   |
+| 4    | ChatGLM3 (4-bit Quantized) | GPT-SoVTIS     | -                           | -                | -                        | 7.7 GB   |
+| 5    | ChatGLM3 (4-bit Quantized) | -              | -                           | -                | -                        | 5.4 GB   |
 
-请注意，如果您需要运行别的软件，例如 OBS 或者原神，则必须考虑到即使显存没有占满，
-显存的有限算力可能也会因为多个应用的抢占，从而导致项目的运行延迟增大。
+以上数据已经过开发者的直播测试，测试电脑配置如下。
 
-本项目在 NVIDIA GeForce RTX 4080 Laptop （拥有12GB的显存）上运行良好。
+| 设别名称 | 设备型号                       | 补充说明   |
+| -------- | ------------------------------ | ---------- |
+| Windows  | Windows 11                     | -          |
+| CPU      | i9-13900HX                     | 24 内核    |
+| GPU      | NVIDIA GeForce RTX 4080 Laptop | 12 GB 显存 |
+| 内存     | -                              | 32 GB 内存 |
+
+此外您还需注意：
+
+1. 多个程序同时抢占 GPU 资源可能导致服务响应中断。例如，OBS 在进行解码时对 GPU 的占用显著提高，从而导致 LLM 或 TTS 服务被操作系统挂起。
+2. 项目运行时可能会持续消耗显卡资源，请注意散热，避免引发火灾风险。
+3. 上述数据在不同系统和硬件上可能存在差异，请注意留足冗余量。
+4. 本项目尚不支持多卡运行，如果有需要您可以自行更改代码。
 
 ## 准备工作
 
-您需要找到并修改本项目中的配置文件`config/template_config.yaml`，
-并将`template_config.yaml`更名为`global_config.yaml`。
+我们假定您已经正确地安装了 Anaconda 和 Python。
+
+### 安装依赖
+
+首先，让我们使用 Anaconda 创建一个虚拟环境。
+
+```shell
+conda create --name zerolanliverobot python=3.10 -y # 创建虚拟环境
+```
+
+这将命令 Anaconda 创建一个名为`zerolanliverobot`的虚拟环境，且指定了 Python 版本为 3.10。
+
+```shell
+cd YourDirectory/ZerolanLiveRobot # 切换目录至您克隆本仓库的到您本机上的目录
+conda activate zerolanliverobot # 激活刚刚创建的虚拟环境
+pip install -r requirements.txt # 安装依赖
+```
+
+在这里注意的是，本项目中的依赖`torch~=2.1.1+cu118`可能因为您的 CUDA 设备具有不同的驱动版本而在安装时报错，如果报错请切换至对应的版本。
+
+### 修改配置
+
+您需要找到并修改本项目中的配置文件`config/template_config.yaml`，并将`template_config.yaml`更名为`global_config.yaml`。
+
 接下来，我们将会详细介绍配置文件中的每块内容。
 
-### Bilibli 直播服务
+#### Bilibli 直播服务
 
 这项配置用于连接至 Bilibili 服务器，并登录您的账号，获取指定直播间的内容。
 
@@ -55,7 +92,7 @@ bilibili_live_config:
 1. `sessdata`、`bili_jct`、`buvid3` 这三项用于向 Bilibili 服务器校验您的身份，如果不登录将无法获取直播间的弹幕信息。具体如何填写这三个值，详见[此处](https://nemo2011.github.io/bilibili-api/#/get-credential)。请注意，不要将这三项泄露给他人，尤其在直播的时候，这将会有盗号风险。
 2. `room_id` 是您要连接的直播间的ID，通常为直播间URL中的从左到右第一次出现的数字。当然，您可以设置为他人直播间的ID，这样会接受他人直播间的弹幕信息。
 
-### 截屏服务
+#### 截屏服务
 
 这一部分是为了让 ZEROLAN LIVE ROBOT 可以识别当前画面中的的实时内容，你可以指定ta可以看到的窗口，例如游戏画面。
 
@@ -84,7 +121,7 @@ blip_image_captioning_large_config:
   text_prompt: There
 ```
 
-### 配置并启动 GPT-SoVITS 服务
+#### 配置并启动 GPT-SoVITS 服务
 
 关于本项目采用的 TTS 模型
 [GPT-SoVITS](https://github.com/RVC-Boss/GPT-SoVITS)，这是一个可以支持仅需3到10秒的音频克隆的模型。
@@ -118,7 +155,7 @@ GPTSoVITSServiceConfig:
 
 4. `tmp_dir`用于临时存放生成的音频文件，您可以选择一个合适的位置，默认为`gptsovits\.tmp`。
 
-### 语气配置
+#### 语气配置
 
 为了能让虚拟形象以不同的语气说话，您需要在 `gptsovits/prompts/default.yaml` 配置中修改自定义的Prompt。
 以下是一个示例。
