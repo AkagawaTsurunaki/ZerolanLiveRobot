@@ -1,13 +1,12 @@
-# ZEROLAN LIVE ROBOT
+# Zerolan Live Robot
 
 | AI 虚拟主播 | 直播机器人 | 大语言模型 | 文本转语音 | 图像识别 |
 
-ZEROLAN LIVE ROBOT 可以自动在 Bilibili 直播间中读取弹幕，同时观察屏幕指定窗口，理解其画面内容，通过大语言模型的推理和文本转语音技术做出回应。
-后续可能会添加更多的功能，例如LIVE2D控制、打游戏等。
+Zerolan Live Robot 可以自动在 Bilibili 直播间中读取弹幕，同时观察屏幕指定窗口，理解其画面内容，操纵游戏，通过大语言模型的推理和文本转语音技术做出回应。
 
 本项目持续开发中，您可以关注Bilibili账号[赤川鶴鳴_Channel](https://space.bilibili.com/1076299680])，正在调教猫娘，不定时直播展示最新进展。
 
-## 基本功能
+## 目前的基本功能
 
 1. 实时读取 Bilibili 直播间弹幕。
 2. 识别并理解 Windows 中指定窗口的内容。
@@ -26,6 +25,8 @@ ZEROLAN LIVE ROBOT 可以自动在 Bilibili 直播间中读取弹幕，同时观
 | 3    | ChatGLM3 (4-bit Quantized) | GPT-SoVTIS     | blip-image-captioning-large | -                | -                        | 8.8 GB   |
 | 4    | ChatGLM3 (4-bit Quantized) | GPT-SoVTIS     | -                           | -                | -                        | 7.7 GB   |
 | 5    | ChatGLM3 (4-bit Quantized) | -              | -                           | -                | -                        | 5.4 GB   |
+
+注：这里的 ChatGLM3 是指参数量为 6B 的模型。
 
 以上数据已经过开发者的直播测试，测试电脑配置如下。
 
@@ -47,6 +48,14 @@ ZEROLAN LIVE ROBOT 可以自动在 Bilibili 直播间中读取弹幕，同时观
 
 我们假定您已经正确地安装了 Anaconda 和 Python。
 
+### 克隆仓库
+
+确保您已经安装了 Git，然后执行以下指令，它将克隆本仓库到您的本机。
+
+```she
+git clone https://github.com/AkagawaTsurunaki/ZerolanLiveRobot.git
+```
+
 ### 安装依赖
 
 首先，让我们使用 Anaconda 创建一个虚拟环境。
@@ -58,7 +67,7 @@ conda create --name zerolanliverobot python=3.10 -y # 创建虚拟环境
 这将命令 Anaconda 创建一个名为`zerolanliverobot`的虚拟环境，且指定了 Python 版本为 3.10。
 
 ```shell
-cd YourDirectory/ZerolanLiveRobot # 切换目录至您克隆本仓库的到您本机上的目录
+cd YourDirectory/ZerolanLiveRobot # 切换目录至本仓库的目录
 conda activate zerolanliverobot # 激活刚刚创建的虚拟环境
 pip install -r requirements.txt # 安装依赖
 ```
@@ -122,7 +131,7 @@ screenshot_config:
 
 #### 视觉识别服务
 
-我们使用 [blip-image-captioning-large]([Salesforce/blip-image-captioning-large · Hugging Face](https://huggingface.co/Salesforce/blip-image-captioning-large)) 这一模型以完成 Image-to-Text 任务，这里要注意的是，这个模型输出的是英文。
+我们使用 [blip-image-captioning-large]([Salesforce/blip-image-captioning-large · Hugging Face](https://huggingface.co/Salesforce/blip-image-captioning-large)) 这一模型以完成 Image-to-Text 任务，这里要注意的是，这个模型输出的是**英文**。
 
 关于配置文件，
 
@@ -138,19 +147,15 @@ blip_image_captioning_large_config:
 其中，
 
 1. `model_path` 表示模型的存放位置。
-2. text_prompt 表示模型的文本提示词，例如当你使用`There `时，模型的输出就会以`There`开头。
+2. `text_prompt` 表示模型的文本提示词（必须是英文），例如当你使用`There `时，模型的输出就会以`There`开头。
 
 #### 配置并启动 GPT-SoVITS 服务
 
-关于本项目采用的 TTS 模型
-[GPT-SoVITS](https://github.com/RVC-Boss/GPT-SoVITS)，这是一个可以支持仅需3到10秒的音频克隆的模型。
-请移步至官方仓库，了解如何下载并使用该模型。
+关于本项目采用的 TTS 模型[GPT-SoVITS](https://github.com/RVC-Boss/GPT-SoVITS)，这是一个可以支持仅需3到10秒的音频克隆的模型。请移步至官方仓库，了解如何下载并使用该模型。
 
 关于 GPT-SoVITS 官方的 API 如何支持中英、日英混读，请参考如下的[教程](https://github.com/jianchang512/gptsovits-api)修改。
 
-请按照上述仓库中文档中的操作步骤配置 GPT-SoVITS 服务，并启动 API 服务。
-
-请记住您的 API 服务的相关配置，
+请按照上述仓库中文档中的操作步骤配置 GPT-SoVITS 服务，并启动 API 服务，也请记住您的 API 服务的相关配置。
 
 ```yaml
 GPTSoVITSServiceConfig:
@@ -161,7 +166,7 @@ GPTSoVITSServiceConfig:
   # GPT-SoVITS 服务端口
   port: 9880
   # 音频临时文件夹
-  tmp_dir: gptsovits\.tmp
+  tmp_dir: .tmp/wav_output
 ```
 
 其中，
@@ -174,10 +179,9 @@ GPTSoVITSServiceConfig:
 
 4. `tmp_dir`用于临时存放生成的音频文件，您可以选择一个合适的位置，默认为`gptsovits\.tmp`。
 
-#### 语气配置
+#### 语气分析服务配置
 
-为了能让虚拟形象以不同的语气说话，您需要在 `gptsovits/prompts/default.yaml` 配置中修改自定义的Prompt。
-以下是一个示例。
+为了能让虚拟形象以不同的语气说话，您需要在 `template/tone_list.yaml` 配置中修改自定义的Prompt。以下是一个示例。
 
 ```yaml
 EMOTION_ID:
@@ -188,9 +192,123 @@ EMOTION_ID:
 
 其中，
 
-1. `EMOTION_ID` 表示此 Prompt 所包含的语气，例如“`开心`”。请注意，根据您使用的大语言模型所支持的语言，来设定`EMOTION_ID`
-   的效果可能会更好。
-2. `refer_wav_path`：此 Prompt 音频文件的路径。注意音频的长度必须大于 3 秒但小于 10 秒。
+1. `EMOTION_ID` 表示此 Prompt 所包含的语气，例如“`开心`”、“`生气`”。请注意，根据您使用的大语言模型所支持的语言，来设定`EMOTION_ID`的效果可能会更好。
+2. `refer_wav_path`：此 Prompt 音频文件的路径。注意音频的**长度必须大于 3 秒但小于 10 秒**。
 3. `prompt_text`：此 Prompt 音频文件中表述的内容。
-4. `prompt_language`：此此 Prompt 音频所用的语言。目前仅支持`zh`（中文）、`en`（英语）、`ja`（日语）这三国语言。
+4. `prompt_language`：此此 Prompt 音频所用的语言。GPT-SoVITS 目前仅支持`zh`（中文）、`en`（英语）、`ja`（日语）这三国语言。
 
+#### ChatGLM3 服务配置
+
+[ChatGLM3](https://github.com/THUDM/ChatGLM3)是本项目的核心，如果您无法正确启动此服务，那么将无法启动本项目。以下是配置文件：
+
+```yaml
+# ChatGLM3 服务配置
+chatglm3_service_config:
+  # 是否以调试模式运行
+  debug: False
+  # ChatGLM3 服务地址
+  host: 127.0.0.1
+  # ChatGLM3 服务端口
+  port: 8085
+  # Tokenizer 路径
+  tokenizer_path: THUDM/chatglm3-6b
+  # 模型路径
+  model_path: THUDM/chatglm3-6b
+  # 量化
+  quantize: 4
+```
+
+其中，
+
+1. `debug`：参数用来指定 Flask 是否以 debug 模式启动，默认为 `Flase`。
+2. `host`：ChatGLM 服务地址，如果您在本机上启动，那么默认地址为`127.0.0.1`。
+3. `port`：ChatGLM 服务端口，如果您未进行改动，那么默认端口为`8085`。
+4. `tokenizer_path`：ChatGLM 模型目录。
+5. `model_path`：ChatGLM 分词器目录，通常和 `tokenizer_path` 一样。
+6. `quantize`：ChatGLM 的量化等级，通常为 4，如果您的显存足够支持更大的量化等级，可以使用 8。
+
+#### OBS 服务配置
+
+[OBS](https://obsproject.com/download) 是一款免费且开源的视频录制和直播软件。以下的配置文件主要是为了您能够显示相关字幕。当然，如果不需要直播等功能，您也可以不使用此配置文件。
+
+```yaml
+# OBS 服务配置
+obs_config:
+  # 弹幕输出字幕文件
+  danmaku_output_path: .tmp/danmaku_output/output.txt
+  # 语气输出字幕文件
+  tone_output_path: .tmp/tone_output/output.txt
+  # 大语言模型输出字幕文件
+  llm_output_path: .tmp/llm_output/output.txt
+```
+
+其中，
+
+1. `danmaku_output_path`：被选择读取到的弹幕会被输出到这个路径的文件中。
+2. `tone_output_path`：模型输出的语气会被输出到这个路径的文件中。
+3. `llm_output_path`：模型输出的文字会被输出到这个路径的文件中。
+
+#### Zerolan 配置
+
+这是针对本项目的配置文件。
+
+```yaml
+# 本项目配置
+zerolan_live_robot_config:
+  # 提示词模板
+  custom_prompt_path: template/custom_prompt.json
+```
+
+其中，提示词模板中的内容举例如下：
+
+```json
+{
+  "query": "",
+  "history": [
+    {
+      "content": "你现在是一只猫娘，无论说什么都要带喵字。记住了的话，只需要回复：好的主人喵！",
+      "metadata": "",
+      "role": "user"
+    },
+    {
+      "content": "好的主人喵！",
+      "metadata": "",
+      "role": "assistant"
+    }
+  ],
+  "temperature": 1,
+  "top_p": 1
+}
+```
+
+其中，`history` 列表中可以填入若干轮对话，可以按照您自己的需求进行修改和扩充。这里的 `role` 属性中，`user` 代表用户的输入，而 `assistant` 表示模型输出。
+
+## 开始运行
+
+当一切准备就绪后，您可以运行以下代码来运行本项目。
+
+```shell
+cd YourDirectory/ZerolanLiveRobot # 切换目录至本仓库的目录
+conda activate zerolanliverobot # 激活刚刚创建的虚拟环境
+python main.py # 启动主程序
+```
+
+## 常见问题
+
+#### GPT-SoVTIS 服务无法连接
+
+```
+CRITICAL | gptsovits.service:init:26 - ❌️ GPT-SoVTIS 服务无法连接至 http://127.0.0.1:9880
+```
+
+出现这种情况，是因为程序无法访问这个地址 `http://127.0.0.1:9880`（根据您的配置不同可能略有差异），请检查您在 GPT-SoVITS 项目中是否正确启动了 api 服务。注意您应该启动的是 `api.py` 或者 `api2.py` 而不是启动  `webui.py`。
+
+#### 无法找到窗口
+
+```
+WARNING  | scrnshot.service:screen_cap:32 - 无法找到窗口 xxx
+```
+
+如字面意思，程序无法找到您在配置文件中设置的 `screenshot_config.win_title` 所指定的窗口。请检查您对应的窗口确实开启了，或者是否存在拼写错误。
+
+无法找到窗口
