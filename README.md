@@ -7,8 +7,6 @@ ZEROLAN LIVE ROBOT 可以自动在 Bilibili 直播间中读取弹幕，同时观
 
 本项目持续开发中，您可以关注Bilibili账号[赤川鶴鳴_Channel](https://space.bilibili.com/1076299680])，正在调教猫娘，不定时直播展示最新进展。
 
-Python >= 3.10
-
 ## 基本功能
 
 1. 实时读取 Bilibili 直播间弹幕。
@@ -67,6 +65,16 @@ pip install -r requirements.txt # 安装依赖
 
 在这里注意的是，本项目中的依赖`torch~=2.1.1+cu118`可能因为您的 CUDA 设备具有不同的驱动版本而在安装时报错，如果报错请切换至对应的版本。
 
+### 下载必要模型
+
+| 模型名称                                                     | 下载与安装方式                                               | 用途       |
+| ------------------------------------------------------------ | ------------------------------------------------------------ | ---------- |
+| [ChatGLM3](https://github.com/THUDM/ChatGLM3)                | `git clone https://huggingface.co/THUDM/chatglm3-6b`         | 大语言模型 |
+| [GPT-SoVITS](https://github.com/RVC-Boss/GPT-SoVITS)         | 请仔细阅读[这里](https://github.com/RVC-Boss/GPT-SoVITS)。   | 文字转语音 |
+| [blip-image-captioning-large](https://huggingface.co/Salesforce/blip-image-captioning-large) | `git clone https://huggingface.co/Salesforce/blip-image-captioning-large` | 图片转文字 |
+
+您需要自行下载模型，并且放置在一个合适的位置。如果遇到无法连接的情况请记住这不是您的原因。
+
 ### 修改配置
 
 您需要找到并修改本项目中的配置文件`config/template_config.yaml`，并将`template_config.yaml`更名为`global_config.yaml`。
@@ -112,6 +120,12 @@ screenshot_config:
 2. `k` 缩放因子，它的作用是防止窗口的边框和标题栏被识别到，从而使 AI 失去沉浸感。取值越小，AI 可识别的范围越小，取值 0 ~ 1 之间。
 3. `save_dir` 截取的图片存放目录，会保存为若干个`时间戳.png`这样的图片。程序停止不会自动清除这里的图片。
 
+#### 视觉识别服务
+
+我们使用 [blip-image-captioning-large]([Salesforce/blip-image-captioning-large · Hugging Face](https://huggingface.co/Salesforce/blip-image-captioning-large)) 这一模型以完成 Image-to-Text 任务，这里要注意的是，这个模型输出的是英文。
+
+关于配置文件，
+
 ```yaml
 # 模型 blip-image-captioning-large 的配置
 blip_image_captioning_large_config:
@@ -120,6 +134,11 @@ blip_image_captioning_large_config:
   # 模型默认文本提示词（只能是英文）
   text_prompt: There
 ```
+
+其中，
+
+1. `model_path` 表示模型的存放位置。
+2. text_prompt 表示模型的文本提示词，例如当你使用`There `时，模型的输出就会以`There`开头。
 
 #### 配置并启动 GPT-SoVITS 服务
 
@@ -175,12 +194,3 @@ EMOTION_ID:
 3. `prompt_text`：此 Prompt 音频文件中表述的内容。
 4. `prompt_language`：此此 Prompt 音频所用的语言。目前仅支持`zh`（中文）、`en`（英语）、`ja`（日语）这三国语言。
 
-## 大语言模型（LLM）
-
-现在我们支持 [ChatGLM3](https://github.com/THUDM/ChatGLM3).
-
-### ChatGLM3
-
-首先，你应该使用`/config` 配置LLM服务。
-这将会返回一个带有`code`的HttpResponseBody，如果值为`Code.OK`，请调用`/start`以启动服务；
-否则，请根据返回的信息查看配置文件是否出现错误。
