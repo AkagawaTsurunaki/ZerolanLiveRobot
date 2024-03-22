@@ -1,22 +1,26 @@
 # Zerolan Live Robot
 
-| AI 虚拟主播 | 直播机器人 | 大语言模型 | 文本转语音 | 图像识别 |
+![Static Badge](https://img.shields.io/badge/Python%20-%203.10%20-%20blue) ![Static Badge](https://img.shields.io/badge/Node%20-%2020.9.0%20-%20violet) ![Static Badge](https://img.shields.io/badge/CUDA%20-%202.1.1%2Bcu118%20-%20green) ![Static Badge](https://img.shields.io/badge/License%20-%20GPLv3%20-%20orange) 
 
-Zerolan Live Robot 可以自动在 Bilibili 直播间中读取弹幕，同时观察屏幕指定窗口，理解其画面内容，操纵游戏，通过大语言模型的推理和文本转语音技术做出回应。
+![Static Badge](https://img.shields.io/badge/AI%20VTuber%20-%20green) ![Static Badge](https://img.shields.io/badge/Bilibli%20Live%20-%20green) ![Static Badge](https://img.shields.io/badge/Large%20Language%20Model%20-%20green) ![Static Badge](https://img.shields.io/badge/Text%20to%20Speech%20-%20green) ![Static Badge](https://img.shields.io/badge/Image%20to%20Text%20-%20green) ![Static Badge](https://img.shields.io/badge/Minecraft%20AI%20Agent%20-%20green) ![Static Badge](https://img.shields.io/badge/Automatic%20Speech%20Recognition%20(not%20supported)%20-%20red)
 
-本项目持续开发中，您可以关注Bilibili账号[赤川鶴鳴_Channel](https://space.bilibili.com/1076299680])，正在调教猫娘，不定时直播展示最新进展。
+Zerolan Live Robot 是一款多功能的直播机器人（AI VTuber），它可以自动在 Bilibili 直播间中读取弹幕，同时观察电脑屏幕的指定窗口，理解其画面内容，操纵 Minecraft 中的角色，通过大语言模型的推理和文本转语音技术做出回应。
+
+本项目持续开发中，您可以关注Bilibili账号[赤川鶴鳴_Channel](https://space.bilibili.com/1076299680])，正在根据此项目调教 AI 猫娘，不定时直播展示最新进展。
+
+> 咱希望每个人都能拥有自己的 AI 猫娘喵！
 
 ## 目前的基本功能
 
 1. 实时读取 Bilibili 直播间弹幕。
-2. 识别并理解 Windows 中指定窗口的内容。
+2. 识别并理解指定窗口的内容，例如 Minecraft。
 3. 基于大语言模型 ChatGLM 3 的游戏实况聊天对话。
-4. 基于 GPT-SoVITS 的语音合成。
-4. 基于 mineflayer 的 Minecraft 智能体。
+4. 基于 GPT-SoVITS 的语音合成，且带有语气切换功能。
+4. 基于 mineflayer 的 Minecraft 智能体陪玩。
 
 ## 模型组合选择
 
-运行本项目，您需要有支持 CUDA 的显卡。下表为您展示了一些可能的组合，请根据您的显卡的显存大小，决定使用什么模型组合。
+运行本项目，您需要有支持 CUDA 的显卡。下表为您展示了一些可能的组合，请根据您的显卡的显存大小，决定使用什么模型组合。以下数据已经过开发者的直播测试（测试时还有直播姬、Minecraft Server 等程序在后台运行），仅供参考。
 
 | 组合 | Large Language Model       | Text to Speech | Image-Text Captioning       | OBS              | Minecraft                | 显存占用 |
 | ---- | -------------------------- | -------------- | --------------------------- | ---------------- | ------------------------ | -------- |
@@ -26,9 +30,9 @@ Zerolan Live Robot 可以自动在 Bilibili 直播间中读取弹幕，同时观
 | 4    | ChatGLM3 (4-bit Quantized) | GPT-SoVTIS     | -                           | -                | -                        | 7.7 GB   |
 | 5    | ChatGLM3 (4-bit Quantized) | -              | -                           | -                | -                        | 5.4 GB   |
 
-注：这里的 ChatGLM3 是指参数量为 6B 的模型。
+*注：这里的 ChatGLM3 是指参数量为 6B 的模型。*
 
-以上数据已经过开发者的直播测试，测试电脑配置如下。
+开发者测试时的电脑配置如下，仅供参考。
 
 | 设别名称 | 设备型号                       | 补充说明   |
 | -------- | ------------------------------ | ---------- |
@@ -50,7 +54,7 @@ Zerolan Live Robot 可以自动在 Bilibili 直播间中读取弹幕，同时观
 
 ### 克隆仓库
 
-确保您已经安装了 Git，然后执行以下指令，它将克隆本仓库到您的本机。
+确保您已经正确安装了 Git，然后执行以下指令，它将克隆本仓库到您的本机。
 
 ```she
 git clone https://github.com/AkagawaTsurunaki/ZerolanLiveRobot.git
@@ -259,12 +263,22 @@ zerolan_live_robot_config:
   custom_prompt_path: template/custom_prompt.json
 ```
 
-其中，提示词模板中的内容举例如下：
+提示词模板 `custom_prompt.json` 中的内容举例如下：
 
 ```json
 {
   "query": "",
   "history": [
+    {
+      "content": "你现在是一只猫娘，无论说什么都要带喵字。记住了的话，只需要回复：好的主人喵！",
+      "metadata": "",
+      "role": "user"
+    },
+    {
+      "content": "好的主人喵！",
+      "metadata": "",
+      "role": "assistant"
+    },
     {
       "content": "你现在是一只猫娘，无论说什么都要带喵字。记住了的话，只需要回复：好的主人喵！",
       "metadata": "",
@@ -285,13 +299,27 @@ zerolan_live_robot_config:
 
 ## 开始运行
 
-当一切准备就绪后，您可以运行以下代码来运行本项目。
+首先，启动 ChatGLM3 服务。
+
+```shell
+cd YourDirectory/ZerolanLiveRobot # 切换目录至本仓库的目录
+conda activate zerolanliverobot # 激活刚刚创建的虚拟环境
+python api_run.py # 启动大语言模型 ChatGLM3
+```
+
+大语言模型需要一段时间去加载，请耐心等待。
+
+接着，启动 GPT-SoVTIS 服务。启动脚本请遵循 GPT-SoVTIS 原项目的文档要求进行设置。
+
+确保 ChatGLM3 和 GPT-SoVTIS 均被正确启动后，您可以运行以下代码来运行本项目。
 
 ```shell
 cd YourDirectory/ZerolanLiveRobot # 切换目录至本仓库的目录
 conda activate zerolanliverobot # 激活刚刚创建的虚拟环境
 python main.py # 启动主程序
 ```
+
+如果一切正常，稍后就能听到合成的语音被自动播放了（注意系统音量，不要损伤您的听力）。
 
 ## 常见问题
 
@@ -311,4 +339,30 @@ WARNING  | scrnshot.service:screen_cap:32 - 无法找到窗口 xxx
 
 如字面意思，程序无法找到您在配置文件中设置的 `screenshot_config.win_title` 所指定的窗口。请检查您对应的窗口确实开启了，或者是否存在拼写错误。
 
-无法找到窗口
+## 开源许可证
+
+本项目使用“GNU通用公共许可证”（GNU GENERAL PUBLIC LICENSE，GPLv3），我们希望以自由的方式使用户从本项目中受益。
+
+## 特别鸣谢
+
+本项目用到了以下开源项目的部分或全部的技术，再此特别感谢开源社区为人类社会的贡献。
+
+[THUDM/ChatGLM3: ChatGLM3 series: Open Bilingual Chat LLMs | 开源双语对话语言模型 (github.com)](https://github.com/THUDM/ChatGLM3)
+
+[RVC-Boss/GPT-SoVITS: 1 min voice data can also be used to train a good TTS model! (few shot voice cloning) (github.com)](https://github.com/RVC-Boss/GPT-SoVITS)
+
+[Salesforce/blip-image-captioning-large · Hugging Face](https://huggingface.co/Salesforce/blip-image-captioning-large)
+
+[Nemo2011/bilibili-api: 哔哩哔哩常用API调用。支持视频、番剧、用户、频道、音频等功能。原仓库地址：https://github.com/MoyuScript/bilibili-api](https://github.com/Nemo2011/bilibili-api)
+
+[PrismarineJS/mineflayer: Create Minecraft bots with a powerful, stable, and high level JavaScript API. (github.com)](https://github.com/PrismarineJS/mineflayer)
+
+此处可能未能详尽展示，如有疏漏，可以联系开发者。
+
+## 联系方式
+
+如果您对本项目有何建议或问题等，可以通过以下联系方式与开发者交流。
+
+邮箱：AkagawaTsurunaki@outlook.com
+
+QQ群：858378209
