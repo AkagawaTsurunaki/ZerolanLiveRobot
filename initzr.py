@@ -126,17 +126,6 @@ def load_chatglm3_service_config(global_config: dict):
     return debug, host, port, tokenizer_path, model_path, quantize
 
 
-def load_zerolan_live_robot_config(global_config: dict):
-    zerolan_live_robot_config = global_config.get('zerolan_live_robot_config', None)
-    assert zerolan_live_robot_config, f'❌️ Zerolan Live Robot 服务配置未填写或格式有误'
-    custom_prompt_path = zerolan_live_robot_config.get('custom_prompt_path', 'template/custom_prompt2.json')
-    assert os.path.exists(
-        custom_prompt_path), f'❌️ Zerolan Live Robot 服务配置中的字段 custom_prompt_path 所指向的路径不存在'
-
-    logger.info('⚙️ Zerolan Live Robot 服务服务配置加载完毕')
-    return custom_prompt_path,
-
-
 def load_obs_config(global_config: dict):
     config = global_config.get('obs_config')
     danmaku_output_path = config.get('danmaku_output_path', '.tmp/danmaku_output/output.txt')
@@ -146,3 +135,16 @@ def load_obs_config(global_config: dict):
     llm_output_path = config.get('llm_output_path', '.tmp/llm_output/output.txt')
     assert os.path.exists(llm_output_path), f'❌️ OBS 服务配置中的字段 llm_output_path 所指向的路径不存在'
     return danmaku_output_path, tone_output_path, llm_output_path
+
+
+def load_zerolan_live_robot_config(global_config: dict):
+    config = global_config.get('zerolan_live_robot_config', None)
+    assert config, f'❌️ Zerolan Live Robot 服务配置未填写或格式有误'
+    custom_prompt_path = config.get('custom_prompt_path', 'template/custom_prompt2.json')
+    assert os.path.exists(
+        custom_prompt_path), f'❌️ Zerolan Live Robot 服务配置中的字段 custom_prompt_path 所指向的路径不存在'
+    debug = config.get('debug', False)
+    host = config.get('host', '127.0.0.1')
+    port = config.get('port', 11451)
+    logger.info('⚙️ Zerolan Live Robot 服务服务配置加载完毕')
+    return debug, host, port, custom_prompt_path

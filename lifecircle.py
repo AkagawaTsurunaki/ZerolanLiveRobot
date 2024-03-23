@@ -1,12 +1,12 @@
 import json
 import threading
-from os import PathLike
 from typing import List
 
 from loguru import logger
 
 import audio_player.service
 import chatglm3.api
+import controller.service
 import minecraft.py.service
 import obs.service
 from bilibili import service as bili_serv
@@ -19,23 +19,8 @@ from tone_ana import service as tone_serv
 from utils.util import is_blank
 
 HISTORY: List[dict] = []
-CUSTOM_PROMPT_PATH: str = 'template/custom_prompt.json'
 LANG = 'zh'
 MAX_HISTORY = 40
-
-
-def load_custom_history():
-    global HISTORY, CUSTOM_PROMPT_PATH
-    with open(file=CUSTOM_PROMPT_PATH, mode='r', encoding='utf-8') as file:
-        json_value: dict = json.load(file)
-        HISTORY = json_value.get('history')
-
-
-def init(custom_prompt_path: str | PathLike):
-    global CUSTOM_PROMPT_PATH
-    CUSTOM_PROMPT_PATH = custom_prompt_path
-    load_custom_history()
-    return True
 
 
 def read_danmaku() -> Danmaku | None:
@@ -102,8 +87,20 @@ def read_game_event():
     return minecraft.py.service.select01()
 
 
+def try_compress_history():
+    # TODO: 仍在施工, 压缩记忆
+    # 当历史记录过多时可能会导致 GPU 占用过高
+    # 故设计一个常量来检测是否超过阈值
+    global HISTORY
+    if len(HISTORY) == 0 or len(HISTORY) > MAX_HISTORY:
+        HISTORY = controller.service.load_custom_history()
+
+
 async def life_circle(add_audio_event: threading.Event):
     global HISTORY, LANG
+
+    # 当记忆过多或没有记忆(懒加载)时, 尝试重载记忆
+    try_compress_history()
 
     # 尝试抽取弹幕
     danmaku = read_danmaku()
@@ -161,13 +158,5 @@ async def life_circle(add_audio_event: threading.Event):
         # 播放语音
         audio_player.service.add_audio(wav_file_path, sentence)
         add_audio_event.set()
-        # obs_serv.write_output(danmaku, sentence, tone)
 
-        # 向Minecraft中输出信息
-        # minecraft.py.service.bot_chat(sentence)
-
-    # 当历史记录过多时可能会导致 GPU 占用过高
-    # 故设计一个常量来检测是否超过阈值
-    if HISTORY:
-        if len(HISTORY) > MAX_HISTORY:
-            load_custom_history()
+    logger.critical(len(HISTORY))
