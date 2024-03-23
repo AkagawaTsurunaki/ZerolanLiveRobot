@@ -158,5 +158,3 @@ async def life_circle(add_audio_event: threading.Event):
         # 播放语音
         audio_player.service.add_audio(wav_file_path, sentence)
         add_audio_event.set()
-
-    logger.critical(len(HISTORY))
