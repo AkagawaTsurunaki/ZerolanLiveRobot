@@ -6,7 +6,7 @@ from flask import Flask
 from loguru import logger
 
 import audio_player.service
-import minecraft.service
+import minecraft.py.service
 from bilibili import service as bili_serv
 from blip_img_cap import service as blip_serv
 from gptsovits import service as gptsovits_serv
@@ -74,7 +74,7 @@ if __name__ == '__main__':
     audio_play_thread.start()
 
     # 启动 Minecraft 游戏事件监听线程
-    minecraft_thread = threading.Thread(target=minecraft.service.start)
+    minecraft_thread = threading.Thread(target=minecraft.py.service.start)
     minecraft_thread.start()
 
     # 主控制器线程

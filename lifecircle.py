@@ -7,13 +7,13 @@ from loguru import logger
 
 import audio_player.service
 import chatglm3.api
-import minecraft.service
+import minecraft.py.service
 import obs.service
 from bilibili import service as bili_serv
 from bilibili.service import Danmaku
 from blip_img_cap import service as blip_serv
 from gptsovits import service as gptsovits_serv
-from minecraft.common import GameEvent
+from minecraft.py.common import GameEvent
 from scrnshot import service as scrn_serv
 from tone_ana import service as tone_serv
 from utils.util import is_blank
@@ -99,7 +99,7 @@ def tts_with_tone(sentence: str):
 
 
 def read_game_event():
-    return minecraft.service.select01()
+    return minecraft.py.service.select01()
 
 
 async def life_circle(add_audio_event: threading.Event):

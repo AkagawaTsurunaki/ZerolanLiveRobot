@@ -4,7 +4,7 @@ from flask import Flask, jsonify
 from flask import request
 from loguru import logger
 
-from minecraft.common import GameEvent
+from minecraft.py.common import GameEvent
 
 app = Flask(__name__)
 
