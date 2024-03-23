@@ -64,5 +64,12 @@ obs_config:
   llm_output_path: .tmp/llm_output/output.txt
 # 本项目配置
 zerolan_live_robot_config:
+  # 是否以调试模式运行
+  debug: False
+  # ChatGLM3 服务地址
+  host: 127.0.0.1
+  # ChatGLM3 服务端口
+  port: 11451
   # 提示词模板
   custom_prompt_path: template/custom_prompt.json
+
