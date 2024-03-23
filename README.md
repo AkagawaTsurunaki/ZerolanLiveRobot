@@ -4,11 +4,15 @@
 
 ![Static Badge](https://img.shields.io/badge/AI%20VTuber%20-%20green) ![Static Badge](https://img.shields.io/badge/Bilibli%20Live%20-%20green) ![Static Badge](https://img.shields.io/badge/Large%20Language%20Model%20-%20green) ![Static Badge](https://img.shields.io/badge/Text%20to%20Speech%20-%20green) ![Static Badge](https://img.shields.io/badge/Image%20to%20Text%20-%20green) ![Static Badge](https://img.shields.io/badge/Minecraft%20AI%20Agent%20-%20green) ![Static Badge](https://img.shields.io/badge/Automatic%20Speech%20Recognition%20(not%20supported)%20-%20red)
 
-Zerolan Live Robot 是一款多功能的直播机器人（AI VTuber），它可以自动在 Bilibili 直播间中读取弹幕，同时观察电脑屏幕的指定窗口，理解其画面内容，操纵 Minecraft 中的角色，通过大语言模型的推理和文本转语音技术做出回应。
+你或许已经听说过著名的 [Neurosama](https://virtualyoutuber.fandom.com/wiki/Neuro-sama)，或者是来自中国的[木几萌](https://mobile.moegirl.org.cn/%E6%9C%A8%E5%87%A0%E8%90%8C)。 
+你是否也想要拥有一个自己的 AI 虚拟形象陪你直播聊天、打游戏？
+开源的 Zerolan Live Robot 正致力于实现您的梦想！而这仅仅需要一张消费级显卡！
 
-本项目持续开发中，您可以关注Bilibili账号[赤川鶴鳴_Channel](https://space.bilibili.com/1076299680])，正在根据此项目调教 AI 猫娘，不定时直播展示最新进展。
+Zerolan Live Robot 是一款多功能的直播机器人（AI VTuber），它可以自动在 Bilibili 直播间中读取弹幕，同时观察电脑屏幕的指定窗口，理解其画面内容，操纵 Minecraft 中的游戏角色，并做出聊天回应。
 
-> 咱希望每个人都能拥有自己的 AI 猫娘喵！
+本项目持续开发中，当前的版本为 `1.0`，您可以关注开发者的Bilibili账号[赤川鶴鳴_Channel](https://space.bilibili.com/1076299680)，正在根据此项目调教 AI 猫娘，不定时直播展示最新进展。
+
+> 希望每个人都能拥有自己的 AI 猫娘喵！
 
 ## 目前的基本功能
 
@@ -56,7 +60,7 @@ Zerolan Live Robot 是一款多功能的直播机器人（AI VTuber），它可�
 
 确保您已经正确安装了 Git，然后执行以下指令，它将克隆本仓库到您的本机。
 
-```she
+```shell
 git clone https://github.com/AkagawaTsurunaki/ZerolanLiveRobot.git
 ```
 
@@ -76,7 +80,7 @@ conda activate zerolanliverobot # 激活刚刚创建的虚拟环境
 pip install -r requirements.txt # 安装依赖
 ```
 
-在这里注意的是，本项目中的依赖`torch~=2.1.1+cu118`可能因为您的 CUDA 设备具有不同的驱动版本而在安装时报错，如果报错请切换至对应的版本。
+在这里注意的是，本项目中的依赖 `torch~=2.1.1+cu118` 可能因为您的 CUDA 设备具有不同的驱动版本而在安装时报错，如果报错请切换至对应的版本。
 
 ### 下载必要模型
 
@@ -86,7 +90,7 @@ pip install -r requirements.txt # 安装依赖
 | [GPT-SoVITS](https://github.com/RVC-Boss/GPT-SoVITS)         | 请仔细阅读[这里](https://github.com/RVC-Boss/GPT-SoVITS)。   | 文字转语音 |
 | [blip-image-captioning-large](https://huggingface.co/Salesforce/blip-image-captioning-large) | `git clone https://huggingface.co/Salesforce/blip-image-captioning-large` | 图片转文字 |
 
-您需要自行下载模型，并且放置在一个合适的位置。如果遇到无法连接的情况请记住这不是您的原因。
+您需要自行下载模型，并且放置在一个合适的位置。在某些国家或地区，访问 Hugging Face 可能存在困难，请自行搜寻解决方案，通常您可以选择一个值得信赖的镜像网站或代理来解决。
 
 ### 修改配置
 
@@ -280,12 +284,12 @@ zerolan_live_robot_config:
       "role": "assistant"
     },
     {
-      "content": "你现在是一只猫娘，无论说什么都要带喵字。记住了的话，只需要回复：好的主人喵！",
+      "content": "现在你是什么？",
       "metadata": "",
       "role": "user"
     },
     {
-      "content": "好的主人喵！",
+      "content": "主人，我是一只猫娘喵！",
       "metadata": "",
       "role": "assistant"
     }
@@ -321,6 +325,19 @@ python main.py # 启动主程序
 
 如果一切正常，稍后就能听到合成的语音被自动播放了（注意系统音量，不要损伤您的听力）。
 
+如果您需要开启 Minecraft AI Agent 与您一同在服务器中游玩，可以使用以下命令。
+
+```shell
+node minecraft/service.ts host port username password
+```
+
+其中，
+
+1. `host`：Minecraft 服务器的地址，如果您在本机开启了服务器，请使用 `127.0.0.1`。
+2. `port`：Minecraft 服务器的端口，如果您没有修改默认的端口号，那么通常为 `25565`。
+3. `username`：Minecraft AI Agent 将要登入的服务器的玩家名称，在游戏中将以此名称显示。
+4. `password`：Minecraft AI Agent 将要登入的服务器的密码，如果没有设置密码，请忽略这个字段。
+
 ## 常见问题
 
 #### GPT-SoVTIS 服务无法连接
@@ -338,6 +355,10 @@ WARNING  | scrnshot.service:screen_cap:32 - 无法找到窗口 xxx
 ```
 
 如字面意思，程序无法找到您在配置文件中设置的 `screenshot_config.win_title` 所指定的窗口。请检查您对应的窗口确实开启了，或者是否存在拼写错误。
+
+## 工作原理
+
+您可能好奇，Zerolan Live Robot 是如何做到这一步的。
 
 ## 开源许可证
 

@@ -9,11 +9,15 @@ import {attackMobs} from "./attack";
 import {faceMe, followMe, wander} from "./follow";
 import {botHurt} from "./body";
 
-export const bot = createBot({
-    host: 'localhost',
-    port: 25565,
-    username: 'Koneko'
-})
+const options = {
+  host: process.argv[2],
+  port: parseInt(process.argv[3]),
+  username: process.argv[4],
+  password: process.argv[5]
+}
+const bot = createBot(options)
+
+console.log(`玩家 ${options.username} 成功登录 ${options.host}:${options.port}`)
 
 bot.loadPlugin(pathfinder)
 bot.loadPlugin(pvp)
