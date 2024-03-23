@@ -356,10 +356,6 @@ WARNING  | scrnshot.service:screen_cap:32 - 无法找到窗口 xxx
 
 如字面意思，程序无法找到您在配置文件中设置的 `screenshot_config.win_title` 所指定的窗口。请检查您对应的窗口确实开启了，或者是否存在拼写错误。
 
-## 工作原理
-
-您可能好奇，Zerolan Live Robot 是如何做到这一步的。
-
 ## 开源许可证
 
 本项目使用“GNU通用公共许可证”（GNU GENERAL PUBLIC LICENSE，GPLv3），我们希望以自由的方式使用户从本项目中受益。
