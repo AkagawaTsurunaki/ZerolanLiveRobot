@@ -76,7 +76,7 @@ conda activate zerolanliverobot # 激活刚刚创建的虚拟环境
 pip install -r requirements.txt # 安装依赖
 ```
 
-在这里注意的是，本项目中的依赖`torch~=2.1.1+cu118`可能因为您的 CUDA 设备具有不同的驱动版本而在安装时报错，如果报错请切换至对应的版本。
+在这里注意的是，本项目中的依赖 `torch~=2.1.1+cu118` 可能因为您的 CUDA 设备具有不同的驱动版本而在安装时报错，如果报错请切换至对应的版本。
 
 ### 下载必要模型
 
@@ -86,7 +86,7 @@ pip install -r requirements.txt # 安装依赖
 | [GPT-SoVITS](https://github.com/RVC-Boss/GPT-SoVITS)         | 请仔细阅读[这里](https://github.com/RVC-Boss/GPT-SoVITS)。   | 文字转语音 |
 | [blip-image-captioning-large](https://huggingface.co/Salesforce/blip-image-captioning-large) | `git clone https://huggingface.co/Salesforce/blip-image-captioning-large` | 图片转文字 |
 
-您需要自行下载模型，并且放置在一个合适的位置。如果遇到无法连接的情况请记住这不是您的原因。
+您需要自行下载模型，并且放置在一个合适的位置。在某些国家或地区，访问 Hugging Face 可能存在困难，请自行搜寻解决方案，通常您可以选择一个值得信赖的镜像网站或代理来解决。
 
 ### 修改配置
 
@@ -280,12 +280,12 @@ zerolan_live_robot_config:
       "role": "assistant"
     },
     {
-      "content": "你现在是一只猫娘，无论说什么都要带喵字。记住了的话，只需要回复：好的主人喵！",
+      "content": "现在你是什么？",
       "metadata": "",
       "role": "user"
     },
     {
-      "content": "好的主人喵！",
+      "content": "主人，我是一只猫娘喵！",
       "metadata": "",
       "role": "assistant"
     }
@@ -320,6 +320,19 @@ python main.py # 启动主程序
 ```
 
 如果一切正常，稍后就能听到合成的语音被自动播放了（注意系统音量，不要损伤您的听力）。
+
+如果您需要开启 Minecraft AI Agent 与您一同在服务器中游玩，可以使用以下命令。
+
+```shell
+node minecraft/service.ts host port username password
+```
+
+其中，
+
+1. `host`：Minecraft 服务器的地址，如果您在本机开启了服务器，请使用 `127.0.0.1`。
+2. `port`：Minecraft 服务器的端口，如果您没有修改默认的端口号，那么通常为 `25565`。
+3. `username`：Minecraft AI Agent 将要登入的服务器的玩家名称，在游戏中将以此名称显示。
+4. `password`：Minecraft AI Agent 将要登入的服务器的密码，如果没有设置密码，请忽略这个字段。
 
 ## 常见问题
 
