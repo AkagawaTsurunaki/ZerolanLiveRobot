@@ -4,11 +4,15 @@
 
 ![Static Badge](https://img.shields.io/badge/AI%20VTuber%20-%20green) ![Static Badge](https://img.shields.io/badge/Bilibli%20Live%20-%20green) ![Static Badge](https://img.shields.io/badge/Large%20Language%20Model%20-%20green) ![Static Badge](https://img.shields.io/badge/Text%20to%20Speech%20-%20green) ![Static Badge](https://img.shields.io/badge/Image%20to%20Text%20-%20green) ![Static Badge](https://img.shields.io/badge/Minecraft%20AI%20Agent%20-%20green) ![Static Badge](https://img.shields.io/badge/Automatic%20Speech%20Recognition%20(not%20supported)%20-%20red)
 
-Zerolan Live Robot 是一款多功能的直播机器人（AI VTuber），它可以自动在 Bilibili 直播间中读取弹幕，同时观察电脑屏幕的指定窗口，理解其画面内容，操纵 Minecraft 中的角色，通过大语言模型的推理和文本转语音技术做出回应。
+你或许已经听说过著名的 [Neurosama](https://virtualyoutuber.fandom.com/wiki/Neuro-sama)，或者是来自中国的[木几萌](https://mobile.moegirl.org.cn/%E6%9C%A8%E5%87%A0%E8%90%8C)。 
+你是否也想要拥有一个自己的 AI 虚拟形象陪你直播聊天、打游戏？
+开源的 Zerolan Live Robot 正致力于实现您的梦想！而这仅仅需要一张消费级显卡！
 
-本项目持续开发中，您可以关注Bilibili账号[赤川鶴鳴_Channel](https://space.bilibili.com/1076299680])，正在根据此项目调教 AI 猫娘，不定时直播展示最新进展。
+Zerolan Live Robot 是一款多功能的直播机器人（AI VTuber），它可以自动在 Bilibili 直播间中读取弹幕，同时观察电脑屏幕的指定窗口，理解其画面内容，操纵 Minecraft 中的游戏角色，并做出聊天回应。
 
-> 咱希望每个人都能拥有自己的 AI 猫娘喵！
+本项目持续开发中，当前的版本为 `1.0`，您可以关注开发者的Bilibili账号[赤川鶴鳴_Channel](https://space.bilibili.com/1076299680)，正在根据此项目调教 AI 猫娘，不定时直播展示最新进展。
+
+> 希望每个人都能拥有自己的 AI 猫娘喵！
 
 ## 目前的基本功能
 
@@ -56,7 +60,7 @@ Zerolan Live Robot 是一款多功能的直播机器人（AI VTuber），它可�
 
 确保您已经正确安装了 Git，然后执行以下指令，它将克隆本仓库到您的本机。
 
-```she
+```shell
 git clone https://github.com/AkagawaTsurunaki/ZerolanLiveRobot.git
 ```
 
@@ -351,6 +355,10 @@ WARNING  | scrnshot.service:screen_cap:32 - 无法找到窗口 xxx
 ```
 
 如字面意思，程序无法找到您在配置文件中设置的 `screenshot_config.win_title` 所指定的窗口。请检查您对应的窗口确实开启了，或者是否存在拼写错误。
+
+## 工作原理
+
+您可能好奇，Zerolan Live Robot 是如何做到这一步的。
 
 ## 开源许可证
 
