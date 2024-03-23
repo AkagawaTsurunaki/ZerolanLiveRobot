@@ -102,14 +102,8 @@ async def life_circle(add_audio_event: threading.Event):
     # 当记忆过多或没有记忆(懒加载)时, 尝试重载记忆
     try_compress_history()
 
-    # 尝试抽取弹幕
-    danmaku = read_danmaku()
-
-    # 尝试截图识别内容
-    screen_desc = read_screen()
-
-    # 尝试获取游戏事件
-    game_event = read_game_event()
+    # 尝试抽取弹幕 | 截图识别 | 获取游戏事件
+    danmaku, screen_desc, game_event = read_danmaku(), read_screen(), read_game_event()
 
     # 将上述获取的信息转化为对话的请求
     query = convert_2_query(danmaku, screen_desc, game_event)
