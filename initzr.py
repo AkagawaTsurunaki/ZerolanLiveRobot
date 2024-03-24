@@ -35,25 +35,15 @@ def load_bilibili_live_config(global_config: dict):
     bilibili_live_config = global_config.get('bilibili_live_config', None)
     if not bilibili_live_config:
         raise ValueError(f'❌️ Bilibili 直播配置未填写或格式有误')
-
     sessdata = bilibili_live_config.get('sessdata', None)
-    if not sessdata:
-        raise ValueError(f'❌️ bilibili_live_config 中的字段 sessdata 未填写')
-
+    assert sessdata, f'❌️ bilibili_live_config 中的字段 sessdata 未填写或格式有误'
     bili_jct = bilibili_live_config.get('bili_jct', None)
-    if not bili_jct:
-        raise ValueError(f'❌️ bilibili_live_config 中的字段 bili_jct 未填写')
-
+    assert bili_jct, f'❌️ bilibili_live_config 中的字段 bili_jct 未填写或格式有误'
     buvid3 = bilibili_live_config.get('buvid3', None)
-    if not buvid3:
-        raise ValueError(f'❌️ bilibili_live_config 中的字段 buvid3 未填写或格式有误')
-
-    room_id = bilibili_live_config.get('room_id', -1)
-    if room_id < 0:
-        raise ValueError(f'❌️ bilibili_live_config 中的字段 room_id 应当是一个非负 int 型整数')
-
+    assert buvid3, f'❌️ bilibili_live_config 中的字段 buvid3 未填写或格式有误'
+    room_id = bilibili_live_config.get('room_id', 'room_id')
+    assert room_id >= 0, f'❌️ bilibili_live_config 中的字段 room_id 应当是一个非负 int 型整数'
     logger.info('⚙️ Bilibili 直播配置加载完毕')
-
     return sessdata, bili_jct, buvid3, room_id
 
 
