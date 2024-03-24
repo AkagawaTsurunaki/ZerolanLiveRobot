@@ -69,6 +69,7 @@ def init(sessdata: str, bili_jct: str, buvid3: str, room_id: int):
 def start():
     logger.info('🍻 Bilibili 直播间监听启动')
     sync(monitor.connect())
+    logger.warning('🍻 Bilibili 直播间监听已结束')
 
 
 def select_01(k: int) -> Danmaku:

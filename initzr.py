@@ -4,7 +4,7 @@ from os import PathLike
 import yaml
 from loguru import logger
 
-from utils.util import is_valid_port
+from utils.util import is_valid_port, create_file_if_not_exists
 
 
 def read_yaml(path: str | PathLike):
@@ -46,7 +46,7 @@ def load_bilibili_live_config(global_config: dict):
     room_id = bilibili_live_config.get('room_id', 'room_id')
     assert room_id and room_id >= 0, f'❌️ bilibili_live_config 中的字段 room_id 应当是一个非负 int 型整数'
     logger.info('⚙️ Bilibili 直播配置加载完毕')
-    return sessdata, bili_jct, buvid3, room_id
+    return str(sessdata), str(bili_jct), str(buvid3), room_id
 
 
 def load_screenshot_config(global_config: dict):
@@ -80,9 +80,8 @@ def load_blip_image_captioning_large_config(global_config: dict):
     """
     config = global_config.get('blip_image_captioning_large_config', None)
     assert config, f'❌️ 模型 blip-image-captioning-large 配置未填写或格式有误'
-    model_path = config.get('model_path')
-    if not os.path.exists(model_path):
-        model_path = 'Salesforce/blip-image-captioning-large'
+    model_path = config.get('model_path', 'Salesforce/blip-image-captioning-large')
+    assert os.path.exists(model_path), f'❌️ blip-image-captioning-large 服务配置中的字段 model_path 所指向的路径不存在'
     text_prompt = config.get('text_prompt', 'There')
     logger.info('⚙️ 模型 blip-image-captioning-large 配置加载完毕')
     return model_path, text_prompt
@@ -97,7 +96,6 @@ def load_gpt_sovits_config(global_config: dict):
     save_dir = gpt_sovits_config.get('save_dir', '.tmp/wav_output')
     if not os.path.exists(save_dir):
         os.mkdir(save_dir)
-        logger.warning('⚠️ GPT-SoVITS 服务配置中的字段 save_dir 所指向的目录不存在，已自动创建')
 
     logger.info('⚙️ GPT-SoVITS 服务配置加载完毕')
     return debug, host, port, save_dir
@@ -134,12 +132,19 @@ def load_chatglm3_service_config(global_config: dict):
 
 def load_obs_config(global_config: dict):
     config = global_config.get('obs_config')
+    
     danmaku_output_path = config.get('danmaku_output_path', '.tmp/danmaku_output/output.txt')
+    create_file_if_not_exists(danmaku_output_path)
     assert os.path.exists(danmaku_output_path), f'❌️ OBS 服务配置中的字段 danmaku_output_path 所指向的路径不存在'
+    
     tone_output_path = config.get('tone_output_path', '.tmp/tone_output/output.txt')
+    create_file_if_not_exists(tone_output_path)
     assert os.path.exists(tone_output_path), f'❌️ OBS 服务配置中的字段 tone_output_path 所指向的路径不存在'
+    
     llm_output_path = config.get('llm_output_path', '.tmp/llm_output/output.txt')
+    create_file_if_not_exists(llm_output_path)
     assert os.path.exists(llm_output_path), f'❌️ OBS 服务配置中的字段 llm_output_path 所指向的路径不存在'
+
     return danmaku_output_path, tone_output_path, llm_output_path
 
 

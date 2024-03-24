@@ -1,3 +1,5 @@
+import os
+
 def is_blank(s: str):
     """
     判断字符串是否为空字符串
@@ -33,3 +35,14 @@ def url_join(host, port, protocol='http'):
 
     url = f"{protocol}://{host}:{port}"
     return url
+
+def create_file_if_not_exists(file_path):
+    # 获取目录路径
+    dir_path = os.path.dirname(file_path)
+    
+    # 创建目录及父级目录
+    os.makedirs(dir_path, exist_ok=True)
+    
+    # 创建文件
+    with open(file=file_path, mode='w', encoding='utf-8') as f:
+        f.write("")
