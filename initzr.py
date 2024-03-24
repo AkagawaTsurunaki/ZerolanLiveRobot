@@ -42,7 +42,7 @@ def load_bilibili_live_config(global_config: dict):
     buvid3 = bilibili_live_config.get('buvid3', None)
     assert buvid3, f'❌️ bilibili_live_config 中的字段 buvid3 未填写或格式有误'
     room_id = bilibili_live_config.get('room_id', 'room_id')
-    assert room_id >= 0, f'❌️ bilibili_live_config 中的字段 room_id 应当是一个非负 int 型整数'
+    assert room_id and room_id >= 0, f'❌️ bilibili_live_config 中的字段 room_id 应当是一个非负 int 型整数'
     logger.info('⚙️ Bilibili 直播配置加载完毕')
     return sessdata, bili_jct, buvid3, room_id
 
