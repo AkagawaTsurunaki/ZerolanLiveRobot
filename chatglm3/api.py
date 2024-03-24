@@ -7,6 +7,13 @@ import requests
 
 from chatglm3.service import SERVICE_URL, LLMQuery, LLMResponse
 
+def check_alive():
+    try:
+        requests.head(SERVICE_URL, timeout=5).status_code
+    except Exception as e:
+        raise ConnectionError(f'❌️ ChatGLM3 服务无法连接至 {SERVICE_URL}')
+    
+check_alive()
 
 async def stream_predict(query, history=None, temperature=1., top_p=1.):
     llm_query = LLMQuery(query=query, history=history, temperature=temperature, top_p=top_p)

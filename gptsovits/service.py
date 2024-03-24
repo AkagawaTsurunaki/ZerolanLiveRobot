@@ -13,6 +13,11 @@ DEBUG = False
 SERVER_URL = 'http://127.0.0.1:9880'
 SAVE_DIR = '.tmp/wav_output'
 
+def check_alive():
+    try:
+        requests.head(SERVER_URL, timeout=5).status_code
+    except Exception as e:
+        raise ConnectionError(f'❌️ GPT-SoVTIS 服务无法连接至 {SERVER_URL}')
 
 def init(debug, host, port, save_dir):
     logger.info('👄 GPT-SoVITS 服务初始化中……')
@@ -20,11 +25,7 @@ def init(debug, host, port, save_dir):
     DEBUG = debug
     SAVE_DIR = save_dir
     SERVER_URL = f"http://{host}:{port}"
-    try:
-        assert requests.head(SERVER_URL, timeout=5).status_code
-    except Exception:
-        logger.critical(f'❌️ GPT-SoVTIS 服务无法连接至 {SERVER_URL}')
-        exit()
+    check_alive()
     IS_INITIALIZED = True
     logger.info('👄 GPT-SoVITS 服务初始化完毕')
     return IS_INITIALIZED
