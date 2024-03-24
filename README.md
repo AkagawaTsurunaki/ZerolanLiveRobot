@@ -82,6 +82,15 @@ pip install -r requirements.txt # 安装依赖
 
 在这里注意的是，本项目中的依赖 `torch~=2.1.1+cu118` 可能因为您的 CUDA 设备具有不同的驱动版本而在安装时报错，如果报错请切换至对应的版本。
 
+要运行 Minecraft AI Agent，您还需要安装 Node.js 20.9.0，并执行以下指令。
+
+```shell
+cd YourDirectory/ZerolanLiveRobot # 切换目录至本仓库的目录
+npm install # 安装必要依赖
+```
+
+这会下载必要的依赖。
+
 ### 下载必要模型
 
 | 模型名称                                                     | 下载与安装方式                                               | 用途       |
