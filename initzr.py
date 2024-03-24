@@ -22,6 +22,8 @@ def load_global_config(default_global_config_path: str | PathLike):
         default_global_config_path), \
         f'❌️ 全局配置文件不存在：路径 {default_global_config_path} 不存在。您可能需要将 config/template_config.yaml 更名为 config/global_config.yaml'
     global_config = read_yaml(path=default_global_config_path)
+    if not os.path.exists('.tmp'):
+        os.mkdir('.tmp')
     logger.info('⚙️ 全局配置加载完毕')
     return global_config
 
@@ -49,9 +51,11 @@ def load_bilibili_live_config(global_config: dict):
 
 def load_screenshot_config(global_config: dict):
     """
+    加载截图配置
 
-    :param global_config:
-    :return:
+    :param global_config: dict, 全局配置字典，包含截图配置信息
+    :return: tuple, 包含截图窗口标题(win_title)、匹配度阈值(k)和保存目录(save_dir)的元组
+    :raises AssertionError: 当截图配置中关键信息未填写或格式有误时引发断言错误
     """
     screenshot_config = global_config.get('screenshot_config', None)
     assert screenshot_config, f'❌️ 截屏配置未填写或格式有误'
