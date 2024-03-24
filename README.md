@@ -1,63 +1,56 @@
 # Zerolan Live Robot
 
-![Static Badge](https://img.shields.io/badge/Python%20-%203.10%20-%20blue) ![Static Badge](https://img.shields.io/badge/Node%20-%2020.9.0%20-%20violet) ![Static Badge](https://img.shields.io/badge/CUDA%20-%202.1.1%2Bcu118%20-%20green) ![Static Badge](https://img.shields.io/badge/License%20-%20GPLv3%20-%20orange)
+![Static Badge](https://img.shields.io/badge/Python%20-%203.10%20-%20blue) ![Static Badge](https://img.shields.io/badge/Node%20-%2020.9.0%20-%20violet) ![Static Badge](https://img.shields.io/badge/CUDA%20-%202.1.1%2Bcu118%20-%20green) ![Static Badge](https://img.shields.io/badge/License%20-%20GPLv3%20-%20orange) 
 
 ![Static Badge](https://img.shields.io/badge/AI%20VTuber%20-%20green) ![Static Badge](https://img.shields.io/badge/Bilibli%20Live%20-%20green) ![Static Badge](https://img.shields.io/badge/Large%20Language%20Model%20-%20green) ![Static Badge](https://img.shields.io/badge/Text%20to%20Speech%20-%20green) ![Static Badge](https://img.shields.io/badge/Image%20to%20Text%20-%20green) ![Static Badge](https://img.shields.io/badge/Minecraft%20AI%20Agent%20-%20green) ![Static Badge](https://img.shields.io/badge/Automatic%20Speech%20Recognition%20(not%20supported)%20-%20red)
 
-もしかしたらあなたは有名な [Neurosama](https://virtualyoutuber.fandom.com/wiki/Neuro-sama)
-や中国の[木几萌](https://mobile.moegirl.org.cn/%E6%9C%A8%E5%87%A0%E8%90%8C)について聞いたことがあるかもしれません。
-自分のAIバーチャルキャラクターを持ち、ライブ配信中に一緒にチャットしたりゲームをしたりしたいですか？
+你或许已经听说过著名的 [Neurosama](https://virtualyoutuber.fandom.com/wiki/Neuro-sama)，或者是来自中国的[木几萌](https://mobile.moegirl.org.cn/%E6%9C%A8%E5%87%A0%E8%90%8C)。 
+你是否也想要拥有一个自己的 AI 虚拟形象陪你直播聊天、打游戏？
+开源的 Zerolan Live Robot 正致力于实现您的梦想！而这仅仅需要一张消费级显卡！
 
-オープンソースのZerolan Live Robotは、その夢を実現するために取り組んでいます！ そして、それにはたった一枚の消費レベルのGPUが必要です！
+Zerolan Live Robot 是一款多功能的直播机器人（AI VTuber），它可以自动在 Bilibili 直播间中读取弹幕，观察电脑屏幕的指定窗口，理解其画面内容，操纵 Minecraft 中的游戏角色，做出带情感的语音聊天回应。
 
-Zerolan Live Robotは、多機能なライブ配信用ロボット（AI
-VTuber）であり、Bilibiliのライブ配信ルームでリアルタイムに弾幕を読み取ることができ、指定されたウィンドウの内容を認識し、Minecraft内のゲームキャラクターを操作し、感情を持った音声チャット応答を行うことができます。
+本项目持续开发中，当前的版本为 `1.0`，您可以关注开发者的Bilibili账号[赤川鶴鳴_Channel](https://space.bilibili.com/1076299680)，正在根据此项目调教 AI 猫娘，不定时直播展示最新进展。
 
-このプロジェクトは現在開発中で、現在のバージョンは1.0です。開発者のBilibiliアカウント「[赤川鶴鳴_Channel](https://space.bilibili.com/1076299680)
-」をフォローすることで、最新の進展を不定期にライブ配信でご覧いただけます。
+> 希望每个人都能拥有自己的 AI 猫娘喵！
 
-> 皆が自分のAIネコ娘を持てることを願っていますにゃん！
+## 目前的基本功能
 
-## 現在の基本機能
+1. 实时读取 Bilibili 直播间弹幕。
+2. 识别并理解指定窗口的内容，例如 Minecraft。
+3. 基于大语言模型 ChatGLM 3 的游戏实况聊天对话。
+4. 基于 GPT-SoVITS 的语音合成，且带有语气切换功能。
+4. 基于 mineflayer 的 Minecraft 智能体陪玩。
 
-1. Bilibili のライブ配信ルームから弾幕をリアルタイムに読み取る。
-2. 指定したウィンドウの内容を認識し理解する、例えば Minecraft。
-3. 大規模言語モデル ChatGLM3 に基づくゲーム実況チャット対話。
-4. GPT-SoVITS に基づく音声合成、および感情切り替え機能を備えています。
-5. mineflayer に基づく Minecraft AI Agent と共に遊ぶ。
+## 模型组合选择
 
-## モデル組み合わせの選択
+运行本项目，您需要有支持 CUDA 的显卡。下表为您展示了一些可能的组合，请根据您的显卡的显存大小，决定使用什么模型组合。以下数据已经过开发者的直播测试（测试时还有直播姬、Minecraft Server 等程序在后台运行），仅供参考。
 
-このプロジェクトを実行するには、CUDA
-をサポートする GPU
-が必要です。以下の表は、いくつかの可能な組み合わせを示しており、GPUのメモリサイズに応じてどのモデル組み合わせを使用するかを決定してください。以下のデータは、開発者によるライブテスト（配信ソフトやMinecraft
-Serverなどのバックグラウンドアプリケーションも同時に実行）に基づいており、参考情報として提供されています。
+| 组合 | Large Language Model       | Text to Speech | Image-Text Captioning       | OBS              | Minecraft                | 显存占用 |
+| ---- | -------------------------- | -------------- | --------------------------- | ---------------- | ------------------------ | -------- |
+| 1    | ChatGLM3 (4-bit Quantized) | GPT-SoVTIS     | blip-image-captioning-large | 应用高质量编码器 | 1.20.4 无光影 默认材质包 | 10.9 GB  |
+| 2    | ChatGLM3 (4-bit Quantized) | GPT-SoVTIS     | blip-image-captioning-large | 应用高质量编码器 | -                        | 9.3 GB   |
+| 3    | ChatGLM3 (4-bit Quantized) | GPT-SoVTIS     | blip-image-captioning-large | -                | -                        | 8.8 GB   |
+| 4    | ChatGLM3 (4-bit Quantized) | GPT-SoVTIS     | -                           | -                | -                        | 7.7 GB   |
+| 5    | ChatGLM3 (4-bit Quantized) | -              | -                           | -                | -                        | 5.4 GB   |
 
-| 組み合わせ | Large Language Model       | Text to Speech | Image-Text Captioning       | OBS      | Minecraft                                  | 显存占用    |
-|-------|----------------------------|----------------|-----------------------------|----------|--------------------------------------------|---------|
-| 1     | ChatGLM3 (4-bit Quantized) | GPT-SoVTIS     | blip-image-captioning-large | 高品質エンコーダ | 1.20.4, no shader, default resource packs. | 10.9 GB |
-| 2     | ChatGLM3 (4-bit Quantized) | GPT-SoVTIS     | blip-image-captioning-large | 高品質エンコーダ | -                                          | 9.3 GB  |
-| 3     | ChatGLM3 (4-bit Quantized) | GPT-SoVTIS     | blip-image-captioning-large | -        | -                                          | 8.8 GB  |
-| 4     | ChatGLM3 (4-bit Quantized) | GPT-SoVTIS     | -                           | -        | -                                          | 7.7 GB  |
-| 5     | ChatGLM3 (4-bit Quantized) | -              | -                           | -        | -                                          | 5.4 GB  |
+*注：这里的 ChatGLM3 是指参数量为 6B 的模型。*
 
-*注：ここでの ChatGLM3 は、パラメータ数が6Bのモデルを指します。*
+开发者测试时的电脑配置如下，仅供参考。
 
-開発者によるコンピューター構成は次の通りです（参考情報のみ）。
+| 设别名称 | 设备型号                       | 补充说明   |
+| -------- | ------------------------------ | ---------- |
+| Windows  | Windows 11                     | -          |
+| CPU      | i9-13900HX                     | 24 内核    |
+| GPU      | NVIDIA GeForce RTX 4080 Laptop | 12 GB 显存 |
+| 内存     | -                              | 32 GB 内存 |
 
-| デバイス名   | デバイスモデル                        | 追加情報       |
-|---------|--------------------------------|------------|
-| Windows | Windows 11                     | -          |
-| CPU     | i9-13900HX                     | 24 Cores   |
-| GPU     | NVIDIA GeForce RTX 4080 Laptop | 12 GB VRAM |
-| 内存      | -                              | 32 GB RAM  |
+此外您还需注意：
 
-その他の注意点：
-
-1. 複数のプログラムが同時にGPUリソースを占有すると、サービスの応答が中断される可能性があります。例えば、OBSはデコード中にGPUの使用率を大幅に上昇させるため、LLMまたはTTSサービスが OS によって一時停止される可能性があります。
-2. プロジェクト実行中には、継続的に GPU リソースを消費することがありますので、冷却に注意し、火災のリスクを回避してください。
-3. 上記のデータは異なるシステムやハードウェアで異なる場合がありますので、余裕を持ってください。
-4. このプロジェクトでは複数のカードの実行をサポートしていません。必要があれば、コードを自分で変更してください。
+1. 多个程序同时抢占 GPU 资源可能导致服务响应中断。例如，OBS 在进行解码时对 GPU 的占用显著提高，从而导致 LLM 或 TTS 服务被操作系统挂起。
+2. 项目运行时可能会持续消耗显卡资源，请注意散热，避免引发火灾风险。
+3. 上述数据在不同系统和硬件上可能存在差异，请注意留足冗余量。
+4. 本项目尚不支持多卡运行，如果有需要您可以自行更改代码。
 
 ## 准备工作
 
@@ -91,14 +84,13 @@ pip install -r requirements.txt # 安装依赖
 
 ### 下载必要模型
 
-| 模型名称                                                                                         | 下载与安装方式                                                                   | 用途    |
-|----------------------------------------------------------------------------------------------|---------------------------------------------------------------------------|-------|
-| [ChatGLM3](https://github.com/THUDM/ChatGLM3)                                                | `git clone https://huggingface.co/THUDM/chatglm3-6b`                      | 大语言模型 |
-| [GPT-SoVITS](https://github.com/RVC-Boss/GPT-SoVITS)                                         | 请仔细阅读[这里](https://github.com/RVC-Boss/GPT-SoVITS)。                        | 文字转语音 |
+| 模型名称                                                     | 下载与安装方式                                               | 用途       |
+| ------------------------------------------------------------ | ------------------------------------------------------------ | ---------- |
+| [ChatGLM3](https://github.com/THUDM/ChatGLM3)                | `git clone https://huggingface.co/THUDM/chatglm3-6b`         | 大语言模型 |
+| [GPT-SoVITS](https://github.com/RVC-Boss/GPT-SoVITS)         | 请仔细阅读[这里](https://github.com/RVC-Boss/GPT-SoVITS)。   | 文字转语音 |
 | [blip-image-captioning-large](https://huggingface.co/Salesforce/blip-image-captioning-large) | `git clone https://huggingface.co/Salesforce/blip-image-captioning-large` | 图片转文字 |
 
-您需要自行下载模型，并且放置在一个合适的位置。在某些国家或地区，访问 Hugging Face
-可能存在困难，请自行搜寻解决方案，通常您可以选择一个值得信赖的镜像网站或代理来解决。
+您需要自行下载模型，并且放置在一个合适的位置。在某些国家或地区，访问 Hugging Face 可能存在困难，请自行搜寻解决方案，通常您可以选择一个值得信赖的镜像网站或代理来解决。
 
 ### 修改配置
 
@@ -122,10 +114,7 @@ bilibili_live_config:
 ```
 
 其中，
-
-1. `sessdata`、`bili_jct`、`buvid3` 这三项用于向 Bilibili
-   服务器校验您的身份，如果不登录将无法获取直播间的弹幕信息。具体如何填写这三个值，详见[此处](https://nemo2011.github.io/bilibili-api/#/get-credential)
-   。请注意，不要将这三项泄露给他人，尤其在直播的时候，这将会有盗号风险。
+1. `sessdata`、`bili_jct`、`buvid3` 这三项用于向 Bilibili 服务器校验您的身份，如果不登录将无法获取直播间的弹幕信息。具体如何填写这三个值，详见[此处](https://nemo2011.github.io/bilibili-api/#/get-credential)。请注意，不要将这三项泄露给他人，尤其在直播的时候，这将会有盗号风险。
 2. `room_id` 是您要连接的直播间的ID，通常为直播间URL中的从左到右第一次出现的数字。当然，您可以设置为他人直播间的ID，这样会接受他人直播间的弹幕信息。
 
 #### 截屏服务
@@ -144,16 +133,13 @@ screenshot_config:
 ```
 
 其中，
-
 1. `win_title` 代表要识别的窗口标题，您也可以不填全，这样会在自动匹配的窗口列表中选择第一个窗口进行观测。
-2. `k` 缩放因子，它的作用是防止窗口的边框和标题栏被识别到，从而使 AI 失去沉浸感。取值越小，AI 可识别的范围越小，取值 0 ~ 1
-   之间。
+2. `k` 缩放因子，它的作用是防止窗口的边框和标题栏被识别到，从而使 AI 失去沉浸感。取值越小，AI 可识别的范围越小，取值 0 ~ 1 之间。
 3. `save_dir` 截取的图片存放目录，会保存为若干个`时间戳.png`这样的图片。程序停止不会自动清除这里的图片。
 
 #### 视觉识别服务
 
-我们使用 [blip-image-captioning-large]([Salesforce/blip-image-captioning-large · Hugging Face](https://huggingface.co/Salesforce/blip-image-captioning-large))
-这一模型以完成 Image-to-Text 任务，这里要注意的是，这个模型输出的是**英文**。
+我们使用 [blip-image-captioning-large]([Salesforce/blip-image-captioning-large · Hugging Face](https://huggingface.co/Salesforce/blip-image-captioning-large)) 这一模型以完成 Image-to-Text 任务，这里要注意的是，这个模型输出的是**英文**。
 
 关于配置文件，
 
@@ -173,8 +159,7 @@ blip_image_captioning_large_config:
 
 #### 配置并启动 GPT-SoVITS 服务
 
-关于本项目采用的 TTS 模型[GPT-SoVITS](https://github.com/RVC-Boss/GPT-SoVITS)
-，这是一个可以支持仅需3到10秒的音频克隆的模型。请移步至官方仓库，了解如何下载并使用该模型。
+关于本项目采用的 TTS 模型[GPT-SoVITS](https://github.com/RVC-Boss/GPT-SoVITS)，这是一个可以支持仅需3到10秒的音频克隆的模型。请移步至官方仓库，了解如何下载并使用该模型。
 
 关于 GPT-SoVITS 官方的 API 如何支持中英、日英混读，请参考如下的[教程](https://github.com/jianchang512/gptsovits-api)修改。
 
@@ -215,8 +200,7 @@ EMOTION_ID:
 
 其中，
 
-1. `EMOTION_ID` 表示此 Prompt 所包含的语气，例如“`开心`”、“`生气`
-   ”。请注意，根据您使用的大语言模型所支持的语言，来设定`EMOTION_ID`的效果可能会更好。
+1. `EMOTION_ID` 表示此 Prompt 所包含的语气，例如“`开心`”、“`生气`”。请注意，根据您使用的大语言模型所支持的语言，来设定`EMOTION_ID`的效果可能会更好。
 2. `refer_wav_path`：此 Prompt 音频文件的路径。注意音频的**长度必须大于 3 秒但小于 10 秒**。
 3. `prompt_text`：此 Prompt 音频文件中表述的内容。
 4. `prompt_language`：此此 Prompt 音频所用的语言。GPT-SoVITS 目前仅支持`zh`（中文）、`en`（英语）、`ja`（日语）这三国语言。
@@ -315,8 +299,7 @@ zerolan_live_robot_config:
 }
 ```
 
-其中，`history` 列表中可以填入若干轮对话，可以按照您自己的需求进行修改和扩充。这里的 `role` 属性中，`user`
-代表用户的输入，而 `assistant` 表示模型输出。
+其中，`history` 列表中可以填入若干轮对话，可以按照您自己的需求进行修改和扩充。这里的 `role` 属性中，`user` 代表用户的输入，而 `assistant` 表示模型输出。
 
 ## 开始运行
 
@@ -363,8 +346,7 @@ node minecraft/service.js host port username password
 CRITICAL | gptsovits.service:init:26 - ❌️ GPT-SoVTIS 服务无法连接至 http://127.0.0.1:9880
 ```
 
-出现这种情况，是因为程序无法访问这个地址 `http://127.0.0.1:9880`（根据您的配置不同可能略有差异），请检查您在 GPT-SoVITS
-项目中是否正确启动了 api 服务。注意您应该启动的是 `api.py` 或者 `api2.py` 而不是启动  `webui.py`。
+出现这种情况，是因为程序无法访问这个地址 `http://127.0.0.1:9880`（根据您的配置不同可能略有差异），请检查您在 GPT-SoVITS 项目中是否正确启动了 api 服务。注意您应该启动的是 `api.py` 或者 `api2.py` 而不是启动  `webui.py`。
 
 #### 无法找到窗口
 
