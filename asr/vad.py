@@ -83,6 +83,3 @@ def start():
 
     audio_record_thread.join()
     speech_recognize_thread.join()
-
-
-start()
