@@ -33,7 +33,8 @@ def load_bilibili_live_config(global_config: dict):
     :raises AssertionError: 如果配置项缺失或格式有误
     """
     bilibili_live_config = global_config.get('bilibili_live_config', None)
-    assert bilibili_live_config, f'❌️ Bilibili 直播配置未填写或格式有误'
+    if not bilibili_live_config:
+        raise ValueError(f'❌️ Bilibili 直播配置未填写或格式有误')
     sessdata = bilibili_live_config.get('sessdata', 'SESSDATA')
     assert sessdata != 'SESSDATA', f'❌️ bilibili_live_config 中的字段 sessdata 未填写或格式有误'
     bili_jct = bilibili_live_config.get('bili_jct', 'bili_jct')
