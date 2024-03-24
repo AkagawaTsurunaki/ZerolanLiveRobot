@@ -62,6 +62,12 @@ obs_config:
   tone_output_path: .tmp/tone_output/output.txt
   # 大语言模型输出字幕文件
   llm_output_path: .tmp/llm_output/output.txt
+# 自动语音识别配置
+asr_config:
+  # 语音识别模型路径
+  speech_model_path: paraformer-zh
+  # VAD 模型路径
+  vad_model_path: fsmn-vad
 # 本项目配置
 zerolan_live_robot_config:
   # 是否以调试模式运行
