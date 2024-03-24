@@ -81,5 +81,5 @@ if __name__ == '__main__':
         ctrl_thread.join()
 
     except Exception as e:
-        logger.critical(e)
+        logger.exception(e)
         logger.critical(f'💥 Zerolan Live Robot 因无法处理的异常而退出')
