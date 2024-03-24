@@ -132,20 +132,32 @@ def load_chatglm3_service_config(global_config: dict):
 
 def load_obs_config(global_config: dict):
     config = global_config.get('obs_config')
-    
+
     danmaku_output_path = config.get('danmaku_output_path', '.tmp/danmaku_output/output.txt')
     create_file_if_not_exists(danmaku_output_path)
     assert os.path.exists(danmaku_output_path), f'❌️ OBS 服务配置中的字段 danmaku_output_path 所指向的路径不存在'
-    
+
     tone_output_path = config.get('tone_output_path', '.tmp/tone_output/output.txt')
     create_file_if_not_exists(tone_output_path)
     assert os.path.exists(tone_output_path), f'❌️ OBS 服务配置中的字段 tone_output_path 所指向的路径不存在'
-    
+
     llm_output_path = config.get('llm_output_path', '.tmp/llm_output/output.txt')
     create_file_if_not_exists(llm_output_path)
     assert os.path.exists(llm_output_path), f'❌️ OBS 服务配置中的字段 llm_output_path 所指向的路径不存在'
 
     return danmaku_output_path, tone_output_path, llm_output_path
+
+
+def load_asr_config(global_config: dict):
+    config = global_config.get('asr_config')
+
+    speech_model_path = config.get('speech_model_path', 'paraformer-zh')
+    assert os.path.exists(speech_model_path), f'❌️ 自动语音识别服务配置中的字段 speech_model_path 所指向的路径不存在'
+
+    vad_model_path = config.get('speech_model_path', 'fsmn-vad')
+    assert os.path.exists(vad_model_path), f'❌️ 自动语音识别服务配置中的字段 vad_model_path 所指向的路径不存在'
+
+    return speech_model_path, vad_model_path
 
 
 def load_zerolan_live_robot_config(global_config: dict):
