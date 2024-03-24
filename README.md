@@ -8,7 +8,7 @@
 你是否也想要拥有一个自己的 AI 虚拟形象陪你直播聊天、打游戏？
 开源的 Zerolan Live Robot 正致力于实现您的梦想！而这仅仅需要一张消费级显卡！
 
-Zerolan Live Robot 是一款多功能的直播机器人（AI VTuber），它可以自动在 Bilibili 直播间中读取弹幕，同时观察电脑屏幕的指定窗口，理解其画面内容，操纵 Minecraft 中的游戏角色，并做出聊天回应。
+Zerolan Live Robot 是一款多功能的直播机器人（AI VTuber），它可以自动在 Bilibili 直播间中读取弹幕，观察电脑屏幕的指定窗口，理解其画面内容，操纵 Minecraft 中的游戏角色，做出带情感的语音聊天回应。
 
 本项目持续开发中，当前的版本为 `1.0`，您可以关注开发者的Bilibili账号[赤川鶴鳴_Channel](https://space.bilibili.com/1076299680)，正在根据此项目调教 AI 猫娘，不定时直播展示最新进展。
 
@@ -185,7 +185,7 @@ GPTSoVITSServiceConfig:
 
 3. `prot`：GPT-SoVITS 服务端口，如果您未进行改动，那么默认端口为`9880`。
 
-4. `tmp_dir`用于临时存放生成的音频文件，您可以选择一个合适的位置，默认为`gptsovits\.tmp`。
+4. `tmp_dir`用于临时存放生成的音频文件，您可以选择一个合适的位置，默认为`.tmp/wav_output`。
 
 #### 语气分析服务配置
 
@@ -328,7 +328,7 @@ python main.py # 启动主程序
 如果您需要开启 Minecraft AI Agent 与您一同在服务器中游玩，可以使用以下命令。
 
 ```shell
-node minecraft/service.ts host port username password
+node minecraft/service.js host port username password
 ```
 
 其中，
