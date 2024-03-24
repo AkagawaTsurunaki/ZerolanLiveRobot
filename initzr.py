@@ -160,6 +160,28 @@ def load_asr_config(global_config: dict):
     return speech_model_path, vad_model_path
 
 
+def load_vad_config(global_config: dict):
+    config = global_config.get('vad_config')
+
+    save_dir = config.get('save_dir', '.tmp/records')
+    if not os.path.exists(save_dir):
+        os.mkdir(save_dir)
+
+    chunk = config.get('chunk', 4096)
+    assert chunk > 0, f'❌️ VAD 服务配置中的字段 chunk 必须是正整数'
+
+    sample_rate = config.get('sample_rate', 16000)
+    assert sample_rate > 0, f'❌️ VAD 服务配置中的字段 sample_rate 必须是正整数'
+
+    threshold = config.get('threshold', 600)
+    assert threshold > 0, f'❌️ VAD 服务配置中的字段 threshold 必须是正整数'
+
+    max_mute_count = config.get('max_mute_count', 10)
+    assert max_mute_count > 0, f'❌️ VAD 服务配置中的字段 max_mute_count 必须是正整数'
+
+    return save_dir, chunk, sample_rate, threshold, max_mute_count
+
+
 def load_zerolan_live_robot_config(global_config: dict):
     config = global_config.get('zerolan_live_robot_config', None)
     assert config, f'❌️ Zerolan Live Robot 服务配置未填写或格式有误'

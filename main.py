@@ -14,7 +14,7 @@ from blip_img_cap import service as blip_serv
 from gptsovits import service as gptsovits_serv
 from initzr import load_global_config, load_bilibili_live_config, load_blip_image_captioning_large_config, \
     load_screenshot_config, load_gpt_sovits_config, load_tone_analysis_service_config, load_chatglm3_service_config, \
-    load_zerolan_live_robot_config, load_obs_config, load_asr_config
+    load_zerolan_live_robot_config, load_obs_config, load_asr_config, load_vad_config
 from lifecircle import life_circle
 from obs import service as obs_serv
 from scrnshot import service as scrn_serv
@@ -48,6 +48,7 @@ if __name__ == '__main__':
         obs_config = load_obs_config(g_config)
         chatglm3_service_config = load_chatglm3_service_config(g_config)
         asr_service_config = load_asr_config(g_config)
+        vad_config = load_vad_config(g_config)
         zerolan_live_robot_config = load_zerolan_live_robot_config(g_config)
 
         # 启动弹幕监听服务
@@ -62,6 +63,7 @@ if __name__ == '__main__':
         assert gptsovits_serv.init(*gpt_sovits_config)
         assert tone_serv.init(*tone_analysis_service_config)
         assert obs_serv.init(*obs_config)
+        assert vad.service.init(*vad_config)
         assert asr.service.init(*asr_service_config)
         assert controller.service.init(*zerolan_live_robot_config)
 

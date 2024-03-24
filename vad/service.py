@@ -4,6 +4,7 @@ import sys
 import threading
 import time
 from dataclasses import dataclass
+from os import PathLike
 from typing import List
 
 import numpy as np
@@ -14,7 +15,7 @@ from scipy.io.wavfile import write
 logger.remove()
 logger.add(sys.stderr, level="INFO")
 
-TMP_DIR = R'.tmp\records'
+SAVE_DIR = R'.tmp\records'
 
 CHUNK = 2 ** 12
 SAMPLE_RATE = 16000
@@ -32,11 +33,21 @@ class WavFile:
 
 wave_records = queue.Queue()
 wav_file_list: List[WavFile] = []
+stream: pyaudio.Stream
 
-p = pyaudio.PyAudio()
-stream = p.open(
-    format=pyaudio.paInt16, channels=1, rate=SAMPLE_RATE, input=True, frames_per_buffer=CHUNK
-)
+
+def init(save_dir: str | PathLike, chunk: int, sample_rate: int, threshold: int, max_mute_count: int):
+    global stream, SAVE_DIR, CHUNK, SAMPLE_RATE, THRESHOLD, MAX_MUTE_COUNT
+    SAVE_DIR = save_dir
+    CHUNK = chunk
+    SAMPLE_RATE = sample_rate
+    THRESHOLD = threshold
+    MAX_MUTE_COUNT = max_mute_count
+    p = pyaudio.PyAudio()
+    stream = p.open(
+        format=pyaudio.paInt16, channels=1, rate=SAMPLE_RATE, input=True, frames_per_buffer=CHUNK
+    )
+    return True
 
 
 def audio_record():
@@ -79,7 +90,7 @@ def save_speech():
             logger.info('VAD 激活')
 
             # Write temp file for saving speech file
-            tmp_wav_file_path = os.path.join(TMP_DIR, f'{time.time()}.wav')
+            tmp_wav_file_path = os.path.join(SAVE_DIR, f'{time.time()}.wav')
             with open(file=tmp_wav_file_path, mode='w') as tmp_file:
                 wav_file_list.append(WavFile(wav_file_path=tmp_wav_file_path, is_read=False))
                 write(filename=tmp_file.name, rate=SAMPLE_RATE, data=speech)
