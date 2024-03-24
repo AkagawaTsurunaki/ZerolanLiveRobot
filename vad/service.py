@@ -1,5 +1,6 @@
 import os.path
 import queue
+import sys
 import threading
 import time
 from dataclasses import dataclass
@@ -9,6 +10,9 @@ import numpy as np
 import pyaudio
 from loguru import logger
 from scipy.io.wavfile import write
+
+logger.remove()
+logger.add(sys.stderr, level="INFO")
 
 TMP_DIR = R'.tmp\records'
 
@@ -48,7 +52,7 @@ def vad():
         rec = wave_records.get()
         energy = np.sum(np.abs(rec))
         ret.append(rec)
-        logger.info(f"now: {energy} thr: {rec.shape[0] * THRESHOLD}")
+        logger.debug(f"now: {energy} thr: {rec.shape[0] * THRESHOLD}")
         if energy < rec.shape[0] * THRESHOLD:
             mute_count += 1
         else:
@@ -69,11 +73,10 @@ def save_speech():
     检测是否有人在说话
     """
     while True:
-        logger.info('Test in speech_recognize')
         speech = vad()
         if len(speech) != 0:
             speech = np.asarray(speech).flatten()
-            logger.info('Speech detected.')
+            logger.info('VAD 激活')
 
             # Write temp file for saving speech file
             tmp_wav_file_path = os.path.join(TMP_DIR, f'{time.time()}.wav')
@@ -86,7 +89,9 @@ def select01():
     if len(wav_file_list) > 0:
         unread_wav_list = [wav_file for wav_file in wav_file_list if not wav_file.is_read]
         if len(unread_wav_list) > 0:
-            return unread_wav_list[-1].wav_file_path
+            unread_wav_file = unread_wav_list[-1]
+            unread_wav_file.is_read = True
+            return unread_wav_file.wav_file_path
     return None
 
 
@@ -96,6 +101,8 @@ def start():
 
     speech_recognize_thread.start()
     audio_record_thread.start()
+
+    logger.info('VAD 服务已启动')
 
     audio_record_thread.join()
     speech_recognize_thread.join()
