@@ -4,6 +4,8 @@
 
 ![Static Badge](https://img.shields.io/badge/AI%20VTuber%20-%20green) ![Static Badge](https://img.shields.io/badge/Bilibli%20Live%20-%20green) ![Static Badge](https://img.shields.io/badge/Large%20Language%20Model%20-%20green) ![Static Badge](https://img.shields.io/badge/Text%20to%20Speech%20-%20green) ![Static Badge](https://img.shields.io/badge/Image%20to%20Text%20-%20green) ![Static Badge](https://img.shields.io/badge/Minecraft%20AI%20Agent%20-%20green) ![Static Badge](https://img.shields.io/badge/Automatic%20Speech%20Recognition%20(not%20supported)%20-%20red)
 
+*Docs Languages: [简体中文](README.md) | [English](docs/en/README.md) | [日本語](docs/ja/README.md)*
+
 You may have heard of the famous [Neurosama](https://virtualyoutuber.fandom.com/wiki/Neuro-sama),
 or [Mu Jimeng](https://mobile.moegirl.org.cn/%E6%9C%A8%E5%87%A0%E8%90%8C) from China. Do you also want to have your own
 AI avatar to accompany you live chat, play games? The open source Zerolan Live Robot is committed to making your dreams
