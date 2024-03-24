@@ -2,6 +2,7 @@ import os.path
 import queue
 import threading
 import time
+from dataclasses import dataclass
 from typing import List
 
 import numpy as np
@@ -18,8 +19,15 @@ MAX_MUTE_COUNT = 10
 
 FLAG_AUDIO_RECORD = True
 
+
+@dataclass
+class WavFile:
+    is_read: bool
+    wav_file_path: str
+
+
 wave_records = queue.Queue()
-wav_file_list: List[str] = []
+wav_file_list: List[WavFile] = []
 
 p = pyaudio.PyAudio()
 stream = p.open(
@@ -70,8 +78,16 @@ def save_speech():
             # Write temp file for saving speech file
             tmp_wav_file_path = os.path.join(TMP_DIR, f'{time.time()}.wav')
             with open(file=tmp_wav_file_path, mode='w') as tmp_file:
-                wav_file_list.append(tmp_wav_file_path)
+                wav_file_list.append(WavFile(wav_file_path=tmp_wav_file_path, is_read=False))
                 write(filename=tmp_file.name, rate=SAMPLE_RATE, data=speech)
+
+
+def select01():
+    if len(wav_file_list) > 0:
+        unread_wav_list = [wav_file for wav_file in wav_file_list if not wav_file.is_read]
+        if len(unread_wav_list) > 0:
+            return unread_wav_list[-1].wav_file_path
+    return None
 
 
 def start():
