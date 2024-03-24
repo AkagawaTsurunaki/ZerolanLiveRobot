@@ -19,7 +19,8 @@ def load_global_config(default_global_config_path: str | PathLike):
     :return:
     """
     assert os.path.exists(
-        default_global_config_path), f'❌️ 全局配置文件不存在：路径 {default_global_config_path} 不存在。'
+        default_global_config_path), \
+        f'❌️ 全局配置文件不存在：路径 {default_global_config_path} 不存在。您可能需要将 config/template_config.yaml 修改为 config/global_config.yaml'
     global_config = read_yaml(path=default_global_config_path)
     logger.info('⚙️ 全局配置加载完毕')
     return global_config
