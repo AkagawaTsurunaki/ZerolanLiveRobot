@@ -62,6 +62,18 @@ obs_config:
   tone_output_path: .tmp/tone_output/output.txt
   # 大语言模型输出字幕文件
   llm_output_path: .tmp/llm_output/output.txt
+# VAD 检测配置
+vad_config:
+  # 用户语音保存位置
+  save_dir: .tmp/records
+  # 块大小
+  chunk: 4096
+  # 采样率
+  sample_rate: 16000
+  # 激活阈值
+  threshold: 600
+  # 最大容许静音数
+  max_mute_count: 10
 # 自动语音识别配置
 asr_config:
   # 语音识别模型路径
