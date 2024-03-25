@@ -104,10 +104,10 @@ def read_game_event():
 
 
 def load_custom_history():
+    global HISTORY
     with open(file=CUSTOM_PROMPT_PATH, mode='r', encoding='utf-8') as file:
         json_value: dict = json.load(file)
-        history = json_value.get('history')
-        return history
+        HISTORY = json_value.get('history')
 
 
 def try_compress_history():
@@ -116,7 +116,7 @@ def try_compress_history():
     # 故设计一个常量来检测是否超过阈值
     global HISTORY
     if len(HISTORY) == 0 or len(HISTORY) > MAX_HISTORY:
-        HISTORY = load_custom_history()
+        load_custom_history()
 
 
 async def life_circle(add_audio_event: threading.Event):
