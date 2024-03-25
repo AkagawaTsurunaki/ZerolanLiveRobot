@@ -1,11 +1,11 @@
 import json
-from dataclasses import dataclass
+from dataclasses import asdict
 from typing import List
-from loguru import logger
 
 from flask import Flask, jsonify
 
 import vad.service
+from utils.datacls import HTTPResponseBody, ZerolanServiceStatus, VAD
 
 app = Flask(__name__)
 
@@ -16,25 +16,33 @@ CUSTOM_PROMPT_PATH: str = './template/custom_prompt.json'
 HISTORY: List[dict] = []
 MAX_HISTORY: int = 40
 
-
-@dataclass
-class ZerolanServiceStatus:
-    @dataclass
-    class VAD:
-        is_alive: bool = True
-        pause: bool = False
+zss = ZerolanServiceStatus(
+    vad_service=VAD(pause=False, is_alive=True)
+)
 
 
-zerolan_service_status = ZerolanServiceStatus()
-
-
-@app.route('/vad/switch')
+@app.route('/vad/switch', methods=['POST'])
 def handle_vad_switch():
-    if zerolan_service_status.VAD.pause:
+    if zss.vad_service.pause:
         vad.service.resume()
     else:
         vad.service.pause()
-    logger.info(f'🎙️ VAD 服务现在状态: {"" if zerolan_service_status.VAD.pause else ""} ')
+    zss.vad_service.pause = not zss.vad_service.pause
+    vad_status_str = '已暂停' if zss.vad_service.pause else '已继续'
+    response = HTTPResponseBody(ok=True, msg=f'VAD 服务{vad_status_str}', data=zss)
+    return jsonify(asdict(response))
+
+
+@app.route('/llm/reset', methods=['GET'])
+def reset():
+    global HISTORY
+    HISTORY = load_custom_history()
+    return 'OK'
+
+
+@app.route('/history', methods=['GET'])
+def handle_history():
+    return jsonify(get_history())
 
 
 def load_custom_history():
@@ -44,18 +52,6 @@ def load_custom_history():
         history = json_value.get('history', [])
         HISTORY = history
         return history
-
-
-@app.route('/llm/reset', methods=['GET'])
-def reset():
-    global HISTORY
-    HISTORY = load_custom_history()
-    return '记忆已被重置'
-
-
-@app.route('/history', methods=['GET'])
-def handle_history():
-    return jsonify(get_history())
 
 
 def get_history():
