@@ -1,9 +1,14 @@
+from http import HTTPStatus
 from typing import List
 
+import gradio
 import gradio as gr
 import requests
 
+from utils.datacls import HTTPResponseBody, VAD, parse_http_response_body, ZerolanServiceStatus
+
 URL = 'http://127.0.0.1:11451'
+zcc: ZerolanServiceStatus
 
 
 def stub(message, history):
@@ -28,8 +33,15 @@ def llm_reset():
 
 
 def vad_switch():
-    response = requests.get(url=f'{URL}/vad/switch')
-    assert response.status_code == 200, '无法执行命令'
+    global zcc
+    response = requests.post(url=f'{URL}/vad/switch')
+    if response.status_code == HTTPStatus.OK:
+        response = parse_http_response_body(response.json())
+
+        if response.ok:
+            btn_val = '👂️ 恢复听觉' if response.data.vad_service.pause else '👂️ 关闭听觉'
+            gradio.Info(message=response.msg)
+    gradio.Error(message='VAD 服务未响应')
 
 
 with gr.Blocks(theme=gr.themes.Soft()) as controller_inteface:
@@ -40,8 +52,8 @@ with gr.Blocks(theme=gr.themes.Soft()) as controller_inteface:
         with gr.Column():
             gr.Markdown('## 运行时控制')
             reset_button = gr.ClearButton(value='🔃 重载提示词')
-            stop_voice_button = gr.ClearButton(value='🫢 停止发声')
-            pause_or_resume_vad_button = gr.ClearButton(value='🎙️ 暂停录音')
+            stop_voice_button = gr.ClearButton(value='🫢 开启/关闭语音系统')
+            pause_or_resume_vad_button = gr.Button(value='👂️ 开启/关闭听觉系统')
 
             reset_button.click(fn=llm_reset)
             pause_or_resume_vad_button.click(fn=vad_switch)
