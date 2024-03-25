@@ -46,7 +46,7 @@ def load_custom_history():
         return history
 
 
-@app.route('/reset', methods=['GET'])
+@app.route('/llm/reset', methods=['GET'])
 def reset():
     global HISTORY
     HISTORY = load_custom_history()
