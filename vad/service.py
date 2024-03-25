@@ -11,6 +11,7 @@ import numpy as np
 import pyaudio
 from loguru import logger
 from scipy.io.wavfile import write
+from utils.util import save
 
 logger.remove()
 logger.add(sys.stderr, level="INFO")
@@ -22,7 +23,10 @@ SAMPLE_RATE = 16000
 THRESHOLD = 600
 MAX_MUTE_COUNT = 10
 
-FLAG_AUDIO_RECORD = True
+# 循环存储语音文件线程等待事件
+save_speech_in_loop_event = threading.Event()
+# 循环录音线程等待事件
+record_speech_in_loop_event = threading.Event()
 
 
 @dataclass
@@ -52,8 +56,10 @@ def init(save_dir: str | PathLike, chunk: int, sample_rate: int, threshold: int,
     return True
 
 
-def audio_record():
-    while FLAG_AUDIO_RECORD:
+def record_speech_in_loop():
+    while True:
+        # 线程等待如果没有开启记录
+        record_speech_in_loop_event.wait()
         data = np.fromstring(stream.read(CHUNK), dtype=np.int16)
         wave_records.put(data)
 
@@ -81,11 +87,12 @@ def vad():
     return ret
 
 
-def save_speech():
+def save_speech_in_loop():
     """
     检测是否有人在说话
     """
     while True:
+        record_speech_in_loop_event.wait()
         speech = vad()
         if len(speech) != 0:
             speech = np.asarray(speech).flatten()
@@ -98,7 +105,7 @@ def save_speech():
                 write(filename=tmp_file.name, rate=SAMPLE_RATE, data=speech)
 
 
-def select01():
+def select_latest_unread():
     if len(wav_file_list) > 0:
         unread_wav_list = [wav_file for wav_file in wav_file_list if not wav_file.is_read]
         if len(unread_wav_list) > 0:
@@ -108,9 +115,28 @@ def select01():
     return None
 
 
+def pause():
+    record_speech_in_loop_event.clear()
+    save_speech_in_loop_event.clear()
+    logger.info('🎙️ VAD 服务暂停')
+
+
+def resume():
+    record_speech_in_loop_event.set()
+    save_speech_in_loop_event.set()
+    logger.info('🎙️ VAD 服务继续')
+
+
+def stop():
+    record_speech_in_loop_event.clear()
+    save_speech_in_loop_event.clear()
+    save('.save/vad', wav_file_list)
+    return True
+
+
 def start():
-    audio_record_thread = threading.Thread(target=audio_record)
-    speech_recognize_thread = threading.Thread(target=save_speech)
+    audio_record_thread = threading.Thread(target=record_speech_in_loop)
+    speech_recognize_thread = threading.Thread(target=save_speech_in_loop)
 
     speech_recognize_thread.start()
     audio_record_thread.start()
