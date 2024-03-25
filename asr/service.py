@@ -16,7 +16,7 @@ class Transcript:
     content: str
 
 
-# 识别出的每一条语音对应的 Transcript 放在这个文件中
+# 识别出的每一条语音对应的 Transcript 放在这个列表中
 g_transcript_list: List[Transcript] = []
 
 
