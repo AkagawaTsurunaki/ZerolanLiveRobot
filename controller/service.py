@@ -1,7 +1,11 @@
 import json
+from dataclasses import dataclass
 from typing import List
+from loguru import logger
 
 from flask import Flask, jsonify
+
+import vad.service
 
 app = Flask(__name__)
 
@@ -11,6 +15,26 @@ PORT = 11451
 CUSTOM_PROMPT_PATH: str = './template/custom_prompt.json'
 HISTORY: List[dict] = []
 MAX_HISTORY: int = 40
+
+
+@dataclass
+class ZerolanServiceStatus:
+    @dataclass
+    class VAD:
+        is_alive: bool = True
+        pause: bool = False
+
+
+zerolan_service_status = ZerolanServiceStatus()
+
+
+@app.route('/vad/switch')
+def handle_vad_switch():
+    if zerolan_service_status.VAD.pause:
+        vad.service.resume()
+    else:
+        vad.service.pause()
+    logger.info(f'🎙️ VAD 服务现在状态: {"" if zerolan_service_status.VAD.pause else ""} ')
 
 
 def load_custom_history():
