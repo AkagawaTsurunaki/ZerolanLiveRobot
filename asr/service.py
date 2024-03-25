@@ -64,7 +64,7 @@ def predict(wav_path) -> str | None:
 def start():
     logger.info('👂️ 自动语音识别服务已启动')
     while True:
-        wav_file_path = vad.service.select01()
+        wav_file_path = vad.service.select_latest_unread()
         if wav_file_path:
             res = predict(wav_file_path)
             if res:
