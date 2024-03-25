@@ -1,4 +1,7 @@
+import json
 import os
+from typing import Any
+
 
 def is_blank(s: str):
     """
@@ -36,13 +39,27 @@ def url_join(host, port, protocol='http'):
     url = f"{protocol}://{host}:{port}"
     return url
 
+
 def create_file_if_not_exists(file_path):
     # 获取目录路径
     dir_path = os.path.dirname(file_path)
-    
+
     # 创建目录及父级目录
     os.makedirs(dir_path, exist_ok=True)
-    
+
     # 创建文件
     with open(file=file_path, mode='w', encoding='utf-8') as f:
         f.write("")
+
+
+def save_json(file_path: str | os.PathLike, obj: Any):
+    """
+    保存 JSON 文件。如果目录不存在会自动创建。
+    :param file_path: 目标文件路径。
+    :param obj: 将被转换为 JSON 的对象
+    :return:
+    """
+    dir_path = os.path.dirname(file_path)
+    os.makedirs(dir_path, exist_ok=True)
+    with open(file=file_path, mode='w+', encoding='utf-8') as file:
+        json.dump(fp=file, obj=obj)
