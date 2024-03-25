@@ -81,13 +81,13 @@ if __name__ == '__main__':
         thread_list.append(asr_serv_thread)
         asr_serv_thread.start()
 
-        # 启动生命周期
-        asyncio.run(service_start(add_audio_event))
-
         # 启动控制器
         ctrl_thread = threading.Thread(target=controller.service.start)
         thread_list.append(ctrl_thread)
         ctrl_thread.start()
+
+        # 启动生命周期
+        asyncio.run(service_start(add_audio_event))
 
         # 等待所有线程结束
         for thread in thread_list:
