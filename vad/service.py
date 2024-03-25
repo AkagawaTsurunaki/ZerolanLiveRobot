@@ -37,6 +37,7 @@ stream: pyaudio.Stream
 
 
 def init(save_dir: str | PathLike, chunk: int, sample_rate: int, threshold: int, max_mute_count: int):
+    logger.info('🎙️ VAD 服务初始化中……')
     global stream, SAVE_DIR, CHUNK, SAMPLE_RATE, THRESHOLD, MAX_MUTE_COUNT
     SAVE_DIR = save_dir
     CHUNK = chunk
@@ -47,6 +48,7 @@ def init(save_dir: str | PathLike, chunk: int, sample_rate: int, threshold: int,
     stream = p.open(
         format=pyaudio.paInt16, channels=1, rate=SAMPLE_RATE, input=True, frames_per_buffer=CHUNK
     )
+    logger.info('🎙️ VAD 服务初始化完毕')
     return True
 
 
@@ -87,7 +89,7 @@ def save_speech():
         speech = vad()
         if len(speech) != 0:
             speech = np.asarray(speech).flatten()
-            logger.info('VAD 激活')
+            logger.info('🎙️ VAD 激活')
 
             # Write temp file for saving speech file
             tmp_wav_file_path = os.path.join(SAVE_DIR, f'{time.time()}.wav')
@@ -113,7 +115,7 @@ def start():
     speech_recognize_thread.start()
     audio_record_thread.start()
 
-    logger.info('VAD 服务已启动')
+    logger.info('🎙️ VAD 服务已启动')
 
     audio_record_thread.join()
     speech_recognize_thread.join()

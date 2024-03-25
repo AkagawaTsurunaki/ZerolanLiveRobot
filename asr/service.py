@@ -37,6 +37,7 @@ def select_latest_unread() -> str | None:
 
 def init(model_path: str | PathLike, vad_model_path: str | PathLike) -> bool:
     global MODEL
+    logger.info('👂️ 自动语音识别服务初始化中……')
     if vad_model_path:
         logger.warning('⚠️ 使用 VAD 模型可能会出现疑难杂症，建议不要使用')
     MODEL = AutoModel(model=model_path, model_revision="v2.0.4",
@@ -44,6 +45,7 @@ def init(model_path: str | PathLike, vad_model_path: str | PathLike) -> bool:
                       # punc_model="ct-punc-c", punc_model_revision="v2.0.4",
                       # spk_model="cam++", spk_model_revision="v2.0.2",
                       )
+    logger.info('👂️ 自动语音识别服务初始化完毕')
     return True
 
 
@@ -60,7 +62,7 @@ def predict(wav_path) -> str | None:
 
 
 def start():
-    logger.info('语音识别服务已启动')
+    logger.info('👂️ 自动语音识别服务已启动')
     while True:
         wav_file_path = vad.service.select01()
         if wav_file_path:
