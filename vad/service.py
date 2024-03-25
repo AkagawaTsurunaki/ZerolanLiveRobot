@@ -138,6 +138,9 @@ def start():
     audio_record_thread = threading.Thread(target=record_speech_in_loop)
     speech_recognize_thread = threading.Thread(target=save_speech_in_loop)
 
+    record_speech_in_loop_event.set()
+    save_speech_in_loop_event.set()
+
     speech_recognize_thread.start()
     audio_record_thread.start()
 
