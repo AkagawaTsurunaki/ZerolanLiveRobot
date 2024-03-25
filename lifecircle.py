@@ -4,6 +4,7 @@ from typing import List
 
 from loguru import logger
 
+import asr.service
 import audio_player.service
 import chatglm3.api
 import controller.service
@@ -46,21 +47,35 @@ def read_screen() -> str | None:
     return screen_desc
 
 
-def convert_2_query(danmaku: Danmaku, screen_desc: str, game_event: GameEvent):
-    query = {
-        "弹幕": {
+def read_from_microphone() -> str | None:
+    transcript = asr.service.select_latest_unread()
+    if transcript:
+        logger.info(f'🎙️ 用户语音输入：{transcript}')
+    return transcript
+
+
+def convert_2_query(transcript: str, danmaku: Danmaku, screen_desc: str, game_event: GameEvent) -> str | None:
+    query = {}
+
+    if transcript:
+        query['开发者说'] = transcript
+
+    if danmaku:
+        query['弹幕'] = {
             "用户名": danmaku.username,
             "内容": danmaku.msg
-        } if danmaku else None,
-        "游戏画面": f'{screen_desc}' if screen_desc else None,
-        "游戏状态": {
+        }
+
+    if screen_desc:
+        query['游戏画面'] = f'{screen_desc}'
+
+    if game_event:
+        query['游戏状态'] = {
             "生命值": game_event.health,
             "饥饿值": game_event.food,
             "环境": game_event.environment
-        } if game_event else None
-    }
-    if (not query['弹幕']) and (not query['游戏画面']) and (not query['游戏状态']):
-        return None
+        }
+
     return str(json.dumps(obj=query, indent=4, ensure_ascii=False)) if query else None
 
 
@@ -102,11 +117,14 @@ async def life_circle(add_audio_event: threading.Event):
     # 当记忆过多或没有记忆(懒加载)时, 尝试重载记忆
     try_compress_history()
 
-    # 尝试抽取弹幕 | 截图识别 | 获取游戏事件
-    danmaku, screen_desc, game_event = read_danmaku(), read_screen(), read_game_event()
+    # 尝试读取语音 | 抽取弹幕 | 截图识别 | 获取游戏事件
+    transcript = read_from_microphone()
+    danmaku = read_danmaku()
+    screen_desc = read_screen()
+    game_event = read_game_event()
 
     # 将上述获取的信息转化为对话的请求
-    query = convert_2_query(danmaku, screen_desc, game_event)
+    query = convert_2_query(transcript, danmaku, screen_desc, game_event)
 
     if query is None or query == '':
         logger.debug('生命周期提前结束')
