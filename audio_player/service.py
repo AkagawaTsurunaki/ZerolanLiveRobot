@@ -7,6 +7,7 @@ from typing import List
 
 from loguru import logger
 from playsound import playsound
+from utils.util import save
 
 import obs.service
 
@@ -24,13 +25,20 @@ class AudioPair:
 # 用于记录
 audio_list: List[AudioPair] = []
 
-FLAG = True
+IS_RUNNING = True
 
 
 def stop():
-    global audio_list, FLAG
-    audio_list = []
-    FLAG = False
+    """
+    终止本服务
+    :return:
+    """
+    global audio_list, IS_RUNNING
+    # 停止死循环
+    IS_RUNNING = False
+    # 保存所有的
+    save('.save/audio', audio_list)
+    return True
 
 
 def is_over() -> bool:
@@ -59,9 +67,8 @@ def add_audio(wav_file_path: str | PathLike, transcript: str):
 
 
 def start(add_audio_event: Event):
-    while FLAG:
+    while IS_RUNNING:
         add_audio_event.wait()
-        print('THIS IS RUNNING')
         if len(audio_list) > 0:
             for audio_pair in audio_list:
                 if not audio_pair.played:
