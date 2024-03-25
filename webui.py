@@ -31,10 +31,12 @@ with gr.Blocks(theme=gr.themes.Soft()) as controller_inteface:
     gr.Markdown('# 🕹️ Zerolan Live Robot 中央控制面板')
     with gr.Row():
         gr.Chatbot(label='LLM 对话区', value=history, every=1, height=800, min_width=800)
+
         with gr.Column():
             gr.Markdown('## 运行时控制')
             reset_button = gr.ClearButton(value='🔃 重载提示词')
-            stop_button = gr.ClearButton(value='🫢 停止发声')
+            stop_voice_button = gr.ClearButton(value='🫢 停止发声')
+            stop_button = gr.ClearButton(value='🛑 终止运行')
 
             reset_button.click(fn=reset)
         #
