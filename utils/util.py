@@ -1,5 +1,6 @@
 import json
 import os
+import time
 from typing import Any
 
 
@@ -63,3 +64,9 @@ def save_json(file_path: str | os.PathLike, obj: Any):
     os.makedirs(dir_path, exist_ok=True)
     with open(file=file_path, mode='w+', encoding='utf-8') as file:
         json.dump(fp=file, obj=obj)
+
+
+def save(dir: str | os.PathLike, obj: Any):
+    cur_time_str = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+    save_path = os.path.join(dir, cur_time_str)
+    save_json(save_path, obj)
