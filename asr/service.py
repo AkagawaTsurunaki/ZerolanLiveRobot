@@ -37,8 +37,10 @@ def select_latest_unread() -> str | None:
 
 def init(model_path: str | PathLike, vad_model_path: str | PathLike) -> bool:
     global MODEL
+    if vad_model_path:
+        logger.warning('⚠️ 使用 VAD 模型可能会出现疑难杂症，建议不要使用')
     MODEL = AutoModel(model=model_path, model_revision="v2.0.4",
-                      vad_model=vad_model_path, vad_model_revision="v2.0.4",
+                      # vad_model=vad_model_path, vad_model_revision="v2.0.4",
                       # punc_model="ct-punc-c", punc_model_revision="v2.0.4",
                       # spk_model="cam++", spk_model_revision="v2.0.2",
                       )
