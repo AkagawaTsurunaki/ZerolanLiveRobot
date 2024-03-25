@@ -8,12 +8,12 @@ from loguru import logger
 import asr.service
 import audio_player.service
 import chatglm3.api
-import controller.service
 import minecraft.py.service
 import obs.service
 from bilibili import service as bili_serv
 from bilibili.service import Danmaku
 from blip_img_cap import service as blip_serv
+from controller.service import CUSTOM_PROMPT_PATH
 from gptsovits import service as gptsovits_serv
 from minecraft.py.common import GameEvent
 from scrnshot import service as scrn_serv
@@ -103,13 +103,20 @@ def read_game_event():
     return minecraft.py.service.select01()
 
 
+def load_custom_history():
+    with open(file=CUSTOM_PROMPT_PATH, mode='r', encoding='utf-8') as file:
+        json_value: dict = json.load(file)
+        history = json_value.get('history')
+        return history
+
+
 def try_compress_history():
     # TODO: 仍在施工, 压缩记忆
     # 当历史记录过多时可能会导致 GPU 占用过高
     # 故设计一个常量来检测是否超过阈值
     global HISTORY
     if len(HISTORY) == 0 or len(HISTORY) > MAX_HISTORY:
-        HISTORY = controller.service.load_custom_history()
+        HISTORY = load_custom_history()
 
 
 async def life_circle(add_audio_event: threading.Event):
