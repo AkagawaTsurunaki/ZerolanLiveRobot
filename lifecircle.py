@@ -29,7 +29,7 @@ def read_danmaku() -> Danmaku | None:
     当没有弹幕可以被抽取时，返回 None.
     :return: 弹幕对象 | None
     """
-    danmaku = bili_serv.select_01(k=3)
+    danmaku = bili_serv.select_latest_longest(k=3)
     if danmaku:
         logger.info(f'✅ [{danmaku.username}]({danmaku.uid}) {danmaku.msg}')
     return danmaku

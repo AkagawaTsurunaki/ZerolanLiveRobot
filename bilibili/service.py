@@ -1,4 +1,6 @@
+import os.path
 import random
+import time
 from dataclasses import dataclass
 from typing import List
 
@@ -7,7 +9,7 @@ from bilibili_api import Danmaku
 from bilibili_api.live import LiveDanmaku, LiveRoom
 from loguru import logger
 
-is_initialized = False
+from utils.util import save_json
 
 
 @dataclass
@@ -23,30 +25,27 @@ class Danmaku:
 danmaku_list: List[Danmaku] = []
 
 # 直播监视器（监控弹幕）
-monitor: LiveDanmaku
+MONITOR: LiveDanmaku
 
 # 直播发送器（发送弹幕）
-sender: LiveRoom
+SENDER: LiveRoom
 
 
 def init(sessdata: str, bili_jct: str, buvid3: str, room_id: int):
-    credential = Credential(
-        sessdata=sessdata,
-        bili_jct=bili_jct,
-        buvid3=buvid3
-    )
     logger.info('🍻 Bilibili 直播服务正在初始化……')
-    global monitor, sender, is_initialized
-    # 监听直播间弹幕
-    monitor = LiveDanmaku(room_id, credential=credential)
-    # 用来发送弹幕
-    sender = LiveRoom(room_id, credential=credential)
-    assert monitor and sender, '❌️ Bilibili 直播服务初始化失败'
 
-    is_initialized = True
+    global MONITOR, SENDER
+    # 身份对象
+    credential = Credential(sessdata=sessdata, bili_jct=bili_jct, buvid3=buvid3)
+    # 监听直播间弹幕
+    MONITOR = LiveDanmaku(room_id, credential=credential)
+    # 用来发送弹幕
+    SENDER = LiveRoom(room_id, credential=credential)
+    assert MONITOR and SENDER, '❌️ Bilibili 直播服务初始化失败'
+
     logger.info('🍻 Bilibili 直播服务初始化完毕')
 
-    @monitor.on("DANMU_MSG")
+    @MONITOR.on("DANMU_MSG")
     async def recv(event):
         danmaku = Danmaku(uid=event["data"]["info"][2][0],
                           username=event["data"]["info"][2][1],
@@ -60,19 +59,19 @@ def init(sessdata: str, bili_jct: str, buvid3: str, room_id: int):
 
         logger.debug(f'🍥 [{danmaku.username}]({danmaku.uid}): {danmaku.msg}')
 
-        add(danmaku)
+        _add(danmaku)
 
-    return is_initialized
+    return True
 
 
 # 启动监听
 def start():
     logger.info('🍻 Bilibili 直播间监听启动')
-    sync(monitor.connect())
+    sync(MONITOR.connect())
     logger.warning('🍻 Bilibili 直播间监听已结束')
 
 
-def select_01(k: int) -> Danmaku:
+def select_latest_longest(k: int) -> Danmaku:
     # 按照某种策略拾取弹幕
     # 按照当前时间戳最近的k条中随机挑选msg字段字符串最长的一条（若都相同，则随机）
 
@@ -94,8 +93,25 @@ def select_01(k: int) -> Danmaku:
     return selected_danmaku
 
 
-def add(danmaku: Danmaku):
+def _add(danmaku: Danmaku):
     # TODO: 这里可以实现多个过滤规则的运作
-
     danmaku_list.append(danmaku)
     logger.debug(f'添加 1 条弹幕于弹幕列表中，现在{len(danmaku_list)}')
+
+
+def _save():
+    cur_time_str = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+    save_path = os.path.join('.save/danmaku', cur_time_str)
+    save_json(save_path, danmaku_list)
+
+
+def stop():
+    """
+    终止本服务
+    :return:
+    """
+    # 关闭监视器
+    MONITOR.disconnect()
+    # 保存弹幕信息
+    _save()
+    return True
