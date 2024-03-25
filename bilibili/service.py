@@ -9,7 +9,7 @@ from bilibili_api import Danmaku
 from bilibili_api.live import LiveDanmaku, LiveRoom
 from loguru import logger
 
-from utils.util import save_json
+from utils.util import save
 
 
 @dataclass
@@ -99,12 +99,6 @@ def _add(danmaku: Danmaku):
     logger.debug(f'添加 1 条弹幕于弹幕列表中，现在{len(danmaku_list)}')
 
 
-def _save():
-    cur_time_str = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-    save_path = os.path.join('.save/danmaku', cur_time_str)
-    save_json(save_path, danmaku_list)
-
-
 def stop():
     """
     终止本服务
@@ -113,12 +107,8 @@ def stop():
     global SENDER
     # 关闭监视器
     MONITOR.disconnect()
-    del MONITOR
     # 删除发送器
     SENDER = None
-    del SENDER
     # 保存弹幕信息
-    _save()
-    # 清空列表
-    del danmaku_list
+    save('.save/danmaku', danmaku_list)
     return True
