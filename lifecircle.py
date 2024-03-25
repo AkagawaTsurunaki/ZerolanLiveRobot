@@ -1,3 +1,4 @@
+import asyncio
 import json
 import threading
 from typing import List
@@ -170,3 +171,10 @@ async def life_circle(add_audio_event: threading.Event):
         # 播放语音
         audio_player.service.add_audio(wav_file_path, sentence)
         add_audio_event.set()
+
+
+async def service_start(add_audio_event: threading.Event):
+    logger.info('💜 ZerolanLiveRobot，启动！')
+    while True:
+        await life_circle(add_audio_event)
+        await asyncio.sleep(1)
