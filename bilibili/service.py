@@ -110,8 +110,15 @@ def stop():
     终止本服务
     :return:
     """
+    global SENDER
     # 关闭监视器
     MONITOR.disconnect()
+    del MONITOR
+    # 删除发送器
+    SENDER = None
+    del SENDER
     # 保存弹幕信息
     _save()
+    # 清空列表
+    del danmaku_list
     return True
