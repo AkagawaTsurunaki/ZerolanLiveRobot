@@ -1,4 +1,3 @@
-import json
 from typing import List
 
 import gradio as gr
@@ -7,44 +6,53 @@ import requests
 URL = '127.0.0.1:11451'
 
 
-def res():
-    # def inner():
-    #     now = datetime.now()
-    #     current_time = now.strftime("%Y-%m-%d %H:%M:%S")
-    #     return [(f"欢迎使用,当前时间是: {current_time}", 'asdasd')]
-    # def inner():
-    #
+def stub(message, history):
+    pass
+
+
+def history():
     response = requests.get(url=f'http://{URL}/history')
-    history: List[dict] = json.loads(response.json())
+    history: List[dict] = response.json()
+    history = [item.get('content') for item in history]
+    result = []
     if len(history) > 0:
-        history = [item.get('content') for item in history]
-        return history
+        for i in range(0, len(history), 2):
+            result.append((history[i], history[i + 1]))
+
+    return result
 
 
-with gr.Blocks() as demo:
-    gr.Markdown("# Gradio实时输出的实现")
-    gr.Chatbot(value=res, every=1)
-    # out_1 = gr.Textbox(label="实时状态",
-    #                    value=current_time(),
-    #                    every=1,
-    #                    info="当前时间", )
+def reset():
+    response = requests.get(url=f'http://{URL}/reset')
+    assert response.status_code == 200, '无法执行命令'
 
-demo.launch()
 
-#
-# chat_interface = gr.ChatInterface(
-#     fn=res,
-#     chatbot=gr.Chatbot(height=300),
-#     textbox=gr.Textbox(placeholder='请输入...', container=False, scale=7),
-#     title='Zerolan Live Robot Controller Interface',
-#     description='这里与 Zerolan Live Robot 进行文字对话',
-#     theme='soft',
-#     examples=['你好', '你叫什么名字?', '你能干什么?'],
-#     cache_examples=True,
-#     retry_btn=None,
-#     undo_btn='撤回',
-#     clear_btn='清除'
-# )
-#
-# chat_interface.launch()
-# chat_interface.call_function()
+with gr.Blocks(theme=gr.themes.Soft()) as controller_inteface:
+    gr.Markdown('# 🕹️ Zerolan Live Robot 中央控制面板')
+    with gr.Row():
+        gr.Chatbot(label='LLM 对话区', value=history, every=1, height=800, min_width=800)
+        with gr.Column():
+            gr.Markdown('## 运行时控制')
+            reset_button = gr.ClearButton(value='🔃 重载提示词')
+            stop_button = gr.ClearButton(value='🫢 停止发声')
+
+            reset_button.click(fn=reset)
+        #
+        with gr.Column():
+            gr.Markdown('## 模型控制')
+            btn01 = gr.ClearButton(value='🔃 重载 LLM 服务')
+            btn02 = gr.ClearButton(value='🫢 重载 TTS 服务')
+            btn03 = gr.ClearButton(value='🫢 重载 TTS 服务')
+
+    # gr.ChatInterface(
+    #     fn=stub,
+    #     chatbot=gr.Chatbot(label='LLM 对话区', value=res, every=1, height=800, min_width=300),
+    #     textbox=gr.Textbox(placeholder='请输入...', container=False, scale=7),
+    #     title='Zerolan Live Robot 控制面板',
+    #     theme='soft',
+    #     retry_btn=None,
+    #     undo_btn='撤回',
+    #     clear_btn=clr_btn
+    # )
+
+controller_inteface.launch()
