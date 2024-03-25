@@ -1,26 +1,24 @@
 import asyncio
 import json
 import threading
-from typing import List
 
 from loguru import logger
 
 import asr.service
 import audio_player.service
 import chatglm3.api
+import controller.service
 import minecraft.py.service
 import obs.service
 from bilibili import service as bili_serv
 from bilibili.service import Danmaku
 from blip_img_cap import service as blip_serv
-from controller.service import CUSTOM_PROMPT_PATH
 from gptsovits import service as gptsovits_serv
 from minecraft.py.common import GameEvent
 from scrnshot import service as scrn_serv
 from tone_ana import service as tone_serv
 from utils.util import is_blank
 
-HISTORY: List[dict] = []
 LANG = 'zh'
 MAX_HISTORY = 40
 
@@ -103,27 +101,11 @@ def read_game_event():
     return minecraft.py.service.select01()
 
 
-def load_custom_history():
-    global HISTORY
-    with open(file=CUSTOM_PROMPT_PATH, mode='r', encoding='utf-8') as file:
-        json_value: dict = json.load(file)
-        HISTORY = json_value.get('history')
-
-
-def try_compress_history():
-    # TODO: 仍在施工, 压缩记忆
-    # 当历史记录过多时可能会导致 GPU 占用过高
-    # 故设计一个常量来检测是否超过阈值
-    global HISTORY
-    if len(HISTORY) == 0 or len(HISTORY) > MAX_HISTORY:
-        load_custom_history()
-
-
 async def life_circle(add_audio_event: threading.Event):
-    global HISTORY, LANG
+    global LANG
 
     # 当记忆过多或没有记忆(懒加载)时, 尝试重载记忆
-    try_compress_history()
+    controller.service.try_compress_history()
 
     # 尝试读取语音 | 抽取弹幕 | 截图识别 | 获取游戏事件
     transcript = read_from_microphone()
@@ -153,7 +135,8 @@ async def life_circle(add_audio_event: threading.Event):
 
     last_split_idx = 0
 
-    async for response, history in chatglm3.api.stream_predict(query=query, history=HISTORY, top_p=1., temperature=1.):
+    async for response, history in chatglm3.api.stream_predict(query=query, history=controller.service.get_history(),
+                                                               top_p=1., temperature=1.):
         if not response or response[-1] not in ['。', '！', '？', '!', '?']:
             continue
 
@@ -164,12 +147,12 @@ async def life_circle(add_audio_event: threading.Event):
             continue
 
         # 更新 LLM 会话历史
-        HISTORY = history
+        controller.service.set_history(history)
 
         # 自动语气语音合成
         tone, wav_file_path = tts_with_tone(sentence)
 
-        logger.info(f'🗒️ 历史记录：{len(HISTORY)} \n💖 语气：{tone.id} \n💭 {sentence}')
+        logger.info(f'🗒️ 历史记录：{len(controller.service.get_history())} \n💖 语气：{tone.id} \n💭 {sentence}')
 
         if not wav_file_path:
             logger.warning(f'❕ 这条语音未能合成：{sentence}')
