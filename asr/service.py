@@ -11,12 +11,28 @@ MODEL: AutoModel
 
 
 @dataclass
-class UserQuery:
+class Transcript:
     is_read: bool
     content: str
 
 
-user_query_list: List[UserQuery] = []
+# 识别出的每一条语音对应的 Transcript 放在这个文件中
+g_transcript_list: List[Transcript] = []
+
+
+def select_latest_unread() -> str | None:
+    """
+    选择识别出的语音序列中最新未读的一项
+    :return:
+    """
+    if len(g_transcript_list) > 0:
+        unread_list = [transcript for transcript in g_transcript_list if not transcript.is_read]
+        if len(unread_list) > 0:
+            latest_unread = unread_list[-1]
+            latest_unread.is_read = True
+            return latest_unread.content
+
+    return None
 
 
 def init(model_path: str | PathLike, vad_model_path: str | PathLike) -> bool:
@@ -48,7 +64,7 @@ def start():
         if wav_file_path:
             res = predict(wav_file_path)
             if res:
-                user_query_list.append(
-                    UserQuery(is_read=False, content=res)
+                g_transcript_list.append(
+                    Transcript(is_read=False, content=res)
                 )
                 logger.info(res)
