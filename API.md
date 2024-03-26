@@ -4,18 +4,21 @@
 
 默认服务地址：`http://127.0.0.1:5926`
 
+### 推理
+
 POST: `/blip/infer`
 
-### 请求体
+#### 请求体
 ```json
 {
   "img_path": "examples/img/neko.png",
   "prompt": "There"
 }
 ```
-### 响应体
+#### 响应体
 
-#### 当推理成功时
+
+当推理成功时
 ```json
 {
   "ok": true,
@@ -26,7 +29,7 @@ POST: `/blip/infer`
 }
 ```
 
-#### 当图片路径不存在时
+当图片路径不存在时
 ```json
 {
   "ok": false,
