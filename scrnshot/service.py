@@ -44,4 +44,5 @@ def screen_cap():
         img.save(os.path.join(SAVE_PATH, f'{time.time()}.png'))
         return img
     except Exception as e:
+        logger.error(f'窗口 {WIN_TITLE} 捕获失败')
         return None
