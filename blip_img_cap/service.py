@@ -1,9 +1,15 @@
+from dataclasses import asdict
 from os import PathLike
 
 import torch
 from PIL import Image
+from flask import Flask, request, jsonify
 from loguru import logger
 from transformers import BlipProcessor, BlipForConditionalGeneration
+
+from utils.datacls import HTTPResponseBody
+
+app = Flask(__name__)
 
 # 该服务是否已被初始化?
 g_is_service_inited = False
@@ -44,13 +50,15 @@ def infer_by_path(img_path: str, text: str = g_sys_prompt):
     return output_text
 
 
-def infer(img, text: str = None):
-    assert g_is_service_inited, f'❌️ blip-image-captioning-large 服务未初始化'
-    raw_image = img.convert('RGB')
-    text = g_sys_prompt if not text else text
-    # conditional image captioning
-    inputs = PROCESSOR(raw_image, text, return_tensors="pt").to("cuda", torch.float16)
+@app.route('/blip/infer', methods=['GET'])
+def handle_blip_infer():
+    req = request.json
+    img_path = req['img_path']
+    prompt = req['prompt']
+    caption = infer_by_path(img_path, prompt)
+    response = HTTPResponseBody(ok=True, msg='推理完成', data={'caption': caption})
+    return jsonify(asdict(response))
 
-    out = MODEL.generate(**inputs)
-    output_text = PROCESSOR.decode(out[0], skip_special_tokens=True)
-    return output_text
+
+def start():
+    app.run(host='127.0.0.1', port=5926, debug=False)

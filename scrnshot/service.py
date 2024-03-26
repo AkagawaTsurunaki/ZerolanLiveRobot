@@ -40,9 +40,9 @@ def screen_cap():
         region = tuple(int(num * K) for num in region)
         # 截图
         img = pyautogui.screenshot(region=region)
-
-        img.save(os.path.join(SAVE_PATH, f'{time.time()}.png'))
-        return img
+        img_save_path = os.path.join(SAVE_PATH, f'{time.time()}.png')
+        img.save(img_save_path)
+        return img_save_path
     except Exception as e:
         logger.error(f'窗口 {WIN_TITLE} 捕获失败')
         return None

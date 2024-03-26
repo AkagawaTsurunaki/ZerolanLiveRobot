@@ -1,22 +1,21 @@
 import asyncio
 import json
-import threading
 
 from loguru import logger
 
 import asr.service
 import audio_player.service
+import blip_img_cap.api
 import chatglm3.api
 import controller.service
 import minecraft.py.service
 import obs.service
 from bilibili import service as bili_serv
-from utils.datacls import Danmaku
-from blip_img_cap import service as blip_serv
 from gptsovits import service as gptsovits_serv
 from minecraft.py.common import GameEvent
 from scrnshot import service as scrn_serv
 from tone_ana import service as tone_serv
+from utils.datacls import Danmaku
 from utils.util import is_blank
 
 LANG = 'zh'
@@ -41,9 +40,11 @@ def read_screen() -> str | None:
     当没有成功截图是，返回 None.
     :return:
     """
-    img = scrn_serv.screen_cap()
-    screen_desc = blip_serv.infer(img) if img else None
-    return screen_desc
+    img_save_path = scrn_serv.screen_cap()
+    if img_save_path:
+        caption = blip_img_cap.api.inference(img_save_path, prompt='There')
+        return caption
+    return None
 
 
 def read_from_microphone() -> str | None:
