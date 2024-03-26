@@ -12,18 +12,21 @@ import pyaudio
 from loguru import logger
 from scipy.io.wavfile import write
 
+import initzr
 from config.global_config import VADConfig
 from utils.util import save
 
 logger.remove()
 logger.add(sys.stderr, level="INFO")
 
-SAVE_DIR = R'.tmp\records'
+CONFIG = initzr.load_vad_config()
 
-CHUNK = 2 ** 12
-SAMPLE_RATE = 16000
-THRESHOLD = 600
-MAX_MUTE_COUNT = 10
+SAVE_DIR = CONFIG.save_dir
+
+CHUNK = CONFIG.chunk
+SAMPLE_RATE = CONFIG.sample_rate
+THRESHOLD = CONFIG.threshold
+MAX_MUTE_COUNT = CONFIG.max_mute_count
 
 # 循环存储语音文件线程等待事件
 save_speech_in_loop_event = threading.Event()
@@ -39,30 +42,16 @@ class WavFile:
 
 wave_records = queue.Queue()
 g_wav_file_list: List[WavFile] = []
-stream: pyaudio.Stream
-
-
-def init(config: VADConfig):
-    logger.info('🎙️ VAD 服务初始化中……')
-    global stream, SAVE_DIR, CHUNK, SAMPLE_RATE, THRESHOLD, MAX_MUTE_COUNT
-    SAVE_DIR = config.save_dir
-    CHUNK = config.chunk
-    SAMPLE_RATE = config.sample_rate
-    THRESHOLD = config.threshold
-    MAX_MUTE_COUNT = config.max_mute_count
-    p = pyaudio.PyAudio()
-    stream = p.open(
-        format=pyaudio.paInt16, channels=1, rate=SAMPLE_RATE, input=True, frames_per_buffer=CHUNK
-    )
-    logger.info('🎙️ VAD 服务初始化完毕')
-    return True
+STREAM = pyaudio.PyAudio().open(
+    format=pyaudio.paInt16, channels=1, rate=SAMPLE_RATE, input=True, frames_per_buffer=CHUNK
+)
 
 
 def record_speech_in_loop():
     while True:
         # 线程等待如果没有开启记录
         record_speech_in_loop_event.wait()
-        data = np.fromstring(stream.read(CHUNK), dtype=np.int16)
+        data = np.fromstring(STREAM.read(CHUNK), dtype=np.int16)
         wave_records.put(data)
 
 
