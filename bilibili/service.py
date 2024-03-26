@@ -1,7 +1,4 @@
-import os.path
 import random
-import time
-from dataclasses import dataclass
 from typing import List
 
 from bilibili_api import Credential, sync
@@ -9,20 +6,17 @@ from bilibili_api import Danmaku
 from bilibili_api.live import LiveDanmaku, LiveRoom
 from loguru import logger
 
-from utils.util import save
+import utils.util
+from utils.datacls import Danmaku
 
+# 该服务是否已被初始化?
+g_is_service_inited = False
 
-@dataclass
-class Danmaku:
-    is_read: bool  # 弹幕是否被阅读过
-    uid: str  # 弹幕发送者UID
-    username: str  # 弹幕发送者名称
-    msg: str  # 弹幕发送内容
-    ts: int  # 弹幕时间戳
-
+# 该服务是否正在运行?
+g_is_service_running = False
 
 # 弹幕队列
-danmaku_list: List[Danmaku] = []
+g_danmaku_list: List[Danmaku] = []
 
 # 直播监视器（监控弹幕）
 MONITOR: LiveDanmaku
@@ -34,7 +28,7 @@ SENDER: LiveRoom
 def init(sessdata: str, bili_jct: str, buvid3: str, room_id: int):
     logger.info('🍻 Bilibili 直播服务正在初始化……')
 
-    global MONITOR, SENDER
+    global MONITOR, SENDER, g_is_service_inited
     # 身份对象
     credential = Credential(sessdata=sessdata, bili_jct=bili_jct, buvid3=buvid3)
     # 监听直播间弹幕
@@ -42,6 +36,7 @@ def init(sessdata: str, bili_jct: str, buvid3: str, room_id: int):
     # 用来发送弹幕
     SENDER = LiveRoom(room_id, credential=credential)
     assert MONITOR and SENDER, '❌️ Bilibili 直播服务初始化失败'
+    g_is_service_inited = True
 
     logger.info('🍻 Bilibili 直播服务初始化完毕')
 
@@ -61,11 +56,13 @@ def init(sessdata: str, bili_jct: str, buvid3: str, room_id: int):
 
         _add(danmaku)
 
-    return True
+    return g_is_service_inited
 
 
 # 启动监听
 def start():
+    global g_is_service_running
+    g_is_service_running = True
     logger.info('🍻 Bilibili 直播间监听启动')
     sync(MONITOR.connect())
     logger.warning('🍻 Bilibili 直播间监听已结束')
@@ -76,7 +73,7 @@ def select_latest_longest(k: int) -> Danmaku:
     # 按照当前时间戳最近的k条中随机挑选msg字段字符串最长的一条（若都相同，则随机）
 
     # 选择出未读过的弹幕
-    unread_danmaku_list = [danmaku for danmaku in danmaku_list if not danmaku.is_read]
+    unread_danmaku_list = [danmaku for danmaku in g_danmaku_list if not danmaku.is_read]
 
     # 如果弹幕数小于k
     if len(unread_danmaku_list) < k:
@@ -95,8 +92,8 @@ def select_latest_longest(k: int) -> Danmaku:
 
 def _add(danmaku: Danmaku):
     # TODO: 这里可以实现多个过滤规则的运作
-    danmaku_list.append(danmaku)
-    logger.debug(f'添加 1 条弹幕于弹幕列表中，现在{len(danmaku_list)}')
+    g_danmaku_list.append(danmaku)
+    logger.debug(f'添加 1 条弹幕于弹幕列表中，现在{len(g_danmaku_list)}')
 
 
 def stop():
@@ -104,11 +101,13 @@ def stop():
     终止本服务
     :return:
     """
-    global SENDER
+    global SENDER, g_is_service_running
     # 关闭监视器
     MONITOR.disconnect()
     # 删除发送器
     SENDER = None
     # 保存弹幕信息
-    save('.save/danmaku', danmaku_list)
-    return True
+    utils.util.save_service('bilibili', g_danmaku_list)
+    # 设置 FLAG
+    g_is_service_running = False
+    return g_is_service_running
