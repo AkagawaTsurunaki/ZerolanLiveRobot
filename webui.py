@@ -48,7 +48,7 @@ with gr.Blocks(theme=gr.themes.Soft()) as controller_inteface:
             reset_button = gr.ClearButton(value='🔃 重载提示词')
             stop_voice_button = gr.ClearButton(value='👄 暂停/继续语音服务')
             pause_or_resume_vad_button = gr.Button(value='👂️ 暂停/继续听觉服务')
-            stop_zerolan_button = gr.Button(value='⛔️ 终止所有服务')
+            stop_zerolan_button = gr.Button(value='⛔️ 终止 Zerolan Live Robot')
 
             reset_button.click(fn=llm_reset)
             pause_or_resume_vad_button.click(fn=vad_switch)
