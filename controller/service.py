@@ -4,6 +4,8 @@ from typing import List
 
 from flask import Flask, jsonify
 
+import asr.service
+import audio_player.service
 import vad.service
 from utils.datacls import HTTPResponseBody, ZerolanServiceStatus, VAD
 
@@ -73,7 +75,8 @@ def handle_history():
 
 
 def _stop():
-    pass
+    assert asr.service.stop()
+    assert audio_player.service.stop()
 
 
 @app.route('/stop', methods=['POST'])

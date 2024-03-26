@@ -3,6 +3,9 @@ import os
 import time
 from typing import Any, Final
 
+import psutil
+from flask import request
+
 # 这个常数记录了模块被第一次导入时的时间, 这个数值此后不会再发生变化
 SERVICE_START_TIME: Final[str] = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 
@@ -92,3 +95,23 @@ def save_service(service_name: str, obj: Any, tmp_dir='.tmp'):
         save_path = os.path.join(save_dir, f'{SERVICE_START_TIME}.json')
         with open(file=save_path, mode='w+', encoding='utf-8') as file:
             json.dump(fp=file, obj=obj, ensure_ascii=False)
+
+
+def is_port_in_use(port):
+    """
+    检查指定端口是否被占用
+    :param port: int, 待检查的端口号
+    :return: bool, 如果端口被占用返回 True，否则返回 False
+    """
+    for proc in psutil.process_iter():
+        for con in proc.connections():
+            if con.status == 'LISTEN' and con.laddr.port == port:
+                return True
+    return False
+
+
+def shutdown_server():
+    func = request.environ.get('werkzeug.server.shutdown')
+    if func is None:
+        raise RuntimeError('Not running with the Werkzeug Server')
+    func()
