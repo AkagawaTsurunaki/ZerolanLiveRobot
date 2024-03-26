@@ -7,36 +7,15 @@ from urllib.parse import urljoin
 import requests
 from loguru import logger
 
-from config.global_config import GPTSoVITSServiceConfig
+import initzr
 from utils.datacls import GPTSoVITSChangeRefer, GPTSoVITSRequest
 
-g_is_service_inited = False
-
-DEBUG = False
-SERVER_URL = 'http://127.0.0.1:9880'
-SAVE_DIR = '.tmp/wav_output'
+CONFIG = initzr.load_gpt_sovits_config()
+SERVER_URL = CONFIG.url()
+SAVE_DIR = CONFIG.save_dir
 
 
-def check_alive():
-    try:
-        requests.head(SERVER_URL, timeout=5).status_code
-    except Exception as e:
-        raise ConnectionError(f'❌️ GPT-SoVTIS 服务无法连接至 {SERVER_URL}')
-
-
-def init(config: GPTSoVITSServiceConfig):
-    logger.info('👄 GPT-SoVITS 服务初始化中……')
-    global DEBUG, SERVER_URL, SAVE_DIR, g_is_service_inited
-    DEBUG = config.debug
-    SAVE_DIR = config.save_dir
-    SERVER_URL = f"http://{config.host}:{config.port}"
-    check_alive()
-    g_is_service_inited = True
-    logger.info('👄 GPT-SoVITS 服务初始化完毕')
-    return g_is_service_inited
-
-
-def write_wav(wav_data):
+def _write_wav(wav_data):
     ran_file_name = uuid.uuid4()
     tmp_wav_file_path = os.path.join(SAVE_DIR, f'{ran_file_name}.wav')
     with open(file=tmp_wav_file_path, mode='wb') as wav_file:
@@ -55,7 +34,7 @@ def predict(text: str, text_language: str):
     # 请求正常时写入音频
     if response.status_code == HTTPStatus.OK:
         # 将音频文件写入临时目录
-        return write_wav(response.content)
+        return _write_wav(response.content)
     elif response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR:
         return None
     return None
@@ -72,7 +51,7 @@ def predict_with_prompt(text: str, text_language: str, refer_wav_path: str, prom
     response = requests.post(SERVER_URL, json=req)
     if response.status_code == HTTPStatus.OK:
         # 将音频文件写入临时目录
-        return write_wav(response.content)
+        return _write_wav(response.content)
     return None
 
 

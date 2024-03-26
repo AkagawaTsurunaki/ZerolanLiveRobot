@@ -8,11 +8,11 @@ import asr.app
 import audio_player.service
 import blip_img_cap.api
 import chatglm3.api
-import controller.service
+import controller.app
 import minecraft.py.service
 import obs.service
 from bilibili import service as bili_serv
-from gptsovits import service as gptsovits_serv
+from gptsovits import api as gptsovits_serv
 from minecraft.py.common import GameEvent
 from scrnshot import service as scrn_serv
 from tone_ana import service as tone_serv

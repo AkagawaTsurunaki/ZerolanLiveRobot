@@ -6,11 +6,11 @@ from loguru import logger
 
 import asr.service
 import audio_player.service
-import controller.service
+import controller.app
 import minecraft.py.service
 import vad.service
 from bilibili import service as bili_serv
-from gptsovits import service as gptsovits_serv
+from gptsovits import api as gptsovits_serv
 from initzr import load_bilibili_live_config, load_screenshot_config, load_gpt_sovits_config, \
     load_tone_analysis_service_config, load_chatglm3_service_config, \
     load_obs_config, load_vad_config
