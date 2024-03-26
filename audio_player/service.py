@@ -40,11 +40,11 @@ def play(audio_pair: AudioPair):
 
 def select_latest_unplayed():
     if len(g_audio_list) > 0:
-        latest_unplayed = [item for item in g_audio_list if not item.played]
-        if len(latest_unplayed) > 0:
-            for item in g_audio_list:
-                item.played = True
-            return latest_unplayed[-1]
+        latest_unplayed_list = [item for item in g_audio_list if not item.played]
+        if len(latest_unplayed_list) > 0:
+            latest_unplayed = latest_unplayed_list[-1]
+            latest_unplayed.played = True
+            return latest_unplayed
     return None
 
 
