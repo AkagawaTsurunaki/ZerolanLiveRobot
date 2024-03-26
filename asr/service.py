@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from os import PathLike
 from typing import List
 
@@ -6,15 +5,9 @@ from funasr import AutoModel
 from loguru import logger
 
 import vad.service
+from utils.datacls import Transcript
 
 MODEL: AutoModel
-
-
-@dataclass
-class Transcript:
-    is_read: bool
-    content: str
-
 
 # 识别出的每一条语音对应的 Transcript 放在这个列表中
 g_transcript_list: List[Transcript] = []
@@ -72,3 +65,13 @@ def start():
                     Transcript(is_read=False, content=res)
                 )
                 logger.info(res)
+
+
+def _save():
+    from utils.util import save
+    save('.tmp/save/', g_transcript_list)
+
+
+def stop():
+    _save()
+    return
