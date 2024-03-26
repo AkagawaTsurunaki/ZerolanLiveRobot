@@ -15,8 +15,8 @@ from initzr import load_bilibili_live_config, load_screenshot_config, load_gpt_s
     load_tone_analysis_service_config, load_chatglm3_service_config, \
     load_obs_config, load_vad_config
 from lifecircle import service_start
-from obs import service as obs_serv
-from scrnshot import service as scrn_serv
+from obs import api as obs_serv
+from scrnshot import api as scrn_serv
 from tone_ana import service as tone_serv
 
 logger.remove()

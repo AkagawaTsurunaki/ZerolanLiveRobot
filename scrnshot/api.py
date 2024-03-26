@@ -6,24 +6,13 @@ import pyautogui
 import pygetwindow as gw
 from loguru import logger
 
+import initzr
 from config.global_config import ScreenshotConfig
 
-is_initialized = False
-
-K = 0.9
-SAVE_PATH = '.tmp/screenshots'
-WIN_TITLE = None
-
-
-def init(config: ScreenshotConfig):
-    logger.info('📷️ 截图服务初始化中……')
-    global K, SAVE_PATH, WIN_TITLE, is_initialized
-    K = config.k
-    WIN_TITLE = config.win_title
-    SAVE_PATH = config.save_dir
-    is_initialized = True
-    logger.info('📷️ 截图服务初始化完毕')
-    return is_initialized
+CONFIG = initzr.load_screenshot_config()
+K = CONFIG.k
+SAVE_PATH = CONFIG.save_dir
+WIN_TITLE = CONFIG.win_title
 
 
 def screen_cap():

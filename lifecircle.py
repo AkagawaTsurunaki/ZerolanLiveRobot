@@ -10,11 +10,11 @@ import blip_img_cap.api
 import chatglm3.api
 import controller.app
 import minecraft.py.service
-import obs.service
+import obs.api
 from bilibili import service as bili_serv
 from gptsovits import api as gptsovits_serv
 from minecraft.py.common import GameEvent
-from scrnshot import service as scrn_serv
+from scrnshot import api as scrn_serv
 from tone_ana import service as tone_serv
 from utils.datacls import Danmaku
 from utils.util import is_blank

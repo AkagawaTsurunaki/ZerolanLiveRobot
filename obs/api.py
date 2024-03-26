@@ -1,25 +1,14 @@
 from loguru import logger
 
+import initzr
 from config.global_config import OBSConfig
 from tone_ana.service import Tone
 from utils.datacls import Danmaku
 
-DANMAKU_OUTPUT_PATH: str
-TONE_OUTPUT_PATH: str
-LLM_OUTPUT_PATH: str
-
-IS_INITIALIZE = False
-
-
-def init(config: OBSConfig):
-    logger.info('😀 OBS 服务初始化中……')
-    global DANMAKU_OUTPUT_PATH, TONE_OUTPUT_PATH, LLM_OUTPUT_PATH, IS_INITIALIZE
-    DANMAKU_OUTPUT_PATH = config.danmaku_output_path
-    TONE_OUTPUT_PATH = config.tone_output_path
-    LLM_OUTPUT_PATH = config.llm_output_path
-    IS_INITIALIZE = True
-    logger.info('😀 OBS 服务初始化完毕')
-    return IS_INITIALIZE
+CONFIG = initzr.load_obs_config()
+DANMAKU_OUTPUT_PATH = CONFIG.danmaku_output_path
+TONE_OUTPUT_PATH = CONFIG.tone_output_path
+LLM_OUTPUT_PATH = CONFIG.llm_output_path
 
 
 def write_llm_output(text: str | None):
@@ -32,7 +21,7 @@ def write_tone_output(tone: Tone | None):
         file.write(tone.id if tone else '')
 
 
-def write_danmaku_output(danmaku: Danmaku|None):
+def write_danmaku_output(danmaku: Danmaku | None):
     with open(file=DANMAKU_OUTPUT_PATH, mode='w+', encoding='utf-8') as file:
         file.write(f'{danmaku.username} 说: {danmaku.msg}' if danmaku else '')
 

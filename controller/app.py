@@ -6,7 +6,7 @@ from flask import Flask, jsonify
 
 import audio_player.service
 import initzr
-import obs.service
+import obs.api
 import vad.service
 from config.global_config import ZerolanLiveRobotConfig
 from utils.datacls import HTTPResponseBody
