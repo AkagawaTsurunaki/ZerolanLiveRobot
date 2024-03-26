@@ -18,6 +18,7 @@ from scrnshot import service as scrn_serv
 from tone_ana import service as tone_serv
 from utils.datacls import Danmaku
 from utils.util import is_blank
+import asr.api
 
 LANG = 'zh'
 MAX_HISTORY = 40
@@ -50,7 +51,7 @@ def read_screen() -> str | None:
 
 
 def read_from_microphone() -> str | None:
-    transcript = asr.service.select_latest_unread()
+    transcript = asr.api.select_latest_unread()
     if transcript:
         logger.info(f'🎙️ 用户语音输入：{transcript}')
     return transcript
