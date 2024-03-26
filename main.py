@@ -86,7 +86,7 @@ if __name__ == '__main__':
         ctrl_thread.start()
 
         # 启动生命周期
-        asyncio.run(service_start(add_audio_event))
+        asyncio.run(service_start())
 
         # 等待所有线程结束
         for thread in thread_list:

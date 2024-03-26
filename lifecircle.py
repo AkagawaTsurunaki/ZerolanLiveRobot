@@ -101,7 +101,7 @@ def read_game_event():
     return minecraft.py.service.select01()
 
 
-async def life_circle(add_audio_event: threading.Event):
+async def life_circle():
     global LANG
 
     # 当记忆过多或没有记忆(懒加载)时, 尝试重载记忆
@@ -117,7 +117,7 @@ async def life_circle(add_audio_event: threading.Event):
     query = convert_2_query(transcript, danmaku, screen_desc, game_event)
 
     if query is None or query == '':
-        logger.debug('生命周期提前结束')
+        logger.warning('生命周期提前结束')
         return
 
     logger.info(query)
@@ -160,11 +160,10 @@ async def life_circle(add_audio_event: threading.Event):
 
         # 播放语音
         audio_player.service.add_audio(wav_file_path, sentence)
-        add_audio_event.set()
 
 
-async def service_start(add_audio_event: threading.Event):
+async def service_start():
     logger.info('💜 ZerolanLiveRobot，启动！')
     while True:
-        await life_circle(add_audio_event)
+        await life_circle()
         await asyncio.sleep(1)
