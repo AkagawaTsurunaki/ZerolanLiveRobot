@@ -4,7 +4,11 @@ from os import PathLike
 import yaml
 from loguru import logger
 
-from utils.util import is_valid_port, create_file_if_not_exists
+import utils.util
+from config.global_config import BilibiliLiveConfig, ScreenshotConfig, BlipImageCaptioningLargeConfig, \
+    GPTSoVITSServiceConfig, ToneAnalysisServiceConfig, Chatglm3ServiceConfig, OBSConfig, ASRConfig, VADConfig, \
+    ZerolanLiveRobotConfig
+from utils.util import is_valid_port, create_file_if_not_exists, is_port_in_use
 
 
 def read_yaml(path: str | PathLike):
@@ -12,7 +16,7 @@ def read_yaml(path: str | PathLike):
         return yaml.safe_load(file)
 
 
-def load_global_config(path: str | PathLike = 'config/global_config.yaml'):
+def _load_global_config(path: str | PathLike = 'config/global_config.yaml'):
     """
     加载全局配置
     :param path:
@@ -28,110 +32,167 @@ def load_global_config(path: str | PathLike = 'config/global_config.yaml'):
     return global_config
 
 
-def load_bilibili_live_config(global_config: dict):
+GLOBAL_CONFIG = _load_global_config()
+
+
+def load_bilibili_live_config():
     """
     加载 Bilibili 直播配置
+
     :return: tuple 包含 sessdata, bili_jct, buvid3, room_id（直播间 ID）四个配置项
     :raises AssertionError: 如果配置项缺失或格式有误
     """
-    bilibili_live_config = global_config.get('bilibili_live_config', None)
-    if not bilibili_live_config:
-        raise ValueError(f'❌️ Bilibili 直播配置未填写或格式有误')
-    sessdata = bilibili_live_config.get('sessdata', None)
+    config: dict = GLOBAL_CONFIG.get('bilibili_live_config', None)
+    assert config, f'❌️ Bilibili 直播配置未填写或格式有误'
+
+    sessdata = config.get('sessdata', None)
     assert sessdata, f'❌️ bilibili_live_config 中的字段 sessdata 未填写或格式有误'
-    bili_jct = bilibili_live_config.get('bili_jct', None)
+
+    bili_jct = config.get('bili_jct', None)
     assert bili_jct, f'❌️ bilibili_live_config 中的字段 bili_jct 未填写或格式有误'
-    buvid3 = bilibili_live_config.get('buvid3', None)
+
+    buvid3 = config.get('buvid3', None)
     assert buvid3, f'❌️ bilibili_live_config 中的字段 buvid3 未填写或格式有误'
-    room_id = bilibili_live_config.get('room_id', 'room_id')
+
+    room_id = config.get('room_id', 'room_id')
     assert room_id and room_id >= 0, f'❌️ bilibili_live_config 中的字段 room_id 应当是一个非负 int 型整数'
-    logger.info('⚙️ Bilibili 直播配置加载完毕')
-    return str(sessdata), str(bili_jct), str(buvid3), room_id
+
+    return BilibiliLiveConfig(
+        enabled=True,
+        sessdata=sessdata,
+        bili_jct=bili_jct,
+        buvid3=buvid3,
+        room_id=room_id
+    )
 
 
-def load_screenshot_config(global_config: dict):
+def load_screenshot_config():
     """
     加载截图配置
 
-    :param global_config: dict, 全局配置字典，包含截图配置信息
     :return: tuple, 包含截图窗口标题(win_title)、匹配度阈值(k)和保存目录(save_dir)的元组
     :raises AssertionError: 当截图配置中关键信息未填写或格式有误时引发断言错误
     """
-    screenshot_config = global_config.get('screenshot_config', None)
-    assert screenshot_config, f'❌️ 截屏配置未填写或格式有误'
-    win_title = screenshot_config.get('win_title', None)
+    config: dict = GLOBAL_CONFIG.get('screenshot_config', None)
+    assert config, f'❌️ 截屏配置未填写或格式有误'
+
+    win_title = config.get('win_title', None)
     assert win_title, f'❌️ 截屏配置中的字段 win_title 未填写或格式有误'
-    k = screenshot_config.get('k', 0.9)
+
+    k = config.get('k', 0.9)
     assert 0 < k < 1, f'❌️ 截屏配置中的字段 win_title 必须在 0 ~ 1 之间'
-    save_dir = screenshot_config.get('save_dir', '.tmp/screenshots')
+
+    save_dir = config.get('save_dir', '.tmp/screenshots')
     if not os.path.exists(save_dir):
         os.mkdir(save_dir)
-        logger.warning(f'⚠️ 截屏配置中的字段 save_dir 所指向的目录不存在，已自动创建')
+
     assert os.path.isdir(save_dir), f'❌️ 截屏配置中的字段 save_dir 所指向的路径不是一个目录'
-    logger.info('⚙️ 截屏配置加载完毕')
-    return win_title, k, save_dir
+
+    return ScreenshotConfig(
+        win_title=win_title,
+        k=k,
+        save_dir=save_dir
+    )
 
 
-def load_blip_image_captioning_large_config(global_config: dict):
+def load_blip_image_captioning_large_config() -> BlipImageCaptioningLargeConfig:
     """
     加载模型 blip-image-captioning-large 的配置
-    :param global_config:
     :return:
     """
-    config = global_config.get('blip_image_captioning_large_config', None)
+    config: dict = GLOBAL_CONFIG.get('blip_image_captioning_large_config', None)
     assert config, f'❌️ 模型 blip-image-captioning-large 配置未填写或格式有误'
+
     model_path = config.get('model_path', 'Salesforce/blip-image-captioning-large')
     assert os.path.exists(model_path), f'❌️ blip-image-captioning-large 服务配置中的字段 model_path 所指向的路径不存在'
+
+    debug = config.get('debug', False)
+    host = config.get('host', '127.0.0.1')
+
+    port = config.get('port', 5926)
+    assert is_valid_port(port), f'❌️ blip-image-captioning-large 服务所配置的端口不合法'
+
     text_prompt = config.get('text_prompt', 'There')
-    logger.info('⚙️ 模型 blip-image-captioning-large 配置加载完毕')
-    return model_path, text_prompt
+
+    return BlipImageCaptioningLargeConfig(
+        model_path=model_path,
+        text_prompt=text_prompt,
+        debug=debug,
+        host=host,
+        port=port
+    )
 
 
-def load_gpt_sovits_config(global_config: dict):
-    gpt_sovits_config = global_config.get('gpt_sovits_service_config', None)
-    assert gpt_sovits_config, f'❌️ GPT-SoVITS 服务配置未填写或格式有误'
-    debug = gpt_sovits_config.get('debug', False)
-    host = gpt_sovits_config.get('host', '127.0.0.1')
-    port = gpt_sovits_config.get('port', 9880)
-    save_dir = gpt_sovits_config.get('save_dir', '.tmp/wav_output')
+def load_gpt_sovits_config():
+    config: dict = GLOBAL_CONFIG.get('gpt_sovits_service_config', None)
+    assert config, f'❌️ GPT-SoVITS 服务配置未填写或格式有误'
+
+    debug = config.get('debug', False)
+
+    host = config.get('host', '127.0.0.1')
+
+    port = config.get('port', 9880)
+    assert utils.util.is_valid_port(port), f'❌️ GPT-SoVITS 服务所配置的端口不合法'
+
+    save_dir = config.get('save_dir', '.tmp/wav_output')
     if not os.path.exists(save_dir):
         os.mkdir(save_dir)
 
-    logger.info('⚙️ GPT-SoVITS 服务配置加载完毕')
-    return debug, host, port, save_dir
+    return GPTSoVITSServiceConfig(
+        debug=debug,
+        host=host,
+        port=port,
+        save_dir=save_dir
+    )
 
 
-def load_tone_analysis_service_config(global_config: dict):
-    tone_analysis_service_config = global_config.get('tone_analysis_service_config', None)
-    assert tone_analysis_service_config, f'❌️ 语气分析服务配置未填写或格式有误'
-    tone_template_path = tone_analysis_service_config.get('tone_template_path', 'template/tone_list.yaml')
+def load_tone_analysis_service_config():
+    config: dict = GLOBAL_CONFIG.get('tone_analysis_service_config', None)
+    assert config, f'❌️ 语气分析服务配置未填写或格式有误'
+
+    tone_template_path = config.get('tone_template_path', 'template/tone_list.yaml')
     assert os.path.exists(tone_template_path), f'❌️ 语气分析服务配置中的字段 tone_template_path 所指向的路径不存在'
-    prompt_for_llm_path = tone_analysis_service_config.get('prompt_for_llm_path', 'template/tone_prompt_4_llm.json')
+
+    prompt_for_llm_path = config.get('prompt_for_llm_path', 'template/tone_prompt_4_llm.json')
     assert os.path.exists(prompt_for_llm_path), f'❌️ 语气分析服务配置中的字段 prompt_for_llm_path 所指向的路径不存在'
 
-    logger.info('⚙️ 语气分析服务服务配置加载完毕')
-    return tone_template_path, prompt_for_llm_path
+    return ToneAnalysisServiceConfig(
+        tone_template_path=tone_template_path,
+        prompt_for_llm_path=prompt_for_llm_path
+    )
 
 
-def load_chatglm3_service_config(global_config: dict):
-    config: dict = global_config.get('chatglm3_service_config', None)
+def load_chatglm3_service_config():
+    config: dict = GLOBAL_CONFIG.get('chatglm3_service_config', None)
     assert config, f'❌️ ChatGLM3 服务配置未填写或格式有误'
+
     debug = config.get('debug', False)
+
     host = config.get('host', '127.0.0.1')
+
     port = config.get('port', 8085)
     assert is_valid_port(port), f'❌️ ChatGLM3 服务配置中的字段 port 所代表的端口号不合法'
+
     tokenizer_path = config.get('tokenizer_path', "THUDM/chatglm3-6b")
     assert os.path.exists(tokenizer_path), f'❌️ ChatGLM3 服务配置中的字段 tokenizer_path 所指向的路径不存在'
+
     model_path = config.get('model_path', "THUDM/chatglm3-6b")
     assert os.path.exists(model_path), f'❌️ ChatGLM3 服务配置中的字段 model_path 所指向的路径不存在'
+
     quantize = config.get('quantize', 4)
 
-    logger.info('⚙️ ChatGLM3 服务配置加载完毕')
-    return debug, host, port, tokenizer_path, model_path, quantize
+    return Chatglm3ServiceConfig(
+        debug=debug,
+        host=host,
+        port=port,
+        tokenizer_path=tokenizer_path,
+        model_path=model_path,
+        quantize=quantize
+    )
 
 
-def load_obs_config(global_config: dict):
-    config = global_config.get('obs_config')
+def load_obs_config():
+    config: dict = GLOBAL_CONFIG.get('obs_config')
 
     danmaku_output_path = config.get('danmaku_output_path', '.tmp/danmaku_output/output.txt')
     create_file_if_not_exists(danmaku_output_path)
@@ -145,11 +206,15 @@ def load_obs_config(global_config: dict):
     create_file_if_not_exists(llm_output_path)
     assert os.path.exists(llm_output_path), f'❌️ OBS 服务配置中的字段 llm_output_path 所指向的路径不存在'
 
-    return danmaku_output_path, tone_output_path, llm_output_path
+    return OBSConfig(
+        danmaku_output_path=danmaku_output_path,
+        tone_output_path=tone_output_path,
+        llm_output_path=llm_output_path
+    )
 
 
-def load_asr_config(global_config: dict):
-    config = global_config.get('asr_config')
+def load_asr_config():
+    config = GLOBAL_CONFIG.get('asr_config')
 
     speech_model_path = config.get('speech_model_path', 'paraformer-zh')
     assert os.path.exists(speech_model_path), f'❌️ 自动语音识别服务配置中的字段 speech_model_path 所指向的路径不存在'
@@ -157,11 +222,14 @@ def load_asr_config(global_config: dict):
     vad_model_path = config.get('speech_model_path', 'fsmn-vad')
     assert os.path.exists(vad_model_path), f'❌️ 自动语音识别服务配置中的字段 vad_model_path 所指向的路径不存在'
 
-    return speech_model_path, vad_model_path
+    return ASRConfig(
+        vad_model_path=vad_model_path,
+        speech_model_path=speech_model_path
+    )
 
 
-def load_vad_config(global_config: dict):
-    config = global_config.get('vad_config')
+def load_vad_config():
+    config = GLOBAL_CONFIG.get('vad_config')
 
     save_dir = config.get('save_dir', '.tmp/records')
     if not os.path.exists(save_dir):
@@ -179,17 +247,33 @@ def load_vad_config(global_config: dict):
     max_mute_count = config.get('max_mute_count', 10)
     assert max_mute_count > 0, f'❌️ VAD 服务配置中的字段 max_mute_count 必须是正整数'
 
-    return save_dir, chunk, sample_rate, threshold, max_mute_count
+    return VADConfig(
+        save_dir=save_dir,
+        chunk=chunk,
+        sample_rate=sample_rate,
+        threshold=threshold,
+        max_mute_count=max_mute_count
+    )
 
 
-def load_zerolan_live_robot_config(global_config: dict):
-    config = global_config.get('zerolan_live_robot_config', None)
+def load_zerolan_live_robot_config():
+    config = GLOBAL_CONFIG.get('zerolan_live_robot_config', None)
     assert config, f'❌️ Zerolan Live Robot 服务配置未填写或格式有误'
+
     custom_prompt_path = config.get('custom_prompt_path', 'template/custom_prompt2.json')
     assert os.path.exists(
         custom_prompt_path), f'❌️ Zerolan Live Robot 服务配置中的字段 custom_prompt_path 所指向的路径不存在'
+
     debug = config.get('debug', False)
     host = config.get('host', '127.0.0.1')
+
     port = config.get('port', 11451)
-    logger.info('⚙️ Zerolan Live Robot 服务服务配置加载完毕')
-    return debug, host, port, custom_prompt_path
+    assert is_valid_port(port), f'❌️ Zerolan Live Robot 服务配置中的字段 port 所代表的端口号不合法'
+    assert is_port_in_use(port), f'❌️ Zerolan Live Robot 服务配置中的字段 port 所代表的端口号已被占用'
+
+    return ZerolanLiveRobotConfig(
+        debug=debug,
+        host=host,
+        port=port,
+        custom_prompt_path=custom_prompt_path
+    )
