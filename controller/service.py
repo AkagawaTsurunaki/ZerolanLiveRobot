@@ -13,7 +13,7 @@ DEBUG = False
 HOST = '127.0.0.1'
 PORT = 11451
 CUSTOM_PROMPT_PATH: str = './template/custom_prompt.json'
-HISTORY: List[dict] = []
+g_history: List[dict] = []
 MAX_HISTORY: int = 40
 
 zss = ZerolanServiceStatus(
@@ -49,19 +49,19 @@ def handle_history():
 
 
 def _load_custom_history():
-    global HISTORY
+    global g_history
     with open(file=CUSTOM_PROMPT_PATH, mode='r', encoding='utf-8') as file:
         json_value: dict = json.load(file)
-        HISTORY = json_value.get('history', [])
+        g_history = json_value.get('history', [])
 
 
-def get_history():
-    global HISTORY
-    return HISTORY
+def get_history() -> List[dict]:
+    global g_history
+    return g_history
 
 
-def init(debug: bool, host: str, port: int, custom_prompt_path: str):
-    global HOST, DEBUG, PORT, CUSTOM_PROMPT_PATH, HISTORY
+def init(debug: bool, host: str, port: int, custom_prompt_path: str) -> bool:
+    global HOST, DEBUG, PORT, CUSTOM_PROMPT_PATH
     DEBUG = debug
     HOST = host
     PORT = port
@@ -75,12 +75,12 @@ def start():
 
 
 def set_history(history: List[dict]):
-    global HISTORY
-    HISTORY = history
+    global g_history
+    g_history = history
 
 
 def try_compress_history():
     # 当历史记录过多时可能会导致 GPU 占用过高
     # 故设计一个常量来检测是否超过阈值
-    if len(HISTORY) == 0 or len(HISTORY) > MAX_HISTORY:
+    if len(g_history) == 0 or len(g_history) > MAX_HISTORY:
         _load_custom_history()
