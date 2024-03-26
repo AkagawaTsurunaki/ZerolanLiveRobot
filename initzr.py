@@ -222,9 +222,18 @@ def load_asr_config():
     vad_model_path = config.get('speech_model_path', 'fsmn-vad')
     assert os.path.exists(vad_model_path), f'❌️ 自动语音识别服务配置中的字段 vad_model_path 所指向的路径不存在'
 
+    host = config.get('host', '127.0.0.1')
+
+    port = config.get('port', 9882)
+    assert utils.util.is_valid_port(port), f'❌️ 自动语音识别服务所配置的端口不合法'
+    debug = config.get('debug', False)
+
     return ASRConfig(
         vad_model_path=vad_model_path,
-        speech_model_path=speech_model_path
+        speech_model_path=speech_model_path,
+        port=port,
+        host=host,
+        debug=debug
     )
 
 
@@ -269,7 +278,6 @@ def load_zerolan_live_robot_config():
 
     port = config.get('port', 11451)
     assert is_valid_port(port), f'❌️ Zerolan Live Robot 服务配置中的字段 port 所代表的端口号不合法'
-    assert is_port_in_use(port), f'❌️ Zerolan Live Robot 服务配置中的字段 port 所代表的端口号已被占用'
 
     return ZerolanLiveRobotConfig(
         debug=debug,
