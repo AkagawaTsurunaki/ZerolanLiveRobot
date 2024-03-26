@@ -15,7 +15,7 @@ from bilibili import service as bili_serv
 from gptsovits import api as gptsovits_serv
 from minecraft.py.common import GameEvent
 from scrnshot import api as scrn_serv
-from tone_ana import service as tone_serv
+from tone_ana import api as tone_serv
 from utils.datacls import Danmaku
 from utils.util import is_blank
 import asr.service

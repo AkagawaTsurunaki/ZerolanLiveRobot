@@ -17,7 +17,7 @@ from initzr import load_bilibili_live_config, load_screenshot_config, load_gpt_s
 from lifecircle import service_start
 from obs import api as obs_serv
 from scrnshot import api as scrn_serv
-from tone_ana import service as tone_serv
+from tone_ana import api as tone_serv
 
 logger.remove()
 logger.add(sys.stderr, level="INFO")

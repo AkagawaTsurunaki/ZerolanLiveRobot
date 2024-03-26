@@ -2,35 +2,26 @@ import json
 import os
 import random
 import sys
-from dataclasses import dataclass
-from os import PathLike
 from typing import List
 
 import yaml
 from loguru import logger
 
 import chatglm3.api
+import initzr
 from config.global_config import ToneAnalysisServiceConfig
-from utils.datacls import LLMQuery
+from utils.datacls import LLMQuery, Tone
 
 logger.remove()
 handler_id = logger.add(sys.stderr, level="INFO")
-
-
-@dataclass
-class Tone:
-    id: str
-    refer_wav_path: str
-    prompt_text: str
-    prompt_language: str
-
+CONFIG = initzr.load_tone_analysis_service_config()
 
 TONE_LIST: List[Tone] = []
 
 # 加载给 LLM 的模板，用于分析语气
 g_llm_query: LLMQuery
-TONE_TEMPLATE_PATH: str = 'template/tone_list.yaml'
-PROMPT_FOR_LLM_PATH: str = ''
+TONE_TEMPLATE_PATH = CONFIG.tone_template_path
+PROMPT_FOR_LLM_PATH = CONFIG.prompt_for_llm_path
 
 
 def load_tone_list():
@@ -72,20 +63,8 @@ def load_llm_ana_prompt():
         g_llm_query.history[0]['content'] = g_llm_query.history[0]['content'].replace('tone_list', tone_list_rep)
 
 
-def init(config: ToneAnalysisServiceConfig):
-    global TONE_LIST, TONE_TEMPLATE_PATH, PROMPT_FOR_LLM_PATH
-
-    logger.info('💖 语气分析服务初始化中……')
-    TONE_TEMPLATE_PATH = config.tone_template_path
-    PROMPT_FOR_LLM_PATH = config.prompt_for_llm_path
-
-    load_tone_list()
-    logger.info(f'💖 语气列表加载成功，当前 {len(TONE_LIST)}')
-
-    load_llm_ana_prompt()
-    logger.info('💖 语气分析服务初始化完毕')
-
-    return True
+load_tone_list()
+load_llm_ana_prompt()
 
 
 def analyze_tone(text: str):

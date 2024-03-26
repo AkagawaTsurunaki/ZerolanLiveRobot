@@ -2,8 +2,7 @@ from loguru import logger
 
 import initzr
 from config.global_config import OBSConfig
-from tone_ana.service import Tone
-from utils.datacls import Danmaku
+from utils.datacls import Danmaku, Tone
 
 CONFIG = initzr.load_obs_config()
 DANMAKU_OUTPUT_PATH = CONFIG.danmaku_output_path
