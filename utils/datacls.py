@@ -4,17 +4,6 @@ from typing import Any
 
 
 @dataclass
-class VAD:
-    is_alive: bool
-    pause: bool
-
-
-@dataclass
-class ZerolanServiceStatus:
-    vad_service: VAD
-
-
-@dataclass
 class HTTPResponseBody:
     ok: bool
     msg: str
@@ -55,3 +44,16 @@ class AudioPair:
     played: bool
     transcript: str
     wav_file_path: str | PathLike
+
+
+@dataclass
+class GPTSoVITSChangeRefer:
+    refer_wav_path: str
+    prompt_text: str
+    prompt_language: str
+
+
+@dataclass
+class GPTSoVITSRequest:
+    text: str
+    text_language: str
