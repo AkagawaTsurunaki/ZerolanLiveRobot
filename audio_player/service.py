@@ -7,9 +7,9 @@ from typing import List
 
 from loguru import logger
 from playsound import playsound
-from utils.util import save
 
 import obs.service
+import utils.util
 
 logger.remove()
 handler_id = logger.add(sys.stderr, level="INFO")
@@ -23,30 +23,9 @@ class AudioPair:
 
 
 # 用于记录
-audio_list: List[AudioPair] = []
+g_audio_list: List[AudioPair] = []
 
-IS_RUNNING = True
-
-
-def stop():
-    """
-    终止本服务
-    :return:
-    """
-    global audio_list, IS_RUNNING
-    # 停止死循环
-    IS_RUNNING = False
-    # 保存所有的
-    save('.save/audio', audio_list)
-    return True
-
-
-def is_over() -> bool:
-    # 查询音频是否已经播完
-    for audiopair in audio_list:
-        if not audiopair.played:
-            return False
-    return True
+g_is_service_running = False
 
 
 def play(audio_pair: AudioPair):
@@ -63,14 +42,30 @@ def play(audio_pair: AudioPair):
 
 def add_audio(wav_file_path: str | PathLike, transcript: str):
     audiopair = AudioPair(transcript=transcript, wav_file_path=wav_file_path, played=False)
-    audio_list.append(audiopair)
+    g_audio_list.append(audiopair)
 
 
 def start(add_audio_event: Event):
-    while IS_RUNNING:
+    global g_is_service_running
+    g_is_service_running = True
+    while g_is_service_running:
         add_audio_event.wait()
-        if len(audio_list) > 0:
-            for audio_pair in audio_list:
+        if len(g_audio_list) > 0:
+            for audio_pair in g_audio_list:
                 if not audio_pair.played:
                     play(audio_pair)
             add_audio_event.clear()
+    add_audio_event.clear()
+
+
+def stop():
+    """
+    终止本服务
+    :return:
+    """
+    global g_audio_list, g_is_service_running
+    # 停止死循环
+    g_is_service_running = False
+    # 保存所有的文件
+    utils.util.save_service('audio_player', g_audio_list)
+    return not g_is_service_running
