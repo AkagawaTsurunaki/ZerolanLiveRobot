@@ -2,7 +2,7 @@ import argparse
 
 import asr.app
 import blip_img_cap.app
-import chatglm3.service
+import chatglm3.app
 
 parser = argparse.ArgumentParser(description='启动分布式服务的工具')
 

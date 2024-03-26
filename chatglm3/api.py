@@ -8,13 +8,7 @@ import requests
 import initzr
 from utils.datacls import LLMQuery, LLMResponse
 
-SERVICE_URL = 'http://127.0.0.1:8085'
-
-
-def init():
-    global SERVICE_URL
-    config = initzr.load_chatglm3_service_config()
-    SERVICE_URL = f'http://{config.host}:{config.port}'
+SERVICE_URL = initzr.load_chatglm3_service_config().url()
 
 
 def check_alive():
@@ -45,7 +39,3 @@ def predict(query, history=None, temperature=1., top_p=1.):
         llm_resp = LLMResponse(**json_val)
 
         return llm_resp.response, llm_resp.history
-
-
-init()
-check_alive()
