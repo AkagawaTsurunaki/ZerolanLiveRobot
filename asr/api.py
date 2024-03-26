@@ -3,12 +3,8 @@ from typing import List
 import requests
 from loguru import logger
 
-import initzr
 import vad.service
 from utils.datacls import Transcript, HTTPResponseBody
-
-# 该服务是否已被初始化?
-g_is_service_inited = False
 
 # 该服务是否正在运行?
 g_is_service_running = False
@@ -41,10 +37,6 @@ def _predict(wav_file_path: str):
         transcript = response.data.get('transcript', None)
         return transcript
     return None
-
-
-def init():
-    config = initzr.load_asr_config()
 
 
 def start():
