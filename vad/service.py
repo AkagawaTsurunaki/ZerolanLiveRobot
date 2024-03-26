@@ -36,7 +36,7 @@ class WavFile:
 
 
 wave_records = queue.Queue()
-wav_file_list: List[WavFile] = []
+g_wav_file_list: List[WavFile] = []
 stream: pyaudio.Stream
 
 
@@ -101,16 +101,17 @@ def save_speech_in_loop():
             # Write temp file for saving speech file
             tmp_wav_file_path = os.path.join(SAVE_DIR, f'{time.time()}.wav')
             with open(file=tmp_wav_file_path, mode='w') as tmp_file:
-                wav_file_list.append(WavFile(wav_file_path=tmp_wav_file_path, is_read=False))
+                g_wav_file_list.append(WavFile(wav_file_path=tmp_wav_file_path, is_read=False))
                 write(filename=tmp_file.name, rate=SAMPLE_RATE, data=speech)
 
 
 def select_latest_unread():
-    if len(wav_file_list) > 0:
-        unread_wav_list = [wav_file for wav_file in wav_file_list if not wav_file.is_read]
+    if len(g_wav_file_list) > 0:
+        unread_wav_list = [wav_file for wav_file in g_wav_file_list if not wav_file.is_read]
         if len(unread_wav_list) > 0:
+            for item in g_wav_file_list:
+                item.is_read = True
             unread_wav_file = unread_wav_list[-1]
-            unread_wav_file.is_read = True
             return unread_wav_file.wav_file_path
     return None
 
