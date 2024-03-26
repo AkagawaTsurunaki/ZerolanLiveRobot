@@ -1,7 +1,10 @@
 import json
 import os
 import time
-from typing import Any
+from typing import Any, Final
+
+# 这个常数记录了模块被第一次导入时的时间, 这个数值此后不会再发生变化
+SERVICE_START_TIME: Final[str] = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 
 
 def is_blank(s: str):
@@ -70,3 +73,22 @@ def save(dir: str | os.PathLike, obj: Any):
     cur_time_str = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
     save_path = os.path.join(dir, cur_time_str)
     save_json(save_path, obj)
+
+
+def save_service(service_name: str, obj: Any, tmp_dir='.tmp'):
+    """
+    根据服务名和默认临时文件夹生成服务存档
+    :param service_name: 服务名
+    :param obj: 服务内部的数据
+    :param tmp_dir: 临时文件夹路径
+    """
+    if obj is not None:
+        save_dir = os.path.join(tmp_dir, service_name)
+        # .tmp/{service_name}
+        if not os.path.exists(save_dir):
+            os.mkdir(save_dir)
+        # .tmp/{service_name}/{SERVICE_START_TIME}.json
+        assert os.path.exists(save_dir)
+        save_path = os.path.join(save_dir, f'{SERVICE_START_TIME}.json')
+        with open(file=save_path, mode='w+', encoding='utf-8') as file:
+            json.dump(fp=file, obj=obj, ensure_ascii=False)
