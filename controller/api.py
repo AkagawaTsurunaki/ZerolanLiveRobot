@@ -8,13 +8,7 @@ from loguru import logger
 import initzr
 from utils.datacls import HTTPResponseBody
 
-URL = 'http://127.0.0.1:11451'
-
-
-def init():
-    global URL
-    config = initzr.load_zerolan_live_robot_config()
-    URL = f'http://{config.host}:{config.port}'
+URL = initzr.load_zerolan_live_robot_config().url()
 
 
 def obs_clear():
@@ -72,6 +66,3 @@ def vad_switch():
     except Exception as e:
         logger.exception(e)
         gradio.Error(message='无法启用或禁用听觉')
-
-
-init()
