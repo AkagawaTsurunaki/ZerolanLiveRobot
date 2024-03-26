@@ -3,6 +3,7 @@ from typing import List
 import requests
 from loguru import logger
 
+import initzr
 import vad.service
 from utils.datacls import Transcript, HTTPResponseBody
 
@@ -12,7 +13,7 @@ g_is_service_running = False
 # 识别出的每一条语音对应的 Transcript 放在这个列表中
 g_transcript_list: List[Transcript] = []
 
-URL = 'http://127.0.0.1:11005'
+URL = initzr.load_asr_config().url()
 
 
 def select_latest_unread() -> str | None:
@@ -31,7 +32,7 @@ def select_latest_unread() -> str | None:
 
 
 def _predict(wav_file_path: str):
-    response = requests.get(url=f'{URL}/asr/predict', data={"wav_path": wav_file_path})
+    response = requests.get(url=f'{URL}/asr/predict', json={"wav_path": wav_file_path})
     response = HTTPResponseBody(**response.json())
     if response.ok:
         transcript = response.data.get('transcript', None)
