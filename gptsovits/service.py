@@ -1,17 +1,21 @@
 import os.path
 import uuid
-from dataclasses import asdict, dataclass
+from dataclasses import asdict
 from http import HTTPStatus
 from urllib.parse import urljoin
 
 import requests
 from loguru import logger
 
-IS_INITIALIZED = False
+from config.global_config import GPTSoVITSServiceConfig
+from utils.datacls import GPTSoVITSChangeRefer, GPTSoVITSRequest
+
+g_is_service_inited = False
 
 DEBUG = False
 SERVER_URL = 'http://127.0.0.1:9880'
 SAVE_DIR = '.tmp/wav_output'
+
 
 def check_alive():
     try:
@@ -19,29 +23,17 @@ def check_alive():
     except Exception as e:
         raise ConnectionError(f'❌️ GPT-SoVTIS 服务无法连接至 {SERVER_URL}')
 
-def init(debug, host, port, save_dir):
+
+def init(config: GPTSoVITSServiceConfig):
     logger.info('👄 GPT-SoVITS 服务初始化中……')
-    global DEBUG, SERVER_URL, SAVE_DIR, IS_INITIALIZED
-    DEBUG = debug
-    SAVE_DIR = save_dir
-    SERVER_URL = f"http://{host}:{port}"
+    global DEBUG, SERVER_URL, SAVE_DIR, g_is_service_inited
+    DEBUG = config.debug
+    SAVE_DIR = config.save_dir
+    SERVER_URL = f"http://{config.host}:{config.port}"
     check_alive()
-    IS_INITIALIZED = True
+    g_is_service_inited = True
     logger.info('👄 GPT-SoVITS 服务初始化完毕')
-    return IS_INITIALIZED
-
-
-@dataclass
-class GPTSoVITSRequest:
-    text: str
-    text_language: str
-
-
-@dataclass
-class GPTSoVITSChangeRefer:
-    refer_wav_path: str
-    prompt_text: str
-    prompt_language: str
+    return g_is_service_inited
 
 
 def write_wav(wav_data):

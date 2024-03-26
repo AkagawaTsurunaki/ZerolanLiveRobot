@@ -10,6 +10,7 @@ import yaml
 from loguru import logger
 
 import chatglm3.api
+from config.global_config import ToneAnalysisServiceConfig
 from utils.datacls import LLMQuery
 
 logger.remove()
@@ -24,7 +25,7 @@ class Tone:
     prompt_language: str
 
 
-tone_list: List[Tone] = []
+TONE_LIST: List[Tone] = []
 
 # 加载给 LLM 的模板，用于分析语气
 g_llm_query: LLMQuery
@@ -52,8 +53,8 @@ def load_tone_list():
                 prompt_text=prompt_text,
                 prompt_language=prompt_language
             )
-            tone_list.append(tone)
-    assert len(tone_list) > 0, '❌️ 必须含有至少一种心情'
+            TONE_LIST.append(tone)
+    assert len(TONE_LIST) > 0, '❌️ 必须含有至少一种心情'
 
 
 def load_llm_ana_prompt():
@@ -62,7 +63,7 @@ def load_llm_ana_prompt():
     with open(file=PROMPT_FOR_LLM_PATH, mode='r', encoding='utf-8') as file:
         g_llm_query = LLMQuery(**json.load(file))
         tone_list_rep = ''
-        for idx, tone in enumerate(tone_list):
+        for idx, tone in enumerate(TONE_LIST):
             tone_list_rep += f'{tone.id},'
             g_llm_query.history[2 * idx + 1]['content'] = g_llm_query.history[2 * idx + 1]['content'].replace(
                 '{tone_id}',
@@ -71,15 +72,15 @@ def load_llm_ana_prompt():
         g_llm_query.history[0]['content'] = g_llm_query.history[0]['content'].replace('tone_list', tone_list_rep)
 
 
-def init(tone_template_path: str | PathLike, prompt_for_llm_path: str | PathLike):
-    global tone_list, TONE_TEMPLATE_PATH, PROMPT_FOR_LLM_PATH
+def init(config: ToneAnalysisServiceConfig):
+    global TONE_LIST, TONE_TEMPLATE_PATH, PROMPT_FOR_LLM_PATH
 
     logger.info('💖 语气分析服务初始化中……')
-    TONE_TEMPLATE_PATH = tone_template_path
-    PROMPT_FOR_LLM_PATH = prompt_for_llm_path
+    TONE_TEMPLATE_PATH = config.tone_template_path
+    PROMPT_FOR_LLM_PATH = config.prompt_for_llm_path
 
     load_tone_list()
-    logger.info(f'💖 语气列表加载成功，当前 {len(tone_list)}')
+    logger.info(f'💖 语气列表加载成功，当前 {len(TONE_LIST)}')
 
     load_llm_ana_prompt()
     logger.info('💖 语气分析服务初始化完毕')
@@ -103,9 +104,9 @@ def analyze_tone(text: str):
     emotion_id, _ = chatglm3.api.predict(query=g_llm_query.query, history=g_llm_query.history)
 
     # 校验心情 ID 是否合法
-    for tone in tone_list:
+    for tone in TONE_LIST:
         if emotion_id == tone.id:
             return tone
 
     # 不合法随机返回一个
-    return random.sample(tone_list, 1)[0]
+    return random.sample(TONE_LIST, 1)[0]

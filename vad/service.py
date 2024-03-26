@@ -11,6 +11,8 @@ import numpy as np
 import pyaudio
 from loguru import logger
 from scipy.io.wavfile import write
+
+from config.global_config import VADConfig
 from utils.util import save
 
 logger.remove()
@@ -40,14 +42,14 @@ g_wav_file_list: List[WavFile] = []
 stream: pyaudio.Stream
 
 
-def init(save_dir: str | PathLike, chunk: int, sample_rate: int, threshold: int, max_mute_count: int):
+def init(config: VADConfig):
     logger.info('🎙️ VAD 服务初始化中……')
     global stream, SAVE_DIR, CHUNK, SAMPLE_RATE, THRESHOLD, MAX_MUTE_COUNT
-    SAVE_DIR = save_dir
-    CHUNK = chunk
-    SAMPLE_RATE = sample_rate
-    THRESHOLD = threshold
-    MAX_MUTE_COUNT = max_mute_count
+    SAVE_DIR = config.save_dir
+    CHUNK = config.chunk
+    SAMPLE_RATE = config.sample_rate
+    THRESHOLD = config.threshold
+    MAX_MUTE_COUNT = config.max_mute_count
     p = pyaudio.PyAudio()
     stream = p.open(
         format=pyaudio.paInt16, channels=1, rate=SAMPLE_RATE, input=True, frames_per_buffer=CHUNK

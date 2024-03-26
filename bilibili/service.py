@@ -7,6 +7,7 @@ from bilibili_api.live import LiveDanmaku, LiveRoom
 from loguru import logger
 
 import utils.util
+from config.global_config import BilibiliLiveConfig
 from utils.datacls import Danmaku
 
 # 该服务是否已被初始化?
@@ -25,16 +26,16 @@ MONITOR: LiveDanmaku
 SENDER: LiveRoom
 
 
-def init(sessdata: str, bili_jct: str, buvid3: str, room_id: int):
+def init(config: BilibiliLiveConfig):
     logger.info('🍻 Bilibili 直播服务正在初始化……')
 
     global MONITOR, SENDER, g_is_service_inited
     # 身份对象
-    credential = Credential(sessdata=sessdata, bili_jct=bili_jct, buvid3=buvid3)
+    credential = Credential(sessdata=config.sessdata, bili_jct=config.bili_jct, buvid3=config.buvid3)
     # 监听直播间弹幕
-    MONITOR = LiveDanmaku(room_id, credential=credential)
+    MONITOR = LiveDanmaku(config.room_id, credential=credential)
     # 用来发送弹幕
-    SENDER = LiveRoom(room_id, credential=credential)
+    SENDER = LiveRoom(config.room_id, credential=credential)
     assert MONITOR and SENDER, '❌️ Bilibili 直播服务初始化失败'
     g_is_service_inited = True
 

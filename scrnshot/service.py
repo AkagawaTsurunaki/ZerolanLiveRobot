@@ -6,6 +6,8 @@ import pyautogui
 import pygetwindow as gw
 from loguru import logger
 
+from config.global_config import ScreenshotConfig
+
 is_initialized = False
 
 K = 0.9
@@ -13,12 +15,12 @@ SAVE_PATH = '.tmp/screenshots'
 WIN_TITLE = None
 
 
-def init(win_title: str, k: int, save_dir: str | PathLike):
+def init(config: ScreenshotConfig):
     logger.info('📷️ 截图服务初始化中……')
     global K, SAVE_PATH, WIN_TITLE, is_initialized
-    K = k
-    WIN_TITLE = win_title
-    SAVE_PATH = save_dir
+    K = config.k
+    WIN_TITLE = config.win_title
+    SAVE_PATH = config.save_dir
     is_initialized = True
     logger.info('📷️ 截图服务初始化完毕')
     return is_initialized
