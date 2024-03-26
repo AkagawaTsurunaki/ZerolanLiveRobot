@@ -86,6 +86,12 @@ asr_config:
   speech_model_path: paraformer-zh
   # VAD 模型路径
   vad_model_path: fsmn-vad
+  # 是否以调试模式运行
+  debug: False
+  # 自动语音识别服务地址
+  host: 127.0.0.1
+  # 自动语音识别服务端口
+  port: 11005
 # 本项目配置
 zerolan_live_robot_config:
   # 是否以调试模式运行
