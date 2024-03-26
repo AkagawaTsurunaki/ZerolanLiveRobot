@@ -23,20 +23,23 @@ zss = ZerolanServiceStatus(
 
 @app.route('/vad/switch', methods=['POST'])
 def handle_vad_switch():
-    if zss.vad_service.pause:
-        vad.service.resume()
-    else:
-        vad.service.pause()
-    zss.vad_service.pause = not zss.vad_service.pause
+    _vad_switch()
     vad_status_str = '已暂停' if zss.vad_service.pause else '已继续'
     response = HTTPResponseBody(ok=True, msg=f'VAD 服务{vad_status_str}', data=zss)
     return jsonify(asdict(response))
 
 
+def _vad_switch():
+    if zss.vad_service.pause:
+        vad.service.resume()
+    else:
+        vad.service.pause()
+    zss.vad_service.pause = not zss.vad_service.pause
+
+
 @app.route('/llm/reset', methods=['GET'])
 def reset():
-    global HISTORY
-    HISTORY = load_custom_history()
+    _load_custom_history()
     return 'OK'
 
 
@@ -45,13 +48,11 @@ def handle_history():
     return jsonify(get_history())
 
 
-def load_custom_history():
+def _load_custom_history():
     global HISTORY
     with open(file=CUSTOM_PROMPT_PATH, mode='r', encoding='utf-8') as file:
         json_value: dict = json.load(file)
-        history = json_value.get('history', [])
-        HISTORY = history
-        return history
+        HISTORY = json_value.get('history', [])
 
 
 def get_history():
@@ -65,7 +66,7 @@ def init(debug: bool, host: str, port: int, custom_prompt_path: str):
     HOST = host
     PORT = port
     CUSTOM_PROMPT_PATH = custom_prompt_path
-    HISTORY = load_custom_history()
+    _load_custom_history()
     return True
 
 
@@ -82,4 +83,4 @@ def try_compress_history():
     # 当历史记录过多时可能会导致 GPU 占用过高
     # 故设计一个常量来检测是否超过阈值
     if len(HISTORY) == 0 or len(HISTORY) > MAX_HISTORY:
-        load_custom_history()
+        _load_custom_history()
