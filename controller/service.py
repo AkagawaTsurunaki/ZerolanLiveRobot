@@ -74,16 +74,6 @@ def handle_history():
     return jsonify(get_history())
 
 
-def _stop():
-    assert asr.service.stop()
-    assert audio_player.service.stop()
-
-
-@app.route('/stop', methods=['POST'])
-def handle_stop():
-    _stop()
-
-
 def init(debug: bool, host: str, port: int, custom_prompt_path: str) -> bool:
     global HOST, DEBUG, PORT, CUSTOM_PROMPT_PATH
     DEBUG = debug

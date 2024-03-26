@@ -75,7 +75,8 @@ def start():
                 g_transcript_list.append(
                     Transcript(is_read=False, content=res)
                 )
-                logger.info(res)
+                # 保存服务
+                utils.util.save_service(service_name='asr', obj=g_transcript_list)
 
 
 def stop() -> bool:
@@ -87,7 +88,6 @@ def stop() -> bool:
     g_is_service_inited = False
     g_is_service_running = False
     MODEL = None
-    # 保存服务
-    utils.util.save_service(service_name='asr', obj=g_transcript_list)
+
     logger.warning('👂️ 自动语音识别服务已终止')
     return not g_is_service_running
