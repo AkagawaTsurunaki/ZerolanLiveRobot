@@ -1,18 +1,23 @@
+import threading
+from dataclasses import asdict
 from os import PathLike
 from typing import List
 
 from funasr import AutoModel
 from loguru import logger
 
-import utils.util
 import vad.service
 from utils.datacls import Transcript
+from utils.util import save_service
 
 # 该服务是否已被初始化?
 g_is_service_inited = False
 
 # 该服务是否正在运行?
 g_is_service_running = False
+
+# 该服务是否暂停
+g_pause_event = threading.Event()
 
 # 识别出的每一条语音对应的 Transcript 放在这个列表中
 g_transcript_list: List[Transcript] = []
@@ -38,7 +43,6 @@ def select_latest_unread() -> str | None:
 
 def init(model_path: str | PathLike, vad_model_path: str | PathLike) -> bool:
     global MODEL, g_is_service_inited
-    logger.info('👂️ 自动语音识别服务初始化中……')
     if vad_model_path:
         logger.warning('⚠️ 使用 VAD 模型可能会出现疑难杂症，建议不要使用')
     MODEL = AutoModel(model=model_path, model_revision="v2.0.4",
@@ -52,6 +56,7 @@ def init(model_path: str | PathLike, vad_model_path: str | PathLike) -> bool:
 
 
 def predict(wav_path) -> str | None:
+    assert g_is_service_inited, f'❌ 自动语音识别服务未初始化'
     try:
         res = MODEL.generate(input=wav_path,
                              batch_size_s=300,
@@ -66,8 +71,10 @@ def predict(wav_path) -> str | None:
 def start():
     global g_is_service_running
     g_is_service_running = True
+    g_pause_event.set()
     logger.info('👂️ 自动语音识别服务已启动')
     while g_is_service_running:
+        g_pause_event.wait()
         wav_file_path = vad.service.select_latest_unread()
         if wav_file_path:
             res = predict(wav_file_path)
@@ -75,19 +82,23 @@ def start():
                 g_transcript_list.append(
                     Transcript(is_read=False, content=res)
                 )
-                # 保存服务
-                utils.util.save_service(service_name='asr', obj=g_transcript_list)
 
 
-def stop() -> bool:
-    """
-    终止本服务
-    :return:
-    """
-    global g_transcript_list, g_is_service_running, g_is_service_inited, MODEL
-    g_is_service_inited = False
+def pause():
+    g_pause_event.clear()
+    logger.info('⏸️ 自动语音识别服务暂停')
+
+
+def resume():
+    g_pause_event.set()
+    logger.info('▶️ 自动语音识别服务继续')
+
+
+def stop():
+    global g_is_service_running, g_transcript_list, g_is_service_inited
     g_is_service_running = False
-    MODEL = None
-
-    logger.warning('👂️ 自动语音识别服务已终止')
-    return not g_is_service_running
+    g_is_service_inited = False
+    obj = [asdict(item) for item in g_transcript_list]
+    save_service('asr', obj)
+    g_transcript_list = []
+    logger.warning('⏹️ 自动语音识别服务终止')
