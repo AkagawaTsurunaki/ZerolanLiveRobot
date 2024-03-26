@@ -5,15 +5,14 @@ from typing import List
 from flask import Flask, jsonify
 
 import audio_player.service
+import initzr
 import obs.service
 import vad.service
+from config.global_config import ZerolanLiveRobotConfig
 from utils.datacls import HTTPResponseBody
 
 app = Flask(__name__)
 
-DEBUG = False
-HOST = '127.0.0.1'
-PORT = 11451
 CUSTOM_PROMPT_PATH: str = './template/custom_prompt.json'
 g_history: List[dict] = []
 MAX_HISTORY: int = 40
@@ -79,15 +78,14 @@ def handle_obs_clear():
     return jsonify(asdict(response))
 
 
-def init(debug: bool, host: str, port: int, custom_prompt_path: str) -> bool:
-    global HOST, DEBUG, PORT, CUSTOM_PROMPT_PATH
-    DEBUG = debug
-    HOST = host
-    PORT = port
-    CUSTOM_PROMPT_PATH = custom_prompt_path
+def _init(config: ZerolanLiveRobotConfig) -> bool:
+    global CUSTOM_PROMPT_PATH
+    CUSTOM_PROMPT_PATH = config.custom_prompt_path
     _load_custom_history()
     return True
 
 
 def start():
-    app.run(host=HOST, port=PORT, debug=DEBUG)
+    config = initzr.load_zerolan_live_robot_config()
+    _init(config)
+    app.run(host=config.host, port=config.port, debug=config.debug)

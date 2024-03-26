@@ -13,9 +13,8 @@ URL = 'http://127.0.0.1:11451'
 
 def init():
     global URL
-    g_config = initzr.load_global_config()
-    _, host, port, _ = initzr.load_zerolan_live_robot_config(g_config)
-    URL = f'http://{host}:{port}'
+    config = initzr.load_zerolan_live_robot_config()
+    URL = f'http://{config.host}:{config.port}'
 
 
 def obs_clear():
