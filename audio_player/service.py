@@ -68,4 +68,6 @@ def stop():
     g_is_service_running = False
     # 保存所有的文件
     utils.util.save_service('audio_player', g_audio_list)
+    g_audio_list = None
+    logger.warning('音频播放服务已终止')
     return not g_is_service_running

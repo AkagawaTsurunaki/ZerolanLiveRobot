@@ -86,6 +86,7 @@ def stop() -> bool:
     global g_transcript_list, g_is_service_running, g_is_service_inited, MODEL
     g_is_service_inited = False
     g_is_service_running = False
+    MODEL = None
     # 保存服务
     utils.util.save_service(service_name='asr', obj=g_transcript_list)
     logger.warning('👂️ 自动语音识别服务已终止')

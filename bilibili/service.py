@@ -101,13 +101,15 @@ def stop():
     终止本服务
     :return:
     """
-    global SENDER, g_is_service_running
+    global SENDER, g_is_service_running, g_danmaku_list
     # 关闭监视器
     MONITOR.disconnect()
     # 删除发送器
     SENDER = None
     # 保存弹幕信息
     utils.util.save_service('bilibili', g_danmaku_list)
+    g_danmaku_list = None
     # 设置 FLAG
     g_is_service_running = False
+    logger.warning('🍻 Bilibili 直播间服务已终止')
     return g_is_service_running
