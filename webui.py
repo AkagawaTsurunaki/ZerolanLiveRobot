@@ -1,6 +1,6 @@
 import gradio as gr
 
-import controller.api
+import controller.gradio_api
 
 with gr.Blocks(theme=gr.themes.Soft()) as controller_inteface:
     gr.Markdown('# 🕹️ Zerolan Live Robot ver1.1 控制面板')

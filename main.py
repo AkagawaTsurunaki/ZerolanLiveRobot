@@ -4,7 +4,6 @@ import threading
 
 from loguru import logger
 
-import asr.service
 import audio_player.service
 import controller.service
 import minecraft.py.service
@@ -13,7 +12,7 @@ from bilibili import service as bili_serv
 from gptsovits import service as gptsovits_serv
 from initzr import load_bilibili_live_config, load_screenshot_config, load_gpt_sovits_config, \
     load_tone_analysis_service_config, load_chatglm3_service_config, \
-    load_zerolan_live_robot_config, load_obs_config, load_asr_config, load_vad_config
+    load_obs_config, load_vad_config
 from lifecircle import service_start
 from obs import service as obs_serv
 from scrnshot import service as scrn_serv
@@ -34,9 +33,7 @@ if __name__ == '__main__':
         tone_analysis_service_config = load_tone_analysis_service_config()
         obs_config = load_obs_config()
         chatglm3_service_config = load_chatglm3_service_config()
-        asr_service_config = load_asr_config()
         vad_config = load_vad_config()
-        zerolan_live_robot_config = load_zerolan_live_robot_config()
 
         # 初始化服务（赋初值 / 加载模型）
         assert bili_serv.init(bilibili_live_config)
@@ -45,8 +42,6 @@ if __name__ == '__main__':
         assert tone_serv.init(tone_analysis_service_config)
         assert obs_serv.init(obs_config)
         assert vad.service.init(vad_config)
-        # assert asr.service._init(asr_service_config)
-        assert controller.service.init(zerolan_live_robot_config)
 
         # 启动弹幕监听服务
         bili_thread = threading.Thread(target=bili_serv.start)
@@ -67,11 +62,6 @@ if __name__ == '__main__':
         vad_serv_thread = threading.Thread(target=vad.service.start)
         thread_list.append(vad_serv_thread)
         vad_serv_thread.start()
-
-        # 启动 ASR 服务线程
-        asr_serv_thread = threading.Thread(target=asr.service.start)
-        thread_list.append(asr_serv_thread)
-        asr_serv_thread.start()
 
         # 启动控制器
         ctrl_thread = threading.Thread(target=controller.service.start)
