@@ -7,7 +7,7 @@ from typing import List
 from loguru import logger
 from playsound import playsound
 
-import obs.service
+import obs.api
 import utils.util
 from utils.datacls import AudioPair
 
@@ -32,7 +32,7 @@ def play(audio_pair: AudioPair):
     wav_file_path = os.path.abspath(audio_pair.wav_file_path)
     logger.debug(f'正在播放音频文件：{wav_file_path}')
     # 写入文件
-    obs.service.write_llm_output(audio_pair.transcript)
+    obs.api.write_llm_output(audio_pair.transcript)
     playsound(wav_file_path)
     audio_pair.played = True
     logger.debug(f'音频文件播放完毕：{wav_file_path}')

@@ -10,11 +10,11 @@ import blip_img_cap.api
 import chatglm3.api
 import controller.app
 import minecraft.py.service
-import obs.service
+import obs.api
 from bilibili import service as bili_serv
 from gptsovits import api as gptsovits_serv
 from minecraft.py.common import GameEvent
-from scrnshot import service as scrn_serv
+from scrnshot import api as scrn_serv
 from tone_ana import api as tone_serv
 from utils.datacls import Danmaku
 from utils.util import is_blank
@@ -99,7 +99,7 @@ def tts_with_tone(sentence: str):
                                                        refer_wav_path=tone.refer_wav_path,
                                                        prompt_text=tone.prompt_text,
                                                        prompt_language=tone.prompt_language)
-    obs.service.write_tone_output(tone)
+    obs.api.write_tone_output(tone)
 
     return tone, wav_file_path
 
@@ -131,10 +131,10 @@ async def life_circle():
 
     # 注意这里, 开发者说的话会覆盖弹幕
     if danmaku:
-        obs.service.write_danmaku_output(danmaku)
+        obs.api.write_danmaku_output(danmaku)
 
     if transcript:
-        obs.service.write_voice_input(DEV_NAME, transcript)
+        obs.api.write_voice_input(DEV_NAME, transcript)
 
     # 其中 resp
     # 第1轮循环 resp = '我'

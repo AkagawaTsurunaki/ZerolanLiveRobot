@@ -6,7 +6,7 @@ from flask import Flask, jsonify
 
 import audio_player.service
 import initzr
-import obs.service
+import obs.api
 import vad.service
 from config.global_config import ZerolanLiveRobotConfig
 from utils.datacls import HTTPResponseBody
@@ -71,9 +71,9 @@ def handle_audio_player_switch():
 
 @app.route('/obs/clear', methods=['POST'])
 def handle_obs_clear():
-    obs.service.write_llm_output('')
-    obs.service.write_tone_output(None)
-    obs.service.write_danmaku_output(None)
+    obs.api.write_llm_output('')
+    obs.api.write_tone_output(None)
+    obs.api.write_danmaku_output(None)
     response = HTTPResponseBody(ok=True, msg='已清除 OBS 输出')
     return jsonify(asdict(response))
 
