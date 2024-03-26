@@ -1,13 +1,15 @@
 import json
 import os
 import time
+from dataclasses import asdict
 from typing import Any, Final
 
 import psutil
 from flask import request
 
 # 这个常数记录了模块被第一次导入时的时间, 这个数值此后不会再发生变化
-SERVICE_START_TIME: Final[str] = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+# 在Windows系统中，文件名不允许使用的字符有： < > / \ | : " * ?
+SERVICE_START_TIME: Final[str] = time.strftime("%Y-%m-%d-%H-%M-%S", time.localtime())
 
 
 def is_blank(s: str):
