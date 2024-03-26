@@ -10,9 +10,6 @@ import bilibili.service
 import controller.app
 import minecraft.py.service
 import vad.service
-from initzr import load_bilibili_live_config, load_screenshot_config, load_gpt_sovits_config, \
-    load_tone_analysis_service_config, load_chatglm3_service_config, \
-    load_obs_config, load_vad_config
 from lifecircle import service_start
 
 logger.remove()
@@ -44,7 +41,7 @@ if __name__ == '__main__':
         vad_serv_thread.start()
 
         # 启动控制器
-        ctrl_thread = threading.Thread(target=controller.service.start)
+        ctrl_thread = threading.Thread(target=controller.app.start)
         thread_list.append(ctrl_thread)
         ctrl_thread.start()
 

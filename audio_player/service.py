@@ -7,7 +7,7 @@ from typing import List
 from loguru import logger
 from playsound import playsound
 
-import obs.api
+import obs.service
 import utils.util
 from utils.datacls import AudioPair
 

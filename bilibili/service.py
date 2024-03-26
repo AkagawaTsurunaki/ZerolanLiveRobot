@@ -28,26 +28,26 @@ SENDER = LiveRoom(CONFIG.room_id, credential=CREDENTIAL)
 SENDER: LiveRoom
 
 
-@MONITOR.on("DANMU_MSG")
-async def recv(event):
-    danmaku = Danmaku(uid=event["data"]["info"][2][0],
-                      username=event["data"]["info"][2][1],
-                      msg=event["data"]["info"][1],
-                      ts=event["data"]["info"][9]['ts'],
-                      is_read=False)
-    # 注意没带粉丝牌的会导致越界
-    # fans_band_level = event["data"]["info"][3][0]  # 粉丝牌的级别
-    # fans_band_name = event["data"]["info"][3][1]  # 该粉丝牌的名字
-    # live_host_name = event["data"]["info"][3][2]  # 该粉丝牌对应的主播名字
-
-    logger.debug(f'🍥 [{danmaku.username}]({danmaku.uid}): {danmaku.msg}')
-
-    _add(danmaku)
-
-
 # 启动监听
 def start():
     logger.info('🍻 Bilibili 直播间监听启动')
+
+    @MONITOR.on("DANMU_MSG")
+    async def recv(event):
+        danmaku = Danmaku(uid=event["data"]["info"][2][0],
+                          username=event["data"]["info"][2][1],
+                          msg=event["data"]["info"][1],
+                          ts=event["data"]["info"][9]['ts'],
+                          is_read=False)
+        # 注意没带粉丝牌的会导致越界
+        # fans_band_level = event["data"]["info"][3][0]  # 粉丝牌的级别
+        # fans_band_name = event["data"]["info"][3][1]  # 该粉丝牌的名字
+        # live_host_name = event["data"]["info"][3][2]  # 该粉丝牌对应的主播名字
+
+        logger.debug(f'🍥 [{danmaku.username}]({danmaku.uid}): {danmaku.msg}')
+
+        _add(danmaku)
+
     sync(MONITOR.connect())
     logger.warning('🍻 Bilibili 直播间监听已结束')
 

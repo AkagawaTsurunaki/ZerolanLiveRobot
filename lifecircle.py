@@ -10,11 +10,11 @@ import blip_img_cap.api
 import chatglm3.api
 import controller.app
 import minecraft.py.service
-import obs.api
+import obs.service
 from bilibili import service as bili_serv
 from gptsovits import api as gptsovits_serv
 from minecraft.py.common import GameEvent
-from scrnshot import api as scrn_serv
+from scrnshot import service as scrn_serv
 from tone_ana import api as tone_serv
 from utils.datacls import Danmaku
 from utils.util import is_blank
@@ -112,7 +112,7 @@ async def life_circle():
     global LANG
 
     # 当记忆过多或没有记忆(懒加载)时, 尝试重载记忆
-    controller.service.try_compress_history()
+    controller.app.try_compress_history()
 
     # 尝试读取语音 | 抽取弹幕 | 截图识别 | 获取游戏事件
     transcript = read_from_microphone()
@@ -147,7 +147,7 @@ async def life_circle():
 
     last_split_idx = 0
 
-    async for response, history in chatglm3.api.stream_predict(query=query, history=controller.service.get_history(),
+    async for response, history in chatglm3.api.stream_predict(query=query, history=controller.app.get_history(),
                                                                top_p=1., temperature=1.):
         if not response or response[-1] not in ['。', '！', '？', '!', '?']:
             continue
@@ -159,12 +159,12 @@ async def life_circle():
             continue
 
         # 更新 LLM 会话历史
-        controller.service.set_history(history)
+        controller.app.set_history(history)
 
         # 自动语气语音合成
         tone, wav_file_path = tts_with_tone(sentence)
 
-        logger.info(f'🗒️ 历史记录：{len(controller.service.get_history())} \n💖 语气：{tone.id} \n💭 {sentence}')
+        logger.info(f'🗒️ 历史记录：{len(controller.app.get_history())} \n💖 语气：{tone.id} \n💭 {sentence}')
 
         if not wav_file_path:
             logger.warning(f'❕ 这条语音未能合成：{sentence}')
