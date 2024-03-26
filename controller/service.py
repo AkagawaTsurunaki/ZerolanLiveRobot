@@ -18,24 +18,12 @@ CUSTOM_PROMPT_PATH: str = './template/custom_prompt.json'
 g_history: List[dict] = []
 MAX_HISTORY: int = 40
 
-zss = ZerolanServiceStatus(
-    vad_service=VAD(pause=False, is_alive=True)
-)
-
-
-def _vad_switch():
-    if zss.vad_service.pause:
-        vad.service.resume()
-    else:
-        vad.service.pause()
-    zss.vad_service.pause = not zss.vad_service.pause
-
 
 @app.route('/vad/switch', methods=['POST'])
 def handle_vad_switch():
-    _vad_switch()
-    vad_status_str = '已暂停' if zss.vad_service.pause else '已继续'
-    response = HTTPResponseBody(ok=True, msg=f'VAD 服务{vad_status_str}', data=zss)
+    resume = vad.service.switch()
+    msg = '已启用听觉' if resume else '已禁用听觉'
+    response = HTTPResponseBody(ok=True, msg=msg, data={'vad': resume})
     return jsonify(asdict(response))
 
 
@@ -72,6 +60,14 @@ def try_compress_history():
 @app.route('/history', methods=['GET'])
 def handle_history():
     return jsonify(get_history())
+
+
+@app.route('/audio_player/switch', methods=['POST'])
+def handle_audio_player_switch():
+    resume = audio_player.service.switch()
+    msg = '已启用发声' if resume else '已禁用发声'
+    response = HTTPResponseBody(ok=True, msg=msg, data={'audio_player': resume})
+    return jsonify(asdict(response))
 
 
 def init(debug: bool, host: str, port: int, custom_prompt_path: str) -> bool:
