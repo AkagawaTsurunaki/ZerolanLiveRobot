@@ -4,13 +4,21 @@ from typing import List
 from funasr import AutoModel
 from loguru import logger
 
+import utils.util
 import vad.service
 from utils.datacls import Transcript
 
-MODEL: AutoModel
+# 该服务是否已被初始化?
+g_is_service_inited = False
+
+# 该服务是否正在运行?
+g_is_service_running = False
 
 # 识别出的每一条语音对应的 Transcript 放在这个列表中
 g_transcript_list: List[Transcript] = []
+
+# 推理模型
+MODEL: AutoModel
 
 
 def select_latest_unread() -> str | None:
@@ -29,7 +37,7 @@ def select_latest_unread() -> str | None:
 
 
 def init(model_path: str | PathLike, vad_model_path: str | PathLike) -> bool:
-    global MODEL
+    global MODEL, g_is_service_inited
     logger.info('👂️ 自动语音识别服务初始化中……')
     if vad_model_path:
         logger.warning('⚠️ 使用 VAD 模型可能会出现疑难杂症，建议不要使用')
@@ -38,8 +46,9 @@ def init(model_path: str | PathLike, vad_model_path: str | PathLike) -> bool:
                       # punc_model="ct-punc-c", punc_model_revision="v2.0.4",
                       # spk_model="cam++", spk_model_revision="v2.0.2",
                       )
+    g_is_service_inited = True
     logger.info('👂️ 自动语音识别服务初始化完毕')
-    return True
+    return g_is_service_inited
 
 
 def predict(wav_path) -> str | None:
@@ -55,8 +64,10 @@ def predict(wav_path) -> str | None:
 
 
 def start():
+    global g_is_service_running
+    g_is_service_running = True
     logger.info('👂️ 自动语音识别服务已启动')
-    while True:
+    while g_is_service_running:
         wav_file_path = vad.service.select_latest_unread()
         if wav_file_path:
             res = predict(wav_file_path)
@@ -67,11 +78,15 @@ def start():
                 logger.info(res)
 
 
-def _save():
-    from utils.util import save
-    save('.tmp/save/', g_transcript_list)
-
-
-def stop():
-    _save()
-    return
+def stop() -> bool:
+    """
+    终止本服务
+    :return:
+    """
+    global g_transcript_list, g_is_service_running, g_is_service_inited, MODEL
+    g_is_service_inited = False
+    g_is_service_running = False
+    # 保存服务
+    utils.util.save_service(service_name='asr', obj=g_transcript_list)
+    logger.warning('👂️ 自动语音识别服务已终止')
+    return not g_is_service_running
