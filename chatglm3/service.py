@@ -111,7 +111,3 @@ def start():
     global g_is_service_running
     g_is_service_running = True
     app.run(host=HOST, port=PORT, debug=DEBUG)
-
-
-def stop():
-    utils.util.shutdown_server()

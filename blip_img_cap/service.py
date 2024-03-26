@@ -32,17 +32,6 @@ def init(model_path: str | PathLike, text_prompt: str):
     return g_is_service_inited
 
 
-def stop():
-    global PROCESSOR, MODEL, g_is_service_inited, g_is_service_running, g_sys_prompt
-    g_is_service_inited = False
-    g_is_service_running = False
-    PROCESSOR = None
-    MODEL = None
-    g_sys_prompt = None
-    logger.warning('👀 模型 blip-image-captioning-large 服务已终止')
-    return not g_is_service_running
-
-
 def infer_by_path(img_path: str, text: str = g_sys_prompt):
     assert g_is_service_inited, f'❌️ blip-image-captioning-large 服务未初始化'
     raw_image = Image.open(img_path).convert('RGB')
