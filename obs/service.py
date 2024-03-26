@@ -31,6 +31,11 @@ def write_tone_output(tone: Tone | None):
         file.write(tone.id if tone else '')
 
 
-def write_danmaku_output(danmaku: Danmaku | None):
+def write_danmaku_output(danmaku: Danmaku):
     with open(file=DANMAKU_OUTPUT_PATH, mode='w+', encoding='utf-8') as file:
         file.write(f'{danmaku.username} 说: {danmaku.msg}' if danmaku else '')
+
+
+def write_voice_input(who: str, transcript: str):
+    with open(file=DANMAKU_OUTPUT_PATH, mode='w+', encoding='utf-8') as file:
+        file.write(f'{who} 说: {transcript}')

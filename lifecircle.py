@@ -1,5 +1,6 @@
 import asyncio
 import json
+from typing import Final
 
 from loguru import logger
 
@@ -20,6 +21,7 @@ from utils.util import is_blank
 
 LANG = 'zh'
 MAX_HISTORY = 40
+DEV_NAME: Final[str] = '赤川鹤鸣'
 
 
 def read_danmaku() -> Danmaku | None:
@@ -126,7 +128,12 @@ async def life_circle():
 
     logger.info(query)
 
-    obs.service.write_danmaku_output(danmaku)
+    # 注意这里, 开发者说的话会覆盖弹幕
+    if danmaku:
+        obs.service.write_danmaku_output(danmaku)
+
+    if transcript:
+        obs.service.write_voice_input(DEV_NAME, transcript)
 
     # 其中 resp
     # 第1轮循环 resp = '我'
