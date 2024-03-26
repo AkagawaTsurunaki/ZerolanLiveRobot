@@ -4,7 +4,7 @@ import threading
 
 from loguru import logger
 
-import asr.api
+import asr.service
 import audio_player.service
 import controller.service
 import minecraft.py.service
@@ -70,7 +70,7 @@ if __name__ == '__main__':
         ctrl_thread.start()
 
         # 启动 ASR 线程
-        asr_thread = threading.Thread(target=asr.api.start)
+        asr_thread = threading.Thread(target=asr.service.start)
         thread_list.append(asr_thread)
         asr_thread.start()
 
