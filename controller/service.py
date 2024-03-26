@@ -4,10 +4,10 @@ from typing import List
 
 from flask import Flask, jsonify
 
-import asr.service
 import audio_player.service
+import obs.service
 import vad.service
-from utils.datacls import HTTPResponseBody, ZerolanServiceStatus, VAD
+from utils.datacls import HTTPResponseBody
 
 app = Flask(__name__)
 
@@ -67,6 +67,15 @@ def handle_audio_player_switch():
     resume = audio_player.service.switch()
     msg = '已启用发声' if resume else '已禁用发声'
     response = HTTPResponseBody(ok=True, msg=msg, data={'audio_player': resume})
+    return jsonify(asdict(response))
+
+
+@app.route('/obs/clear', methods=['POST'])
+def handle_obs_clear():
+    obs.service.write_llm_output('')
+    obs.service.write_tone_output(None)
+    obs.service.write_danmaku_output(None)
+    response = HTTPResponseBody(ok=True, msg='已清除 OBS 输出')
     return jsonify(asdict(response))
 
 

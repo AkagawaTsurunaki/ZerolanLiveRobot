@@ -18,7 +18,7 @@ class ZerolanServiceStatus:
 class HTTPResponseBody:
     ok: bool
     msg: str
-    data: Any
+    data: Any = None
 
 
 @dataclass
