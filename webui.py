@@ -46,7 +46,7 @@ def vad_switch():
 
 def audio_player_switch():
     try:
-        response = requests.post(url='/audio_player/switch')
+        response = requests.post(url=f'{URL}/audio_player/switch')
         assert response.status_code == HTTPStatus.OK
         response = HTTPResponseBody(**response.json())
         assert response.ok
