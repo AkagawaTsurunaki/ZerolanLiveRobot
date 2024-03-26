@@ -41,6 +41,7 @@ def play(audio_pair: AudioPair):
 def add_audio(wav_file_path: str | PathLike, transcript: str):
     audiopair = AudioPair(transcript=transcript, wav_file_path=wav_file_path, played=False)
     g_audio_list.append(audiopair)
+    g_add_audio_event.set()
 
 
 def start():
@@ -48,7 +49,7 @@ def start():
     g_is_service_running = True
     while g_is_service_running:
         g_add_audio_event.wait()
-        g_add_audio_event.wait()
+        g_audio_play_event.wait()
         if len(g_audio_list) > 0:
             for audio_pair in g_audio_list:
                 if not audio_pair.played:
@@ -57,14 +58,15 @@ def start():
     g_add_audio_event.clear()
 
 
-def pause():
-    g_add_audio_event.clear()
-    logger.info('⏸️ 音频播放服务暂停')
-
-
-def resume():
-    g_add_audio_event.set()
-    logger.info('▶️ 音频播放服务继续')
+def switch():
+    if g_add_audio_event.is_set():
+        g_add_audio_event.clear()
+        logger.info('⏸️ 音频播放服务暂停')
+        return False
+    else:
+        g_add_audio_event.set()
+        logger.info('▶️ 音频播放服务继续')
+        return True
 
 
 def stop():

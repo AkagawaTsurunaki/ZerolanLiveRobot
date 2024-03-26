@@ -115,23 +115,17 @@ def select_latest_unread():
     return None
 
 
-def pause():
-    record_speech_in_loop_event.clear()
-    save_speech_in_loop_event.clear()
-    logger.info('🎙️ VAD 服务暂停')
-
-
-def resume():
-    record_speech_in_loop_event.set()
-    save_speech_in_loop_event.set()
-    logger.info('🎙️ VAD 服务继续')
-
-
-def stop():
-    record_speech_in_loop_event.clear()
-    save_speech_in_loop_event.clear()
-    save('.save/vad', wav_file_list)
-    return True
+def switch() -> bool:
+    if record_speech_in_loop_event.is_set():
+        record_speech_in_loop_event.clear()
+        save_speech_in_loop_event.clear()
+        logger.info('🎙️ VAD 服务暂停')
+        return False
+    else:
+        record_speech_in_loop_event.set()
+        save_speech_in_loop_event.set()
+        logger.info('🎙️ VAD 服务继续')
+        return True
 
 
 def start():
