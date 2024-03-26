@@ -1,6 +1,6 @@
 from loguru import logger
 
-from bilibili.service import Danmaku
+from utils.datacls import Danmaku
 from tone_ana.service import Tone
 
 DANMAKU_OUTPUT_PATH: str

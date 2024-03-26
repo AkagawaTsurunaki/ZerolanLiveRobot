@@ -11,7 +11,7 @@ import controller.service
 import minecraft.py.service
 import obs.service
 from bilibili import service as bili_serv
-from bilibili.service import Danmaku
+from utils.datacls import Danmaku
 from blip_img_cap import service as blip_serv
 from gptsovits import service as gptsovits_serv
 from minecraft.py.common import GameEvent
