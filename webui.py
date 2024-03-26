@@ -5,14 +5,9 @@ import gradio
 import gradio as gr
 import requests
 
-from utils.datacls import parse_http_response_body, ZerolanServiceStatus
+from utils.datacls import parse_http_response_body
 
 URL = 'http://127.0.0.1:11451'
-zcc: ZerolanServiceStatus
-
-
-def stub(message, history):
-    pass
 
 
 def get_history():
@@ -33,7 +28,6 @@ def llm_reset():
 
 
 def vad_switch():
-    global zcc
     response = requests.post(url=f'{URL}/vad/switch')
     if response.status_code == HTTPStatus.OK:
         response = parse_http_response_body(response.json())
