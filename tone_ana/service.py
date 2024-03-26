@@ -10,7 +10,7 @@ import yaml
 from loguru import logger
 
 import chatglm3.api
-from chatglm3.service import LLMQuery
+from utils.datacls import LLMQuery
 
 logger.remove()
 handler_id = logger.add(sys.stderr, level="INFO")

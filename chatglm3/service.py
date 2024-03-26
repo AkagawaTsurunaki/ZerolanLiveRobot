@@ -1,10 +1,9 @@
-from dataclasses import dataclass
-
 import psutil
 from flask import Flask, jsonify, stream_with_context, Response, request
 from loguru import logger
 from transformers import AutoTokenizer, AutoModel
 
+from utils.datacls import LLMQuery
 from utils.util import url_join
 
 DEBUG: bool = False
@@ -17,20 +16,6 @@ MODEL_PROMPT = None
 SERVICE_URL = 'http://127.0.0.1:8085'
 
 app = Flask(__name__)
-
-
-@dataclass
-class LLMQuery:
-    query: str
-    history: list
-    top_p: float
-    temperature: float
-
-
-@dataclass
-class LLMResponse:
-    response: str
-    history: list[dict]
 
 
 def is_port_in_use(port):

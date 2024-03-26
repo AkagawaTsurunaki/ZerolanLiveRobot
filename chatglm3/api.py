@@ -5,7 +5,9 @@ from urllib.parse import urljoin
 
 import requests
 
-from chatglm3.service import SERVICE_URL, LLMQuery, LLMResponse
+from chatglm3.service import SERVICE_URL
+from utils.datacls import LLMQuery, LLMResponse
+
 
 def check_alive():
     try:

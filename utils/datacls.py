@@ -42,3 +42,17 @@ class Danmaku:
     username: str  # 弹幕发送者名称
     msg: str  # 弹幕发送内容
     ts: int  # 弹幕时间戳
+
+
+@dataclass
+class LLMQuery:
+    query: str
+    history: list
+    top_p: float
+    temperature: float
+
+
+@dataclass
+class LLMResponse:
+    response: str
+    history: list[dict]
