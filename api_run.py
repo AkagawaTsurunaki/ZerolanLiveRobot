@@ -1,6 +1,6 @@
 import argparse
 
-import asr.service
+import asr.app
 import blip_img_cap.service
 import chatglm3.service
 

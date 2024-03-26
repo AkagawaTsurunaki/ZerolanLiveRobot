@@ -4,7 +4,7 @@ from typing import Final
 
 from loguru import logger
 
-import asr.service
+import asr.app
 import audio_player.service
 import blip_img_cap.api
 import chatglm3.api
