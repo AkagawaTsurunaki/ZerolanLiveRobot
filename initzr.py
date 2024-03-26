@@ -12,16 +12,16 @@ def read_yaml(path: str | PathLike):
         return yaml.safe_load(file)
 
 
-def load_global_config(default_global_config_path: str | PathLike):
+def load_global_config(path: str | PathLike = 'config/global_config.yaml'):
     """
     加载全局配置
-    :param default_global_config_path:
+    :param path:
     :return:
     """
     assert os.path.exists(
-        default_global_config_path), \
-        f'❌️ 全局配置文件不存在：路径 {default_global_config_path} 不存在。您可能需要将 config/template_config.yaml 更名为 config/global_config.yaml'
-    global_config = read_yaml(path=default_global_config_path)
+        path), \
+        f'❌️ 全局配置文件不存在：路径 {path} 不存在。您可能需要将 config/template_config.yaml 更名为 config/global_config.yaml'
+    global_config = read_yaml(path=path)
     if not os.path.exists('.tmp'):
         os.mkdir('.tmp')
     logger.info('⚙️ 全局配置加载完毕')

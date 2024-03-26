@@ -23,8 +23,7 @@ logger.remove()
 logger.add(sys.stderr, level="INFO")
 
 # 加载总配置文件
-DEFAULT_GLOBAL_CONFIG_PATH = R'config/global_config.yaml'
-g_config = load_global_config(DEFAULT_GLOBAL_CONFIG_PATH)
+g_config = load_global_config()
 
 if __name__ == '__main__':
     try:
