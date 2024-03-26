@@ -5,7 +5,7 @@ import gradio
 import gradio as gr
 import requests
 
-from utils.datacls import HTTPResponseBody, VAD, parse_http_response_body, ZerolanServiceStatus
+from utils.datacls import parse_http_response_body, ZerolanServiceStatus
 
 URL = 'http://127.0.0.1:11451'
 zcc: ZerolanServiceStatus
@@ -52,7 +52,7 @@ with gr.Blocks(theme=gr.themes.Soft()) as controller_inteface:
         with gr.Column():
             gr.Markdown('## 运行时控制')
             reset_button = gr.ClearButton(value='🔃 重载提示词')
-            stop_voice_button = gr.ClearButton(value='🫢 开启/关闭语音系统')
+            stop_voice_button = gr.ClearButton(value='👄 开启/关闭语音系统')
             pause_or_resume_vad_button = gr.Button(value='👂️ 开启/关闭听觉系统')
 
             reset_button.click(fn=llm_reset)
