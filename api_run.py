@@ -1,12 +1,13 @@
-from chatglm3 import service as llm_serv
-from initzr import load_chatglm3_service_config, load_global_config
+import argparse
 
+import blip_img_cap.service
 
-def start_llm():
-    g_config = load_global_config()
-    config = load_chatglm3_service_config(g_config)
-    llm_serv.init(*config)
-    llm_serv.start()
+parser = argparse.ArgumentParser(description='启动分布式服务的工具')
 
+parser.add_argument('blip', type=bool, default=False)
+# parser.add_argument('blip', type=bool, default=
+# )
 
-start_llm()
+args = parser.parse_args()
+if args.blip:
+    blip_img_cap.service.start()
