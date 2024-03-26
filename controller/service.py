@@ -29,14 +29,6 @@ def handle_vad_switch():
     return jsonify(asdict(response))
 
 
-def _vad_switch():
-    if zss.vad_service.pause:
-        vad.service.resume()
-    else:
-        vad.service.pause()
-    zss.vad_service.pause = not zss.vad_service.pause
-
-
 @app.route('/llm/reset', methods=['GET'])
 def reset():
     _load_custom_history()
@@ -46,6 +38,14 @@ def reset():
 @app.route('/history', methods=['GET'])
 def handle_history():
     return jsonify(get_history())
+
+
+def _vad_switch():
+    if zss.vad_service.pause:
+        vad.service.resume()
+    else:
+        vad.service.pause()
+    zss.vad_service.pause = not zss.vad_service.pause
 
 
 def _load_custom_history():
@@ -60,6 +60,18 @@ def get_history() -> List[dict]:
     return g_history
 
 
+def set_history(history: List[dict]):
+    global g_history
+    g_history = history
+
+
+def try_compress_history():
+    # 当历史记录过多时可能会导致 GPU 占用过高
+    # 故设计一个常量来检测是否超过阈值
+    if len(g_history) == 0 or len(g_history) > MAX_HISTORY:
+        _load_custom_history()
+
+
 def init(debug: bool, host: str, port: int, custom_prompt_path: str) -> bool:
     global HOST, DEBUG, PORT, CUSTOM_PROMPT_PATH
     DEBUG = debug
@@ -72,15 +84,3 @@ def init(debug: bool, host: str, port: int, custom_prompt_path: str) -> bool:
 
 def start():
     app.run(host=HOST, port=PORT, debug=DEBUG)
-
-
-def set_history(history: List[dict]):
-    global g_history
-    g_history = history
-
-
-def try_compress_history():
-    # 当历史记录过多时可能会导致 GPU 占用过高
-    # 故设计一个常量来检测是否超过阈值
-    if len(g_history) == 0 or len(g_history) > MAX_HISTORY:
-        _load_custom_history()
