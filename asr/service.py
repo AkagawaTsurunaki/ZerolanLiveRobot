@@ -95,10 +95,11 @@ def resume():
 
 
 def stop():
-    global g_is_service_running, g_transcript_list, g_is_service_inited
+    global g_is_service_running, g_transcript_list, g_is_service_inited, MODEL
     g_is_service_running = False
     g_is_service_inited = False
     obj = [asdict(item) for item in g_transcript_list]
     save_service('asr', obj)
     g_transcript_list = []
+    MODEL = None
     logger.warning('⏹️ 自动语音识别服务终止')

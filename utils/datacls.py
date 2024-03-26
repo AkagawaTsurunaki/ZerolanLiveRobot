@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from os import PathLike
 
 
 @dataclass
@@ -56,3 +57,10 @@ class LLMQuery:
 class LLMResponse:
     response: str
     history: list[dict]
+
+
+@dataclass
+class AudioPair:
+    played: bool
+    transcript: str
+    wav_file_path: str | PathLike

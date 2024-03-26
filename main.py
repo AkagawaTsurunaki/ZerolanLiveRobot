@@ -61,8 +61,7 @@ if __name__ == '__main__':
         bili_thread.start()
 
         # 启动播放器线程
-        add_audio_event = threading.Event()
-        audio_play_thread = threading.Thread(target=audio_player.service.start, args=(add_audio_event,))
+        audio_play_thread = threading.Thread(target=audio_player.service.start)
         thread_list.append(audio_play_thread)
         audio_play_thread.start()
 
