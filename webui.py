@@ -4,22 +4,27 @@ from typing import List
 import gradio
 import gradio as gr
 import requests
+from loguru import logger
 
-from utils.datacls import parse_http_response_body
+from utils.datacls import HTTPResponseBody
 
 URL = 'http://127.0.0.1:11451'
 
 
 def get_history():
-    response = requests.get(url=f'{URL}/history')
-    history: List[dict] = response.json()
-    history = [item.get('content') for item in history]
-    result = []
-    if len(history) > 0:
-        for i in range(0, len(history), 2):
-            result.append((history[i], history[i + 1]))
-
-    return result
+    try:
+        response = requests.get(url=f'{URL}/history')
+        history: List[dict] = response.json()
+        history = [item.get('content') for item in history]
+        result = []
+        if len(history) > 0:
+            for i in range(0, len(history), 2):
+                result.append((history[i], history[i + 1]))
+        return result
+    except Exception as e:
+        logger.exception(e)
+        gradio.Error('获取历史对话失败')
+        return []
 
 
 def llm_reset():
@@ -28,36 +33,50 @@ def llm_reset():
 
 
 def vad_switch():
-    response = requests.post(url=f'{URL}/vad/switch')
-    if response.status_code == HTTPStatus.OK:
-        response = parse_http_response_body(response.json())
+    try:
+        response = requests.post(url=f'{URL}/vad/switch')
+        assert response.status_code == HTTPStatus.OK
+        response = HTTPResponseBody(**response.json())
+        assert response.ok
+        gradio.Info(message=response.msg)
+    except Exception as e:
+        logger.exception(e)
+        gradio.Error(message='无法启用或禁用听觉')
 
-        if response.ok:
-            btn_val = '👂️ 恢复听觉' if response.data.vad_service.pause else '👂️ 关闭听觉'
-            gradio.Info(message=response.msg)
-    gradio.Error(message='VAD 服务未响应')
+
+def audio_player_switch():
+    try:
+        response = requests.post(url='/audio_player/switch')
+        assert response.status_code == HTTPStatus.OK
+        response = HTTPResponseBody(**response.json())
+        assert response.ok
+        gradio.Info(message=response.msg)
+    except Exception as e:
+        logger.exception(e)
+        gradio.Error(message='无法启用或禁用发声')
 
 
 with gr.Blocks(theme=gr.themes.Soft()) as controller_inteface:
-    gr.Markdown('# 🕹️ Zerolan Live Robot 中央控制面板')
+    gr.Markdown('# 🕹️ Zerolan Live Robot ver1.1 控制面板')
     with gr.Row():
         gr.Chatbot(label='LLM 对话区', value=get_history, every=1, height=800, min_width=800)
 
         with gr.Column():
             gr.Markdown('## 运行时控制')
-            reset_button = gr.ClearButton(value='🔃 重载提示词')
-            stop_voice_button = gr.ClearButton(value='👄 暂停/继续语音服务')
-            pause_or_resume_vad_button = gr.Button(value='👂️ 暂停/继续听觉服务')
-            stop_zerolan_button = gr.Button(value='⛔️ 终止 Zerolan Live Robot')
+            llm_reset_button = gr.ClearButton(value='🔃 重载提示词')
+            audio_player_switch_btn = gr.ClearButton(value='👄 启禁用发声')
+            vad_switch_btn = gr.Button(value='👂️ 启禁用听觉')
+            # stop_zerolan_button = gr.Button(value='⛔️ 终止 Zerolan Live Robot')
 
-            reset_button.click(fn=llm_reset)
-            pause_or_resume_vad_button.click(fn=vad_switch)
+            llm_reset_button.click(fn=llm_reset)
+            audio_player_switch_btn.click(fn=audio_player_switch)
+            vad_switch_btn.click(fn=vad_switch)
 
         #
         with gr.Column():
             gr.Markdown('## 模型控制')
-            btn01 = gr.ClearButton(value='🔃 重载 LLM 服务')
-            btn02 = gr.ClearButton(value='🫢 重载 TTS 服务')
-            btn03 = gr.ClearButton(value='🫢 重载 TTS 服务')
+            btn01 = gr.ClearButton(value='???')
+            btn02 = gr.ClearButton(value='???')
+            btn03 = gr.ClearButton(value='???')
 
 controller_inteface.launch()
