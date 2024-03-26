@@ -75,8 +75,11 @@ def convert_2_query(transcript: str, danmaku: Danmaku, screen_desc: str, game_ev
             "饥饿值": game_event.food,
             "环境": game_event.environment
         }
-
-    return str(json.dumps(obj=query, indent=4, ensure_ascii=False)) if query else None
+    if query:
+        query = str(json.dumps(obj=query, indent=4, ensure_ascii=False))
+        query = f'```\n{query}\n```'
+        return query
+    return None
 
 
 def tts_with_tone(sentence: str):
