@@ -30,3 +30,9 @@ def parse_http_response_body(json: dict) -> HTTPResponseBody:
     response.data = ZerolanServiceStatus(vad)
 
     return response
+
+
+@dataclass
+class Transcript:
+    is_read: bool
+    content: str
