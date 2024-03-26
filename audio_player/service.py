@@ -47,6 +47,7 @@ def add_audio(wav_file_path: str | PathLike, transcript: str):
 def start():
     global g_is_service_running
     g_is_service_running = True
+    g_audio_play_event.set()
     while g_is_service_running:
         g_add_audio_event.wait()
         g_audio_play_event.wait()
