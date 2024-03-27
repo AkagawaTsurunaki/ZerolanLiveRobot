@@ -4,11 +4,12 @@ import {plugin as autoeat} from "mineflayer-auto-eat"
 import "mineflayer"
 import {fertilize, harvest, sow} from "./farmer"
 import {plugin as pvp} from "mineflayer-pvp";
-import {addRespawnEvent, findNearestPlayer, moveToPos} from "./util";
+import {findNearestPlayer, moveToPos} from "./util";
 import {attackMobs} from "./attack";
 import {faceMe, followMe, wander} from "./follow";
 import {botHurt} from "./body";
 import {tickCheckAngry, propitiate} from "./brain/angry"
+import {emitRespawnEvent} from "./event";
 
 const options = {
     host: process.argv[2],
@@ -35,7 +36,7 @@ bot.once('spawn', async () => {
 })
 
 bot.on('respawn', async () => {
-    await addRespawnEvent(bot)
+    await emitRespawnEvent(bot)
 })
 
 bot.on('autoeat_started', () => {

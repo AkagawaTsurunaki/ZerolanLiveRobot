@@ -1,6 +1,14 @@
 import {Bot} from "mineflayer";
-import {GameEvent, moveToPos, postGameEvent, wait} from "./util";
+import {moveToPos, wait} from "./util";
 import {Vec3} from "vec3";
+import {
+    emitFarmedEvent,
+    emitFarmingEvent,
+    emitFertilizedEvent,
+    emitFertilizingEvent,
+    emitHarvestedEvent,
+    emitHarvestingEvent
+} from "./event";
 
 function tryFindBlockToHarvest(bot: Bot, maxDistance: number) {
     if (!bot || !bot.findBlock || typeof bot.findBlock !== 'function') {
@@ -14,7 +22,6 @@ function tryFindBlockToHarvest(bot: Bot, maxDistance: number) {
         }
     })
 }
-
 
 function tryFindBlockToSow(bot: Bot, maxDistance: number) {
     if (!bot || !bot.findBlock || typeof bot.findBlock !== 'function') {
@@ -45,7 +52,7 @@ function tryFindBlockToFertilize(bot: Bot, maxDistance: number) {
 }
 
 export async function sow(bot: Bot, maxDistance = 36, interval_ms = 100) {
-    await postGameEvent(new GameEvent(bot, '开始锄大地喵~开心！'))
+    await emitFarmingEvent(bot)
     // 找到可以种的地
     while (true) {
         try {
@@ -67,12 +74,11 @@ export async function sow(bot: Bot, maxDistance = 36, interval_ms = 100) {
             console.log(e)
         }
     }
-    await postGameEvent(new GameEvent(bot, '已经把所有的小种子播撒到里面了哦~'))
+    await emitFarmedEvent(bot)
 }
 
-
 export async function fertilize(bot: Bot, maxDistance = 36, interval_ms = 100) {
-    await postGameEvent(new GameEvent(bot, '开始施肥了，好爽。'))
+    await emitFertilizingEvent(bot)
     // 找到可以种的地
     while (true) {
         try {
@@ -84,10 +90,7 @@ export async function fertilize(bot: Bot, maxDistance = 36, interval_ms = 100) {
                 // 种地
                 try {
                     await bot.equip(bot.registry.itemsByName.bone_meal.id, 'hand')
-
                 } catch (e) {
-                    console.log('没有这个工具')
-                    bot.chat('没骨粉啊!')
                 }
                 bot.placeBlock(blockToSow, new Vec3(0, 1, 0)).catch(() => {
                 })
@@ -100,13 +103,12 @@ export async function fertilize(bot: Bot, maxDistance = 36, interval_ms = 100) {
         } catch (e) {
             console.log(e)
         }
-
     }
-    await postGameEvent(new GameEvent(bot, '施肥完毕，真棒！'))
+    await emitFertilizedEvent(bot)
 }
 
 export async function harvest(bot: Bot, maxDistance = 36, interval_ms = 50) {
-    await postGameEvent(new GameEvent(bot, '开始收割作物了。好开心喵！'))
+    await emitHarvestingEvent(bot)
     // 找到可以收割的地
     while (true) {
         try {
@@ -125,5 +127,5 @@ export async function harvest(bot: Bot, maxDistance = 36, interval_ms = 50) {
             console.log(e)
         }
     }
-    await postGameEvent(new GameEvent(bot, '把作物收割好了，真棒！'))
+    await emitHarvestedEvent(bot)
 }

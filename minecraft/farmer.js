@@ -39,6 +39,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.harvest = exports.fertilize = exports.sow = void 0;
 var util_1 = require("./util");
 var vec3_1 = require("vec3");
+var event_1 = require("./event");
 function tryFindBlockToHarvest(bot, maxDistance) {
     if (!bot || !bot.findBlock || typeof bot.findBlock !== 'function') {
         return null;
@@ -84,7 +85,7 @@ function sow(bot, maxDistance, interval_ms) {
         var blockToSow, e_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, (0, util_1.postGameEvent)(new util_1.GameEvent(bot, '开始锄大地喵~开心！'))
+                case 0: return [4 /*yield*/, (0, event_1.emitFarmingEvent)(bot)
                     // 找到可以种的地
                 ];
                 case 1:
@@ -121,7 +122,7 @@ function sow(bot, maxDistance, interval_ms) {
                     console.log(e_1);
                     return [3 /*break*/, 10];
                 case 10: return [3 /*break*/, 2];
-                case 11: return [4 /*yield*/, (0, util_1.postGameEvent)(new util_1.GameEvent(bot, '已经把所有的小种子播撒到里面了哦~'))];
+                case 11: return [4 /*yield*/, (0, event_1.emitFarmedEvent)(bot)];
                 case 12:
                     _a.sent();
                     return [2 /*return*/];
@@ -137,7 +138,7 @@ function fertilize(bot, maxDistance, interval_ms) {
         var blockToSow, e_2, e_3;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, (0, util_1.postGameEvent)(new util_1.GameEvent(bot, '开始施肥了，好爽。'))
+                case 0: return [4 /*yield*/, (0, event_1.emitFertilizingEvent)(bot)
                     // 找到可以种的地
                 ];
                 case 1:
@@ -160,8 +161,6 @@ function fertilize(bot, maxDistance, interval_ms) {
                     return [3 /*break*/, 7];
                 case 6:
                     e_2 = _a.sent();
-                    console.log('没有这个工具');
-                    bot.chat('没骨粉啊!');
                     return [3 /*break*/, 7];
                 case 7:
                     bot.placeBlock(blockToSow, new vec3_1.Vec3(0, 1, 0)).catch(function () {
@@ -181,7 +180,7 @@ function fertilize(bot, maxDistance, interval_ms) {
                     console.log(e_3);
                     return [3 /*break*/, 12];
                 case 12: return [3 /*break*/, 2];
-                case 13: return [4 /*yield*/, (0, util_1.postGameEvent)(new util_1.GameEvent(bot, '施肥完毕，真棒！'))];
+                case 13: return [4 /*yield*/, (0, event_1.emitFertilizedEvent)(bot)];
                 case 14:
                     _a.sent();
                     return [2 /*return*/];
@@ -197,7 +196,7 @@ function harvest(bot, maxDistance, interval_ms) {
         var blockToSow, e_4;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, (0, util_1.postGameEvent)(new util_1.GameEvent(bot, '开始收割作物了。好开心喵！'))
+                case 0: return [4 /*yield*/, (0, event_1.emitHarvestingEvent)(bot)
                     // 找到可以收割的地
                 ];
                 case 1:
@@ -233,7 +232,7 @@ function harvest(bot, maxDistance, interval_ms) {
                     console.log(e_4);
                     return [3 /*break*/, 9];
                 case 9: return [3 /*break*/, 2];
-                case 10: return [4 /*yield*/, (0, util_1.postGameEvent)(new util_1.GameEvent(bot, '把作物收割好了，真棒！'))];
+                case 10: return [4 /*yield*/, (0, event_1.emitHarvestedEvent)(bot)];
                 case 11:
                     _a.sent();
                     return [2 /*return*/];

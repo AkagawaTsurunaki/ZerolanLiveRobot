@@ -1,5 +1,6 @@
 import {Bot} from "mineflayer";
 import {findPlayerByUsername} from "../util";
+import {emitPropitiateEvent, emitRileEvent} from "../event";
 
 const playerAngryDict: { [key: string]: number } = {};
 const mercyAngryValueThreshold: number = 100
@@ -39,7 +40,9 @@ async function tryMercy(bot: Bot) {
         if (player && player.type == 'player') {
             // 愤怒值过低时饶恕玩家
             if (playerAngryDict[username] < mercyAngryValueThreshold) {
-                await bot.pvp.stop()
+                emitPropitiateEvent(bot, username).then(() => {
+                    bot.pvp.stop()
+                })
             }
         }
     }
@@ -60,7 +63,9 @@ async function tryAttackPlayer(bot: Bot) {
     }
     const maxAngryValuePlayer = findPlayerByUsername(bot, username)
     if (maxValue > attackAngryValueThreshold) {
-        await bot.pvp.attack(maxAngryValuePlayer)
+        emitRileEvent(bot, username).then(() => {
+            bot.pvp.attack(maxAngryValuePlayer)
+        })
     }
 }
 

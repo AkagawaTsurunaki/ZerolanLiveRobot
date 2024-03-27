@@ -47,6 +47,7 @@ var attack_1 = require("./attack");
 var follow_1 = require("./follow");
 var body_1 = require("./body");
 var angry_1 = require("./brain/angry");
+var event_1 = require("./event");
 var options = {
     host: process.argv[2],
     port: parseInt(process.argv[3]),
@@ -72,7 +73,7 @@ bot.once('spawn', function () { return __awaiter(void 0, void 0, void 0, functio
 bot.on('respawn', function () { return __awaiter(void 0, void 0, void 0, function () {
     return __generator(this, function (_a) {
         switch (_a.label) {
-            case 0: return [4 /*yield*/, (0, util_1.addRespawnEvent)(bot)];
+            case 0: return [4 /*yield*/, (0, event_1.emitRespawnEvent)(bot)];
             case 1:
                 _a.sent();
                 return [2 /*return*/];

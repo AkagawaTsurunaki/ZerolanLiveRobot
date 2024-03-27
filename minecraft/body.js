@@ -37,11 +37,11 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.botHurt = void 0;
-var util_1 = require("./util");
 var angry_1 = require("./brain/angry");
+var event_1 = require("./event");
 function botHurt(bot, entityId, sourceTypeId, sourceCauseId, sourceDirectId) {
     return __awaiter(this, void 0, void 0, function () {
-        var sourceCauseEntity, playerName, botHurtEvent;
+        var sourceCauseEntity, playerName;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -52,16 +52,8 @@ function botHurt(bot, entityId, sourceTypeId, sourceCauseId, sourceDirectId) {
                     if (sourceCauseEntity.type === 'player') {
                         playerName = sourceCauseEntity.username;
                         (0, angry_1.rile)(playerName);
-                        bot.chat(playerName);
                     }
-                    botHurtEvent = void 0;
-                    if (sourceCauseEntity.displayName) {
-                        botHurtEvent = new util_1.GameEvent(bot, "\u4F60\u53D7\u4F24\u4E86, \u6765\u6E90\u662F".concat(sourceCauseEntity.displayName));
-                    }
-                    else {
-                        botHurtEvent = new util_1.GameEvent(bot, "\u4F60\u53D7\u4F24\u4E86, \u6765\u6E90\u662F".concat(sourceCauseEntity.type));
-                    }
-                    return [4 /*yield*/, (0, util_1.postGameEvent)(botHurtEvent)];
+                    return [4 /*yield*/, (0, event_1.emitBotHurtEvent)(bot, sourceCauseEntity)];
                 case 1:
                     _a.sent();
                     _a.label = 2;

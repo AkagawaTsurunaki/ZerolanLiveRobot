@@ -1,10 +1,19 @@
+from dataclasses import dataclass
 from typing import List
 
 from flask import Flask, jsonify
 from flask import request
 from loguru import logger
 
-from minecraft.py.common import GameEvent
+
+@dataclass
+class GameEvent:
+    read: bool
+    time_stamp: float
+    health: int
+    food: int
+    environment: str
+
 
 app = Flask(__name__)
 
@@ -32,3 +41,6 @@ def select01():
 
 def start():
     app.run(host='127.0.0.1', port=12546, debug=False)
+
+if __name__ == '__main__':
+    start()

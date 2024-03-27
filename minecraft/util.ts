@@ -1,7 +1,6 @@
 import {Bot} from "mineflayer";
 import {Vec3} from "vec3";
 import {goals, Movements} from "mineflayer-pathfinder";
-import axios from 'axios';
 
 export function moveToPos(bot: Bot, pos: Vec3): void {
     bot.pathfinder.setMovements(new Movements(bot));
@@ -53,40 +52,6 @@ export function wait(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-export class GameEvent {
-    public read: boolean;
-    public time_stamp: number
-    public health: number
-    public food: number
-    public environment: string
-
-    public constructor(bot: Bot, environment: string) {
-        this.health = bot.health
-        this.food = bot.food
-        this.read = false
-        this.time_stamp = Date.now()
-        this.environment = environment
-    }
-}
-
-const URL = 'http://127.0.0.1:12546/addevent'
-
-export async function postGameEvent(gameEvent: GameEvent) {
-    try {
-        const response = await axios.post(URL, gameEvent)
-        if (response.status == 200) {
-            console.log('成功发送游戏事件')
-        }
-    } catch (e) {
-
-    }
-}
-
-export async function addRespawnEvent(bot: Bot) {
-    if (bot) {
-        const event = new GameEvent(bot, '你重生了。')
-        event.health = 20
-        event.food = 20
-        await postGameEvent(event)
-    }
+function calculateMillisecondsDifference(timestamp1: number, timestamp2: number): number {
+    return Math.abs(timestamp1 - timestamp2);
 }
