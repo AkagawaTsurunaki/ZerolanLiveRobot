@@ -43,7 +43,7 @@ function followMe(bot) {
     var player_entity = bot.nearestEntity(player_filter);
     if (player_entity) {
         // bot.chat('好的喵, 主人!')
-        (0, util_1.moveToPos)(bot, player_entity.position);
+        (0, util_1.moveToPos)(bot, player_entity.position.offset(0, 0.5, 0));
         bot.lookAt(player_entity.position.offset(0, 1, 0));
     }
 }

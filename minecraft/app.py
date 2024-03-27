@@ -7,9 +7,24 @@ from loguru import logger
 
 
 @dataclass
+class EventType:
+    RILE_EVENT = "RILE_EVENT"
+    PROPITIATE = "PROPITIATE"
+    RESPAWN = "RESPAWN"
+    FARMING = "FARMING"
+    FARMED = "FARMED"
+    FERTILIZING = "FERTILIZING"
+    FERTILIZED = "FERTILIZED"
+    HARVESTING = "HARVESTING"
+    HARVESTED = "HARVESTED"
+    BOT_HURT = "BOT_HURT"
+
+
+@dataclass
 class GameEvent:
     read: bool
     time_stamp: float
+    event_type: EventType
     health: int
     food: int
     environment: str
@@ -27,6 +42,10 @@ def handle_add_event():
     if game_event:
         game_event_list.append(game_event)
     return jsonify(game_event)
+
+
+def compress():
+    ...
 
 
 def select01():

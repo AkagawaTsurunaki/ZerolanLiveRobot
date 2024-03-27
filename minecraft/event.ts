@@ -26,13 +26,13 @@ export class GameEvent {
     public health: number
     public food: number
     public environment: string
-    public eventType: EventType
+    public event_type: EventType
 
     public constructor(bot: Bot, eventType: EventType, environment: string) {
         this.health = bot.health
         this.food = bot.food
         this.read = false
-        this.eventType = eventType
+        this.event_type = eventType
         this.time_stamp = Date.now()
         this.environment = environment
     }

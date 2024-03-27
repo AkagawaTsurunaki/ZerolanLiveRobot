@@ -8,7 +8,7 @@ export function followMe(bot: Bot) {
     const player_entity = bot.nearestEntity(player_filter)
     if (player_entity) {
         // bot.chat('好的喵, 主人!')
-        moveToPos(bot, player_entity.position)
+        moveToPos(bot, player_entity.position.offset(0, 0.5, 0))
         bot.lookAt(player_entity.position.offset(0, 1, 0))
     }
 }
