@@ -9,7 +9,7 @@ import audio_player.service
 import blip_img_cap.api
 import chatglm3.api
 import controller.app
-import minecraft.py.service
+import minecraft.app
 import obs.api
 from bilibili import service as bili_serv
 from gptsovits import api as gptsovits_serv
@@ -105,7 +105,7 @@ def tts_with_tone(sentence: str):
 
 
 def read_game_event():
-    return minecraft.py.service.select01()
+    return minecraft.app.select01()
 
 
 async def life_circle():

@@ -8,7 +8,7 @@ import asr.service
 import audio_player.service
 import bilibili.service
 import controller.app
-import minecraft.py.service
+import minecraft.app
 import vad.service
 from lifecircle import service_start
 
@@ -31,7 +31,7 @@ if __name__ == '__main__':
         audio_play_thread.start()
 
         # 启动 Minecraft 游戏事件监听线程
-        minecraft_thread = threading.Thread(target=minecraft.py.service.start)
+        minecraft_thread = threading.Thread(target=minecraft.app.start)
         thread_list.append(minecraft_thread)
         minecraft_thread.start()
 
