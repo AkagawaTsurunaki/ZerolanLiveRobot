@@ -1,9 +1,11 @@
-from dataclasses import dataclass
-from typing import List
+from dataclasses import dataclass, asdict
+from typing import List, Final
 
 from flask import Flask, jsonify
 from flask import request
 from loguru import logger
+
+from utils.datacls import HTTPResponseBody
 
 
 @dataclass
@@ -29,23 +31,37 @@ class GameEvent:
     food: int
     environment: str
 
+    def aeq(self, other):
+        if other:
+            if isinstance(other, GameEvent):
+                return self.event_type == other.event_type and self.environment == self.environment
+        return False
+
 
 app = Flask(__name__)
 
 game_event_list: List[GameEvent] = []
 
+TIME_WINDOW_SIZE: Final[int] = 2
+
 
 @app.route('/addevent', methods=['POST'])
 def handle_add_event():
-    logger.info(request.json)
-    game_event = GameEvent(**request.json)
-    if game_event:
-        game_event_list.append(game_event)
-    return jsonify(game_event)
-
-
-def compress():
-    ...
+    try:
+        game_event = GameEvent(**request.json)
+        if game_event:
+            if game_event_list:
+                if game_event_list[-1].aeq(game_event):
+                    response = HTTPResponseBody(ok=True, msg='该事件已被合并')
+                    return jsonify(asdict(response))
+            game_event_list.append(game_event)
+            logger.info(request.json)
+            response = HTTPResponseBody(ok=True, msg='该事件已被添加', data=asdict(game_event))
+            return jsonify(response)
+    except Exception as e:
+        logger.exception(e)
+        response = HTTPResponseBody(ok=False, msg='该事件无法被解析')
+        return jsonify(response)
 
 
 def select01():
@@ -62,5 +78,3 @@ def start():
     app.run(host='127.0.0.1', port=12546, debug=False)
 
 
-if __name__ == '__main__':
-    start()

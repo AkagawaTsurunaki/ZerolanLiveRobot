@@ -8,17 +8,18 @@ const URL = 'http://127.0.0.1:12546/addevent'
 const gameEvents: GameEvent[] = []
 
 enum EventType {
-    RILE_EVENT,
-    PROPITIATE,
-    RESPAWN,
-    FARMING,
-    FARMED,
-    FERTILIZING,
-    FERTILIZED,
-    HARVESTING,
-    HARVESTED,
-    BOT_HURT,
+    RILE_EVENT = "RILE_EVENT",
+    PROPITIATE = "PROPITIATE",
+    RESPAWN = "RESPAWN",
+    FARMING = "FARMING",
+    FARMED = "FARMED",
+    FERTILIZING = "FERTILIZING",
+    FERTILIZED = "FERTILIZED",
+    HARVESTING = "HARVESTING",
+    HARVESTED = "HARVESTED",
+    BOT_HURT = "BOT_HURT",
 }
+
 
 export class GameEvent {
     public read: boolean;
@@ -128,6 +129,8 @@ export async function emitBotHurtEvent(bot: Bot, srcEntity: Entity) {
         let scrName: string
         if (srcEntity.displayName) {
             scrName = srcEntity.displayName
+        } else if (srcEntity.type == 'player') {
+            scrName = srcEntity.username
         } else {
             scrName = srcEntity.type
         }

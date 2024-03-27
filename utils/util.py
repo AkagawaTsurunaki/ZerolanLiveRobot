@@ -1,4 +1,5 @@
 import json
+import math
 import os
 import time
 from dataclasses import asdict
@@ -112,8 +113,5 @@ def is_port_in_use(port):
     return False
 
 
-def shutdown_server():
-    func = request.environ.get('werkzeug.server.shutdown')
-    if func is None:
-        raise RuntimeError('Not running with the Werkzeug Server')
-    func()
+def time_stamp_diff_sec(ts1: int, ts2: int):
+    return math.fabs(ts1 - ts2) / 1000.
