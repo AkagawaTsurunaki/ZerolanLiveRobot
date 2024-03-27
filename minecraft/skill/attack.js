@@ -38,6 +38,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.attackMobs = void 0;
 require("mineflayer-pvp/lib/index");
+var intent_1 = require("../brain/intent");
 function attackMobs(bot) {
     return __awaiter(this, void 0, void 0, function () {
         var mobFilter, entity;
@@ -47,6 +48,7 @@ function attackMobs(bot) {
                     mobFilter = function (e) { return (e.type === 'hostile' || e.displayName == 'Phantom') && e.position.distanceTo(bot.entity.position) < 8; };
                     entity = bot.nearestEntity(mobFilter);
                     if (!entity) return [3 /*break*/, 2];
+                    intent_1.fightingWithHostiles.set();
                     return [4 /*yield*/, bot.pvp.attack(entity)];
                 case 1:
                     _a.sent();

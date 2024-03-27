@@ -48,6 +48,7 @@ var follow_1 = require("./skill/follow");
 var body_1 = require("./body");
 var angry_1 = require("./brain/angry");
 var event_1 = require("./event");
+var intent_1 = require("./brain/intent");
 var options = {
     host: process.argv[2],
     port: parseInt(process.argv[3]),
@@ -105,6 +106,7 @@ bot._client.on('damage_event', function (packet) { return __awaiter(void 0, void
 }); });
 // @ts-ignore
 bot.on("stoppedAttacking", function () {
+    intent_1.fightingWithHostiles.clear();
     var nearestPlayer = (0, util_1.findNearestPlayer)(bot, 5, 50);
     if (nearestPlayer) {
         (0, util_1.moveToPos)(bot, nearestPlayer.position);
@@ -186,13 +188,8 @@ bot.on('blockBreakProgressEnd', function (block, entity) { return __awaiter(void
         switch (_a.label) {
             case 0:
                 if (!(entity.type === 'player')) return [3 /*break*/, 2];
-                // if (block.position.distanceTo(entity.position) < 5) {
-                //     await bot.lookAt(block.position)
-                // } else {
                 (0, util_1.moveToPos)(bot, block.position.offset(0, 1, 0));
-                return [4 /*yield*/, bot.lookAt(entity.position)
-                    // }
-                ];
+                return [4 /*yield*/, bot.lookAt(entity.position)];
             case 1:
                 _a.sent();
                 _a.label = 2;

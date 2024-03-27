@@ -35,7 +35,7 @@ export function rile(bot: Bot, username: string) {
 }
 
 // 息怒函数
-export function propitiate(propitiateValue: number) {
+export function propitiate(propitiateValue: number = rileValue) {
     propitiateValue = Math.abs(propitiateValue)
     for (const username in playerAngryDict) {
         playerAngryDict[username] = playerAngryDict[username] - propitiateValue

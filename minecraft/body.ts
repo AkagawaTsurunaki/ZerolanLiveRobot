@@ -1,5 +1,5 @@
 import {Bot} from "mineflayer";
-import {rile} from "./brain/angry"
+import {propitiate, rile} from "./brain/angry"
 import {emitBotHurtEvent} from "./event";
 
 
@@ -12,6 +12,8 @@ export async function botHurt(bot: Bot, entityId, sourceTypeId, sourceCauseId, s
             if (sourceCauseEntity.type === 'player') {
                 const playerName = sourceCauseEntity.username
                 rile(bot, playerName)
+            } else if (sourceCauseEntity.type === 'hostile' || 'mob') {
+                propitiate()
             }
             await emitBotHurtEvent(bot, sourceCauseEntity)
         }

@@ -53,6 +53,9 @@ function botHurt(bot, entityId, sourceTypeId, sourceCauseId, sourceDirectId) {
                         playerName = sourceCauseEntity.username;
                         (0, angry_1.rile)(bot, playerName);
                     }
+                    else if (sourceCauseEntity.type === 'hostile' || 'mob') {
+                        (0, angry_1.propitiate)();
+                    }
                     return [4 /*yield*/, (0, event_1.emitBotHurtEvent)(bot, sourceCauseEntity)];
                 case 1:
                     _a.sent();
