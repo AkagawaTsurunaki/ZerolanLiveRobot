@@ -57,3 +57,16 @@ function attackMobs(bot) {
     });
 }
 exports.attackMobs = attackMobs;
+function attackPlayer(bot) {
+    return __awaiter(this, void 0, void 0, function () {
+        var playerFilter, player;
+        return __generator(this, function (_a) {
+            playerFilter = function (e) { return (e.type == 'player'); };
+            player = bot.nearestEntity(playerFilter);
+            if (player) {
+                bot.pvp.attack(player).then();
+            }
+            return [2 /*return*/];
+        });
+    });
+}

@@ -46,6 +46,7 @@ var util_1 = require("./util");
 var attack_1 = require("./attack");
 var follow_1 = require("./follow");
 var body_1 = require("./body");
+var angry_1 = require("./brain/angry");
 var options = {
     host: process.argv[2],
     port: parseInt(process.argv[3]),
@@ -100,7 +101,7 @@ bot._client.on('damage_event', function (packet) { return __awaiter(void 0, void
                 sourceTypeId = packet.sourceTypeId;
                 sourceCauseId = packet.sourceCauseId;
                 sourceDirectId = packet.sourceDirectId;
-                return [4 /*yield*/, (0, body_1.botHurt)(bot, entityId)];
+                return [4 /*yield*/, (0, body_1.botHurt)(bot, entityId, sourceTypeId, sourceCauseId, sourceDirectId)];
             case 1:
                 _a.sent();
                 return [2 /*return*/];
@@ -118,18 +119,16 @@ var fun = 0;
 bot.on('physicsTick', function () { return __awaiter(void 0, void 0, void 0, function () {
     return __generator(this, function (_a) {
         switch (_a.label) {
-            case 0: 
-            // const gev = new GameEvent(bot, '你好')
-            // postGameEvent(gev)
-            return [4 /*yield*/, (0, attack_1.attackMobs)(bot)];
+            case 0: return [4 /*yield*/, (0, attack_1.attackMobs)(bot)];
             case 1:
-                // const gev = new GameEvent(bot, '你好')
-                // postGameEvent(gev)
                 _a.sent();
                 fun++;
                 if (fun % 20 == 0) {
                     (0, follow_1.followMe)(bot);
                 }
+                return [4 /*yield*/, (0, angry_1.tickCheckAngry)(bot)];
+            case 2:
+                _a.sent();
                 return [2 /*return*/];
         }
     });

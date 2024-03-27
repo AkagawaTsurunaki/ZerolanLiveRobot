@@ -36,7 +36,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.addRespawnEvent = exports.postGameEvent = exports.GameEvent = exports.wait = exports.findNearestPlayer = exports.moveToPos = void 0;
+exports.addRespawnEvent = exports.postGameEvent = exports.GameEvent = exports.wait = exports.findPlayerByUsername = exports.findNearestPlayer = exports.moveToPos = void 0;
 var mineflayer_pathfinder_1 = require("mineflayer-pathfinder");
 var axios_1 = require("axios");
 function moveToPos(bot, pos) {
@@ -65,6 +65,24 @@ function findNearestPlayer(bot, min_dist, max_dist) {
     return null;
 }
 exports.findNearestPlayer = findNearestPlayer;
+/**
+ * 按照玩家名称查找玩家实体。如果找不到，则返回 null。
+ * @param bot
+ * @param username
+ */
+function findPlayerByUsername(bot, username) {
+    if (bot && username) {
+        var playerFilter = function (e) { return e.type === 'player'; };
+        for (var id in bot.entities) {
+            var e = bot.entities[id];
+            if (e.username && e.username === username) {
+                return e;
+            }
+        }
+    }
+    return null;
+}
+exports.findPlayerByUsername = findPlayerByUsername;
 /**
  * 等待指定毫秒数
  * @param ms

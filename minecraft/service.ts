@@ -16,6 +16,7 @@ const options = {
     username: process.argv[4],
     password: process.argv[5]
 }
+
 const bot = createBot(options)
 
 console.log(`玩家 ${options.username} 成功登录 ${options.host}:${options.port}`)
@@ -57,8 +58,6 @@ bot._client.on('damage_event', async (packet) => {
     const sourceCauseId = packet.sourceCauseId
     const sourceDirectId = packet.sourceDirectId
     await botHurt(bot, entityId, sourceTypeId, sourceCauseId, sourceDirectId)
-    tickCheckAngry(bot)
-
 })
 
 // @ts-ignore
@@ -70,13 +69,12 @@ bot.on("stoppedAttacking", () => {
 })
 var fun = 0
 bot.on('physicsTick', async () => {
-    // const gev = new GameEvent(bot, '你好')
-    // postGameEvent(gev)
     await attackMobs(bot)
     fun++;
     if (fun % 20 == 0) {
         followMe(bot)
     }
+    await tickCheckAngry(bot)
 })
 
 bot.on('chat', async (username, message, translate, jsonMsg, matches) => {

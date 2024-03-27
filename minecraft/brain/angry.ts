@@ -17,9 +17,8 @@ export function rile(username: string) {
 }
 
 // 息怒函数
-function propitiate(username: string) {
-    assert(playerAngryDict[username], '玩家不在列表中')
-    for (const key in playerAngryDict) {
+function propitiate() {
+    for (const username in playerAngryDict) {
         playerAngryDict[username] = playerAngryDict[username] - propitiateValue
         if (playerAngryDict[username] < 0) {
             playerAngryDict[username] = 0
@@ -33,12 +32,15 @@ function propitiate(username: string) {
  * @param bot
  */
 async function tryMercy(bot: Bot) {
-    const username = bot.pvp.target.username
-    const player = bot.entities[username]
-    if (player && player.type == 'player') {
-        if (player.health < mercyHealthThreshold) {
-            playerAngryDict[username] = 0
-            await bot.pvp.stop()
+    const pvpTarget = bot.pvp.target
+    if (pvpTarget) {
+        const username = pvpTarget.username
+        const player = bot.entities[username]
+        if (player && player.type == 'player') {
+            if (player.health < mercyHealthThreshold) {
+                playerAngryDict[username] = 0
+                await bot.pvp.stop()
+            }
         }
     }
 }
@@ -67,4 +69,6 @@ export async function tickCheckAngry(bot: Bot) {
     tryAttackPlayer(bot).then(() => {
         tryMercy(bot)
     })
+    propitiate()
+    bot.chat(`${playerAngryDict['Akagawa']}`)
 }
