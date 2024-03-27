@@ -8,7 +8,7 @@ import {addRespawnEvent, findNearestPlayer, moveToPos} from "./util";
 import {attackMobs} from "./attack";
 import {faceMe, followMe, wander} from "./follow";
 import {botHurt} from "./body";
-import {tickCheckAngry} from "./brain/angry"
+import {tickCheckAngry, propitiate} from "./brain/angry"
 
 const options = {
     host: process.argv[2],
@@ -93,4 +93,9 @@ bot.on('chat', async (username, message, translate, jsonMsg, matches) => {
 
 bot.on('hardcodedSoundEffectHeard', async (soundId, soundCategory, position, volume, pitch) => {
     await faceMe(bot, position, soundCategory)
+})
+
+// @ts-ignore
+bot.on('attackedTarget', () => {
+    propitiate(30)
 })

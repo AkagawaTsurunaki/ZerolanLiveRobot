@@ -35,7 +35,6 @@ export function findNearestPlayer(bot: Bot, min_dist = 0, max_dist = 255) {
  */
 export function findPlayerByUsername(bot: Bot, username: string) {
     if (bot && username) {
-        const playerFilter = e => e.type === 'player'
         for (const id in bot.entities) {
             const e = bot.entities[id]
             if (e.username && e.username === username) {
@@ -79,7 +78,7 @@ export async function postGameEvent(gameEvent: GameEvent) {
             console.log('成功发送游戏事件')
         }
     } catch (e) {
-        console.error(e)
+
     }
 }
 

@@ -9,12 +9,3 @@ export async function attackMobs(bot: Bot) {
         await bot.pvp.attack(entity)
     }
 }
-
-async function attackPlayer(bot: Bot) {
-    const playerFilter = e => (e.type == 'player')
-    const player = bot.nearestEntity(playerFilter)
-    if (player) {
-        bot.pvp.attack(player).then()
-
-    }
-}

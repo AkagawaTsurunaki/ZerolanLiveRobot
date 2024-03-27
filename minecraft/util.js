@@ -72,7 +72,6 @@ exports.findNearestPlayer = findNearestPlayer;
  */
 function findPlayerByUsername(bot, username) {
     if (bot && username) {
-        var playerFilter = function (e) { return e.type === 'player'; };
         for (var id in bot.entities) {
             var e = bot.entities[id];
             if (e.username && e.username === username) {
@@ -119,7 +118,6 @@ function postGameEvent(gameEvent) {
                     return [3 /*break*/, 3];
                 case 2:
                     e_1 = _a.sent();
-                    console.error(e_1);
                     return [3 /*break*/, 3];
                 case 3: return [2 /*return*/];
             }

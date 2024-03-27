@@ -178,3 +178,7 @@ bot.on('hardcodedSoundEffectHeard', function (soundId, soundCategory, position, 
         }
     });
 }); });
+// @ts-ignore
+bot.on('attackedTarget', function () {
+    (0, angry_1.propitiate)(30);
+});

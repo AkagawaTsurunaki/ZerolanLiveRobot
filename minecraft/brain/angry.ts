@@ -1,12 +1,10 @@
-import * as assert from "assert";
 import {Bot} from "mineflayer";
 import {findPlayerByUsername} from "../util";
 
 const playerAngryDict: { [key: string]: number } = {};
-const mercyHealthThreshold: number = 3
+const mercyAngryValueThreshold: number = 100
 const attackAngryValueThreshold: number = 200
 const rileValue: number = 100
-const propitiateValue: number = 1
 
 // 激怒函数
 export function rile(username: string) {
@@ -17,7 +15,8 @@ export function rile(username: string) {
 }
 
 // 息怒函数
-function propitiate() {
+export function propitiate(propitiateValue: number) {
+    propitiateValue = Math.abs(propitiateValue)
     for (const username in playerAngryDict) {
         playerAngryDict[username] = playerAngryDict[username] - propitiateValue
         if (playerAngryDict[username] < 0) {
@@ -33,12 +32,13 @@ function propitiate() {
  */
 async function tryMercy(bot: Bot) {
     const pvpTarget = bot.pvp.target
+
     if (pvpTarget) {
         const username = pvpTarget.username
-        const player = bot.entities[username]
+        const player = pvpTarget
         if (player && player.type == 'player') {
-            if (player.health < mercyHealthThreshold) {
-                playerAngryDict[username] = 0
+            // 愤怒值过低时饶恕玩家
+            if (playerAngryDict[username] < mercyAngryValueThreshold) {
                 await bot.pvp.stop()
             }
         }
@@ -66,9 +66,8 @@ async function tryAttackPlayer(bot: Bot) {
 
 // 每物理时刻调用此函数
 export async function tickCheckAngry(bot: Bot) {
-    tryAttackPlayer(bot).then(() => {
-        tryMercy(bot)
-    })
-    propitiate()
+    tryAttackPlayer(bot)
+    tryMercy(bot)
+    propitiate(1)
     bot.chat(`${playerAngryDict['Akagawa']}`)
 }

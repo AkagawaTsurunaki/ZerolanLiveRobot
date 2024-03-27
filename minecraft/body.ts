@@ -27,7 +27,5 @@ export async function botHurt(bot: Bot, entityId, sourceTypeId, sourceCauseId, s
 
             await postGameEvent(botHurtEvent)
         }
-
-
     }
 }
