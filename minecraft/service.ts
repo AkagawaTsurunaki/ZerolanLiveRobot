@@ -8,12 +8,13 @@ import {addRespawnEvent, findNearestPlayer, moveToPos} from "./util";
 import {attackMobs} from "./attack";
 import {faceMe, followMe, wander} from "./follow";
 import {botHurt} from "./body";
+import {tickPropitiate} from "./brain"
 
 const options = {
-  host: process.argv[2],
-  port: parseInt(process.argv[3]),
-  username: process.argv[4],
-  password: process.argv[5]
+    host: process.argv[2],
+    port: parseInt(process.argv[3]),
+    username: process.argv[4],
+    password: process.argv[5]
 }
 const bot = createBot(options)
 
@@ -55,7 +56,9 @@ bot._client.on('damage_event', async (packet) => {
     const sourceTypeId = packet.sourceTypeId
     const sourceCauseId = packet.sourceCauseId
     const sourceDirectId = packet.sourceDirectId
-    await botHurt(bot, entityId)
+    await botHurt(bot, entityId, sourceTypeId, sourceCauseId, sourceDirectId)
+    tickPropitiate()
+
 })
 
 // @ts-ignore
