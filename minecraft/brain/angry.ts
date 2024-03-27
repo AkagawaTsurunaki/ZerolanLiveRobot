@@ -1,18 +1,37 @@
 import {Bot} from "mineflayer";
 import {findPlayerByUsername} from "../util";
 import {emitPropitiateEvent, emitRileEvent} from "../event";
+import {p} from "../../../../../ProgramFiles/Anaconda/Lib/site-packages/bokeh/server/static/js/lib/core/dom";
+import {np} from "../../../../../ProgramFiles/Anaconda/Lib/site-packages/bokeh/server/static/js/lib/api/linalg";
+import pow = np.pow;
 
+// 愤怒表: 记录机器人对每个玩家的愤怒值
 const playerAngryDict: { [key: string]: number } = {};
+
+// 机器人的愤怒值降低到多少时会选择宽恕玩家
 const mercyAngryValueThreshold: number = 100
+
+// 机器人达到多少愤怒值时会攻击玩家
 const attackAngryValueThreshold: number = 200
-const rileValue: number = 100
+
+// 机器人受到玩家攻击时会增加多少愤怒值
+const rileValue: number = 60
 
 // 激怒函数
-export function rile(username: string) {
+export function rile(bot: Bot, username: string) {
     if (!playerAngryDict[username]) {
         playerAngryDict[username] = 0
     }
-    playerAngryDict[username] = playerAngryDict[username] + rileValue
+    const pvpTarget = bot.pvp.target
+    if (pvpTarget && pvpTarget.type === 'player') {
+        pvpTarget.username = username
+        playerAngryDict[username] += rileValue / 2
+        if (bot.health < 20) {
+            playerAngryDict[username] += rileValue * (21 - bot.health)
+        }
+    } else {
+        playerAngryDict[username] += rileValue
+    }
 }
 
 // 息怒函数
@@ -74,5 +93,5 @@ export async function tickCheckAngry(bot: Bot) {
     tryAttackPlayer(bot)
     tryMercy(bot)
     propitiate(1)
-    bot.chat(`${playerAngryDict['Akagawa']}`)
+    console.debug(`${playerAngryDict['Akagawa']}`)
 }

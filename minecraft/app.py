@@ -76,5 +76,3 @@ def select01():
 
 def start():
     app.run(host='127.0.0.1', port=12546, debug=False)
-
-
