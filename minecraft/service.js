@@ -81,10 +81,8 @@ bot.on('respawn', function () { return __awaiter(void 0, void 0, void 0, functio
     });
 }); });
 bot.on('autoeat_started', function () {
-    console.log('Auto Eat started!');
 });
 bot.on('autoeat_finished', function () {
-    console.log('Auto Eat stopped!');
 });
 bot.on('health', function () {
     if (bot.food === 20)
@@ -96,17 +94,13 @@ bot.on('health', function () {
 bot._client.on('damage_event', function (packet) { return __awaiter(void 0, void 0, void 0, function () {
     var entityId, sourceTypeId, sourceCauseId, sourceDirectId;
     return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0:
-                entityId = packet.entityId;
-                sourceTypeId = packet.sourceTypeId;
-                sourceCauseId = packet.sourceCauseId;
-                sourceDirectId = packet.sourceDirectId;
-                return [4 /*yield*/, (0, body_1.botHurt)(bot, entityId, sourceTypeId, sourceCauseId, sourceDirectId)];
-            case 1:
-                _a.sent();
-                return [2 /*return*/];
-        }
+        entityId = packet.entityId;
+        sourceTypeId = packet.sourceTypeId;
+        sourceCauseId = packet.sourceCauseId;
+        sourceDirectId = packet.sourceDirectId;
+        (0, body_1.botHurt)(bot, entityId, sourceTypeId, sourceCauseId, sourceDirectId);
+        (0, body_1.botInterrupt)(bot, entityId, sourceTypeId, sourceCauseId, sourceDirectId);
+        return [2 /*return*/];
     });
 }); });
 // @ts-ignore
@@ -169,6 +163,9 @@ bot.on('chat', function (username, message, translate, jsonMsg, matches) { retur
         }
     });
 }); });
+bot.on('diggingAborted', function (block) {
+    block.position;
+});
 bot.on('hardcodedSoundEffectHeard', function (soundId, soundCategory, position, volume, pitch) { return __awaiter(void 0, void 0, void 0, function () {
     return __generator(this, function (_a) {
         switch (_a.label) {
@@ -183,3 +180,23 @@ bot.on('hardcodedSoundEffectHeard', function (soundId, soundCategory, position, 
 bot.on('attackedTarget', function () {
     (0, angry_1.propitiate)(30);
 });
+// @ts-ignore
+bot.on('blockBreakProgressEnd', function (block, entity) { return __awaiter(void 0, void 0, void 0, function () {
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                if (!(entity.type === 'player')) return [3 /*break*/, 2];
+                // if (block.position.distanceTo(entity.position) < 5) {
+                //     await bot.lookAt(block.position)
+                // } else {
+                (0, util_1.moveToPos)(bot, block.position.offset(0, 1, 0));
+                return [4 /*yield*/, bot.lookAt(entity.position)
+                    // }
+                ];
+            case 1:
+                _a.sent();
+                _a.label = 2;
+            case 2: return [2 /*return*/];
+        }
+    });
+}); });

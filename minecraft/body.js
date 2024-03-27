@@ -36,7 +36,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.botHurt = void 0;
+exports.botInterrupt = exports.botHurt = void 0;
 var angry_1 = require("./brain/angry");
 var event_1 = require("./event");
 function botHurt(bot, entityId, sourceTypeId, sourceCauseId, sourceDirectId) {
@@ -51,7 +51,7 @@ function botHurt(bot, entityId, sourceTypeId, sourceCauseId, sourceDirectId) {
                     // 如果攻击方是玩家, 则会增加愤怒值
                     if (sourceCauseEntity.type === 'player') {
                         playerName = sourceCauseEntity.username;
-                        (0, angry_1.rile)(playerName);
+                        (0, angry_1.rile)(bot, playerName);
                     }
                     return [4 /*yield*/, (0, event_1.emitBotHurtEvent)(bot, sourceCauseEntity)];
                 case 1:
@@ -63,3 +63,22 @@ function botHurt(bot, entityId, sourceTypeId, sourceCauseId, sourceDirectId) {
     });
 }
 exports.botHurt = botHurt;
+function botInterrupt(bot, entityId, sourceTypeId, sourceCauseId, sourceDirectId) {
+    return __awaiter(this, void 0, void 0, function () {
+        var sourceCauseEntity;
+        return __generator(this, function (_a) {
+            if (entityId === bot.entity.id) {
+                sourceCauseEntity = bot.entities[sourceCauseId - 1];
+                if (sourceCauseEntity) {
+                    if (sourceCauseEntity.type === 'player') {
+                        if (!bot.pvp.target) {
+                            bot.pathfinder.stop();
+                        }
+                    }
+                }
+            }
+            return [2 /*return*/];
+        });
+    });
+}
+exports.botInterrupt = botInterrupt;

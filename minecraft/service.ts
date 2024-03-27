@@ -7,9 +7,10 @@ import {plugin as pvp} from "mineflayer-pvp";
 import {findNearestPlayer, moveToPos} from "./util";
 import {attackMobs} from "./skill/attack";
 import {faceMe, followMe, wander} from "./skill/follow";
-import {botHurt} from "./body";
-import {tickCheckAngry, propitiate} from "./brain/angry"
+import {botHurt, botInterrupt} from "./body";
+import {propitiate, tickCheckAngry} from "./brain/angry"
 import {emitRespawnEvent} from "./event";
+import {Entity} from "prismarine-entity";
 
 const options = {
     host: process.argv[2],
@@ -40,11 +41,9 @@ bot.on('respawn', async () => {
 })
 
 bot.on('autoeat_started', () => {
-    console.log('Auto Eat started!')
 })
 
 bot.on('autoeat_finished', () => {
-    console.log('Auto Eat stopped!')
 })
 
 bot.on('health', () => {
@@ -58,7 +57,8 @@ bot._client.on('damage_event', async (packet) => {
     const sourceTypeId = packet.sourceTypeId
     const sourceCauseId = packet.sourceCauseId
     const sourceDirectId = packet.sourceDirectId
-    await botHurt(bot, entityId, sourceTypeId, sourceCauseId, sourceDirectId)
+    botHurt(bot, entityId, sourceTypeId, sourceCauseId, sourceDirectId)
+    botInterrupt(bot, entityId, sourceTypeId, sourceCauseId, sourceDirectId)
 })
 
 // @ts-ignore
@@ -92,6 +92,10 @@ bot.on('chat', async (username, message, translate, jsonMsg, matches) => {
     }
 })
 
+bot.on('diggingAborted', (block) => {
+    block.position
+})
+
 bot.on('hardcodedSoundEffectHeard', async (soundId, soundCategory, position, volume, pitch) => {
     await faceMe(bot, position, soundCategory)
 })
@@ -99,4 +103,18 @@ bot.on('hardcodedSoundEffectHeard', async (soundId, soundCategory, position, vol
 // @ts-ignore
 bot.on('attackedTarget', () => {
     propitiate(30)
+})
+
+
+// @ts-ignore
+bot.on('blockBreakProgressEnd', async (block: Block, entity: Entity) => {
+    // console.log(entity.position)
+    if (entity.type === 'player') {
+        // if (block.position.distanceTo(entity.position) < 5) {
+        //     await bot.lookAt(block.position)
+        // } else {
+        moveToPos(bot, block.position.offset(0, 1, 0))
+        await bot.lookAt(entity.position)
+        // }
+    }
 })
