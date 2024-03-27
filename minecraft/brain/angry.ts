@@ -1,8 +1,10 @@
 import * as assert from "assert";
 import {Bot} from "mineflayer";
+import {findPlayerByUsername} from "../util";
 
 const playerAngryDict: { [key: string]: number } = {};
 const mercyHealthThreshold: number = 3
+const attackAngryValueThreshold: number = 200
 const rileValue: number = 100
 const propitiateValue: number = 1
 
@@ -17,9 +19,11 @@ export function rile(username: string) {
 // 息怒函数
 function propitiate(username: string) {
     assert(playerAngryDict[username], '玩家不在列表中')
-    playerAngryDict[username] = playerAngryDict[username] - propitiateValue
-    if (playerAngryDict[username] < 0) {
-        playerAngryDict[username] = 0
+    for (const key in playerAngryDict) {
+        playerAngryDict[username] = playerAngryDict[username] - propitiateValue
+        if (playerAngryDict[username] < 0) {
+            playerAngryDict[username] = 0
+        }
     }
 }
 
@@ -39,10 +43,28 @@ async function tryMercy(bot: Bot) {
     }
 }
 
+/**
+ * 查找具有最大的激怒值的且超过阈值 attackAngryValueThreshold 的玩家
+ * @param bot
+ */
+async function tryAttackPlayer(bot: Bot) {
+    let maxValue = 0
+    let username: string
+    for (const key in playerAngryDict) {
+        if (maxValue < playerAngryDict[key]) {
+            maxValue = playerAngryDict[key]
+            username = key
+        }
+    }
+    const maxAngryValuePlayer = findPlayerByUsername(bot, username)
+    if (maxValue > attackAngryValueThreshold) {
+        await bot.pvp.attack(maxAngryValuePlayer)
+    }
+}
+
 // 每物理时刻调用此函数
 export async function tickCheckAngry(bot: Bot) {
-    for (const key in playerAngryDict) {
-        propitiate(key)
-    }
-    await tryMercy(bot)
+    tryAttackPlayer(bot).then(() => {
+        tryMercy(bot)
+    })
 }

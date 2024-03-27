@@ -29,6 +29,24 @@ export function findNearestPlayer(bot: Bot, min_dist = 0, max_dist = 255) {
 }
 
 /**
+ * 按照玩家名称查找玩家实体。如果找不到，则返回 null。
+ * @param bot
+ * @param username
+ */
+export function findPlayerByUsername(bot: Bot, username: string) {
+    if (bot && username) {
+        const playerFilter = e => e.type === 'player'
+        for (const id in bot.entities) {
+            const e = bot.entities[id]
+            if (e.username && e.username === username) {
+                return e
+            }
+        }
+    }
+    return null
+}
+
+/**
  * 等待指定毫秒数
  * @param ms
  */
