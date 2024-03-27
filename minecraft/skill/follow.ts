@@ -1,4 +1,4 @@
-import {moveToPos} from "./util";
+import {moveToPos} from "../util";
 import {Bot} from "mineflayer";
 import {Vec3} from "vec3";
 

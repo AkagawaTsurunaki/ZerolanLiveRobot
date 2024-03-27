@@ -1,5 +1,5 @@
 import {Bot} from "mineflayer";
-import {moveToPos, wait} from "./util";
+import {moveToPos, wait} from "../util";
 import {Vec3} from "vec3";
 import {
     emitFarmedEvent,
@@ -8,7 +8,7 @@ import {
     emitFertilizingEvent,
     emitHarvestedEvent,
     emitHarvestingEvent
-} from "./event";
+} from "../event";
 
 function tryFindBlockToHarvest(bot: Bot, maxDistance: number) {
     if (!bot || !bot.findBlock || typeof bot.findBlock !== 'function') {

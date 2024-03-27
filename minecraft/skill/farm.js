@@ -37,9 +37,9 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.harvest = exports.fertilize = exports.sow = void 0;
-var util_1 = require("./util");
+var util_1 = require("../util");
 var vec3_1 = require("vec3");
-var event_1 = require("./event");
+var event_1 = require("../event");
 function tryFindBlockToHarvest(bot, maxDistance) {
     if (!bot || !bot.findBlock || typeof bot.findBlock !== 'function') {
         return null;

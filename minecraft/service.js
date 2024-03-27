@@ -40,11 +40,11 @@ var mineflayer_pathfinder_1 = require("mineflayer-pathfinder");
 var mineflayer_1 = require("mineflayer");
 var mineflayer_auto_eat_1 = require("mineflayer-auto-eat");
 require("mineflayer");
-var farmer_1 = require("./farmer");
+var farm_1 = require("./skill/farm");
 var mineflayer_pvp_1 = require("mineflayer-pvp");
 var util_1 = require("./util");
-var attack_1 = require("./attack");
-var follow_1 = require("./follow");
+var attack_1 = require("./skill/attack");
+var follow_1 = require("./skill/follow");
 var body_1 = require("./body");
 var angry_1 = require("./brain/angry");
 var event_1 = require("./event");
@@ -143,19 +143,19 @@ bot.on('chat', function (username, message, translate, jsonMsg, matches) { retur
                 return [3 /*break*/, 9];
             case 1:
                 if (!['种', 'zhong', 'sow'].includes(message)) return [3 /*break*/, 3];
-                return [4 /*yield*/, (0, farmer_1.sow)(bot)];
+                return [4 /*yield*/, (0, farm_1.sow)(bot)];
             case 2:
                 _a.sent();
                 return [3 /*break*/, 9];
             case 3:
                 if (!['收', 'shou', 'harvest'].includes(message)) return [3 /*break*/, 5];
-                return [4 /*yield*/, (0, farmer_1.harvest)(bot)];
+                return [4 /*yield*/, (0, farm_1.harvest)(bot)];
             case 4:
                 _a.sent();
                 return [3 /*break*/, 9];
             case 5:
                 if (!['施肥', 'shifei', 'fertilize'].includes(message)) return [3 /*break*/, 7];
-                return [4 /*yield*/, (0, farmer_1.fertilize)(bot)];
+                return [4 /*yield*/, (0, farm_1.fertilize)(bot)];
             case 6:
                 _a.sent();
                 return [3 /*break*/, 9];

@@ -2,11 +2,11 @@ import {pathfinder} from "mineflayer-pathfinder";
 import {createBot} from "mineflayer";
 import {plugin as autoeat} from "mineflayer-auto-eat"
 import "mineflayer"
-import {fertilize, harvest, sow} from "./farmer"
+import {fertilize, harvest, sow} from "./skill/farm"
 import {plugin as pvp} from "mineflayer-pvp";
 import {findNearestPlayer, moveToPos} from "./util";
-import {attackMobs} from "./attack";
-import {faceMe, followMe, wander} from "./follow";
+import {attackMobs} from "./skill/attack";
+import {faceMe, followMe, wander} from "./skill/follow";
 import {botHurt} from "./body";
 import {tickCheckAngry, propitiate} from "./brain/angry"
 import {emitRespawnEvent} from "./event";

@@ -37,7 +37,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.wander = exports.faceMe = exports.followMe = void 0;
-var util_1 = require("./util");
+var util_1 = require("../util");
 function followMe(bot) {
     var player_filter = function (e) { return e.type === 'player' && e.position.distanceTo(bot.entity.position) > 5; };
     var player_entity = bot.nearestEntity(player_filter);
