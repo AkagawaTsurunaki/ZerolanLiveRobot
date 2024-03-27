@@ -8,7 +8,7 @@ import {addRespawnEvent, findNearestPlayer, moveToPos} from "./util";
 import {attackMobs} from "./attack";
 import {faceMe, followMe, wander} from "./follow";
 import {botHurt} from "./body";
-import {tickPropitiate} from "./brain"
+import {tickCheckAngry} from "./brain/angry"
 
 const options = {
     host: process.argv[2],
@@ -57,7 +57,7 @@ bot._client.on('damage_event', async (packet) => {
     const sourceCauseId = packet.sourceCauseId
     const sourceDirectId = packet.sourceDirectId
     await botHurt(bot, entityId, sourceTypeId, sourceCauseId, sourceDirectId)
-    tickPropitiate()
+    tickCheckAngry(bot)
 
 })
 

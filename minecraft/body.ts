@@ -1,6 +1,6 @@
 import {Bot} from "mineflayer";
 import {GameEvent, postGameEvent} from "./util";
-import {rile} from "./brain"
+import {rile} from "./brain/angry"
 
 
 export async function botHurt(bot: Bot, entityId, sourceTypeId, sourceCauseId, sourceDirectId) {
