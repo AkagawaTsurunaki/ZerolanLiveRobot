@@ -19,7 +19,8 @@ def select_latest_unread() -> str | None:
         unread_list = [transcript for transcript in g_transcript_list if not transcript.is_read]
         if len(unread_list) > 0:
             latest_unread = unread_list[-1]
-            latest_unread.is_read = True
+            for item in g_transcript_list:
+                item.is_read = True
             return latest_unread.content
 
     return None
