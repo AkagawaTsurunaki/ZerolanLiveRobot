@@ -111,8 +111,10 @@ bot.on('attackedTarget', () => {
 // @ts-ignore
 bot.on('blockBreakProgressEnd', async (block: Block, entity: Entity) => {
     // console.log(entity.position)
-    if (entity.type === 'player') {
-        moveToPos(bot, block.position.offset(0, 1, 0))
-        await bot.lookAt(entity.position)
+    if (entity) {
+        if (entity.type === 'player') {
+            await bot.lookAt(entity.position)
+        }
     }
+
 })

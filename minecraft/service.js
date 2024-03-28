@@ -187,8 +187,8 @@ bot.on('blockBreakProgressEnd', function (block, entity) { return __awaiter(void
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
+                if (!entity) return [3 /*break*/, 2];
                 if (!(entity.type === 'player')) return [3 /*break*/, 2];
-                (0, util_1.moveToPos)(bot, block.position.offset(0, 1, 0));
                 return [4 /*yield*/, bot.lookAt(entity.position)];
             case 1:
                 _a.sent();
