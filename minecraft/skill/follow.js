@@ -40,11 +40,10 @@ exports.wander = exports.faceMe = exports.followMe = void 0;
 var util_1 = require("../util");
 var intent_1 = require("../brain/intent");
 function followMe(bot) {
-    var player_filter = function (e) { return e.type === 'player' && e.position.distanceTo(bot.entity.position) > 5; };
+    var player_filter = function (e) { return e.type === 'player' && e.username == 'Akagawa' && e.position.distanceTo(bot.entity.position) > 5; };
     var player_entity = bot.nearestEntity(player_filter);
     if (player_entity) {
         if (!intent_1.fightingWithHostiles.isSet()) {
-            bot.chat('好的喵, 主人!');
             (0, util_1.moveToPos)(bot, player_entity.position.offset(0, 0.5, 0));
             bot.lookAt(player_entity.position.offset(0, 1, 0));
         }

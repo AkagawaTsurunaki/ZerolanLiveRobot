@@ -13,7 +13,7 @@ import minecraft.app
 import obs.api
 from bilibili import service as bili_serv
 from gptsovits import api as gptsovits_serv
-from minecraft.py.common import GameEvent
+from minecraft.app import GameEvent
 from scrnshot import api as scrn_serv
 from tone_ana import api as tone_serv
 from utils.datacls import Danmaku
@@ -62,7 +62,6 @@ def convert_2_query(transcript: str, danmaku: Danmaku, screen_desc: str, game_ev
 
     if transcript:
         query['开发者说'] = transcript
-
     if danmaku:
         query['弹幕'] = {
             "用户名": danmaku.username,
@@ -178,4 +177,4 @@ async def service_start():
     logger.info('💜 ZerolanLiveRobot，启动！')
     while True:
         await life_circle()
-        await asyncio.sleep(1)
+        await asyncio.sleep(2)

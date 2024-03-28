@@ -93,5 +93,5 @@ export async function tickCheckAngry(bot: Bot) {
     tryAttackPlayer(bot)
     tryMercy(bot)
     propitiate(1)
-    console.debug(`${playerAngryDict['Akagawa']}`)
+    // console.debug(`${playerAngryDict['Akagawa']}`)
 }

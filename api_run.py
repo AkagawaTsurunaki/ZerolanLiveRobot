@@ -11,9 +11,9 @@ parser.add_argument('--service', type=str, default=False)
 args = parser.parse_args()
 
 startable_service_dict = {
-    'blip': blip_img_cap.service.start,
-    'chatglm3': chatglm3.service.start,
-    'asr': asr.service.start
+    'blip': blip_img_cap.app.start,
+    'chatglm3': chatglm3.app.start,
+    'asr': asr.app.start
 }
 
 if args.service:
