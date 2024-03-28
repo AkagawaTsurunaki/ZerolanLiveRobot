@@ -1,6 +1,7 @@
 import {Bot} from "mineflayer";
 import {Vec3} from "vec3";
 import {goals, Movements} from "mineflayer-pathfinder";
+import {Block} from 'prismarine-block'
 
 export function moveToPos(bot: Bot, pos: Vec3): void {
     bot.pathfinder.setMovements(new Movements(bot));
@@ -52,6 +53,42 @@ export function wait(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-function calculateMillisecondsDifference(timestamp1: number, timestamp2: number): number {
-    return Math.abs(timestamp1 - timestamp2);
+/**
+ * 目标方块附近是否毗邻指定方块名。例如，targetBlock 周围是否挨着名称为 air 的方块，若果存在返回 true 否则返回 false。
+ * @param bot Bot 对象
+ * @param targetBlock 目标方块
+ * @param neighborBlockName 毗邻的方块名
+ */
+function neighbor(bot: Bot, targetBlock: Block, neighborBlockName: string) {
+
+    return bot.blockAt(targetBlock.position.offset(1, 0, 0), false).name === neighborBlockName ||
+        bot.blockAt(targetBlock.position.offset(-1, 0, 0), false).name === neighborBlockName ||
+        bot.blockAt(targetBlock.position.offset(0, 1, 0), false).name === neighborBlockName ||
+        bot.blockAt(targetBlock.position.offset(0, -1, 0), false).name === neighborBlockName ||
+        bot.blockAt(targetBlock.position.offset(0, 0, 1), false).name === neighborBlockName ||
+        bot.blockAt(targetBlock.position.offset(0, 0, -1), false).name === neighborBlockName;
+
 }
+
+
+/**
+ * 查找附近半径范围内的所有被空气覆盖的方块
+ */
+function findBlocksNearAirBlock(bot: Bot, maxDistance: number, count: number) {
+    if (bot) {
+        const useExtraInfo = false
+        const blockPosList = bot.findBlocks({
+            point: bot.entity.position,
+            matching: (block) => {
+                return neighbor(bot, block, 'air')
+            },
+            maxDistance: maxDistance,
+            count: count,
+            useExtraInfo: useExtraInfo
+        })
+        return blockPosList.map(blockPos => bot.blockAt(blockPos))
+    }
+    return null
+}
+
+

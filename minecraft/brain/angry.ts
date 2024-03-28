@@ -1,9 +1,6 @@
 import {Bot} from "mineflayer";
 import {findPlayerByUsername} from "../util";
 import {emitPropitiateEvent, emitRileEvent} from "../event";
-import {p} from "../../../../../ProgramFiles/Anaconda/Lib/site-packages/bokeh/server/static/js/lib/core/dom";
-import {np} from "../../../../../ProgramFiles/Anaconda/Lib/site-packages/bokeh/server/static/js/lib/api/linalg";
-import pow = np.pow;
 
 // 愤怒表: 记录机器人对每个玩家的愤怒值
 const playerAngryDict: { [key: string]: number } = {};

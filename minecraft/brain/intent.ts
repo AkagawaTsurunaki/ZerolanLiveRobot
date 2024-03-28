@@ -2,9 +2,11 @@
 
 class Intent {
     flag: boolean
+    value: number
 
-    constructor() {
+    constructor(value: number) {
         this.flag = false
+        this.value = value
     }
 
     public set() {
@@ -21,4 +23,4 @@ class Intent {
 
 }
 
-export const fightingWithHostiles = new Intent()
+export const fightingWithHostiles = new Intent(100)

@@ -116,5 +116,5 @@ bot.on('blockBreakProgressEnd', async (block: Block, entity: Entity) => {
             await bot.lookAt(entity.position)
         }
     }
-
 })
+
