@@ -5,7 +5,7 @@ import controller.api
 with gr.Blocks(theme=gr.themes.Soft()) as controller_inteface:
     gr.Markdown('# 🕹️ Zerolan Live Robot ver1.1 控制面板')
     with gr.Row():
-        gr.Chatbot(label='LLM 对话区', value=controller.api.get_history, every=1, height=800, min_width=800)
+        # gr.Chatbot(label='LLM 对话区', value=controller.api.get_history, every=1, height=800, min_width=800)
 
         with gr.Column():
             gr.Markdown('## 运行时控制')
@@ -19,12 +19,5 @@ with gr.Blocks(theme=gr.themes.Soft()) as controller_inteface:
             audio_player_switch_btn.click(fn=controller.api.audio_player_switch)
             vad_switch_btn.click(fn=controller.api.vad_switch)
             obs_clear_btn.click(fn=controller.api.obs_clear)
-
-        #
-        with gr.Column():
-            gr.Markdown('## 模型控制')
-            btn01 = gr.ClearButton(value='???')
-            btn02 = gr.ClearButton(value='???')
-            btn03 = gr.ClearButton(value='???')
 
 controller_inteface.launch()
