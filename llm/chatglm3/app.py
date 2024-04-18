@@ -16,8 +16,7 @@ app = Flask(__name__)
 def _predict(llm_query: NewLLMQuery) -> NewLLMResponse:
     query = llm_query.text
     history = [{'role': chat.role, 'metadata': '', 'content': chat.content} for chat in llm_query.history]
-    response, history = MODEL.chat(TOKENIZER, query, history, top_p=1., temperature=1., past_key_values=None,
-                                   return_past_key_values=True)
+    response, history = MODEL.chat(TOKENIZER, query, history, top_p=1., temperature=1., past_key_values=None)
     history = [Chat(role=chat['role'], content=chat['content']) for chat in history]
     llm_response = NewLLMResponse(response=response, history=history)
     return llm_response
@@ -42,6 +41,7 @@ def handle_predict():
 @app.route('/chatglm3/stream-predict', methods=['GET', 'POST'])
 def handle_stream_predict():
     json_val = request.get_json()
+    print(json_val)
     llm_query = LLMPipeline.convert_query_from_json(json_val)
 
     def generate_output(q: NewLLMQuery):
