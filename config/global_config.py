@@ -124,12 +124,12 @@ class ASRConfig:
 class ZerolanLiveRobotConfig:
     # 是否以调试模式运行
     debug: bool = False
-    # ChatGLM3 服务地址
+    # ZerolanLiveRobot 服务地址
     host: str = '127.0.0.1'
-    # ChatGLM3 服务端口
+    # ZerolanLiveRobot 服务端口
     port: int = 11451
     # 提示词模板
-    custom_prompt_path: str | PathLike = R'template/custom_prompt.json'
+    role_play_template_path: str | PathLike = R'template/role_play_template.yaml'
 
     def url(self, protocol: str = 'http'):
         return f'{protocol}://{self.host}:{self.port}'

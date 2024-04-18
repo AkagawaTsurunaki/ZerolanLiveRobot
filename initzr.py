@@ -242,9 +242,9 @@ def load_zerolan_live_robot_config():
     config = GLOBAL_CONFIG.get('zerolan_live_robot_config', None)
     assert config, f'❌️ Zerolan Live Robot 服务配置未填写或格式有误'
 
-    custom_prompt_path = config.get('custom_prompt_path', 'template/custom_prompt2.json')
+    role_play_template_path = config.get('role_play_template_path', 'template/role_play_template.yaml')
     assert os.path.exists(
-        custom_prompt_path), f'❌️ Zerolan Live Robot 服务配置中的字段 custom_prompt_path 所指向的路径不存在'
+        role_play_template_path), f'❌️ Zerolan Live Robot 服务配置中的字段 custom_prompt_path 所指向的路径不存在'
 
     debug = config.get('debug', False)
     host = config.get('host', '127.0.0.1')
@@ -256,5 +256,5 @@ def load_zerolan_live_robot_config():
         debug=debug,
         host=host,
         port=port,
-        custom_prompt_path=custom_prompt_path
+        role_play_template_path=role_play_template_path
     )
