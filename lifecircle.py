@@ -18,7 +18,7 @@ from minecraft.app import GameEvent
 from scrnshot import api as scrn_serv
 from tone_ana import api as tone_serv
 from utils import util
-from utils.datacls import Danmaku, NewLLMQuery, Chat, Role
+from utils.datacls import Danmaku, LLMQuery, Chat, Role
 from utils.util import is_blank
 
 LANG = 'zh'
@@ -30,7 +30,7 @@ MAX_HISTORY = 40
 CONFIG = initzr.load_zerolan_live_robot_config()
 
 # Current history
-memory: NewLLMQuery | None = None
+memory: LLMQuery | None = None
 
 
 def load_history():
@@ -50,7 +50,7 @@ def load_history():
     for chat in history:
         chat.content = chat.content.replace('${format}', format)
 
-    return NewLLMQuery(text='', history=history)
+    return LLMQuery(text='', history=history)
 
 
 def try_reset_memory(force: bool = False):

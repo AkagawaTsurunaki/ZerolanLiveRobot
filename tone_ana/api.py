@@ -7,7 +7,7 @@ from loguru import logger
 import initzr
 from llm.pipeline import LLMPipeline
 from utils import util
-from utils.datacls import Chat, Role, NewLLMQuery
+from utils.datacls import Chat, Role, LLMQuery
 from utils.datacls import Tone
 
 logger.remove()
@@ -23,7 +23,7 @@ tone_list: list[Tone] = []
 LLM_PIPELINE: LLMPipeline = LLMPipeline()
 
 # LLM query for analysing tone of a sentence. Should only change the text attribute.
-tone_analysis_template: NewLLMQuery
+tone_analysis_template: LLMQuery
 
 
 def _init():
@@ -45,7 +45,7 @@ def _init():
         for example in examples:
             history += [Chat(role=Role.USER, content=f'{task}\n{example}')]
             history += [Chat(role=Role.ASSISTANT, content=tone_id)]
-    tone_analysis_template = NewLLMQuery('', history)
+    tone_analysis_template = LLMQuery('', history)
 
 
 def analyze_tone(text: str) -> Tone:

@@ -5,7 +5,7 @@ from loguru import logger
 from transformers import AutoTokenizer, AutoModel
 
 from llm.pipeline import LLMPipeline
-from utils.datacls import NewLLMResponse, Chat, NewLLMQuery
+from utils.datacls import LLMResponse, Chat, LLMQuery
 
 TOKENIZER: AutoTokenizer
 MODEL: AutoModel
@@ -13,16 +13,16 @@ MODEL: AutoModel
 app = Flask(__name__)
 
 
-def _predict(llm_query: NewLLMQuery) -> NewLLMResponse:
+def _predict(llm_query: LLMQuery) -> LLMResponse:
     query = llm_query.text
     history = [{'role': chat.role, 'metadata': '', 'content': chat.content} for chat in llm_query.history]
     response, history = MODEL.chat(TOKENIZER, query, history, top_p=1., temperature=1., past_key_values=None)
     history = [Chat(role=chat['role'], content=chat['content']) for chat in history]
-    llm_response = NewLLMResponse(response=response, history=history)
+    llm_response = LLMResponse(response=response, history=history)
     return llm_response
 
 
-def _stream_predict(llm_query: NewLLMQuery):
+def _stream_predict(llm_query: LLMQuery):
     query = llm_query.text
     history = [{'role': chat.role, 'metadata': '', 'content': chat.content} for chat in llm_query.history]
     yield MODEL.stream_chat(TOKENIZER, query, history=history, top_p=1., temperature=1.,
@@ -44,11 +44,11 @@ def handle_stream_predict():
     print(json_val)
     llm_query = LLMPipeline.convert_query_from_json(json_val)
 
-    def generate_output(q: NewLLMQuery):
+    def generate_output(q: LLMQuery):
         with app.app_context():
             for response, history, past_key_values in next(_stream_predict(q)):
                 history = [Chat(role=chat['role'], content=chat['content']) for chat in history]
-                llm_response = NewLLMResponse(
+                llm_response = LLMResponse(
                     response=response,
                     history=history
                 )

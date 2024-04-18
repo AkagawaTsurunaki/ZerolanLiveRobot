@@ -26,20 +26,6 @@ class Danmaku:
 
 
 @dataclass
-class LLMQuery:
-    query: str
-    history: list
-    top_p: float
-    temperature: float
-
-
-@dataclass
-class LLMResponse:
-    response: str
-    history: list[dict]
-
-
-@dataclass
 class AudioPair:
     played: bool
     transcript: str
@@ -74,13 +60,13 @@ class Chat:
 
 
 @dataclass
-class NewLLMResponse:
+class LLMResponse:
     response: str
     history: List[Chat]
 
 
 @dataclass
-class NewLLMQuery:
+class LLMQuery:
     text: str
     history: List[Chat]
 

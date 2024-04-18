@@ -7,7 +7,7 @@ import requests
 from loguru import logger
 
 import initzr
-from utils.datacls import NewLLMQuery, Chat, NewLLMResponse
+from utils.datacls import LLMQuery, Chat, LLMResponse
 
 
 class LLMPipeline:
@@ -23,27 +23,27 @@ class LLMPipeline:
         self.stream_predict_url = urljoin(url, f'/{self.model}/stream-predict')
 
     @staticmethod
-    def convert_query_from_json(json_val: any) -> NewLLMQuery:
+    def convert_query_from_json(json_val: any) -> LLMQuery:
         history = json_val['history']
         history = [Chat(role=chat['role'], content=chat['content']) for chat in history]
-        llm_query = NewLLMQuery(
+        llm_query = LLMQuery(
             text=json_val['text'],
             history=history
         )
         return llm_query
 
     @staticmethod
-    def convert_response_from_json(json_val: any) -> NewLLMResponse:
+    def convert_response_from_json(json_val: any) -> LLMResponse:
         response = json_val['response']
         history = json_val['history']
         history = [Chat(role=chat['role'], content=chat['content']) for chat in history]
-        llm_response = NewLLMResponse(
+        llm_response = LLMResponse(
             response=response,
             history=history
         )
         return llm_response
 
-    def predict(self, llm_query: NewLLMQuery) -> NewLLMResponse | None:
+    def predict(self, llm_query: LLMQuery) -> LLMResponse | None:
         try:
             llm_query = asdict(llm_query)
             response = requests.get(url=self.predict_url, stream=True, json=llm_query)
@@ -55,7 +55,7 @@ class LLMPipeline:
             logger.exception(e)
             return None
 
-    async def stream_predict(self, llm_query: NewLLMQuery):
+    async def stream_predict(self, llm_query: LLMQuery):
 
         llm_query = asdict(llm_query)
         response = requests.get(url=self.stream_predict_url, stream=True,

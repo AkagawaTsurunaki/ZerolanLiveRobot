@@ -4,7 +4,7 @@ from flask import Flask, request, jsonify
 from transformers import AutoModelForCausalLM, AutoTokenizer, AutoModel
 
 from llm.pipeline import LLMPipeline
-from utils.datacls import NewLLMResponse, Chat, NewLLMQuery
+from utils.datacls import LLMResponse, Chat, LLMQuery
 
 app = Flask(__name__)
 
@@ -13,13 +13,13 @@ TOKENIZER: AutoTokenizer
 MODEL: AutoModelForCausalLM | AutoModel
 
 
-def _predict(llm_query: NewLLMQuery):
+def _predict(llm_query: LLMQuery):
     query = llm_query.text
     history = llm_query.history
     history = [{'role': chat.role, 'content': chat.content} for chat in history]
     response, history = MODEL.chat(TOKENIZER, query, history=history)
     history = [Chat(role=chat['role'], content=chat['content']) for chat in history]
-    llm_response = NewLLMResponse(response=response, history=history)
+    llm_response = LLMResponse(response=response, history=history)
     return llm_response
 
 
