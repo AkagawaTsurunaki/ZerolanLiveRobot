@@ -275,7 +275,7 @@ obs_config:
 # 本项目配置
 zerolan_live_robot_config:
   # 提示词模板
-  custom_prompt_path: template/custom_prompt.json
+  custom_prompt_path: template/custom_prompt.yaml
 ```
 
 提示词模板 `custom_prompt.json` 中的内容举例如下：
