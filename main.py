@@ -10,7 +10,7 @@ import bilibili.service
 import controller.app
 import minecraft.app
 import vad.service
-from lifecircle import service_start
+from lifecircle import start_cycle
 
 logger.remove()
 logger.add(sys.stderr, level="INFO")
@@ -43,7 +43,7 @@ if __name__ == '__main__':
             thread.start()
 
         # 启动生命周期
-        asyncio.run(service_start())
+        asyncio.run(start_cycle())
 
         # 等待所有线程结束
         for thread in thread_list:
