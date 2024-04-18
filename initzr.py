@@ -1,13 +1,12 @@
 import os
-from dataclasses import dataclass
 from os import PathLike
 
 from loguru import logger
 
 import utils.util
 from config.global_config import BilibiliLiveConfig, ScreenshotConfig, BlipImageCaptioningLargeConfig, \
-    GPTSoVITSServiceConfig, ToneAnalysisServiceConfig, Chatglm3ServiceConfig, OBSConfig, ASRConfig, VADConfig, \
-    ZerolanLiveRobotConfig
+    GPTSoVITSServiceConfig, ToneAnalysisServiceConfig, OBSConfig, ASRConfig, VADConfig, \
+    ZerolanLiveRobotConfig, LLMServiceConfig
 from utils.util import is_valid_port, create_file_if_not_exists, read_yaml
 
 
@@ -153,44 +152,15 @@ def load_tone_analysis_service_config():
     )
 
 
-@dataclass
-class LLMServiceConfig:
-    pass
-
-    def url(self):
-        ...
-
-
 def load_llm_service_config():
-    return LLMServiceConfig()
-
-
-def load_chatglm3_service_config():
-    config: dict = GLOBAL_CONFIG.get('chatglm3_service_config', None)
-    assert config, f'❌️ ChatGLM3 服务配置未填写或格式有误'
-
-    debug = config.get('debug', False)
-
-    host = config.get('host', '127.0.0.1')
-
-    port = config.get('port', 8085)
-    assert is_valid_port(port), f'❌️ ChatGLM3 服务配置中的字段 port 所代表的端口号不合法'
-
-    tokenizer_path = config.get('tokenizer_path', "THUDM/chatglm3-6b")
-    assert os.path.exists(tokenizer_path), f'❌️ ChatGLM3 服务配置中的字段 tokenizer_path 所指向的路径不存在'
-
-    model_path = config.get('model_path', "THUDM/chatglm3-6b")
-    assert os.path.exists(model_path), f'❌️ ChatGLM3 服务配置中的字段 model_path 所指向的路径不存在'
-
-    quantize = config.get('quantize', 4)
-
-    return Chatglm3ServiceConfig(
-        debug=debug,
+    config: dict = GLOBAL_CONFIG['llm_service_config']
+    llm_name = config['llm_name']
+    host = config['host']
+    port = config['port']
+    return LLMServiceConfig(
+        llm_name=llm_name,
         host=host,
-        port=port,
-        tokenizer_path=tokenizer_path,
-        model_path=model_path,
-        quantize=quantize
+        port=port
     )
 
 
