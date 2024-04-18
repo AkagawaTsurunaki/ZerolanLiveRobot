@@ -30,35 +30,30 @@ MAX_HISTORY = 40
 CONFIG = initzr.load_zerolan_live_robot_config()
 
 # Current history
-memory: NewLLMQuery
+memory: NewLLMQuery | None = None
 
 
 def load_history():
     template = util.read_yaml(CONFIG.role_play_template_path)
-    system_prompt = template['system_prompt']
     format = json.dumps(template['format'], ensure_ascii=False, indent=4)
 
     # Assign history
-    history: list[dict | str] = template['history']
-    ret_history: list[Chat] = []
-    for chat in history:
+    history: list[Chat] = []
+    for chat in template['history']:
         if isinstance(chat, dict):
             content = json.dumps(chat, ensure_ascii=False, indent=4)
-            ret_history.append(Chat(role=Role.USER, content=content))
+            history.append(Chat(role=Role.USER, content=content))
         elif isinstance(chat, str):
-            ret_history.append(Chat(role=Role.USER, content=chat))
+            history.append(Chat(role=Role.ASSISTANT, content=chat))
 
     # Assign system prompt
-    assert len(ret_history) > 1
-    ret_history[0].content = f'{system_prompt}\n{format}\n{ret_history[0].content}'
+    for chat in history:
+        chat.content = chat.content.replace('${format}', format)
 
-    return NewLLMQuery(
-        text='',
-        history=ret_history
-    )
+    return NewLLMQuery(text='', history=history)
 
 
-def try_reset_memory(force: bool):
+def try_reset_memory(force: bool = False):
     global memory
     # Prevent bot from slow-calculation block for too long
     if force:
@@ -154,6 +149,8 @@ def read_game_event():
 async def life_circle():
     global LANG, memory
 
+    try_reset_memory()
+
     # 尝试读取语音 | 抽取弹幕 | 截图识别 | 获取游戏事件
     transcript = read_from_microphone()
     danmaku = read_danmaku()
@@ -167,6 +164,7 @@ async def life_circle():
         logger.warning('生命周期提前结束')
         return
 
+    memory.text = query
     logger.info(query)
 
     # 注意这里, 开发者说的话会覆盖弹幕
@@ -204,7 +202,7 @@ async def life_circle():
         # 播放语音
         audio_player.service.add_audio(wav_file_path, sentence)
 
-    memory = ret_llm_response
+    memory.history = ret_llm_response.history
 
 
 async def start_cycle():
