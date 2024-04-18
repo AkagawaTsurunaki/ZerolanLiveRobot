@@ -1,95 +1,136 @@
+from dataclasses import asdict
+from http import HTTPStatus
+from typing import List
+from utils import util
+from urllib.parse import urljoin
+
+import requests
+
+import chatglm3.api
+import initzr
+from utils.datacls import NewLLMQuery, Chat, NewLLMResponse
+from loguru import logger
+
+
 class LLMPipeline:
 
     def __init__(self, model: str):
-        self.model_list = ['chatglm3', '01-ai/Yi', 'qwen']
+        url = initzr.load_llm_service_config().url()
+        self.predict_url = urljoin(url, '/predict')
+        self.model_list = ['chatglm3', '01-ai/Yi', 'Qwen/Qwen-7B-Chat']
         assert model in self.model_list, f'Unsupported model "{model}".'
         self.model = model
-
-    @staticmethod
-    def chatglm3(text: str,
-                 history: list,
-                 system_prompt: str = None,
-                 temperature: float = 1.0,
-                 top_p: float = 1.0) -> dict:
-
-        # Validate param
-        assert text and len(text) > 0
-
-        if history and len(history) > 0:
-            for chat in history:
-                assert isinstance(chat, dict)
-                content = chat.get('content', None)
-                assert content and len(content) > 0
-                assert chat.get('metadata', None)
-                role = chat.get('role', None)
-                assert role and role in ['user', 'assistant']
-
-        assert 0.0 < top_p <= 1.0 and 0.0 < temperature <= 1.0
-
-        # Convert to ChatGLM3 format
-        return {
-            'query': system_prompt + '\n' + text if system_prompt else text,
-            'history': history,
-            'top_p': top_p,
-            'temperature': temperature
+        self.model_query_map = {
+            'chatglm3': LLMPipeline.chatglm3,
+            '01-ai/Yi': LLMPipeline.yi,
+            'Qwen/Qwen-7B-Chat': LLMPipeline.qwen
         }
 
     @staticmethod
-    def yi(text: str,
-           history: list) -> list:
+    def chatglm3(llm_query: NewLLMQuery) -> dict:
+        # Convert to ChatGLM3 format
+        text = llm_query.text
+        history = [{'role': chat.role, 'metadata': '', 'content': chat.content} for chat in llm_query.history]
 
-        # Validate param
-        assert text and len(text) > 0
+        # Add query
+        result = {
+            'query': text,
+            'history': history
+        }
 
-        if history and len(history) > 0:
-            for chat in history:
-                assert isinstance(chat, dict)
-                content = chat.get('content', None)
-                assert content and len(content) > 0
-                role = chat.get('role', None)
-                assert role and role in ['user', 'assistant']
-
-        # Convert to Yi format
-        history += [{'role': 'user', 'content': text}]
-
-        return history
+        return result
 
     @staticmethod
-    def qwen(text: str, history: list, system_prompt: str = None):
+    def yi(llm_query: NewLLMQuery) -> list:
+        # Convert to Yi format
+        text = llm_query.text
+        history = [{'role': chat.role, 'content': chat.content} for chat in llm_query.history]
 
-        # Validate param
-        assert text and len(text) > 0
+        # Add query
+        result = history + [{'role': 'user', 'content': text}]
 
-        if history and len(history) > 0:
-            for chat in history:
-                assert isinstance(chat, dict)
-                content = chat.get('content', None)
-                assert content and len(content) > 0
-                role = chat.get('role', None)
-                assert role and role in ['user', 'assistant', 'system']
+        return result
 
-        # Overwrite system prompt
-        if history and len(history) > 0:
-            if history[0]['role'] == 'system':
-                history[0]['content'] = system_prompt
-
+    @staticmethod
+    def qwen(llm_query: NewLLMQuery) -> list:
         # Convert to Qwen format
-        history += [{'role': 'user', 'content': text}]
+        text = llm_query.text
+        history = [{'role': chat.role, 'content': chat.content} for chat in llm_query.history]
 
-        return history
+        # Add query
+        result = history + [{'role': 'user', 'content': text}]
 
-    def query(self,
-              text: str,
-              history: list,
-              system_prompt: str = None,
-              temperature: float = 1.0,
-              top_p: float = 1.0) -> any:
+        return result
+
+    def query(self, llm_query: NewLLMQuery) -> any:
+        query_func = self.model_query_map.get(self.model, None)
+        assert query_func
+        return query_func(llm_query)
+
+    def predict(self, query: any):
         if self.model == self.model_list[0]:
             # ChatGLM3
-            LLMPipeline.chatglm3(text, history, system_prompt, temperature, top_p)
+            chatglm3.api.predict(**query)
         elif self.model == self.model_list[1]:
             # Yi
-            LLMPipeline.yi(text, history)
+            ...
         elif self.model == self.model_list[2]:
             # Qwen
-            LLMPipeline.qwen(text, history, system_prompt)
+            ...
+
+    def response(self):
+        if len(self.history) > 0:
+            if self.model == self.model_list[0]:
+                # ChatGLM3
+                return self.history[-1].get('content', None)
+            elif self.model == self.model_list[1]:
+                # Yi
+                return self.history[-1].get('content', None)
+            elif self.model == self.model_list[2]:
+                # Qwen
+                return self.history[-1].get('content', None)
+
+    @staticmethod
+    def convert_query_from_json(json_val: any) -> NewLLMQuery:
+        history = json_val['history']
+        history = [Chat(role=chat['role'], content=chat['content']) for chat in history]
+        llm_query = NewLLMQuery(
+            text=json_val['text'],
+            history=history
+        )
+        return llm_query
+
+    @staticmethod
+    def convert_response_from_json(json_val: any) -> NewLLMResponse:
+        response = json_val['response']
+        history = json_val['history']
+        history = [Chat(role=chat['role'], content=chat['content']) for chat in history]
+        llm_response = NewLLMResponse(
+            response=response,
+            history=history
+        )
+        return llm_response
+
+    def predict(self, llm_query: NewLLMQuery) -> NewLLMResponse | None:
+        try:
+            llm_query = asdict(llm_query)
+            response = requests.get(url=self.predict_url, stream=True, json=llm_query)
+            if response.status_code == HTTPStatus.OK:
+                json_val = response.json()
+                llm_response = LLMPipeline.convert_response_from_json(json_val)
+                return llm_response
+        except Exception as e:
+            logger.exception(e)
+            return None
+
+    def predict_without_history(self, plain_text: str):
+        llm_query = NewLLMQuery(
+            text=plain_text,
+            history=[]
+        )
+        return self.predict(llm_query)
+
+    def load_prompt_template(self, path: str):
+        json_val = util.read_json(path)
+        llm_query = LLMPipeline.convert_query_from_json(json_val)
+        return llm_query
