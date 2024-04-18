@@ -62,33 +62,13 @@ class ToneAnalysisServiceConfig:
     tone_analysis_template_path: str | PathLike = R'template/tone_analysis_template.yaml'
 
 
-# ChatGLM3 服务配置
-@dataclass
-class Chatglm3ServiceConfig:
-    # 是否以调试模式运行
-    debug: bool = False
-    # ChatGLM3 服务地址
-    host: str = '127.0.0.1'
-    # ChatGLM3 服务端口
-    port: int = 8085
-    # Tokenizer 路径
-    tokenizer_path: str | PathLike = R'THUDM/chatglm3-6b'
-    # 模型路径
-    model_path: str | PathLike = R'THUDM/chatglm3-6b'
-    # 量化
-    quantize: int = 4
-
-    def url(self, protocol: str = 'http'):
-        return f'{protocol}://{self.host}:{self.port}'
-
-
 @dataclass
 class LLMServiceConfig:
-    # 是否以调试模式运行
-    debug: bool = False
-    # ChatGLM3 服务地址
+    # LLM 服务名（即用什么模型）
+    llm_name: str = 'chatglm3'
+    # LLM 服务地址
     host: str = '127.0.0.1'
-    # ChatGLM3 服务端口
+    # LLM 服务端口
     port: int = 8085
 
     def url(self, protocol: str = 'http'):
