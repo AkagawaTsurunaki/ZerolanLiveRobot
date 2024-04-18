@@ -96,10 +96,10 @@ asr_config:
 zerolan_live_robot_config:
   # 是否以调试模式运行
   debug: False
-  # ChatGLM3 服务地址
+  # ZerolanLiveRobot 服务地址
   host: 127.0.0.1
-  # ChatGLM3 服务端口
+  # ZerolanLiveRobot 服务地址
   port: 11451
   # 提示词模板
-  custom_prompt_path: template/custom_prompt.json
+  role_play_template_path: template/custom_prompt.yaml
 
