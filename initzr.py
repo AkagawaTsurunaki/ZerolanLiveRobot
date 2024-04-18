@@ -1,4 +1,5 @@
 import os
+from dataclasses import dataclass
 from os import PathLike
 
 import yaml
@@ -160,6 +161,18 @@ def load_tone_analysis_service_config():
         tone_template_path=tone_template_path,
         prompt_for_llm_path=prompt_for_llm_path
     )
+
+
+@dataclass
+class LLMServiceConfig:
+    pass
+
+    def url(self):
+        ...
+
+
+def load_llm_service_config():
+    return LLMServiceConfig()
 
 
 def load_chatglm3_service_config():

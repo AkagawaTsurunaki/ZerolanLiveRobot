@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from os import PathLike
-from typing import Any
+from typing import Any, List
 
 
 @dataclass
@@ -65,3 +65,28 @@ class Tone:
     refer_wav_path: str
     prompt_text: str
     prompt_language: str
+
+
+@dataclass
+class Chat:
+    role: str
+    content: str
+
+
+@dataclass
+class NewLLMResponse:
+    response: str
+    history: List[Chat]
+
+
+@dataclass
+class NewLLMQuery:
+    text: str
+    history: List[Chat]
+
+
+@dataclass
+class Role:
+    USER = 'user'
+    ASSISTANT = 'assistant'
+    SYSTEM = 'system'
