@@ -9,8 +9,8 @@ from loguru import logger
 
 import chatglm3.api
 import initzr
-from config.global_config import ToneAnalysisServiceConfig
-from utils.datacls import LLMQuery, Tone
+from llm.pipeline import LLMPipeline
+from utils.datacls import LLMQuery, Tone, NewLLMQuery
 
 logger.remove()
 handler_id = logger.add(sys.stderr, level="INFO")
@@ -23,6 +23,10 @@ g_llm_query: LLMQuery
 TONE_TEMPLATE_PATH = CONFIG.tone_template_path
 PROMPT_FOR_LLM_PATH = CONFIG.prompt_for_llm_path
 
+# LLM Pipeline
+llm_pipeline = LLMPipeline(model='chatglm3')
+
+# TODO: Need to fix
 
 def load_tone_list():
     # 加载语气模板列表
@@ -80,6 +84,11 @@ def analyze_tone(text: str):
     g_llm_query.query = g_llm_query.query.replace('{text}', text)
 
     # 向 ChatGLM3 查询心情 ID
+    NewLLMQuery(
+        g_llm_query.query,
+        history=...
+    )
+    llm_pipeline.predict()
     emotion_id, _ = chatglm3.api.predict(query=g_llm_query.query, history=g_llm_query.history)
 
     # 校验心情 ID 是否合法
