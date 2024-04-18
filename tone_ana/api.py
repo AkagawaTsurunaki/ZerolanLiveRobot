@@ -20,14 +20,14 @@ CONFIG = initzr.load_tone_analysis_service_config()
 tone_list: list[Tone] = []
 
 # LLM Pipeline, for analyse a sentence's tone.
-LLM_PIPELINE = LLMPipeline(model='chatglm3')
+LLM_PIPELINE: LLMPipeline = LLMPipeline()
 
 # LLM query for analysing tone of a sentence. Should only change the text attribute.
 tone_analysis_template: NewLLMQuery
 
 
 def _init():
-    global tone_analysis_template
+    global tone_analysis_template, LLM_PIPELINE
     tone_analysis_template_dict = util.read_yaml(CONFIG.tone_analysis_template_path)
     task: str = tone_analysis_template_dict['task']
     tone_dict: dict = tone_analysis_template_dict['tone']
