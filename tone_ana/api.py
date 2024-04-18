@@ -40,7 +40,8 @@ def _init():
             prompt_language=tone_dict[tone_id]['prompt_language']
         )
         tone_list.append(tone)
-        examples: list[str] = tone_dict[tone_id]['examples']
+        examples: list[str] = tone_dict[tone_id].get('examples', None)
+        assert examples, f'Can not find any example for tone analysis service, please check your template file "{CONFIG.tone_analysis_template_path}".'
         for example in examples:
             history += [Chat(role=Role.USER, content=f'{task}\n{example}')]
             history += [Chat(role=Role.ASSISTANT, content=tone_id)]
