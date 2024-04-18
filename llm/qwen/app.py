@@ -24,7 +24,7 @@ def _predict(llm_query: NewLLMQuery):
     return llm_response
 
 
-@app.route('/Qwen/Qwen-7B-Chat/predict', methods=['GET', 'POST'])
+@app.route('/01-ai/Yi/predict', methods=['GET', 'POST'])
 def handle_predict():
     json_val = request.get_json()
     llm_query = LLMPipeline.convert_query_from_json(json_val)
@@ -40,7 +40,7 @@ if __name__ == '__main__':
     parser.add_argument('--model-path', '-mp', type=str, default="Qwen/Qwen-7B-Chat")
     parser.add_argument('--loading-mode', '-lm', type=str, default='auto')
     parser.add_argument('--host', '-h', type=str, default='127.0.0.1')
-    parser.add_argument('--port', '-p', type=int, default=12556)
+    parser.add_argument('--port', '-p', type=int, default=9881)
     parser.add_argument('--debug', '-d', type=str, default=False)
 
     model_path, mode, host, port, debug = parser.parse_args()
