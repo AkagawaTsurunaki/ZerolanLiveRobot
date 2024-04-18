@@ -7,7 +7,6 @@ from loguru import logger
 import asr.app
 import audio_player.service
 import blip_img_cap.api
-import chatglm3.api
 import controller.app
 import minecraft.app
 import obs.api
@@ -146,8 +145,8 @@ async def life_circle():
 
     last_split_idx = 0
 
-    async for response, history in chatglm3.api.stream_predict(query=query, history=controller.app.get_history(),
-                                                               top_p=1., temperature=1.):
+    async for response, history in llm.chatglm3.api.stream_predict(query=query, history=controller.app.get_history(),
+                                                                   top_p=1., temperature=1.):
         if not response or response[-1] not in ['。', '！', '？', '!', '?']:
             continue
 

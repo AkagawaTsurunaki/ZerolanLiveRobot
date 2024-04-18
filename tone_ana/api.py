@@ -7,7 +7,6 @@ from typing import List
 import yaml
 from loguru import logger
 
-import chatglm3.api
 import initzr
 from llm.pipeline import LLMPipeline
 from utils.datacls import LLMQuery, Tone, NewLLMQuery
@@ -89,7 +88,7 @@ def analyze_tone(text: str):
         history=...
     )
     llm_pipeline.predict()
-    emotion_id, _ = chatglm3.api.predict(query=g_llm_query.query, history=g_llm_query.history)
+    emotion_id, _ = llm.chatglm3.api.predict(query=g_llm_query.query, history=g_llm_query.history)
 
     # 校验心情 ID 是否合法
     for tone in TONE_LIST:

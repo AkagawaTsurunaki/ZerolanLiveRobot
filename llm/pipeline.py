@@ -1,12 +1,10 @@
 from dataclasses import asdict
 from http import HTTPStatus
-from typing import List
 from utils import util
 from urllib.parse import urljoin
 
 import requests
 
-import chatglm3.api
 import initzr
 from utils.datacls import NewLLMQuery, Chat, NewLLMResponse
 from loguru import logger
@@ -70,7 +68,7 @@ class LLMPipeline:
     def predict(self, query: any):
         if self.model == self.model_list[0]:
             # ChatGLM3
-            chatglm3.api.predict(**query)
+            llm.chatglm3.api.predict(**query)
         elif self.model == self.model_list[1]:
             # Yi
             ...

@@ -52,7 +52,7 @@ def _stream_predict(query: str, history: list = None, top_p: float = 1., tempera
                             return_past_key_values=return_past_key_values)
 
 
-@app.route('/chatglm3/predict', methods=['GET'])
+@app.route('/chatglm3/predict', methods=['GET', 'POST'])
 def handle_output():
     json_val = request.get_json()
     llm_query = LLMPipeline.convert_query_from_json(json_val)
