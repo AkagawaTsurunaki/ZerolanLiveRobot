@@ -5,23 +5,68 @@ from typing import Final
 from loguru import logger
 
 import asr.app
+import asr.service
 import audio_player.service
 import blip_img_cap.api
-import controller.app
+import initzr
 import minecraft.app
 import obs.api
 from bilibili import service as bili_serv
 from gptsovits import api as gptsovits_serv
+from llm.pipeline import LLMPipeline
 from minecraft.app import GameEvent
 from scrnshot import api as scrn_serv
 from tone_ana import api as tone_serv
-from utils.datacls import Danmaku
+from utils import util
+from utils.datacls import Danmaku, NewLLMQuery, Chat, Role
 from utils.util import is_blank
-import asr.service
 
 LANG = 'zh'
-MAX_HISTORY = 40
+
 DEV_NAME: Final[str] = '赤川鹤鸣'
+LLM_PIPELINE = LLMPipeline()
+MAX_HISTORY = 40
+# Configuration of Zerolan Live Robot
+CONFIG = initzr.load_zerolan_live_robot_config()
+
+# Current history
+memory: NewLLMQuery
+
+
+def load_history():
+    template = util.read_yaml(CONFIG.role_play_template_path)
+    system_prompt = template['system_prompt']
+    format = json.dumps(template['format'], ensure_ascii=False, indent=4)
+
+    # Assign history
+    history: list[dict | str] = template['history']
+    ret_history: list[Chat] = []
+    for chat in history:
+        if isinstance(chat, dict):
+            content = json.dumps(chat, ensure_ascii=False, indent=4)
+            ret_history.append(Chat(role=Role.USER, content=content))
+        elif isinstance(chat, str):
+            ret_history.append(Chat(role=Role.USER, content=chat))
+
+    # Assign system prompt
+    assert len(ret_history) > 1
+    ret_history[0].content = f'{system_prompt}\n{format}\n{ret_history[0].content}'
+
+    return NewLLMQuery(
+        text='',
+        history=ret_history
+    )
+
+
+def try_reset_memory(force: bool):
+    global memory
+    # Prevent bot from slow-calculation block for too long
+    if force:
+        memory = load_history()
+    elif not memory:
+        memory = load_history()
+    elif len(memory.history) > MAX_HISTORY:
+        memory = load_history()
 
 
 def read_danmaku() -> Danmaku | None:
@@ -107,10 +152,7 @@ def read_game_event():
 
 
 async def life_circle():
-    global LANG
-
-    # 当记忆过多或没有记忆(懒加载)时, 尝试重载记忆
-    controller.app.try_compress_history()
+    global LANG, memory
 
     # 尝试读取语音 | 抽取弹幕 | 截图识别 | 获取游戏事件
     transcript = read_from_microphone()
@@ -134,19 +176,13 @@ async def life_circle():
     if transcript:
         obs.api.write_voice_input(DEV_NAME, transcript)
 
-    # 其中 resp
-    # 第1轮循环 resp = '我'
-    # 第2轮循环 resp = '我是'
-    # 第3轮循环 resp = '我是一个'
-    # 第4轮循环 resp = '我是一个机器'
-    # 第5轮循环 resp = '我是一个机器人'
-    # 第6轮循环 resp = '我是一个机器人。'
-    # ... 以此类推
-
     last_split_idx = 0
 
-    async for response, history in llm.chatglm3.api.stream_predict(query=query, history=controller.app.get_history(),
-                                                                   top_p=1., temperature=1.):
+    ret_llm_response = None
+
+    async for llm_response in LLM_PIPELINE.stream_predict(memory):
+        ret_llm_response = llm_response
+        response = llm_response.response
         if not response or response[-1] not in ['。', '！', '？', '!', '?']:
             continue
 
@@ -156,13 +192,10 @@ async def life_circle():
         if is_blank(sentence):
             continue
 
-        # 更新 LLM 会话历史
-        controller.app.set_history(history)
-
         # 自动语气语音合成
         tone, wav_file_path = tts_with_tone(sentence)
 
-        logger.info(f'🗒️ 历史记录：{len(controller.app.get_history())} \n💖 语气：{tone.id} \n💭 {sentence}')
+        logger.info(f'🗒️ 历史记录：{len(llm_response.history)} \n💖 语气：{tone.id} \n💭 {sentence}')
 
         if not wav_file_path:
             logger.warning(f'❕ 这条语音未能合成：{sentence}')
@@ -171,8 +204,10 @@ async def life_circle():
         # 播放语音
         audio_player.service.add_audio(wav_file_path, sentence)
 
+    memory = ret_llm_response
 
-async def service_start():
+
+async def start_cycle():
     logger.info('💜 ZerolanLiveRobot，启动！')
     while True:
         await life_circle()
