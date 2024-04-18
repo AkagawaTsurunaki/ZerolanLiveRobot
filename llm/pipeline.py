@@ -1,92 +1,26 @@
+import json
 from dataclasses import asdict
 from http import HTTPStatus
-from utils import util
 from urllib.parse import urljoin
 
 import requests
+from loguru import logger
 
 import initzr
 from utils.datacls import NewLLMQuery, Chat, NewLLMResponse
-from loguru import logger
 
 
 class LLMPipeline:
 
-    def __init__(self, model: str):
-        url = initzr.load_llm_service_config().url()
-        self.predict_url = urljoin(url, '/predict')
+    def __init__(self):
+        model = initzr.load_llm_service_config().llm_name
         self.model_list = ['chatglm3', '01-ai/Yi', 'Qwen/Qwen-7B-Chat']
         assert model in self.model_list, f'Unsupported model "{model}".'
         self.model = model
-        self.model_query_map = {
-            'chatglm3': LLMPipeline.chatglm3,
-            '01-ai/Yi': LLMPipeline.yi,
-            'Qwen/Qwen-7B-Chat': LLMPipeline.qwen
-        }
 
-    @staticmethod
-    def chatglm3(llm_query: NewLLMQuery) -> dict:
-        # Convert to ChatGLM3 format
-        text = llm_query.text
-        history = [{'role': chat.role, 'metadata': '', 'content': chat.content} for chat in llm_query.history]
-
-        # Add query
-        result = {
-            'query': text,
-            'history': history
-        }
-
-        return result
-
-    @staticmethod
-    def yi(llm_query: NewLLMQuery) -> list:
-        # Convert to Yi format
-        text = llm_query.text
-        history = [{'role': chat.role, 'content': chat.content} for chat in llm_query.history]
-
-        # Add query
-        result = history + [{'role': 'user', 'content': text}]
-
-        return result
-
-    @staticmethod
-    def qwen(llm_query: NewLLMQuery) -> list:
-        # Convert to Qwen format
-        text = llm_query.text
-        history = [{'role': chat.role, 'content': chat.content} for chat in llm_query.history]
-
-        # Add query
-        result = history + [{'role': 'user', 'content': text}]
-
-        return result
-
-    def query(self, llm_query: NewLLMQuery) -> any:
-        query_func = self.model_query_map.get(self.model, None)
-        assert query_func
-        return query_func(llm_query)
-
-    def predict(self, query: any):
-        if self.model == self.model_list[0]:
-            # ChatGLM3
-            llm.chatglm3.api.predict(**query)
-        elif self.model == self.model_list[1]:
-            # Yi
-            ...
-        elif self.model == self.model_list[2]:
-            # Qwen
-            ...
-
-    def response(self):
-        if len(self.history) > 0:
-            if self.model == self.model_list[0]:
-                # ChatGLM3
-                return self.history[-1].get('content', None)
-            elif self.model == self.model_list[1]:
-                # Yi
-                return self.history[-1].get('content', None)
-            elif self.model == self.model_list[2]:
-                # Qwen
-                return self.history[-1].get('content', None)
+        url = initzr.load_llm_service_config().url()
+        self.predict_url = urljoin(url, f'/{self.model}/predict')
+        self.stream_predict_url = urljoin(url, f'/{self.model}/stream-predict')
 
     @staticmethod
     def convert_query_from_json(json_val: any) -> NewLLMQuery:
@@ -121,14 +55,13 @@ class LLMPipeline:
             logger.exception(e)
             return None
 
-    def predict_without_history(self, plain_text: str):
-        llm_query = NewLLMQuery(
-            text=plain_text,
-            history=[]
-        )
-        return self.predict(llm_query)
+    async def stream_predict(self, llm_query: NewLLMQuery):
 
-    def load_prompt_template(self, path: str):
-        json_val = util.read_json(path)
-        llm_query = LLMPipeline.convert_query_from_json(json_val)
-        return llm_query
+        llm_query = asdict(llm_query)
+        response = requests.get(url=self.stream_predict_url, stream=True,
+                                json=llm_query)
+
+        for chunk in response.iter_content(chunk_size=None, decode_unicode=True):
+            json_val = json.loads(chunk)
+            llm_response = LLMPipeline.convert_response_from_json(json_val)
+            yield llm_response
