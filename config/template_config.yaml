@@ -101,5 +101,5 @@ zerolan_live_robot_config:
   # ZerolanLiveRobot 服务地址
   port: 11451
   # 提示词模板
-  role_play_template_path: template/custom_prompt.yaml
+  role_play_template_path: template/role_play_template.yaml
 
