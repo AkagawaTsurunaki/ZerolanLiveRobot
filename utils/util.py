@@ -2,11 +2,9 @@ import json
 import math
 import os
 import time
-from dataclasses import asdict
 from typing import Any, Final
 
 import psutil
-from flask import request
 
 # 这个常数记录了模块被第一次导入时的时间, 这个数值此后不会再发生变化
 # 在Windows系统中，文件名不允许使用的字符有： < > / \ | : " * ?
@@ -115,3 +113,9 @@ def is_port_in_use(port):
 
 def time_stamp_diff_sec(ts1: int, ts2: int):
     return math.fabs(ts1 - ts2) / 1000.
+
+
+def read_json(path: str | os.PathLike) -> Any:
+    assert os.path.exists(path)
+    with open(file=path, encoding='utf-8', mode='r') as file:
+        return json.load(file)
