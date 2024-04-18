@@ -303,7 +303,7 @@ obs_config:
 # プロジェクトの設定
 zerolan_live_robot_config:
   # カスタムプロンプトテンプレート
-  custom_prompt_path: template/custom_prompt.yaml
+  custom_prompt_path: template/role_play_template.yaml
 ```
 
 `custom_prompt.json` の中身は以下のようになります：

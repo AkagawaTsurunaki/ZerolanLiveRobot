@@ -319,7 +319,7 @@ This is the configuration file for this project.
 # Project Configuration
 zerolan_live_robot_config:
   # Prompt Template
-  custom_prompt_path: template/custom_prompt.yaml
+  custom_prompt_path: template/role_play_template.yaml
 ```
 
 The contents of the prompt template `custom_prompt.json` are as follows:
