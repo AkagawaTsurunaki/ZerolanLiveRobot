@@ -1,4 +1,3 @@
-import argparse
 from dataclasses import asdict
 
 from flask import Flask, jsonify, stream_with_context, Response, request
@@ -58,18 +57,8 @@ def handle_stream_predict():
     return Response(stream_with_context(generate_output(llm_query)), content_type='application/json')
 
 
-if __name__ == '__main__':
-    # Parse arguments
-    parser = argparse.ArgumentParser()
-
-    parser.add_argument('--model-path', '-mp', type=str, default="Qwen/Qwen-7B-Chat")
-    parser.add_argument('--quantize', '-q', type=int, default=4)
-    parser.add_argument('--host', '-h', type=str, default='127.0.0.1')
-    parser.add_argument('--port', '-p', type=int, default=9881)
-    parser.add_argument('--debug', '-d', type=str, default=False)
-
-    model_path, quantize, host, port, debug = parser.parse_args()
-
+def start(model_path, quantize, host, port, debug):
+    global TOKENIZER, MODEL
     TOKENIZER = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
     MODEL = AutoModel.from_pretrained(model_path, trust_remote_code=True).quantize(quantize).to(
         'cuda').eval()

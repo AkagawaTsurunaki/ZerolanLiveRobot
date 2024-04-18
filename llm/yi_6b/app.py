@@ -1,4 +1,3 @@
-import argparse
 from dataclasses import asdict
 
 from flask import Flask, request, jsonify
@@ -35,17 +34,8 @@ def handle_predict():
     return jsonify(asdict(llm_response))
 
 
-if __name__ == '__main__':
-    # Parse arguments
-    parser = argparse.ArgumentParser()
-
-    parser.add_argument('--model-path', '-mp', type=str, default="Qwen/Qwen-7B-Chat")
-    parser.add_argument('--loading-mode', '-lm', type=str, default='auto')
-    parser.add_argument('--host', '-h', type=str, default='127.0.0.1')
-    parser.add_argument('--port', '-p', type=int, default=9881)
-    parser.add_argument('--debug', '-d', type=str, default=False)
-
-    model_path, mode, host, port, debug = parser.parse_args()
+def start(model_path, mode, host, port, debug):
+    global TOKENIZER, MODEL
 
     TOKENIZER = AutoTokenizer.from_pretrained(model_path, use_fast=False)
     MODEL = AutoModelForCausalLM.from_pretrained(
@@ -53,3 +43,5 @@ if __name__ == '__main__':
         device_map=mode,
         torch_dtype='auto'
     ).eval()
+
+    app.run(host=host, port=port, debug=debug)
