@@ -1,41 +1,42 @@
 task:
   Here you should explain the task of tone analysis.
-tone_list:
-  - TONE_0:
+tone:
+  TONE_0:
     refer_wav_path:
     prompt_text:
     prompt_language:
     examples:
       -
-  - TONE_1:
+  TONE_1:
     refer_wav_path:
     prompt_text:
     prompt_language:
-  - TONE_2:
+      -
+  TONE_2:
     refer_wav_path:
     prompt_text:
     prompt_language:
     examples:
       -
-  - TONE_3:
+  TONE_3:
     refer_wav_path:
     prompt_text:
     prompt_language:
     examples:
       -
-  - TONE_4:
+  TONE_4:
     refer_wav_path:
     prompt_text:
     prompt_language:
     examples:
       -
-  - TONE_5:
+  TONE_5:
     refer_wav_path:
     prompt_text:
     prompt_language:
     examples:
       -
-  - TONE_6:
+  TONE_6:
     refer_wav_path:
     prompt_text:
     prompt_language:
