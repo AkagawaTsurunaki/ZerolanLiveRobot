@@ -43,7 +43,7 @@ gpt_sovits_service_config:
 # 语气分析服务配置
 tone_analysis_service_config:
   # 语气模板地址
-  tone_template_path: template/tone_list.yaml
+  tone_template_path: template/tone_analysis_template.yaml
   # 大语言模型判断一句话语气的提示词位置
   prompt_for_llm_path: template/tone_prompt_4_llm.json
 # ChatGLM3 服务配置

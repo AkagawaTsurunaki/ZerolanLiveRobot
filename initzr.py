@@ -151,7 +151,7 @@ def load_tone_analysis_service_config():
     config: dict = GLOBAL_CONFIG.get('tone_analysis_service_config', None)
     assert config, f'❌️ 语气分析服务配置未填写或格式有误'
 
-    tone_template_path = config.get('tone_template_path', 'template/tone_list.yaml')
+    tone_template_path = config.get('tone_template_path', 'template/tone_analysis_template.yaml')
     assert os.path.exists(tone_template_path), f'❌️ 语气分析服务配置中的字段 tone_template_path 所指向的路径不存在'
 
     prompt_for_llm_path = config.get('prompt_for_llm_path', 'template/tone_prompt_4_llm.json')
