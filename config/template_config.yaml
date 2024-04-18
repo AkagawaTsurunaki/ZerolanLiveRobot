@@ -46,20 +46,14 @@ tone_analysis_service_config:
   tone_template_path: template/tone_analysis_template.yaml
   # 大语言模型判断一句话语气的提示词位置
   prompt_for_llm_path: template/tone_prompt_4_llm.json
-# ChatGLM3 服务配置
-chatglm3_service_config:
-  # 是否以调试模式运行
-  debug: False
-  # ChatGLM3 服务地址
+# LLM 服务配置
+llm_service_config:
+  # LLM 服务名（即用什么模型）
+  llm_name: chatglm3
+  # LLM 服务地址
   host: 127.0.0.1
-  # ChatGLM3 服务端口
-  port: 8085
-  # Tokenizer 路径
-  tokenizer_path: THUDM/chatglm3-6b
-  # 模型路径
-  model_path: THUDM/chatglm3-6b
-  # 量化
-  quantize: 4
+  # LLM 服务端口
+  port: 9881
 # OBS 服务配置
 obs_config:
   # 弹幕输出字幕文件
