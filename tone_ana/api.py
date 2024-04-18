@@ -1,76 +1,53 @@
-import json
-import os
-import random
+import copy
 import sys
 from typing import List
 
-import yaml
 from loguru import logger
 
 import initzr
 from llm.pipeline import LLMPipeline
-from utils.datacls import LLMQuery, Tone, NewLLMQuery
+from utils import util
+from utils.datacls import Chat, Role, NewLLMQuery
+from utils.datacls import Tone
 
 logger.remove()
 handler_id = logger.add(sys.stderr, level="INFO")
+
+# Configuration for tone analysis service
 CONFIG = initzr.load_tone_analysis_service_config()
 
-TONE_LIST: List[Tone] = []
+# All tone loaded and stored here. Once it inited, it should not be changed anymore.
+tone_list: list[Tone] = []
 
-# 加载给 LLM 的模板，用于分析语气
-g_llm_query: LLMQuery
-TONE_TEMPLATE_PATH = CONFIG.tone_template_path
-PROMPT_FOR_LLM_PATH = CONFIG.prompt_for_llm_path
+# LLM Pipeline, for analyse a sentence's tone.
+LLM_PIPELINE = LLMPipeline(model='chatglm3')
 
-# LLM Pipeline
-llm_pipeline = LLMPipeline(model='chatglm3')
-
-# TODO: Need to fix
-
-def load_tone_list():
-    # 加载语气模板列表
-    with open(file=TONE_TEMPLATE_PATH, mode='r', encoding='utf-8') as file:
-        prompt: dict = yaml.safe_load(file)
-        # 每个心情元素
-        for emotion in prompt.keys():
-            refer_wav_path = prompt[emotion]['refer_wav_path']
-            prompt_text = prompt[emotion]['prompt_text']
-            prompt_language = prompt[emotion]['prompt_language']
-
-            assert os.path.exists(refer_wav_path), f'❌️ 提示音频路径 refer_wav_path 不存在：{refer_wav_path}'
-            assert not (prompt_text is None or prompt_text == ''), f'❌️ 提示文本 prompt_text 不能为空'
-            assert prompt_language in ['zh', 'en', 'ja'], f'❌️ 提示音频所代表的语言 {prompt_language} 是不被支持的'
-
-            tone = Tone(
-                id=emotion,
-                refer_wav_path=refer_wav_path,
-                prompt_text=prompt_text,
-                prompt_language=prompt_language
-            )
-            TONE_LIST.append(tone)
-    assert len(TONE_LIST) > 0, '❌️ 必须含有至少一种心情'
+# LLM query for analysing tone of a sentence. Should only change the text attribute.
+tone_analysis_template: NewLLMQuery
 
 
-def load_llm_ana_prompt():
-    # 加载给 LLM 的模板，用于分析语气
-    global g_llm_query
-    with open(file=PROMPT_FOR_LLM_PATH, mode='r', encoding='utf-8') as file:
-        g_llm_query = LLMQuery(**json.load(file))
-        tone_list_rep = ''
-        for idx, tone in enumerate(TONE_LIST):
-            tone_list_rep += f'{tone.id},'
-            g_llm_query.history[2 * idx + 1]['content'] = g_llm_query.history[2 * idx + 1]['content'].replace(
-                '{tone_id}',
-                tone.id)
+def _init():
+    global tone_analysis_template
+    tone_analysis_template_dict = util.read_yaml(CONFIG.tone_analysis_template_path)
+    task: str = tone_analysis_template_dict['task']
+    tone_dict: dict = tone_analysis_template_dict['tone']
+    history: List[Chat] = []
+    for tone_id in tone_dict.keys():
+        tone = Tone(
+            id=tone_id,
+            refer_wav_path=tone_dict[tone_id]['refer_wav_path'],
+            prompt_text=tone_dict[tone_id]['prompt_text'],
+            prompt_language=tone_dict[tone_id]['prompt_language']
+        )
+        tone_list.append(tone)
+        examples: list[str] = tone_dict[tone_id]['examples']
+        for example in examples:
+            history += [Chat(role=Role.USER, content=f'{task}\n{example}')]
+            history += [Chat(role=Role.ASSISTANT, content=tone_id)]
+    tone_analysis_template = NewLLMQuery('', history)
 
-        g_llm_query.history[0]['content'] = g_llm_query.history[0]['content'].replace('tone_list', tone_list_rep)
 
-
-load_tone_list()
-load_llm_ana_prompt()
-
-
-def analyze_tone(text: str):
+def analyze_tone(text: str) -> Tone:
     """
     根据 text 分析其情感（目前仅支持ChatGLM3）
     如果不能分析出具体的情感，那么默认返回第一个情感
@@ -78,22 +55,17 @@ def analyze_tone(text: str):
     :param text: 要分析的文本
     :return:
     """
+    # Query for LLM to get tone_id
+    llm_query = copy.deepcopy(tone_analysis_template)
+    llm_query.text = text
+    llm_response = LLM_PIPELINE.predict(llm_query=llm_query)
+    tone_id = llm_response.response
 
-    # 模板提示替换关键词
-    g_llm_query.query = g_llm_query.query.replace('{text}', text)
-
-    # 向 ChatGLM3 查询心情 ID
-    NewLLMQuery(
-        g_llm_query.query,
-        history=...
-    )
-    llm_pipeline.predict()
-    emotion_id, _ = llm.chatglm3.api.predict(query=g_llm_query.query, history=g_llm_query.history)
-
-    # 校验心情 ID 是否合法
-    for tone in TONE_LIST:
-        if emotion_id == tone.id:
+    # Check if valid tone_list
+    for tone in tone_list:
+        if tone.id == tone_id:
             return tone
+    return tone_list[0]
 
-    # 不合法随机返回一个
-    return random.sample(TONE_LIST, 1)[0]
+
+_init()

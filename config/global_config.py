@@ -58,10 +58,8 @@ class GPTSoVITSServiceConfig:
 # 语气分析服务配置
 @dataclass
 class ToneAnalysisServiceConfig:
-    # 语气模板地址
-    tone_template_path: str | PathLike = R'template/tone_list.yaml'
-    # 大语言模型判断一句话语气的提示词位置
-    prompt_for_llm_path: str | PathLike = R'template/tone_prompt_4_llm.json'
+    # 语气分析模板地址
+    tone_analysis_template_path: str | PathLike = R'template/tone_analysis_template.yaml'
 
 
 # ChatGLM3 服务配置
@@ -79,6 +77,19 @@ class Chatglm3ServiceConfig:
     model_path: str | PathLike = R'THUDM/chatglm3-6b'
     # 量化
     quantize: int = 4
+
+    def url(self, protocol: str = 'http'):
+        return f'{protocol}://{self.host}:{self.port}'
+
+
+@dataclass
+class LLMServiceConfig:
+    # 是否以调试模式运行
+    debug: bool = False
+    # ChatGLM3 服务地址
+    host: str = '127.0.0.1'
+    # ChatGLM3 服务端口
+    port: int = 8085
 
     def url(self, protocol: str = 'http'):
         return f'{protocol}://{self.host}:{self.port}'

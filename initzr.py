@@ -2,19 +2,13 @@ import os
 from dataclasses import dataclass
 from os import PathLike
 
-import yaml
 from loguru import logger
 
 import utils.util
 from config.global_config import BilibiliLiveConfig, ScreenshotConfig, BlipImageCaptioningLargeConfig, \
     GPTSoVITSServiceConfig, ToneAnalysisServiceConfig, Chatglm3ServiceConfig, OBSConfig, ASRConfig, VADConfig, \
     ZerolanLiveRobotConfig
-from utils.util import is_valid_port, create_file_if_not_exists, is_port_in_use
-
-
-def read_yaml(path: str | PathLike):
-    with open(file=path, mode='r', encoding='utf-8') as file:
-        return yaml.safe_load(file)
+from utils.util import is_valid_port, create_file_if_not_exists, read_yaml
 
 
 def _load_global_config(path: str | PathLike = 'config/global_config.yaml'):
@@ -154,12 +148,8 @@ def load_tone_analysis_service_config():
     tone_template_path = config.get('tone_template_path', 'template/tone_analysis_template.yaml')
     assert os.path.exists(tone_template_path), f'❌️ 语气分析服务配置中的字段 tone_template_path 所指向的路径不存在'
 
-    prompt_for_llm_path = config.get('prompt_for_llm_path', 'template/tone_prompt_4_llm.json')
-    assert os.path.exists(prompt_for_llm_path), f'❌️ 语气分析服务配置中的字段 prompt_for_llm_path 所指向的路径不存在'
-
     return ToneAnalysisServiceConfig(
-        tone_template_path=tone_template_path,
-        prompt_for_llm_path=prompt_for_llm_path
+        tone_analysis_template_path=tone_template_path
     )
 
 

@@ -2,9 +2,11 @@ import json
 import math
 import os
 import time
+from os import PathLike
 from typing import Any, Final
 
 import psutil
+import yaml
 
 # 这个常数记录了模块被第一次导入时的时间, 这个数值此后不会再发生变化
 # 在Windows系统中，文件名不允许使用的字符有： < > / \ | : " * ?
@@ -119,3 +121,8 @@ def read_json(path: str | os.PathLike) -> Any:
     assert os.path.exists(path)
     with open(file=path, encoding='utf-8', mode='r') as file:
         return json.load(file)
+
+
+def read_yaml(path: str | PathLike):
+    with open(file=path, mode='r', encoding='utf-8') as file:
+        return yaml.safe_load(file)

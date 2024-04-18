@@ -1,6 +1,6 @@
 task:
   Here you should explain the task of tone analysis.
-tone:
+tone_list:
   - TONE_0:
     refer_wav_path:
     prompt_text:
