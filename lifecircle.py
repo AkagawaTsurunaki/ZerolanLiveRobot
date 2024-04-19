@@ -114,7 +114,7 @@ def convert_2_query(transcript: str, danmaku: Danmaku, screen_desc: str, game_ev
         query['游戏状态'] = {
             "生命值": game_event.health,
             "饥饿值": game_event.food,
-            "环境": game_event.environment
+            "环境": game_event.description
         }
     if query:
         query = str(json.dumps(obj=query, indent=4, ensure_ascii=False))
