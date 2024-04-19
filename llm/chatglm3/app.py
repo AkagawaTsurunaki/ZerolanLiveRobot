@@ -17,6 +17,7 @@ def _predict(llm_query: LLMQuery) -> LLMResponse:
     query = llm_query.text
     history = [{'role': chat.role, 'metadata': '', 'content': chat.content} for chat in llm_query.history]
     response, history = MODEL.chat(TOKENIZER, query, history, top_p=1., temperature=1., past_key_values=None)
+    logger.info(response)
     history = [Chat(role=chat['role'], content=chat['content']) for chat in history]
     llm_response = LLMResponse(response=response, history=history)
     return llm_response
