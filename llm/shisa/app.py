@@ -1,3 +1,7 @@
+"""
+More detail, please see:
+https://huggingface.co/augmxnt/shisa-7b-v1
+"""
 from dataclasses import asdict
 
 import torch
