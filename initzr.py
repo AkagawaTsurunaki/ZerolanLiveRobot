@@ -8,6 +8,7 @@ from config.global_config import BilibiliLiveConfig, ScreenshotConfig, BlipImage
     GPTSoVITSServiceConfig, ToneAnalysisServiceConfig, OBSConfig, ASRConfig, VADConfig, \
     ZerolanLiveRobotConfig, LLMServiceConfig
 from utils.util import is_valid_port, create_file_if_not_exists, read_yaml
+from utils.datacls import ServiceNameRegistry as SNR
 
 
 def _load_global_config(path: str | PathLike = 'config/global_config.yaml'):
@@ -91,20 +92,20 @@ def load_screenshot_config():
 
 def load_blip_image_captioning_large_config() -> BlipImageCaptioningLargeConfig:
     """
-    加载模型 blip-image-captioning-large 的配置
+    Load the config of the Image-to-Caption service.
     :return:
     """
     config: dict = GLOBAL_CONFIG.get('blip_image_captioning_large_config', None)
-    assert config, f'❌️ 模型 blip-image-captioning-large 配置未填写或格式有误'
+    assert config, f'❌️ Failed to load the config of the Image-to-Caption service because the config object is None.'
 
-    model_path = config.get('model_path', 'Salesforce/blip-image-captioning-large')
+    model_path = config.get('model_path', SNR.BLIP)
     assert os.path.exists(model_path), f'❌️ blip-image-captioning-large 服务配置中的字段 model_path 所指向的路径不存在'
 
     debug = config.get('debug', False)
     host = config.get('host', '127.0.0.1')
 
     port = config.get('port', 5926)
-    assert is_valid_port(port), f'❌️ blip-image-captioning-large 服务所配置的端口不合法'
+    assert is_valid_port(port), f'❌️ {SNR.BLIP} 服务所配置的端口不合法'
 
     text_prompt = config.get('text_prompt', 'There')
 

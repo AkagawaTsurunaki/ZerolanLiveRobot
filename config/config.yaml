@@ -1,0 +1,101 @@
+live_stream:
+  enable: True
+  platform:
+    - bilibili:
+        sessdata:
+        bili_jct:
+        buvid3:
+
+screenshot:
+  enable: True
+  window_title: Minecraft
+  k: 0.9
+  save_directory: .tmp/screenshots
+
+image_captioning:
+  enable: True
+  debug: False
+  host: 127.0.0.1
+  port: 9879
+  models:
+    - Salesforce:
+        blip-image-captioning-large:
+          model_path: Salesforce/blip-image-captioning-large
+          text_prompt: There
+  # If you choose Salesforce/blip-image-captioning-large
+  # Prompt: There
+
+text_to_speech:
+  enable: True
+  debug: False
+  host: 127.0.0.1
+  port: 9880
+  models:
+    - RVC-Boss:
+        GPT-SoVITS:
+  save_directory: .tmp/wav_output
+
+large_language_model:
+  # LLM service must be enabled!!!
+  enable: True
+  # LLM service will be started at {host}:{port}.
+  debug: False
+  host: 127.0.0.1
+  port: 9881
+  # Model ID list:
+  # - THUDM/chatglm3-6b
+  # - Qwen/Qwen-7B-Chat
+  # - 01-ai/Yi
+  # - augmxnt/shisa-7b-v1
+  models:
+    - THUDM:
+        chatglm3-6b:
+          model_path: THUDM/chatglm3-6b
+          quantize: 4
+    - Qwen:
+        Qwen-7B-Chat:
+          model_path: Qwen/Qwen-7B-Chat
+          quantize: 4
+          loading_mode: auto
+    - 01-ai:
+        Yi:
+          model_path: 01-ai/Yi
+          loading_mode: auto
+    - augmxnt:
+        shisa-7b-v1:
+          model_path: augmxnt/shisa-7b-v1
+          loading_mode: auto
+
+tone_analysis:
+  enable: True
+  tone_analysis_template_path: template/my_tone_ayalysis_template.yaml
+
+obs:
+  enable: True
+  danmaku_output_path: .tmp/danmaku_output/output.txt
+  tone_output_path: .tmp/tone_output/output.txt
+  llm_output_path: .tmp/llm_output/output.txt
+
+voice_activity_detection:
+  enable: True
+  save_dir: .tmp/records
+  chunk: 4096
+  sample_rate: 16000
+  threshold: 600
+  max_mute_count: 10
+
+auto_speech_recognition:
+  enable: True
+  debug: False
+  host: 127.0.0.1
+  port: 9882
+  models:
+    speech_paraformer:
+      model_path:
+
+zerolan_live_robot_config:
+  debug: False
+  host: 127.0.0.1
+  port: 9888
+  role_play_template_path: template/my_role_play_template_short.yaml
+
