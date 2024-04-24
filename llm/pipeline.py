@@ -19,8 +19,8 @@ class LLMPipeline:
         self.model = model
 
         url = initzr.load_llm_service_config().url()
-        self.predict_url = urljoin(url, f'/{self.model}/predict')
-        self.stream_predict_url = urljoin(url, f'/{self.model}/stream-predict')
+        self.predict_url = urljoin(url, f'/llm/predict')
+        self.stream_predict_url = urljoin(url, f'/llm/stream-predict')
 
     @staticmethod
     def convert_query_from_json(json_val: any) -> LLMQuery:

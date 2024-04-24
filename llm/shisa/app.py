@@ -48,12 +48,17 @@ def _predict(llm_query: LLMQuery):
     return LLMResponse(response=response, history=llm_query.history)
 
 
-@app.route('/augmxnt/shisa-7b-v1/predict', methods=['POST', 'GET'])
+@app.route('/llm/predict', methods=['POST', 'GET'])
 def handle_predict():
     json_val = request.get_json()
     llm_query = LLMPipeline.convert_query_from_json(json_val)
     llm_response = _predict(llm_query)
     return jsonify(asdict(llm_response))
+
+
+@app.route('/llm/stream-predict', methods=['GET', 'POST'])
+def handle_predict():
+    raise NotImplementedError('This route has not been implemented yet.')
 
 
 def start(model_path, host, port, debug):

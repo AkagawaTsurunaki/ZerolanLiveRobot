@@ -5,7 +5,7 @@ from loguru import logger
 from transformers import AutoTokenizer, AutoModel
 
 from llm.pipeline import LLMPipeline
-from utils.datacls import LLMResponse, Chat, LLMQuery, ServiceNameRegistry as SNR
+from utils.datacls import LLMResponse, Chat, LLMQuery
 
 TOKENIZER: AutoTokenizer
 MODEL: AutoModel
@@ -31,7 +31,7 @@ def _stream_predict(llm_query: LLMQuery):
                             return_past_key_values=True)
 
 
-@app.route(f'/{SNR.CHATGLM3}/predict', methods=['GET', 'POST'])
+@app.route(f'/llm/predict', methods=['GET', 'POST'])
 def handle_predict():
     json_val = request.get_json()
     llm_query = LLMPipeline.convert_query_from_json(json_val)
@@ -39,7 +39,7 @@ def handle_predict():
     return jsonify(asdict(llm_response))
 
 
-@app.route(f'/{SNR.CHATGLM3}/stream-predict', methods=['GET', 'POST'])
+@app.route(f'/llm/stream-predict', methods=['GET', 'POST'])
 def handle_stream_predict():
     json_val = request.get_json()
     print(json_val)
