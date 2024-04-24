@@ -2,6 +2,7 @@
 More detail, please see:
 https://huggingface.co/augmxnt/shisa-7b-v1
 """
+import copy
 from dataclasses import asdict
 
 import torch
@@ -11,8 +12,6 @@ from transformers import AutoTokenizer, AutoModelForCausalLM, TextStreamer
 from llm.pipeline import LLMPipeline
 from utils.datacls import LLMQuery, LLMResponse, Chat, Role
 
-model_name = "augmxnt/shisa-7b-v1"
-
 tokenizer: AutoTokenizer
 model: AutoModelForCausalLM
 streamer: TextStreamer
@@ -21,7 +20,11 @@ app = Flask(__name__)
 
 
 def _predict(llm_query: LLMQuery):
-    history = [{"role": chat.role, "content": chat.content} for chat in llm_query.history]
+    assert len(llm_query.history) > 0 and llm_query.history[0].role == Role.SYSTEM, f'Must includes system prompt'
+
+    llm_query_history = copy.deepcopy(llm_query.history)
+    llm_query_history.append(Chat(role=Role.USER, content=llm_query.text))
+    history = [{"role": chat.role, "content": chat.content} for chat in llm_query_history]
 
     inputs = tokenizer.apply_chat_template(history, add_generation_prompt=True, return_tensors="pt")
     first_param_device = next(model.parameters()).device
@@ -57,9 +60,8 @@ def start(model_path, host, port, debug):
     global tokenizer, model, streamer
     tokenizer = AutoTokenizer.from_pretrained(model_path, use_fast=True)
     model = AutoModelForCausalLM.from_pretrained(
-        model_name,
+        model_path,
         torch_dtype=torch.bfloat16 if torch.cuda.is_bf16_supported() else torch.float16,
-        device_map="auto"
-    )
+    ).to('cuda')
     streamer = TextStreamer(tokenizer, skip_prompt=True)
     app.run(host=host, port=port, debug=debug)
