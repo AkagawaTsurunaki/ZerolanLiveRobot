@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from os import PathLike
-
+from utils.datacls import ServiceNameRegistry as SNR
 
 # Bilibili 直播配置
 @dataclass
@@ -65,7 +65,7 @@ class ToneAnalysisServiceConfig:
 @dataclass
 class LLMServiceConfig:
     # LLM 服务名（即用什么模型）
-    llm_name: str = 'chatglm3'
+    llm_name: str = SNR.CHATGLM3
     # LLM 服务地址
     host: str = '127.0.0.1'
     # LLM 服务端口

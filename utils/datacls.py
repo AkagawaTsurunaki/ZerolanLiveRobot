@@ -76,3 +76,12 @@ class Role:
     USER = 'user'
     ASSISTANT = 'assistant'
     SYSTEM = 'system'
+
+
+class ServiceNameRegistry:
+    ASR = 'asr'
+    BLIP = 'blip'
+    CHATGLM3 = 'chatglm3'
+    QWEN = 'Qwen/Qwen-7B-Chat'
+    YI = '01-ai/Yi'
+    SHISA = "augmxnt/shisa-7b-v1"
