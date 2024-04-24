@@ -7,14 +7,14 @@ import requests
 from loguru import logger
 
 import initzr
-from utils.datacls import LLMQuery, Chat, LLMResponse
+from utils.datacls import LLMQuery, Chat, LLMResponse, ServiceNameRegistry as SNR
 
 
 class LLMPipeline:
 
     def __init__(self):
         model = initzr.load_llm_service_config().llm_name
-        self.model_list = ['chatglm3', '01-ai/Yi', 'Qwen/Qwen-7B-Chat']
+        self.model_list = [SNR.CHATGLM3, SNR.YI, SNR.QWEN, SNR.SHISA]
         assert model in self.model_list, f'Unsupported model "{model}".'
         self.model = model
 
