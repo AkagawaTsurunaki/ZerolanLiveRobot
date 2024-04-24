@@ -5,7 +5,6 @@ import time
 from os import PathLike
 from typing import Any, Final
 
-import psutil
 import yaml
 
 # 这个常数记录了模块被第一次导入时的时间, 这个数值此后不会再发生变化
@@ -106,6 +105,7 @@ def is_port_in_use(port):
     :param port: int, 待检查的端口号
     :return: bool, 如果端口被占用返回 True，否则返回 False
     """
+    import psutil
     for proc in psutil.process_iter():
         for con in proc.connections():
             if con.status == 'LISTEN' and con.laddr.port == port:
