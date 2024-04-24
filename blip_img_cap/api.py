@@ -11,7 +11,7 @@ def inference(img_path: str, prompt: str):
         'img_path': img_path,
         'prompt': prompt
     }
-    response = requests.get(url=f'{URL}/blip/infer', json=data)
+    response = requests.get(url=f'{URL}/image-captioning/predict', json=data)
     response = HTTPResponseBody(**response.json())
     assert response.ok
     caption = response.data.get('caption', None)

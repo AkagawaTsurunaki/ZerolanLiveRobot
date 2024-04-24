@@ -80,7 +80,7 @@ class Role:
 
 class ServiceNameRegistry:
     ASR = 'asr'
-    BLIP = 'blip'
+    BLIP = 'Salesforce/blip-image-captioning-large'
     CHATGLM3 = 'chatglm3'
     QWEN = 'Qwen/Qwen-7B-Chat'
     YI = '01-ai/Yi'

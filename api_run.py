@@ -24,7 +24,7 @@ if args.service:
     elif args.service == SNR.BLIP:
         import blip_img_cap.app
 
-        blip_img_cap.app.start()
+        blip_img_cap.app.start(args.model_path, args.host, args.port, args.debug)
     elif args.service == SNR.CHATGLM3:
         import llm.chatglm3.app
 
