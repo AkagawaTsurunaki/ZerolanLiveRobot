@@ -4,7 +4,7 @@
 live_stream:
   # Whether to start this service
   enable: True
-  platform:
+  platforms:
     # Bilibili platform configuration
     - bilibili:
         # Method of obtaining credentials [See here](https://nemo2011.github.io/bilibili-api/#/get-credential)
@@ -135,6 +135,10 @@ auto_speech_recognition:
     - speech_paraformer:
         model_path:
         version: v2.0.4
+
+# Minecraft Service Configuration
+minecraft:
+  enable: True
 
 # Zerolan Live Robot Configuration
 zerolan_live_robot_config:

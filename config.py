@@ -7,7 +7,7 @@ import utils.util
 @dataclass
 class LiveStreamConfig:
     enable: bool = True
-    platform: List[dict] = None
+    platforms: List[dict] = None
 
 
 @dataclass
@@ -87,6 +87,9 @@ class ZerolanLiveRobotConfig:
     port: int = 9888
     role_play_template_path: str = "template/role_play_template_short.yaml"
 
+@dataclass
+class MinecraftConfig:
+    enable: bool = True
 
 @dataclass
 class GlobalConfig:
@@ -99,6 +102,7 @@ class GlobalConfig:
     obs: OBSConfig
     voice_activity_detection: VADConfig
     auto_speech_recognition: ASRConfig
+    minecraft: MinecraftConfig
     zerolan_live_robot_config: ZerolanLiveRobotConfig
 
 
@@ -107,7 +111,7 @@ def load_global_config():
 
     live_stream_config = LiveStreamConfig(
         enable=config_yaml['live_stream']['enable'],
-        platform=config_yaml['live_stream']['platform']
+        platforms=config_yaml['live_stream']['platforms']
     )
 
     screenshot_config = ScreenshotConfig(
@@ -171,6 +175,10 @@ def load_global_config():
         models=config_yaml['auto_speech_recognition']['models']
     )
 
+    minecraft_config = MinecraftConfig(
+        enable=config_yaml['minecraft']['enable']
+    )
+
     zerolan_live_robot_config = ZerolanLiveRobotConfig(
         enable=config_yaml['zerolan_live_robot_config']['enable'],
         debug=config_yaml['zerolan_live_robot_config']['debug'],
@@ -189,6 +197,7 @@ def load_global_config():
         obs=obs_config,
         voice_activity_detection=vad_config,
         auto_speech_recognition=asr_config,
+        minecraft=minecraft_config,
         zerolan_live_robot_config=zerolan_live_robot_config
     )
 
