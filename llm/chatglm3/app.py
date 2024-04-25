@@ -61,7 +61,10 @@ def handle_stream_predict():
 def start(model_path, quantize, host, port, debug):
     global TOKENIZER, MODEL
     TOKENIZER = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
-    MODEL = AutoModel.from_pretrained(model_path, trust_remote_code=True).quantize(quantize).to(
-        'cuda').eval()
-    logger.info(f'💭 ChatGLM3 以 {quantize}-bit 加载完毕')
+    if quantize:
+        MODEL = AutoModel.from_pretrained(model_path, trust_remote_code=True).quantize(quantize).to(
+            'cuda').eval()
+    else:
+        MODEL = AutoModel.from_pretrained(model_path, trust_remote_code=True).to('cuda').eval()
+    logger.info(f'💭 ChatGLM3 model loaded.')
     app.run(host=host, port=port, debug=debug)

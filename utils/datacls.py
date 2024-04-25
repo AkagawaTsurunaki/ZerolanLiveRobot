@@ -85,3 +85,4 @@ class ServiceNameRegistry:
     QWEN = 'Qwen/Qwen-7B-Chat'
     YI = '01-ai/Yi'
     SHISA = "augmxnt/shisa-7b-v1"
+    PARAFORMER = "speech_paraformer"

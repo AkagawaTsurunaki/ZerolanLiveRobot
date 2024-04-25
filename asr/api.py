@@ -1,9 +1,10 @@
 import requests
 
+import init
 import initzr
 from utils.datacls import HTTPResponseBody
 
-URL = initzr.load_asr_config().url()
+URL = ''
 
 
 def predict(wav_file_path: str):
@@ -13,3 +14,5 @@ def predict(wav_file_path: str):
         transcript = response.data.get('transcript', None)
         return transcript
     return None
+
+
