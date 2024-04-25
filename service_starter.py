@@ -1,7 +1,7 @@
 import os.path
 
 import livestream.bilibili.service
-from config import ASRConfig, ImageCaptioningConfig, LargeLanguageModelConfig, TextToSpeechConfig
+from config import ASRConfig, ImageCaptioningConfig, LLMServiceConfig, TextToSpeechConfig
 from config import GLOBAL_CONFIG as G_CFG
 from config import LiveStreamConfig
 from utils.datacls import ServiceNameConst as SNR, PlatformConst
@@ -34,7 +34,7 @@ def start_img_cap(config: ImageCaptioningConfig):
         blip_img_cap.app.start(model_path=model_path, host=host, port=port, debug=debug)
 
 
-def start_llm(config: LargeLanguageModelConfig):
+def start_llm(config: LLMServiceConfig):
     debug, host, port = config.debug, config.host, config.port
     assert len(config.models) > 0, f'At least 1 LLM model should configurate.'
     model = next(iter(config.models))
@@ -86,15 +86,12 @@ def start_tts(config: TextToSpeechConfig):
 
 
 def live_stream_start(config: LiveStreamConfig):
+    assert config.enable
     assert len(config.platforms) > 0, f'At least 1 live stream platform should configurate.'
     platform = config.platforms[0]
-    if platform.get(PlatformConst.BILIBILI, None):
-        bili_cfg = platform[PlatformConst.BILIBILI]
-        sessdata, bili_jct, buvid3, room_id = bili_cfg['sessdata'], bili_cfg['bili_jct'], bili_cfg[
-            'buvid3'], bili_cfg['room_id'],
+    if platform.platform_name == PlatformConst.BILIBILI:
+        room_id, sessdata, bili_jct, buvid3 = platform.room_id, platform.sessdata, platform.bili_jct, platform.buvid3
         livestream.bilibili.service.start(sessdata, bili_jct, buvid3, room_id)
-    else:
-        raise NotImplementedError(f'Do not support live stream platform "{config.platforms}".')
 
 
 def start():

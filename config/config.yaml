@@ -110,7 +110,7 @@ voice_activity_detection:
   # Whether to start this service
   enable: True
   # Location to save user voice
-  save_dir: .tmp/records
+  save_directory: .tmp/records
   # Block size
   chunk: 4096
   # Sample rate

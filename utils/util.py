@@ -1,10 +1,12 @@
 import json
 import math
 import os
+import re
 import time
 from os import PathLike
 from typing import Any, Final
 
+import requests
 import yaml
 
 # 这个常数记录了模块被第一次导入时的时间, 这个数值此后不会再发生变化
@@ -126,3 +128,27 @@ def read_json(path: str | os.PathLike) -> Any:
 def read_yaml(path: str | PathLike):
     with open(file=path, mode='r', encoding='utf-8') as file:
         return yaml.safe_load(file)
+
+
+def is_english_string(input_string):
+    # 正则表达式匹配英文字符、数字、空格和标点符号
+    pattern = r'^[a-zA-Z0-9\s\.,;:!?]*$'
+    # 使用re.match()函数检查输入字符串是否匹配正则表达式
+    if re.match(pattern, input_string):
+        return True
+    else:
+        return False
+
+
+def is_url_online(url):
+    try:
+        # 发送一个GET请求到指定的URL
+        response = requests.get(url, timeout=5)
+        # 检查响应状态码是否为200，表示请求成功
+        if response.status_code == 200:
+            return True
+        else:
+            return False
+    except Exception:
+        # 捕获请求异常，如超时、连接错误等
+        return False
