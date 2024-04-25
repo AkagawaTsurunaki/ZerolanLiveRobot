@@ -11,7 +11,7 @@ import blip_img_cap.api
 import initzr
 import minecraft.app
 import obs.api
-from gptsovits import api as gptsovits_serv
+from tts.gptsovits import api as gptsovits_serv
 from livestream.pipeline import LiveStreamPipeline
 from llm.pipeline import LLMPipeline
 from minecraft.app import GameEvent
