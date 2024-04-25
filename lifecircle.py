@@ -11,8 +11,8 @@ import blip_img_cap.api
 import initzr
 import minecraft.app
 import obs.api
-from bilibili import service as bili_serv
 from gptsovits import api as gptsovits_serv
+from livestream.pipeline import LiveStreamPipeline
 from llm.pipeline import LLMPipeline
 from minecraft.app import GameEvent
 from scrnshot import api as scrn_serv
@@ -25,6 +25,7 @@ LANG = 'zh'
 
 DEV_NAME: Final[str] = '赤川鹤鸣'
 LLM_PIPELINE = LLMPipeline()
+LIVE_STREAM_PIPELINE = LiveStreamPipeline()
 MAX_HISTORY = 40
 # Configuration of Zerolan Live Robot
 CONFIG = initzr.load_zerolan_live_robot_config()
@@ -70,7 +71,7 @@ def read_danmaku() -> Danmaku | None:
     当没有弹幕可以被抽取时，返回 None.
     :return: 弹幕对象 | None
     """
-    danmaku = bili_serv.select_latest_longest(k=3)
+    danmaku = LIVE_STREAM_PIPELINE.read_danmaku_latest_longest(k=3)
     if danmaku:
         logger.info(f'✅ [{danmaku.username}]({danmaku.uid}) {danmaku.msg}')
     return danmaku

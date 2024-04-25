@@ -87,3 +87,8 @@ class ServiceNameRegistry:
     YI = '01-ai/Yi'
     SHISA = "augmxnt/shisa-7b-v1"
     PARAFORMER = "speech_paraformer"
+
+
+@dataclass
+class Platform:
+    BILIBILI = 'bilibili'

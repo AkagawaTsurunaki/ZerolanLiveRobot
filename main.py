@@ -6,10 +6,11 @@ from loguru import logger
 
 import asr.service
 import audio_player.service
-import bilibili.service
 import controller.app
 import minecraft.app
+import service_starter
 import vad.service
+from config import GLOBAL_CONFIG as G_CFG
 from lifecircle import start_cycle
 
 logger.remove()
@@ -17,23 +18,29 @@ logger.add(sys.stderr, level="INFO")
 
 if __name__ == '__main__':
     try:
+
         # 线程列表
         thread_list = []
 
         # 弹幕监听服务
-        thread_list.append(threading.Thread(target=bilibili.service.start))
+        if G_CFG.live_stream.enable:
+            thread_list.append(threading.Thread(target=service_starter.live_stream_start))
 
-        # 播放器线程
-        thread_list.append(threading.Thread(target=audio_player.service.start))
+        if G_CFG.auto_speech_recognition.enable:
+            # ASR 线程
+            thread_list.append(threading.Thread(target=asr.service.start))
 
-        # Minecraft 游戏事件监听线程
-        thread_list.append(threading.Thread(target=minecraft.app.start))
+        if G_CFG.voice_activity_detection.enable:
+            # VAD 服务线程
+            thread_list.append(threading.Thread(target=vad.service.start))
 
-        # VAD 服务线程
-        thread_list.append(threading.Thread(target=vad.service.start))
+        if G_CFG.text_to_speech.enable:
+            # 播放器线程
+            thread_list.append(threading.Thread(target=audio_player.service.start))
 
-        # ASR 线程
-        thread_list.append(threading.Thread(target=asr.service.start))
+        if G_CFG.minecraft.enable:
+            # Minecraft 游戏事件监听线程
+            thread_list.append(threading.Thread(target=minecraft.app.start))
 
         # 控制器线程
         thread_list.append(threading.Thread(target=controller.app.start))

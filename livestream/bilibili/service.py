@@ -3,36 +3,27 @@ from typing import List
 
 from bilibili_api import Credential, sync
 from bilibili_api import Danmaku
-from bilibili_api.live import LiveDanmaku, LiveRoom
+from bilibili_api.live import LiveDanmaku
 from loguru import logger
 
-import initzr
-import utils.util
-from config.global_config import BilibiliLiveConfig
 from utils.datacls import Danmaku
-
-CONFIG = initzr.load_bilibili_live_config()
-# 身份对象
-CREDENTIAL = Credential(sessdata=CONFIG.sessdata, bili_jct=CONFIG.bili_jct, buvid3=CONFIG.buvid3)
 
 # 弹幕队列
 g_danmaku_list: List[Danmaku] = []
 
-# 直播监视器（监控弹幕）
-MONITOR = LiveDanmaku(CONFIG.room_id, credential=CREDENTIAL)
-
-# 用来发送弹幕
-SENDER = LiveRoom(CONFIG.room_id, credential=CREDENTIAL)
-
-# 直播发送器（发送弹幕）
-SENDER: LiveRoom
-
 
 # 启动监听
-def start():
+def start(sessdata, bili_jct, buvid3, room_id):
+
     logger.info('🍻 Bilibili 直播间监听启动')
 
-    @MONITOR.on("DANMU_MSG")
+    # 身份对象
+    credential = Credential(sessdata=sessdata, bili_jct=bili_jct, buvid3=buvid3)
+
+    # 直播监视器（监控弹幕）
+    monitor = LiveDanmaku(room_id, credential=credential)
+
+    @monitor.on("DANMU_MSG")
     async def recv(event):
         danmaku = Danmaku(uid=event["data"]["info"][2][0],
                           username=event["data"]["info"][2][1],
@@ -48,7 +39,7 @@ def start():
 
         _add(danmaku)
 
-    sync(MONITOR.connect())
+    sync(monitor.connect())
     logger.warning('🍻 Bilibili 直播间监听已结束')
 
 

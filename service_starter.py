@@ -1,8 +1,10 @@
 import os.path
 
-from config import GLOBAL_CONFIG as G_CFG
+import livestream.bilibili.service
 from config import ASRConfig, ImageCaptioningConfig, LargeLanguageModelConfig, TextToSpeechConfig
-from utils.datacls import ServiceNameRegistry as SNR
+from config import GLOBAL_CONFIG as G_CFG
+from config import LiveStreamConfig
+from utils.datacls import ServiceNameRegistry as SNR, Platform
 
 
 def start_asr(config: ASRConfig):
@@ -81,6 +83,18 @@ def start_tts(config: TextToSpeechConfig):
     model = config.models[0]
     if model == SNR.GPT_SOVITS:
         pass
+
+
+def live_stream_start(config: LiveStreamConfig):
+    assert len(config.platforms) > 0, f'At least 1 live stream platform should configurate.'
+    platform = config.platforms[0]
+    if platform.get(Platform.BILIBILI, None):
+        bili_cfg = platform[Platform.BILIBILI]
+        sessdata, bili_jct, buvid3, room_id = bili_cfg['sessdata'], bili_cfg['bili_jct'], bili_cfg[
+            'buvid3'], bili_cfg['room_id'],
+        livestream.bilibili.service.start(sessdata, bili_jct, buvid3, room_id)
+    else:
+        raise NotImplementedError(f'Do not support live stream platform "{config.platforms}".')
 
 
 def start():

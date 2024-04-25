@@ -87,9 +87,11 @@ class ZerolanLiveRobotConfig:
     port: int = 9888
     role_play_template_path: str = "template/role_play_template_short.yaml"
 
+
 @dataclass
 class MinecraftConfig:
     enable: bool = True
+
 
 @dataclass
 class GlobalConfig:
