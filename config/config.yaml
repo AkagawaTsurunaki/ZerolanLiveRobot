@@ -37,12 +37,11 @@ image_captioning:
   port: 9879
   # Supported image-captioning models
   models:
-    - Salesforce:
-        blip-image-captioning-large:
-          # Path of the BLIP model
-          model_path: Salesforce/blip-image-captioning-large
-          # Default text prompt for BLIP
-          text_prompt: There
+    - Salesforce/blip-image-captioning-large:
+        # Path of the BLIP model
+        model_path: Salesforce/blip-image-captioning-large
+        # Default text prompt for BLIP
+        text_prompt: There
 
 # Text-to-Speech Service Configuration
 text_to_speech:
@@ -58,10 +57,9 @@ text_to_speech:
   save_directory: .tmp/wav_output
   # Supported text-to-speech models
   models:
-    - RVC-Boss:
-        GPT-SoVITS:
-          # There is no need to configurate because the script of GPT-SoVTIS is in its project
-          # But please do not delete this item because ZerolanLiveRobot depends on this item to choose model format
+    - RVC-Boss/GPT-SoVITS:
+      # There is no need to configurate because the script of GPT-SoVTIS is in its project
+      # But please do not delete this item because ZerolanLiveRobot depends on this item to choose model format
 
 # LLM Service Configuration
 large_language_model:
@@ -75,30 +73,26 @@ large_language_model:
   port: 9881
   # Supported LLMs
   models:
-    - THUDM:
-        chatglm3-6b:
-          model_path: THUDM/chatglm3-6b
-          quantize: 4
-    - Qwen:
-        Qwen-7B-Chat:
-          model_path: Qwen/Qwen-7B-Chat
-          quantize: 4
-          loading_mode: auto
-    - 01-ai:
-        Yi:
-          model_path: 01-ai/Yi
-          loading_mode: auto
-    - augmxnt:
-        shisa-7b-v1:
-          model_path: augmxnt/shisa-7b-v1
-          loading_mode: auto
+    - THUDM/chatglm3-6b:
+        model_path: THUDM/chatglm3-6b
+        quantize: 4
+    - Qwen/Qwen-7B-Chat:
+        model_path: Qwen/Qwen-7B-Chat
+        quantize: 4
+        loading_mode: auto
+    - 01-ai/Yi:
+        model_path: 01-ai/Yi
+        loading_mode: auto
+    - augmxnt/shisa-7b-v1:
+        model_path: augmxnt/shisa-7b-v1
+        loading_mode: auto
 
 # Tone Analysis Service Configuration
 tone_analysis:
   # Whether to start this service (If true, LLM service and TTS service must be both enabled)
   enable: True
   # Path of tone analysis template file
-  tone_analysis_template_path: template/my_tone_ayalysis_template.yaml
+  tone_analysis_template_path: template/tone_ayalysis_template.yaml
 
 # OBS Service Configuration
 obs:
@@ -138,8 +132,9 @@ auto_speech_recognition:
   port: 9882
   # Supported ASR models
   models:
-    speech_paraformer:
-      model_path:
+    - speech_paraformer:
+        model_path:
+        version: v2.0.4
 
 # Zerolan Live Robot Configuration
 zerolan_live_robot_config:
@@ -152,5 +147,5 @@ zerolan_live_robot_config:
   # Zerolan Live Robot service port
   port: 9888
   # Path of role play template
-  role_play_template_path: template/my_role_play_template_short.yaml
+  role_play_template_path: template/role_play_template_short.yaml
 
