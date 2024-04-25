@@ -1,5 +1,3 @@
-import os.path
-
 import livestream.bilibili.service
 from config import ASRConfig, ImageCaptioningConfig, LLMServiceConfig, TextToSpeechConfig
 from config import GLOBAL_CONFIG as G_CFG
@@ -9,85 +7,51 @@ from utils.datacls import ServiceNameConst as SNR, PlatformConst
 
 def start_asr(config: ASRConfig):
     debug, host, port = config.debug, config.host, config.port
-    assert len(config.models) > 0, f'At least 1 ASR model should configurate.'
     model = config.models[0]
-    if model == SNR.PARAFORMER:
-        model_path = model.get('model_path', None)
-        version = model.get('version', None)
-        assert os.path.exists(model_path), f'Model path "{model_path}" does not exist.'
-
+    if SNR.PARAFORMER == model.model_name:
         import asr.app
 
-        asr.app.start(model_path=model_path, host=host, port=port, debug=debug, version=version)
+        asr.app.start(model_path=model.model_path, host=host, port=port, debug=debug, version=model.version)
 
 
 def start_img_cap(config: ImageCaptioningConfig):
     debug, host, port = config.debug, config.host, config.port
-    assert len(config.models) > 0, f'At least 1 Image-Captioning model should configurate.'
     model = config.models[0]
-    if model == SNR.BLIP:
-        model_path = model.get('model_path', None)
-        assert os.path.exists(model_path), f'Model path "{model_path}" does not exist.'
-
+    if SNR.BLIP == model.model_name:
         import blip_img_cap.app
 
-        blip_img_cap.app.start(model_path=model_path, host=host, port=port, debug=debug)
+        blip_img_cap.app.start(model_path=model.model_path, host=host, port=port, debug=debug)
 
 
 def start_llm(config: LLMServiceConfig):
     debug, host, port = config.debug, config.host, config.port
-    assert len(config.models) > 0, f'At least 1 LLM model should configurate.'
-    model = next(iter(config.models))
-    if model == SNR.CHATGLM3:
-        model_path = model.get('model_path', None)
-        assert os.path.exists(model_path), f'Model path "{model_path}" does not exist.'
-
-        quantize = model.get('quantize', None)
-        if quantize:
-            assert quantize in [4, 8], f'{model} should be quantized by 4 or 8, not {quantize}.'
-
+    model = config.models[0]
+    if SNR.CHATGLM3 == model.model_name:
         import llm.chatglm3.app
 
-        llm.chatglm3.app.start(model_path, quantize, host, port, debug)
-    elif model == SNR.QWEN:
-        model_path = model.get('model_path', None)
-        assert os.path.exists(model_path), f'Model path "{model_path}" does not exist.'
-
-        loading_mode = model.get('loading_mode', 'auto')
-
+        llm.chatglm3.app.start(model.model_path, model.quantize, host, port, debug)
+    elif SNR.QWEN == model.model_name:
         import llm.qwen.app
 
-        llm.qwen.app.start(model_path, loading_mode, host, port, debug)
-    elif model == SNR.YI:
-        model_path = model.get('model_path', None)
-        assert os.path.exists(model_path), f'Model path "{model_path}" does not exist.'
-
-        loading_mode = model.get('loading_mode', 'auto')
-
+        llm.qwen.app.start(model.model_path, model.loading_mode, host, port, debug)
+    elif SNR.YI == model.model_name:
         import llm.yi_6b.app
 
-        llm.yi_6b.app.start(model_path, loading_mode, host, port, debug)
-    elif model == SNR.SHISA:
+        llm.yi_6b.app.start(model.model_path, model.loading_mode, host, port, debug)
+    elif SNR.SHISA == model.model_name:
         import llm.shisa.app
-        model_path = model.get('model_path', None)
-        assert os.path.exists(model_path), f'Model path "{model_path}" does not exist.'
 
-        llm.shisa.app.start(model_path, host, port, debug)
+        llm.shisa.app.start(model.model_path, host, port, debug)
 
 
 def start_tts(config: TextToSpeechConfig):
     debug, host, port = config.debug, config.host, config.port
-    save_dir = config.save_directory
-    assert os.path.exists(save_dir), f'Save directory "{save_dir}" does not exist.'
-    assert len(config.models) > 0, f'At least 1 LLM model should configurate.'
     model = config.models[0]
-    if model == SNR.GPT_SOVITS:
+    if SNR.GPT_SOVITS == model.model_name:
         pass
 
 
 def live_stream_start(config: LiveStreamConfig):
-    assert config.enable
-    assert len(config.platforms) > 0, f'At least 1 live stream platform should configurate.'
     platform = config.platforms[0]
     if platform.platform_name == PlatformConst.BILIBILI:
         room_id, sessdata, bili_jct, buvid3 = platform.room_id, platform.sessdata, platform.bili_jct, platform.buvid3
