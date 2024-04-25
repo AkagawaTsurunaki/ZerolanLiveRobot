@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from os import PathLike
-from utils.datacls import ServiceNameRegistry as SNR
+from utils.datacls import ServiceNameConst as SNR
 
 # Bilibili 直播配置
 @dataclass

@@ -8,7 +8,7 @@ from config.global_config import BilibiliLiveConfig, ScreenshotConfig, BlipImage
     GPTSoVITSServiceConfig, ToneAnalysisServiceConfig, OBSConfig, ASRConfig, VADConfig, \
     ZerolanLiveRobotConfig, LLMServiceConfig
 from utils.util import is_valid_port, create_file_if_not_exists, read_yaml
-from utils.datacls import ServiceNameRegistry as SNR
+from utils.datacls import ServiceNameConst as SNR
 
 
 def _load_global_config(path: str | PathLike = 'config/global_config.yaml'):
@@ -28,66 +28,6 @@ def _load_global_config(path: str | PathLike = 'config/global_config.yaml'):
 
 
 GLOBAL_CONFIG = _load_global_config()
-
-
-def load_bilibili_live_config():
-    """
-    加载 Bilibili 直播配置
-
-    :return: tuple 包含 sessdata, bili_jct, buvid3, room_id（直播间 ID）四个配置项
-    :raises AssertionError: 如果配置项缺失或格式有误
-    """
-    config: dict = GLOBAL_CONFIG.get('bilibili_live_config', None)
-    assert config, f'❌️ Bilibili 直播配置未填写或格式有误'
-
-    sessdata = config.get('sessdata', None)
-    assert sessdata, f'❌️ bilibili_live_config 中的字段 sessdata 未填写或格式有误'
-
-    bili_jct = config.get('bili_jct', None)
-    assert bili_jct, f'❌️ bilibili_live_config 中的字段 bili_jct 未填写或格式有误'
-
-    buvid3 = config.get('buvid3', None)
-    assert buvid3, f'❌️ bilibili_live_config 中的字段 buvid3 未填写或格式有误'
-
-    room_id = config.get('room_id', 'room_id')
-    assert room_id and room_id >= 0, f'❌️ bilibili_live_config 中的字段 room_id 应当是一个非负 int 型整数'
-
-    return BilibiliLiveConfig(
-        enabled=True,
-        sessdata=sessdata,
-        bili_jct=bili_jct,
-        buvid3=buvid3,
-        room_id=room_id
-    )
-
-
-def load_screenshot_config():
-    """
-    加载截图配置
-
-    :return: tuple, 包含截图窗口标题(win_title)、匹配度阈值(k)和保存目录(save_dir)的元组
-    :raises AssertionError: 当截图配置中关键信息未填写或格式有误时引发断言错误
-    """
-    config: dict = GLOBAL_CONFIG.get('screenshot_config', None)
-    assert config, f'❌️ 截屏配置未填写或格式有误'
-
-    win_title = config.get('win_title', None)
-    assert win_title, f'❌️ 截屏配置中的字段 win_title 未填写或格式有误'
-
-    k = config.get('k', 0.9)
-    assert 0 < k < 1, f'❌️ 截屏配置中的字段 win_title 必须在 0 ~ 1 之间'
-
-    save_dir = config.get('save_dir', '.tmp/screenshots')
-    if not os.path.exists(save_dir):
-        os.mkdir(save_dir)
-
-    assert os.path.isdir(save_dir), f'❌️ 截屏配置中的字段 save_dir 所指向的路径不是一个目录'
-
-    return ScreenshotConfig(
-        win_title=win_title,
-        k=k,
-        save_dir=save_dir
-    )
 
 
 def load_blip_image_captioning_large_config() -> BlipImageCaptioningLargeConfig:
@@ -118,29 +58,6 @@ def load_blip_image_captioning_large_config() -> BlipImageCaptioningLargeConfig:
     )
 
 
-def load_gpt_sovits_config():
-    config: dict = GLOBAL_CONFIG.get('gpt_sovits_service_config', None)
-    assert config, f'❌️ GPT-SoVITS 服务配置未填写或格式有误'
-
-    debug = config.get('debug', False)
-
-    host = config.get('host', '127.0.0.1')
-
-    port = config.get('port', 9880)
-    assert utils.util.is_valid_port(port), f'❌️ GPT-SoVITS 服务所配置的端口不合法'
-
-    save_dir = config.get('save_dir', '.tmp/wav_output')
-    if not os.path.exists(save_dir):
-        os.mkdir(save_dir)
-
-    return GPTSoVITSServiceConfig(
-        debug=debug,
-        host=host,
-        port=port,
-        save_dir=save_dir
-    )
-
-
 def load_tone_analysis_service_config():
     config: dict = GLOBAL_CONFIG.get('tone_analysis_service_config', None)
     assert config, f'❌️ 语气分析服务配置未填写或格式有误'
@@ -150,18 +67,6 @@ def load_tone_analysis_service_config():
 
     return ToneAnalysisServiceConfig(
         tone_analysis_template_path=tone_template_path
-    )
-
-
-def load_llm_service_config():
-    config: dict = GLOBAL_CONFIG['llm_service_config']
-    llm_name = config['llm_name']
-    host = config['host']
-    port = config['port']
-    return LLMServiceConfig(
-        llm_name=llm_name,
-        host=host,
-        port=port
     )
 
 

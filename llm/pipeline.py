@@ -6,19 +6,20 @@ from urllib.parse import urljoin
 import requests
 from loguru import logger
 
-import initzr
-from utils.datacls import LLMQuery, Chat, LLMResponse, ServiceNameRegistry as SNR
+from config import GLOBAL_CONFIG as G_CFG
+from utils.datacls import LLMQuery, Chat, LLMResponse, ServiceNameConst as SNR
 
 
 class LLMPipeline:
 
     def __init__(self):
-        model = initzr.load_llm_service_config().llm_name
+        config = G_CFG.large_language_model
+        model = next(iter(config.models))
         self.model_list = [SNR.CHATGLM3, SNR.YI, SNR.QWEN, SNR.SHISA]
         assert model in self.model_list, f'Unsupported model "{model}".'
         self.model = model
 
-        url = initzr.load_llm_service_config().url()
+        url = f'http://{config.host}:{config.port}'
         self.predict_url = urljoin(url, f'/llm/predict')
         self.stream_predict_url = urljoin(url, f'/llm/stream-predict')
 

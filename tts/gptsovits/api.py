@@ -7,12 +7,11 @@ from urllib.parse import urljoin
 import requests
 from loguru import logger
 
-import initzr
+from config import GLOBAL_CONFIG as G_CFG
 from utils.datacls import GPTSoVITSChangeRefer, GPTSoVITSRequest
 
-CONFIG = initzr.load_gpt_sovits_config()
-SERVER_URL = CONFIG.url()
-SAVE_DIR = CONFIG.save_dir
+SAVE_DIR = G_CFG.text_to_speech.save_directory
+SERVER_URL = f'http://{G_CFG.text_to_speech.host}:{G_CFG.text_to_speech.port}'
 
 
 def _write_wav(wav_data):

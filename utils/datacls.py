@@ -78,7 +78,7 @@ class Role:
     SYSTEM = 'system'
 
 
-class ServiceNameRegistry:
+class ServiceNameConst:
     GPT_SOVITS = 'RVC-Boss/GPT-SoVITS'
     ASR = 'asr'
     BLIP = 'Salesforce/blip-image-captioning-large'
@@ -90,5 +90,5 @@ class ServiceNameRegistry:
 
 
 @dataclass
-class Platform:
+class PlatformConst:
     BILIBILI = 'bilibili'

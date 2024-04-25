@@ -1,18 +1,15 @@
 import os.path
 import time
-from os import PathLike
 
 import pyautogui
 import pygetwindow as gw
 from loguru import logger
 
-import initzr
-from config.global_config import ScreenshotConfig
+from config import GLOBAL_CONFIG as G_CFG
 
-CONFIG = initzr.load_screenshot_config()
-K = CONFIG.k
-SAVE_PATH = CONFIG.save_dir
-WIN_TITLE = CONFIG.win_title
+K = G_CFG.screenshot.k
+SAVE_PATH = G_CFG.screenshot.save_directory
+WIN_TITLE = G_CFG.screenshot.window_title
 
 
 def screen_cap():

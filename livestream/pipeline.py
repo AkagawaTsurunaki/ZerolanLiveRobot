@@ -1,4 +1,4 @@
-from utils.datacls import Danmaku, Platform
+from utils.datacls import Danmaku, PlatformConst
 from config import GLOBAL_CONFIG as G_CFG
 
 
@@ -8,7 +8,7 @@ class LiveStreamPipeline:
         self.platform = next(iter(G_CFG.live_stream.platforms))
 
     def read_danmaku_latest_longest(self, k: int = 3) -> Danmaku | None:
-        if self.platform == Platform.BILIBILI:
+        if self.platform == PlatformConst.BILIBILI:
             import bilibili.service
             return bilibili.service.select_latest_longest(k)
         else:

@@ -3,6 +3,8 @@ from typing import List
 
 import utils.util
 
+@dataclass
+class ...
 
 @dataclass
 class LiveStreamConfig:

@@ -4,7 +4,7 @@ import livestream.bilibili.service
 from config import ASRConfig, ImageCaptioningConfig, LargeLanguageModelConfig, TextToSpeechConfig
 from config import GLOBAL_CONFIG as G_CFG
 from config import LiveStreamConfig
-from utils.datacls import ServiceNameRegistry as SNR, Platform
+from utils.datacls import ServiceNameConst as SNR, PlatformConst
 
 
 def start_asr(config: ASRConfig):
@@ -37,7 +37,7 @@ def start_img_cap(config: ImageCaptioningConfig):
 def start_llm(config: LargeLanguageModelConfig):
     debug, host, port = config.debug, config.host, config.port
     assert len(config.models) > 0, f'At least 1 LLM model should configurate.'
-    model = config.models[0]
+    model = next(iter(config.models))
     if model == SNR.CHATGLM3:
         model_path = model.get('model_path', None)
         assert os.path.exists(model_path), f'Model path "{model_path}" does not exist.'
@@ -88,8 +88,8 @@ def start_tts(config: TextToSpeechConfig):
 def live_stream_start(config: LiveStreamConfig):
     assert len(config.platforms) > 0, f'At least 1 live stream platform should configurate.'
     platform = config.platforms[0]
-    if platform.get(Platform.BILIBILI, None):
-        bili_cfg = platform[Platform.BILIBILI]
+    if platform.get(PlatformConst.BILIBILI, None):
+        bili_cfg = platform[PlatformConst.BILIBILI]
         sessdata, bili_jct, buvid3, room_id = bili_cfg['sessdata'], bili_cfg['bili_jct'], bili_cfg[
             'buvid3'], bili_cfg['room_id'],
         livestream.bilibili.service.start(sessdata, bili_jct, buvid3, room_id)

@@ -7,7 +7,7 @@ from flask import Flask, request, jsonify
 from loguru import logger
 from transformers import BlipProcessor, BlipForConditionalGeneration
 
-from utils.datacls import HTTPResponseBody, ServiceNameRegistry as SNR
+from utils.datacls import HTTPResponseBody, ServiceNameConst as SNR
 
 app = Flask(__name__)
 
