@@ -1,6 +1,7 @@
 import os.path
 
-from config import ASRConfig, ImageCaptioningConfig, LargeLanguageModelConfig
+from config import GLOBAL_CONFIG as G_CFG
+from config import ASRConfig, ImageCaptioningConfig, LargeLanguageModelConfig, TextToSpeechConfig
 from utils.datacls import ServiceNameRegistry as SNR
 
 
@@ -70,3 +71,27 @@ def start_llm(config: LargeLanguageModelConfig):
         assert os.path.exists(model_path), f'Model path "{model_path}" does not exist.'
 
         llm.shisa.app.start(model_path, host, port, debug)
+
+
+def start_tts(config: TextToSpeechConfig):
+    debug, host, port = config.debug, config.host, config.port
+    save_dir = config.save_directory
+    assert os.path.exists(save_dir), f'Save directory "{save_dir}" does not exist.'
+    assert len(config.models) > 0, f'At least 1 LLM model should configurate.'
+    model = config.models[0]
+    if model == SNR.GPT_SOVITS:
+        pass
+
+
+def start():
+    assert G_CFG.large_language_model.enable, f'LLM service must be enabled.'
+    start_llm(G_CFG.large_language_model)
+
+    if G_CFG.auto_speech_recognition.enable:
+        start_asr(G_CFG.auto_speech_recognition)
+
+    if G_CFG.image_captioning.enable:
+        start_img_cap(G_CFG.image_captioning)
+
+    if G_CFG.text_to_speech.enable:
+        start_tts(G_CFG.text_to_speech)
