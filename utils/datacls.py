@@ -79,6 +79,7 @@ class Role:
 
 
 class ServiceNameRegistry:
+    GPT_SOVITS = 'RVC-Boss/GPT-SoVITS'
     ASR = 'asr'
     BLIP = 'Salesforce/blip-image-captioning-large'
     CHATGLM3 = 'THUDM/chatglm3-6b'
