@@ -12,9 +12,9 @@ def start_asr(config: ASRConfig):
     debug, host, port = config.debug, config.host, config.port
     model = config.models[0]
     if SNR.PARAFORMER == model.model_name:
-        import asr.app
+        import asr.speech_paraformer.app
 
-        asr.app.start(model_path=model.model_path, host=host, port=port, debug=debug, version=model.version)
+        asr.speech_paraformer.app.start(model_path=model.model_path, host=host, port=port, debug=debug, version=model.version)
 
 
 def start_img_cap(config: ImageCaptioningConfig):

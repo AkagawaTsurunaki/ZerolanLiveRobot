@@ -26,7 +26,7 @@ if __name__ == '__main__':
 
         if G_CFG.auto_speech_recognition.enable:
             # ASR 线程
-            from asr.service import ASRService
+            from asr import ASRService
 
             asr_service = ASRService()
             thread_list.append(threading.Thread(target=asr_service.start))

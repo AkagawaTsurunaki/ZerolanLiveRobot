@@ -7,7 +7,7 @@ from config import GlobalConfig
 from serivce.abs_service import AbstractService, ServiceStatus
 from utils.datacls import Transcript
 from loguru import logger
-from asr.api import predict
+from asr.speech_paraformer.api import predict
 import vad.service
 
 # Config logger
