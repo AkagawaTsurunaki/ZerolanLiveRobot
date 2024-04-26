@@ -6,10 +6,10 @@ from loguru import logger
 
 import minecraft.app
 import service_starter
-import vad.service
 from config import GLOBAL_CONFIG as G_CFG
 from controller.app import ControllerApp
 from lifecycle import LifeCycle
+from vad.service import VADService
 
 logger.remove()
 logger.add(sys.stderr, level="INFO")
@@ -33,7 +33,8 @@ if __name__ == '__main__':
 
         if G_CFG.voice_activity_detection.enable:
             # VAD 服务线程
-            thread_list.append(threading.Thread(target=vad.service.start))
+            vad_service = VADService(G_CFG)
+            thread_list.append(threading.Thread(target=vad_service.start))
 
         if G_CFG.text_to_speech.enable:
             # 播放器线程

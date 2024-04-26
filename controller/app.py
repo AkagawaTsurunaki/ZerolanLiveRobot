@@ -4,7 +4,7 @@ from typing import List
 from flask import Flask, jsonify
 
 import obs.api
-import vad.service
+from vad.service import VADService, VADServiceStatus
 from audio_player.service import AudioPlayerService, AudioPlayerStatus
 from common.abs_app import AbstractApp
 from config import GlobalConfig
@@ -29,24 +29,25 @@ class AudioPlayerControlResponse(ControllerResponse):
     status: AudioPlayerStatus
 
 
+@dataclass
+class VADControlResponse(ControllerResponse):
+    status: VADServiceStatus
+
+
 class ControllerApp(AbstractApp):
 
-    def __init__(self, cfg: GlobalConfig, lifecycle: LifeCycle, audio_player_service: AudioPlayerService):
+    def __init__(self, cfg: GlobalConfig, lifecycle: LifeCycle, audio_player_service: AudioPlayerService,
+                 vad_service: VADService):
         super().__init__()
         self._host = cfg.zerolan_live_robot_config.host
         self._port = cfg.zerolan_live_robot_config.port
         self._debug = cfg.zerolan_live_robot_config.debug
         self._lifecycle: LifeCycle = lifecycle
         self._audio_player_service = audio_player_service
+        self._vad_service = vad_service
 
     def start(self):
         app.run(host=self._host, port=self._port, debug=self._debug)
-
-    @app.route('/vad/switch', methods=['POST'])
-    def handle_vad_switch(self):
-        resume = vad.service.switch()
-        message = 'VAD enabled.' if resume else 'VAD unabled.'
-        return jsonify(asdict(ControllerResponse(message=message)))
 
     @app.route('/memory/reset', methods=['POST'])
     def reset(self):
@@ -60,6 +61,24 @@ class ControllerApp(AbstractApp):
         message = f'{len(memory.history)} conversations.'
         response = MemoryControlResponse(message=message, history=memory.history)
         return jsonify(asdict(response))
+
+    @app.route('/vad/pause', methods=['POST'])
+    def handle_vad_switch(self):
+        self._vad_service.pause()
+        message = 'VAD service paused.'
+        return jsonify(asdict(ControllerResponse(message=message)))
+
+    @app.route('/vad/resume', methods=['POST'])
+    def handle_vad_switch(self):
+        self._vad_service.resume()
+        message = 'VAD service resumed.'
+        return jsonify(asdict(ControllerResponse(message=message)))
+
+    @app.route('/vad/status', methods=['POST'])
+    def handle_vad_switch(self):
+        status = self._vad_service.status()
+        message = f'VAD service status: {status}'
+        return jsonify(asdict(VADControlResponse(message=message, status=status)))
 
     @app.route('/audio-player/pause', methods=['POST'])
     def handle_audio_player_pause(self):

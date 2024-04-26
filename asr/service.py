@@ -5,7 +5,7 @@ from typing import List
 
 from loguru import logger
 
-import vad.service
+from vad.service import VADService
 from asr.pipeline import ASRPipeline, ASRModelQuery
 from common.abs_service import AbstractService, ServiceStatus
 from config import GlobalConfig
@@ -24,11 +24,12 @@ class ASRServiceStatus(ServiceStatus):
 
 
 class ASRService(AbstractService):
-    def __init__(self, g_cfg: GlobalConfig):
+    def __init__(self, g_cfg: GlobalConfig, vad_service: VADService):
         self.g_transcript_list: List[Transcript] = []
         self._running: bool = False
         self._selecting_wav_event: threading.Event = threading.Event()
         self._pipeline = ASRPipeline(g_cfg)
+        self._vad_service = vad_service
 
     def start(self):
         self._running = True
@@ -36,7 +37,7 @@ class ASRService(AbstractService):
         logger.info('ASR service starting...')
         while self._running:
             if self._selecting_wav_event.is_set():
-                wav_file_path = vad.service.select_latest_unread()
+                wav_file_path = self._vad_service.select_latest_unread()
                 if wav_file_path:
                     asr_response = self._pipeline.predict(ASRModelQuery(wav_path=wav_file_path))
                     if asr_response:
