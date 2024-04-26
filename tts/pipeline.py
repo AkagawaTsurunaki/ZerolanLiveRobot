@@ -1,4 +1,15 @@
-class TTSQuery:
+from dataclasses import asdict, dataclass
+from http import HTTPStatus
+
+import requests
+
+from common.abs_pipeline import AbstractPipeline, AbstractModelQuery, AbstractModelResponse
+from config import GlobalConfig
+from utils.datacls import ServiceNameConst as SNC
+
+
+@dataclass
+class TTSQuery(AbstractModelQuery):
     text: str
     text_language: str
     refer_wav_path: str
@@ -6,12 +17,28 @@ class TTSQuery:
     prompt_language: str
 
 
-class TTSPipeline:
-    def __init__(self):
-        self.model_id = ...
+@dataclass
+class TTSResponse(AbstractModelResponse):
+    wave_data: bytes
 
-    def predict_with_prompt(self, tts_query: TTSQuery):
-        ...
 
-    def predict(self, tts_query: TTSQuery):
-        ...
+class TTSPipeline(AbstractPipeline):
+    def __init__(self, cfg: GlobalConfig):
+        super().__init__()
+        host, port = cfg.text_to_speech.host, cfg.text_to_speech.port
+        self.predict_url = f'http://{host}:{port}/tts/predict'
+        self.predict_url_4_gpt_sovits = f'http://{host}:{port}'
+        self.model_name = cfg.text_to_speech.models[0].model_name
+
+    def predict(self, query: TTSQuery) -> TTSResponse | None:
+        if SNC.GPT_SOVITS == self.model_name:
+            return self._gpt_sovits_predict(query)
+        else:
+            return super().predict(query)
+
+    def _gpt_sovits_predict(self, tts_query: TTSQuery) -> TTSResponse | None:
+        query = asdict(tts_query)
+        response = requests.post(self.predict_url_4_gpt_sovits, json=query)
+        if response.status_code == HTTPStatus.OK:
+            return TTSResponse(wave_data=response.content)
+        return None

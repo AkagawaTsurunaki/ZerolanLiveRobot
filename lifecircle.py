@@ -15,10 +15,10 @@ from llm.pipeline import LLMPipeline
 from minecraft.app import GameEvent
 from scrnshot import api as scrn_serv
 from tone_ana import api as tone_serv
-from tts.gptsovits import api as gptsovits_serv
+from tts.pipeline import TTSPipeline, TTSQuery
 from utils import util
 from utils.datacls import Danmaku, LLMQuery, Chat, Role
-from utils.util import is_blank
+from utils.util import is_blank, write_wav
 
 LANG = 'zh'
 
@@ -124,7 +124,7 @@ def convert_2_query(transcript: str, danmaku: Danmaku, screen_desc: str, game_ev
     return None
 
 
-def tts_with_tone(sentence: str):
+def tts_with_tone(sentence: str, tts_pipeline: TTSPipeline):
     """
     自动分析句子语气，并合成语音
     :param sentence: 将要被合成的文本
@@ -134,10 +134,10 @@ def tts_with_tone(sentence: str):
     tone = tone_serv.analyze_tone(sentence)
 
     # 根据语气切换 TTS 的提示合成对应的语音
-    wav_file_path = gptsovits_serv.predict_with_prompt(text_language=LANG, text=sentence,
-                                                       refer_wav_path=tone.refer_wav_path,
-                                                       prompt_text=tone.prompt_text,
-                                                       prompt_language=tone.prompt_language)
+    tts_query = TTSQuery(text=sentence, text_language=LANG, refer_wav_path=tone.refer_wav_path,
+                         prompt_text=tone.prompt_text, prompt_language=tone.prompt_language)
+    tts_response = tts_pipeline.predict(tts_query)
+    wav_file_path = write_wav(tts_response.wave_data)
     obs.api.write_tone_output(tone)
 
     return tone, wav_file_path

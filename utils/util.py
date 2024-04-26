@@ -3,6 +3,7 @@ import math
 import os
 import re
 import time
+import uuid
 from os import PathLike
 from typing import Any, Final
 
@@ -152,3 +153,14 @@ def is_url_online(url):
     except Exception:
         # 捕获请求异常，如超时、连接错误等
         return False
+
+
+def write_wav(wave_data):
+    from config import GLOBAL_CONFIG
+    save_dir = GLOBAL_CONFIG.text_to_speech.save_directory
+    ran_file_name = uuid.uuid4()
+    tmp_wav_file_path = os.path.join(save_dir, f'{ran_file_name}.wav')
+    with open(file=tmp_wav_file_path, mode='wb') as wav_file:
+        wav_file.write(wave_data)
+    tmp_wav_file_path = tmp_wav_file_path.replace("/", "\\")
+    return tmp_wav_file_path
