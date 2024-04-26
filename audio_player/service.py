@@ -66,15 +66,6 @@ class AudioPlayerService(AbstractService):
         self.g_audio_list = []
         logger.warning('Audio player service has been stopped.')
 
-    def status(self) -> AudioPlayerStatus:
-        if self._running:
-            if self.audio_play_event.is_set():
-                return AudioPlayerStatus.PLAYING
-            else:
-                return AudioPlayerStatus.PAUSED
-        else:
-            return AudioPlayerStatus.STOP
-
     def _play(self, audio_pair: AudioPair):
         # To avoid error code 259, be sure to use the absolute path
         # And please do your own search for a solution to the coding problem.
@@ -114,3 +105,12 @@ class AudioPlayerService(AbstractService):
             logger.info('Audio player service resumed.')
         else:
             logger.warning('Invalid operation: Audio player service has been resumed.')
+
+    def status(self) -> AudioPlayerStatus:
+        if self._running:
+            if self.audio_play_event.is_set():
+                return AudioPlayerStatus.PLAYING
+            else:
+                return AudioPlayerStatus.PAUSED
+        else:
+            return AudioPlayerStatus.STOP
