@@ -4,12 +4,12 @@ from typing import Final
 
 from loguru import logger
 
-import img_cap.blip.api
 import initzr
 import minecraft.app
 import obs.api
 from asr.service import ASRService
 from audio_player.service import AudioPlayerService
+from img_cap.pipeline import ImageCapPipeline, ImageCapQuery
 from livestream.pipeline import LiveStreamPipeline
 from llm.pipeline import LLMPipeline
 from minecraft.app import GameEvent
@@ -76,7 +76,7 @@ def read_danmaku() -> Danmaku | None:
     return danmaku
 
 
-def read_screen() -> str | None:
+def read_screen(img_cap_pipeline: ImageCapPipeline) -> str | None:
     """
     从指定窗口中读取截图并返回一段英文描述。
     当没有成功截图是，返回 None.
@@ -84,7 +84,7 @@ def read_screen() -> str | None:
     """
     img_save_path = scrn_serv.screen_cap()
     if img_save_path:
-        caption = img_cap.blip_img_cap.api.inference(img_save_path, prompt='There')
+        caption = img_cap_pipeline.predict(ImageCapQuery(img_path=img_save_path, prompt='There'))
         return caption
     return None
 
@@ -148,7 +148,8 @@ def read_game_event():
 
 
 async def life_circle(audio_player_service: AudioPlayerService,
-                      asr_service: ASRService
+                      asr_service: ASRService,
+                      img_cap_pipeline: ImageCapPipeline
                       ):
     global LANG, memory
 
@@ -157,7 +158,7 @@ async def life_circle(audio_player_service: AudioPlayerService,
     # 尝试读取语音 | 抽取弹幕 | 截图识别 | 获取游戏事件
     transcript = read_from_microphone(asr_service)
     danmaku = read_danmaku()
-    screen_desc = read_screen()
+    screen_desc = read_screen(img_cap_pipeline)
     game_event = read_game_event()
 
     # 将上述获取的信息转化为对话的请求
@@ -208,10 +209,11 @@ async def life_circle(audio_player_service: AudioPlayerService,
     memory.history = ret_llm_response.history
 
 
-async def start_cycle(ap_serv: AudioPlayerService, asr_serv: ASRService):
+async def start_cycle(ap_serv: AudioPlayerService, asr_serv: ASRService, img_cap_pipeline: ImageCapPipeline):
     logger.info('💜 ZerolanLiveRobot，启动！')
     while True:
         await life_circle(audio_player_service=ap_serv,
-                          asr_service=asr_serv
+                          asr_service=asr_serv,
+                          img_cap_pipeline=img_cap_pipeline
                           )
         await asyncio.sleep(2)
