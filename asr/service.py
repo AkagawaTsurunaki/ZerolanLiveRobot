@@ -3,12 +3,13 @@ import threading
 from dataclasses import dataclass
 from typing import List
 
-from config import GlobalConfig
-from common.abs_service import AbstractService, ServiceStatus
-from utils.datacls import Transcript
 from loguru import logger
-from asr.speech_paraformer.api import predict
+
 import vad.service
+from asr.pipeline import ASRPipeline, ASRModelQuery
+from common.abs_service import AbstractService, ServiceStatus
+from config import GlobalConfig
+from utils.datacls import Transcript
 
 # Config logger
 logger.remove()
@@ -23,12 +24,13 @@ class ASRServiceStatus(ServiceStatus):
 
 
 class ASRService(AbstractService):
-    def __init__(self):
+    def __init__(self, g_cfg: GlobalConfig):
         self.g_transcript_list: List[Transcript] = []
         self._running: bool = False
         self._selecting_wav_event: threading.Event = threading.Event()
+        self._pipeline = ASRPipeline(g_cfg)
 
-    def start(self, g_cfg: GlobalConfig):
+    def start(self):
         self._running = True
         self._selecting_wav_event.set()
         logger.info('ASR service starting...')
@@ -36,9 +38,9 @@ class ASRService(AbstractService):
             if self._selecting_wav_event.is_set():
                 wav_file_path = vad.service.select_latest_unread()
                 if wav_file_path:
-                    res = predict(wav_file_path)
-                    if res:
-                        t = Transcript(is_read=False, content=res)
+                    asr_response = self._pipeline.predict(ASRModelQuery(wav_path=wav_file_path))
+                    if asr_response:
+                        t = Transcript(is_read=False, content=asr_response.transcript)
                         self.g_transcript_list.append(t)
 
     def select_latest_unread(self) -> str | None:
