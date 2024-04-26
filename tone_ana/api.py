@@ -59,7 +59,7 @@ def analyze_tone(text: str) -> Tone:
     # Query for LLM to get tone_id
     llm_query = copy.deepcopy(tone_analysis_template)
     llm_query.text = text
-    llm_response = LLM_PIPELINE.predict(llm_query=llm_query)
+    llm_response = LLM_PIPELINE.predict(query=llm_query)
     tone_id = llm_response.response
 
     # Check if valid tone_list
