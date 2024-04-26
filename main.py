@@ -4,7 +4,6 @@ import threading
 
 from loguru import logger
 
-import asr.service
 import controller.app
 import minecraft.app
 import service_starter
@@ -27,7 +26,10 @@ if __name__ == '__main__':
 
         if G_CFG.auto_speech_recognition.enable:
             # ASR 线程
-            thread_list.append(threading.Thread(target=asr.service.start))
+            from asr.service import ASRService
+
+            asr_service = ASRService()
+            thread_list.append(threading.Thread(target=asr_service.start))
 
         if G_CFG.voice_activity_detection.enable:
             # VAD 服务线程

@@ -4,19 +4,18 @@ from typing import Final
 
 from loguru import logger
 
-import asr.app
-import asr.service
 import blip_img_cap.api
 import initzr
 import minecraft.app
 import obs.api
+from asr.service import ASRService
 from audio_player.service import AudioPlayerService
-from tts.gptsovits import api as gptsovits_serv
 from livestream.pipeline import LiveStreamPipeline
 from llm.pipeline import LLMPipeline
 from minecraft.app import GameEvent
 from scrnshot import api as scrn_serv
 from tone_ana import api as tone_serv
+from tts.gptsovits import api as gptsovits_serv
 from utils import util
 from utils.datacls import Danmaku, LLMQuery, Chat, Role
 from utils.util import is_blank
@@ -90,8 +89,9 @@ def read_screen() -> str | None:
     return None
 
 
-def read_from_microphone() -> str | None:
-    transcript = asr.service.select_latest_unread()
+def read_from_microphone(asr_serv: ASRService) -> str | None:
+    transcript = asr_serv.select_latest_unread()
+
     if transcript:
         logger.info(f'🎙️ 用户语音输入：{transcript}')
     return transcript
@@ -147,13 +147,15 @@ def read_game_event():
     return minecraft.app.select01()
 
 
-async def life_circle(audio_player_service: AudioPlayerService):
+async def life_circle(audio_player_service: AudioPlayerService,
+                      asr_service: ASRService
+                      ):
     global LANG, memory
 
     try_reset_memory()
 
     # 尝试读取语音 | 抽取弹幕 | 截图识别 | 获取游戏事件
-    transcript = read_from_microphone()
+    transcript = read_from_microphone(asr_service)
     danmaku = read_danmaku()
     screen_desc = read_screen()
     game_event = read_game_event()
@@ -206,8 +208,10 @@ async def life_circle(audio_player_service: AudioPlayerService):
     memory.history = ret_llm_response.history
 
 
-async def start_cycle(ap_serv: AudioPlayerService):
+async def start_cycle(ap_serv: AudioPlayerService, asr_serv: ASRService):
     logger.info('💜 ZerolanLiveRobot，启动！')
     while True:
-        await life_circle(audio_player_service=ap_serv)
+        await life_circle(audio_player_service=ap_serv,
+                          asr_service=asr_serv
+                          )
         await asyncio.sleep(2)

@@ -1,7 +1,5 @@
 import requests
 
-import init
-import initzr
 from utils.datacls import HTTPResponseBody
 
 URL = ''
