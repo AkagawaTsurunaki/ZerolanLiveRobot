@@ -4,7 +4,7 @@ from typing import Final
 
 from loguru import logger
 
-import blip_img_cap.api
+import img_cap.blip.api
 import initzr
 import minecraft.app
 import obs.api
@@ -84,7 +84,7 @@ def read_screen() -> str | None:
     """
     img_save_path = scrn_serv.screen_cap()
     if img_save_path:
-        caption = blip_img_cap.api.inference(img_save_path, prompt='There')
+        caption = img_cap.blip_img_cap.api.inference(img_save_path, prompt='There')
         return caption
     return None
 

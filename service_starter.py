@@ -21,9 +21,9 @@ def start_img_cap(config: ImageCaptioningConfig):
     debug, host, port = config.debug, config.host, config.port
     model = config.models[0]
     if SNR.BLIP == model.model_name:
-        import blip_img_cap.app
+        import img_cap.blip.app
 
-        blip_img_cap.app.start(model_path=model.model_path, host=host, port=port, debug=debug)
+        img_cap.blip_img_cap.app.start(model_path=model.model_path, host=host, port=port, debug=debug)
 
 
 def start_llm(config: LLMServiceConfig):
