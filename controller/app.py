@@ -3,7 +3,7 @@ from typing import List
 
 from flask import Flask, jsonify
 
-from obs.api import ObsService
+from obs.service import ObsService
 from vad.service import VADService, VADServiceStatus
 from audio_player.service import AudioPlayerService, AudioPlayerStatus
 from common.abs_app import AbstractApp

@@ -11,7 +11,7 @@ from playsound import playsound
 import utils.util
 from common.abs_service import AbstractService, ServiceStatus
 from utils.datacls import AudioPair
-from obs.api import ObsService
+from obs.service import ObsService
 
 # Config logger
 logger.remove()
