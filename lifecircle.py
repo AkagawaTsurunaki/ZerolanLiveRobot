@@ -6,11 +6,11 @@ from loguru import logger
 
 import asr.app
 import asr.service
-import audio_player.service
 import blip_img_cap.api
 import initzr
 import minecraft.app
 import obs.api
+from audio_player.service import AudioPlayerService
 from tts.gptsovits import api as gptsovits_serv
 from livestream.pipeline import LiveStreamPipeline
 from llm.pipeline import LLMPipeline
@@ -147,7 +147,7 @@ def read_game_event():
     return minecraft.app.select01()
 
 
-async def life_circle():
+async def life_circle(audio_player_service: AudioPlayerService):
     global LANG, memory
 
     try_reset_memory()
@@ -201,13 +201,13 @@ async def life_circle():
             break
 
         # 播放语音
-        audio_player.service.add_audio(wav_file_path, sentence)
+        audio_player_service.add_audio(wav_file_path, sentence)
 
     memory.history = ret_llm_response.history
 
 
-async def start_cycle():
+async def start_cycle(ap_serv: AudioPlayerService):
     logger.info('💜 ZerolanLiveRobot，启动！')
     while True:
-        await life_circle()
+        await life_circle(audio_player_service=ap_serv)
         await asyncio.sleep(2)

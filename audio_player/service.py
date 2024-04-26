@@ -1,6 +1,7 @@
 import os
 import sys
 import threading
+from dataclasses import dataclass
 from os import PathLike
 from typing import List
 
@@ -9,82 +10,107 @@ from playsound import playsound
 
 import obs.api
 import utils.util
+from common.abs_service import AbstractService, ServiceStatus
+from config import GlobalConfig
 from utils.datacls import AudioPair
 
+# Config logger
 logger.remove()
 handler_id = logger.add(sys.stderr, level="INFO")
 
-# 用于记录
-g_audio_list: List[AudioPair] = []
 
-g_is_service_running = False
-
-# 音频加入线程事件, 只有新的音频加入后, 播放线程才会播放音频, 减少 CPU 占用
-g_add_audio_event = threading.Event()
-
-# 音频播放事件, 用于控制是否进行播放
-g_audio_play_event = threading.Event()
+@dataclass
+class AudioPlayerStatus(ServiceStatus):
+    PLAYING = 'PLAYING'
+    PAUSED = 'PAUSED'
+    STOP = 'STOP'
 
 
-def play(audio_pair: AudioPair):
-    # 为了避免发生 259 错误，请务必使用绝对路径
-    # 并且请自行搜索解决编码问题的方法，需要修改playsound源码
-    wav_file_path = os.path.abspath(audio_pair.wav_file_path)
-    logger.debug(f'正在播放音频文件：{wav_file_path}')
-    # 写入文件
-    obs.api.write_llm_output(audio_pair.transcript)
-    playsound(wav_file_path)
-    audio_pair.played = True
-    logger.debug(f'音频文件播放完毕：{wav_file_path}')
+class AudioPlayerService(AbstractService):
 
+    def __init__(self):
+        super().__init__()
+        # List to store all audio pairs
+        self.g_audio_list: List[AudioPair] = []
 
-def select_latest_unplayed():
-    if len(g_audio_list) > 0:
-        latest_unplayed_list = [item for item in g_audio_list if not item.played]
-        if len(latest_unplayed_list) > 0:
-            latest_unplayed = latest_unplayed_list[-1]
-            latest_unplayed.played = True
-            return latest_unplayed
-    return None
+        # Add audio thread event, only after new AudioPair is added,
+        # the audio play thread will run, reducing CPU usage
+        self.add_audio_event: threading.Event = threading.Event()
 
+        # Audio play event, used to control whether to play.
+        self.audio_play_event: threading.Event = threading.Event()
 
-def add_audio(wav_file_path: str | PathLike, transcript: str):
-    audiopair = AudioPair(transcript=transcript, wav_file_path=wav_file_path, played=False)
-    g_audio_list.append(audiopair)
-    g_add_audio_event.set()
+        # Control whether break from dead loop
+        self._running = False
 
+    def start(self, g_cfg: GlobalConfig):
+        self._running = True
+        self.audio_play_event.set()
+        while self._running:
+            self.add_audio_event.wait()
+            self.audio_play_event.wait()
+            audio_pair = self.select_latest_unplayed()
+            if audio_pair:
+                self._play(audio_pair)
+            self.add_audio_event.clear()
+        self.add_audio_event.clear()
 
-def start():
-    global g_is_service_running
-    g_is_service_running = True
-    g_audio_play_event.set()
-    while g_is_service_running:
-        g_add_audio_event.wait()
-        g_audio_play_event.wait()
-        audio_pair = select_latest_unplayed()
-        if audio_pair:
-            play(audio_pair)
-        g_add_audio_event.clear()
-    g_add_audio_event.clear()
+    def stop(self):
+        # Set all flags to false
+        self._running = False
+        self.add_audio_event.clear()
+        self.audio_play_event.clear()
+        # Save all audio files to the disk
+        utils.util.save_service('audio_player', self.g_audio_list)
+        # Reset audio list
+        self.g_audio_list = []
+        logger.warning('Audio player service has been stopped.')
 
+    def status(self) -> AudioPlayerStatus:
+        if self._running:
+            if self.audio_play_event.is_set():
+                return AudioPlayerStatus.PLAYING
+            else:
+                return AudioPlayerStatus.PAUSED
+        else:
+            return AudioPlayerStatus.STOP
 
-def switch():
-    if g_audio_play_event.is_set():
-        g_audio_play_event.clear()
-        logger.info('⏸️ 音频播放服务暂停')
-        return False
-    else:
-        g_audio_play_event.set()
-        logger.info('▶️ 音频播放服务继续')
-        return True
+    def _play(self, audio_pair: AudioPair):
+        # To avoid error code 259, be sure to use the absolute path
+        # And please do your own search for a solution to the coding problem.
+        # Note: You need to modify the playsound source code because Windows does not use UTF-16.
+        wav_file_path = os.path.abspath(audio_pair.wav_file_path)
+        logger.debug(f'Playing audio file: "{wav_file_path}".')
+        # TODO: Write obs subtitle here, will be refactored.
+        obs.api.write_llm_output(audio_pair.transcript)
+        playsound(wav_file_path)
+        audio_pair.played = True
+        logger.debug(f'Finished playing audio file: "{wav_file_path}".')
 
+    def select_latest_unplayed(self):
+        if len(self.g_audio_list) > 0:
+            latest_unplayed_list = [item for item in self.g_audio_list if not item.played]
+            if len(latest_unplayed_list) > 0:
+                latest_unplayed = latest_unplayed_list[-1]
+                latest_unplayed.played = True
+                return latest_unplayed
+        return None
 
-def stop():
-    global g_audio_list, g_is_service_running
-    # 停止死循环
-    g_is_service_running = False
-    # 保存所有的文件
-    utils.util.save_service('audio_player', g_audio_list)
-    g_audio_list = []
-    logger.warning('音频播放服务已终止')
-    return not g_is_service_running
+    def add_audio(self, wav_file_path: str | PathLike, transcript: str):
+        audiopair = AudioPair(transcript=transcript, wav_file_path=wav_file_path, played=False)
+        self.g_audio_list.append(audiopair)
+        self.add_audio_event.set()
+
+    def pause(self):
+        if self.audio_play_event.is_set():
+            self.audio_play_event.clear()
+            logger.info('Audio player service paused.')
+        else:
+            logger.warning('Invalid operation: Audio player service has been paused.')
+
+    def resume(self):
+        if not self.audio_play_event.is_set():
+            self.audio_play_event.clear()
+            logger.info('Audio player service resumed.')
+        else:
+            logger.warning('Invalid operation: Audio player service has been resumed.')

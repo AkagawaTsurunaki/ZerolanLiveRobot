@@ -92,3 +92,9 @@ class ServiceNameConst:
 @dataclass
 class PlatformConst:
     BILIBILI = 'bilibili'
+
+
+@dataclass
+class WavFile:
+    is_read: bool
+    wav_file_path: str

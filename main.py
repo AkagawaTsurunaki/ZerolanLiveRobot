@@ -5,7 +5,6 @@ import threading
 from loguru import logger
 
 import asr.service
-import audio_player.service
 import controller.app
 import minecraft.app
 import service_starter
@@ -36,7 +35,10 @@ if __name__ == '__main__':
 
         if G_CFG.text_to_speech.enable:
             # 播放器线程
-            thread_list.append(threading.Thread(target=audio_player.service.start))
+            from audio_player.service import AudioPlayerService
+
+            audio_player_service = AudioPlayerService()
+            thread_list.append(threading.Thread(target=audio_player_service.start))
 
         if G_CFG.minecraft.enable:
             # Minecraft 游戏事件监听线程

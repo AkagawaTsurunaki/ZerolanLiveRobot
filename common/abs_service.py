@@ -1,13 +1,16 @@
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
+from enum import Enum
 
 from config import GlobalConfig
 
 
-class AbstractService(ABC):
+@dataclass
+class ServiceStatus(Enum):
+    ...
 
-    @abstractmethod
-    def is_alive(self) -> bool:
-        pass
+
+class AbstractService(ABC):
 
     @abstractmethod
     def start(self, g_cfg: GlobalConfig):
@@ -15,4 +18,16 @@ class AbstractService(ABC):
 
     @abstractmethod
     def stop(self):
+        pass
+
+    @abstractmethod
+    def pause(self):
+        pass
+
+    @abstractmethod
+    def resume(self):
+        pass
+
+    @abstractmethod
+    def status(self) -> ServiceStatus:
         pass

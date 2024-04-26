@@ -2,7 +2,6 @@ from dataclasses import asdict
 
 from flask import Flask, jsonify
 
-import audio_player.service
 import initzr
 import lifecircle
 import obs.api
@@ -33,10 +32,11 @@ def handle_history():
 
 @app.route('/audio_player/switch', methods=['POST'])
 def handle_audio_player_switch():
-    resume = audio_player.service.switch()
-    msg = '已启用发声' if resume else '已禁用发声'
-    response = HTTPResponseBody(ok=True, msg=msg, data={'audio_player': resume})
-    return jsonify(asdict(response))
+    raise NotImplementedError('resume = audio_player.service.switch()')
+    # resume = audio_player.service.switch()
+    # msg = '已启用发声' if resume else '已禁用发声'
+    # response = HTTPResponseBody(ok=True, msg=msg, data={'audio_player': resume})
+    # return jsonify(asdict(response))
 
 
 @app.route('/obs/clear', methods=['POST'])
