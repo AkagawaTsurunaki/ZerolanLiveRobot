@@ -3,8 +3,6 @@ import queue
 import sys
 import threading
 import time
-from dataclasses import dataclass
-from os import PathLike
 from typing import List
 
 import numpy as np
@@ -12,39 +10,26 @@ import pyaudio
 from loguru import logger
 from scipy.io.wavfile import write
 
-import initzr
-from config.global_config import VADConfig
-from utils.util import save
+from utils.datacls import WavFile
 
 logger.remove()
 logger.add(sys.stderr, level="INFO")
 
-CONFIG = initzr.load_vad_config()
+_SAVE_DIR: str
 
-SAVE_DIR = CONFIG.save_dir
-
-CHUNK = CONFIG.chunk
-SAMPLE_RATE = CONFIG.sample_rate
-THRESHOLD = CONFIG.threshold
-MAX_MUTE_COUNT = CONFIG.max_mute_count
+CHUNK: int
+SAMPLE_RATE: int
+THRESHOLD: int
+MAX_MUTE_COUNT: int
 
 # 循环存储语音文件线程等待事件
 save_speech_in_loop_event = threading.Event()
 # 循环录音线程等待事件
 record_speech_in_loop_event = threading.Event()
 
-
-@dataclass
-class WavFile:
-    is_read: bool
-    wav_file_path: str
-
-
 wave_records = queue.Queue()
 g_wav_file_list: List[WavFile] = []
-STREAM = pyaudio.PyAudio().open(
-    format=pyaudio.paInt16, channels=1, rate=SAMPLE_RATE, input=True, frames_per_buffer=CHUNK
-)
+STREAM: pyaudio.Stream
 
 
 def record_speech_in_loop():
@@ -90,7 +75,7 @@ def save_speech_in_loop():
             logger.info('🎙️ VAD 激活')
 
             # Write temp file for saving speech file
-            tmp_wav_file_path = os.path.join(SAVE_DIR, f'{time.time()}.wav')
+            tmp_wav_file_path = os.path.join(_SAVE_DIR, f'{time.time()}.wav')
             with open(file=tmp_wav_file_path, mode='w') as tmp_file:
                 g_wav_file_list.append(WavFile(wav_file_path=tmp_wav_file_path, is_read=False))
                 write(filename=tmp_file.name, rate=SAMPLE_RATE, data=speech)
@@ -120,7 +105,17 @@ def switch() -> bool:
         return True
 
 
-def start():
+def start(save_directory: str, chunk: int, sample_rate: int, threshold: int, max_mut_count: int):
+    global _SAVE_DIR, CHUNK, SAMPLE_RATE, THRESHOLD, MAX_MUTE_COUNT, STREAM
+    _SAVE_DIR = save_directory
+    CHUNK = chunk
+    SAMPLE_RATE = sample_rate
+    THRESHOLD = threshold
+    MAX_MUTE_COUNT = max_mut_count
+    STREAM = pyaudio.PyAudio().open(
+        format=pyaudio.paInt16, channels=1, rate=SAMPLE_RATE, input=True, frames_per_buffer=CHUNK
+    )
+
     audio_record_thread = threading.Thread(target=record_speech_in_loop)
     speech_recognize_thread = threading.Thread(target=save_speech_in_loop)
 

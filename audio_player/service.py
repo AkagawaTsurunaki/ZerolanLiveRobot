@@ -10,7 +10,7 @@ from playsound import playsound
 
 import obs.api
 import utils.util
-from common.abs_service import AbstractService, ServiceStatus
+from serivce.abs_service import AbstractService, ServiceStatus
 from config import GlobalConfig
 from utils.datacls import AudioPair
 
