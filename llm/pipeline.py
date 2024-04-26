@@ -5,21 +5,17 @@ from urllib.parse import urljoin
 import requests
 
 from common.abs_pipeline import AbstractPipeline
-from config import GLOBAL_CONFIG as G_CFG
-from utils.datacls import LLMQuery, Chat, LLMResponse, ServiceNameConst as SNR
+from config import GlobalConfig
+from utils.datacls import LLMQuery, Chat, LLMResponse
 
 
 class LLMPipeline(AbstractPipeline):
 
-    def __init__(self):
+    def __init__(self, cfg: GlobalConfig):
         super().__init__()
-        config = G_CFG.large_language_model
-        model = next(iter(config.models))
-        self.model_list = [SNR.CHATGLM3, SNR.YI, SNR.QWEN, SNR.SHISA]
-        assert model in self.model_list, f'Unsupported model "{model}".'
-        self.model = model
-
-        url = f'http://{config.host}:{config.port}'
+        self.model = cfg.large_language_model.models[0].model_name
+        host, port = cfg.large_language_model.host, cfg.large_language_model.port
+        url = f'http://{host}:{port}'
         self.predict_url = urljoin(url, f'/llm/predict')
         self.stream_predict_url = urljoin(url, f'/llm/stream-predict')
 

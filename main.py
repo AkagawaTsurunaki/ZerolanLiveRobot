@@ -9,7 +9,6 @@ import minecraft.app
 import service_starter
 import vad.service
 from config import GLOBAL_CONFIG as G_CFG
-from lifecircle import start_cycle
 
 logger.remove()
 logger.add(sys.stderr, level="INFO")
@@ -54,7 +53,10 @@ if __name__ == '__main__':
             thread.start()
 
         # 启动生命周期
-        asyncio.run(start_cycle())
+        from n_lifecycle import LifeCycle
+
+        life_cycle = LifeCycle(cfg=G_CFG, asr_service=asr_service, audio_player_service=audio_player_service)
+        asyncio.run(life_cycle.start())
 
         # 等待所有线程结束
         for thread in thread_list:

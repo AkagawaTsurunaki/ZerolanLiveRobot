@@ -1,11 +1,11 @@
+from config import GlobalConfig
 from utils.datacls import Danmaku, PlatformConst
-from config import GLOBAL_CONFIG as G_CFG
 
 
 class LiveStreamPipeline:
 
-    def __init__(self):
-        self.platform = next(iter(G_CFG.live_stream.platforms))
+    def __init__(self, cfg: GlobalConfig):
+        self.platform = next(iter(cfg.live_stream.platforms))
 
     def read_danmaku_latest_longest(self, k: int = 3) -> Danmaku | None:
         if self.platform == PlatformConst.BILIBILI:
