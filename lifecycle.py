@@ -13,7 +13,7 @@ from livestream.pipeline import LiveStreamPipeline
 from llm.pipeline import LLMPipeline
 from minecraft.app import GameEvent
 from obs.service import ObsService
-from scrnshot import api as scrn_serv
+from scrnshot.service import ScreenshotService
 from tone_ana.service import ToneAnalysisService
 from tts.pipeline import TTSPipeline, TTSQuery
 from utils import util
@@ -26,7 +26,8 @@ class LifeCycle:
                  asr_service: ASRService,
                  audio_player_service: AudioPlayerService,
                  obs_service: ObsService,
-                 tone_ana_service: ToneAnalysisService):
+                 tone_ana_service: ToneAnalysisService,
+                 screenshot_service: ScreenshotService):
         self._lang: str = 'zh'
         self._dev_name: str = 'AkagawaTsurunaki'
         self._max_history: int = 40
@@ -44,6 +45,7 @@ class LifeCycle:
         self._audio_player_service = audio_player_service
         self._obs_service = obs_service
         self._tone_ana_service = tone_ana_service
+        self._screenshot_service = screenshot_service
 
     async def update(self):
 
@@ -143,7 +145,7 @@ class LifeCycle:
         return danmaku
 
     def read_screen(self) -> str | None:
-        img_save_path = scrn_serv.screen_cap()
+        img_save_path = self._screenshot_service.screen_cap()
         if img_save_path:
             caption = self._img_cap_pipeline.predict(ImageCapQuery(img_path=img_save_path, prompt='There'))
             return caption
