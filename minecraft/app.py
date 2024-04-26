@@ -1,12 +1,15 @@
 import copy
-from dataclasses import dataclass, asdict
-from typing import List, Final
+from dataclasses import dataclass
+from typing import List
 
-from flask import Flask, jsonify
+from flask import Flask
 from flask import request
 from loguru import logger
 
-from utils.datacls import HTTPResponseBody
+from common.abs_app import AbstractApp
+from config import GlobalConfig
+
+app = Flask(__name__)
 
 
 @dataclass
@@ -24,48 +27,43 @@ class GameEvent:
         return False
 
 
-app = Flask(__name__)
+class MinecraftApp(AbstractApp):
 
-game_event_list: List[GameEvent] = []
+    def __init__(self, cfg: GlobalConfig):
+        super().__init__()
+        self._game_event_list: List[GameEvent] = []
+        self.host = cfg.minecraft.host
+        self.port = cfg.minecraft.port
+        self.debug = cfg.minecraft.debug
 
-TIME_WINDOW_SIZE: Final[int] = 2
+    def start(self):
+        app.run(host=self.host, port=self.port, debug=self.debug)
 
+    @app.route('/minecraft/addevent', methods=['POST'])
+    def handle_add_event(self):
+        try:
+            game_event = GameEvent(**request.json)
+            if game_event:
+                self._game_event_list.append(game_event)
+                logger.info(f'Game Event: {request.json}')
+                return 'OK.'
+        except Exception as e:
+            logger.exception(e)
+            return "Failed to add event."
 
-@app.route('/minecraft/addevent', methods=['POST'])
-def handle_add_event():
-    try:
-        game_event = GameEvent(**request.json)
-        if game_event:
-            # if game_event_list:
-            #     if game_event_list[-1].same_type(game_event):
-            #         response = HTTPResponseBody(ok=True, msg='该事件已被合并')
-            #         return jsonify(asdict(response))
-            game_event_list.append(game_event)
-            logger.info(f'Game Event: {request.json}')
-            return 'OK.'
-    except Exception as e:
-        logger.exception(e)
-        return "Failed to add event."
-
-
-def select01():
-    if game_event_list and len(game_event_list) > 0:
-        ret = copy.deepcopy(game_event_list[-1])
-        game_event_list.clear()
-        return ret
-
-    return None
-
-
-def select02():
-    if game_event_list:
-        unread_event_list = [event for event in game_event_list if not event.read]
-        if unread_event_list and len(unread_event_list) > 0:
-            ret = unread_event_list[-1]
-            ret.read = True
+    def select01(self):
+        if self._game_event_list and len(self._game_event_list) > 0:
+            ret = copy.deepcopy(self._game_event_list[-1])
+            self._game_event_list.clear()
             return ret
-    return None
 
+        return None
 
-def start():
-    app.run(host='127.0.0.1', port=12546, debug=False)
+    def select02(self):
+        if self._game_event_list:
+            unread_event_list = [event for event in self._game_event_list if not event.read]
+            if unread_event_list and len(unread_event_list) > 0:
+                ret = unread_event_list[-1]
+                ret.read = True
+                return ret
+        return None

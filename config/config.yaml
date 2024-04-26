@@ -124,7 +124,7 @@ voice_activity_detection:
 auto_speech_recognition:
   # Whether to start this service
   enable: True
-  # Whether to start this service
+  # Start flask on debug mode?
   debug: False
   # ASR service address
   host: 127.0.0.1
@@ -138,7 +138,14 @@ auto_speech_recognition:
 
 # Minecraft Service Configuration
 minecraft:
+  # Whether to start this service
   enable: True
+  # Start flask on debug mode?
+  debug: False
+  # Minecraft service address
+  host: 127.0.0.1
+  # Minecraft service port
+  port: 12546
 
 # Zerolan Live Robot Configuration
 zerolan_live_robot_config:
@@ -152,4 +159,6 @@ zerolan_live_robot_config:
   port: 9888
   # Path of role play template
   role_play_template_path: template/role_play_template_short.yaml
+  # Language
+  lang: en
 

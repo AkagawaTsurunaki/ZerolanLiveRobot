@@ -172,6 +172,9 @@ class ZerolanLiveRobotConfig:
 @dataclass
 class MinecraftConfig:
     enable: bool = True
+    host: str = '127.0.0.1'
+    port: int = 12546
+    debug: bool = False
 
 
 @dataclass
@@ -451,7 +454,8 @@ def load_minecraft_config(cfg: dict) -> MinecraftConfig:
     assert enable is not None, \
         f'Invalid configuration item "minecraft.enable": True or False excepted, but now {enable}.'
     if enable:
-        return MinecraftConfig(enable=enable)
+        host, port, debug = _safe_get_app_args(cfg, 'minecraft')
+        return MinecraftConfig(enable=enable, host=host, debug=debug, port=port)
     else:
         return MinecraftConfig(enable=enable)
 
