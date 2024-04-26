@@ -12,3 +12,7 @@ class AbstractService(ABC):
     @abstractmethod
     def start(self, g_cfg: GlobalConfig):
         pass
+
+    @abstractmethod
+    def stop(self):
+        pass
