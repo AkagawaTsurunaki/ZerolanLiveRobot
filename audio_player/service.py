@@ -11,7 +11,6 @@ from playsound import playsound
 import obs.api
 import utils.util
 from common.abs_service import AbstractService, ServiceStatus
-from config import GlobalConfig
 from utils.datacls import AudioPair
 
 # Config logger
@@ -43,7 +42,7 @@ class AudioPlayerService(AbstractService):
         # Control whether break from dead loop
         self._running = False
 
-    def start(self, g_cfg: GlobalConfig):
+    def start(self):
         self._running = True
         self.audio_play_event.set()
         while self._running:

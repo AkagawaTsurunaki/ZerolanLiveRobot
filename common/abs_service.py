@@ -13,7 +13,7 @@ class ServiceStatus(Enum):
 class AbstractService(ABC):
 
     @abstractmethod
-    def start(self, g_cfg: GlobalConfig):
+    def start(self):
         pass
 
     @abstractmethod
