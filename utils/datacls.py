@@ -2,6 +2,8 @@ from dataclasses import dataclass
 from os import PathLike
 from typing import Any, List
 
+from common.abs_pipeline import AbstractModelQuery, AbstractModelResponse
+
 
 @dataclass
 class HTTPResponseBody:
@@ -60,13 +62,13 @@ class Chat:
 
 
 @dataclass
-class LLMResponse:
+class LLMResponse(AbstractModelResponse):
     response: str
     history: List[Chat]
 
 
 @dataclass
-class LLMQuery:
+class LLMQuery(AbstractModelQuery):
     text: str
     history: List[Chat]
 
