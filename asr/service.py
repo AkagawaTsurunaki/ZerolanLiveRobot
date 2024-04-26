@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from typing import List
 
 from config import GlobalConfig
-from serivce.abs_service import AbstractService, ServiceStatus
+from common.abs_service import AbstractService, ServiceStatus
 from utils.datacls import Transcript
 from loguru import logger
 from asr.speech_paraformer.api import predict
