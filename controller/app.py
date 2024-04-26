@@ -3,7 +3,7 @@ from typing import List
 
 from flask import Flask, jsonify
 
-import obs.api
+from obs.api import ObsService
 from vad.service import VADService, VADServiceStatus
 from audio_player.service import AudioPlayerService, AudioPlayerStatus
 from common.abs_app import AbstractApp
@@ -36,8 +36,10 @@ class VADControlResponse(ControllerResponse):
 
 class ControllerApp(AbstractApp):
 
-    def __init__(self, cfg: GlobalConfig, lifecycle: LifeCycle, audio_player_service: AudioPlayerService,
-                 vad_service: VADService):
+    def __init__(self, cfg: GlobalConfig, lifecycle: LifeCycle,
+                 audio_player_service: AudioPlayerService,
+                 vad_service: VADService,
+                 obs_service: ObsService):
         super().__init__()
         self._host = cfg.zerolan_live_robot_config.host
         self._port = cfg.zerolan_live_robot_config.port
@@ -45,6 +47,7 @@ class ControllerApp(AbstractApp):
         self._lifecycle: LifeCycle = lifecycle
         self._audio_player_service = audio_player_service
         self._vad_service = vad_service
+        self._obs_service = obs_service
 
     def start(self):
         app.run(host=self._host, port=self._port, debug=self._debug)
@@ -100,8 +103,6 @@ class ControllerApp(AbstractApp):
 
     @app.route('/obs/clear', methods=['POST'])
     def handle_obs_clear(self):
-        obs.api.write_llm_output('')
-        obs.api.write_tone_output(None)
-        obs.api.write_danmaku_output(None)
+        self._obs_service.clear_output()
         message = 'OBS subtitle cleared.'
         return jsonify(asdict(ControllerResponse(message=message)))

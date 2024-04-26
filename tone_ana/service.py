@@ -1,0 +1,3 @@
+class ToneAnalysisService:
+    def __init__(self):
+        ...

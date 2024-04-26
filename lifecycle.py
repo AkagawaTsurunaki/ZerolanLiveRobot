@@ -5,7 +5,6 @@ import json
 from loguru import logger
 
 import minecraft.app
-import obs.api
 from asr.service import ASRService
 from audio_player.service import AudioPlayerService
 from config import GlobalConfig
@@ -13,6 +12,7 @@ from img_cap.pipeline import ImageCapPipeline, ImageCapQuery
 from livestream.pipeline import LiveStreamPipeline
 from llm.pipeline import LLMPipeline
 from minecraft.app import GameEvent
+from obs.api import ObsService
 from scrnshot import api as scrn_serv
 from tone_ana import api as tone_serv
 from tts.pipeline import TTSPipeline, TTSQuery
@@ -22,7 +22,10 @@ from utils.util import is_blank, write_wav
 
 
 class LifeCycle:
-    def __init__(self, cfg: GlobalConfig, asr_service: ASRService, audio_player_service: AudioPlayerService):
+    def __init__(self, cfg: GlobalConfig,
+                 asr_service: ASRService,
+                 audio_player_service: AudioPlayerService,
+                 obs_service: ObsService):
         self._lang: str = 'zh'
         self._dev_name: str = 'AkagawaTsurunaki'
         self._max_history: int = 40
@@ -38,6 +41,7 @@ class LifeCycle:
         # Services
         self._asr_service = asr_service
         self._audio_player_service = audio_player_service
+        self._obs_service = obs_service
 
     async def update(self):
 
@@ -61,10 +65,10 @@ class LifeCycle:
 
         # 注意这里, 开发者说的话会覆盖弹幕
         if danmaku:
-            obs.api.write_danmaku_output(danmaku)
+            self._obs_service.write_danmaku_output(danmaku)
 
         if transcript:
-            obs.api.write_voice_input(self._dev_name, transcript)
+            self._obs_service.write_voice_input(transcript)
 
         last_split_idx = 0
 
@@ -186,7 +190,7 @@ class LifeCycle:
                              prompt_text=tone.prompt_text, prompt_language=tone.prompt_language)
         tts_response = self._tts_pipeline.predict(tts_query)
         wav_file_path = write_wav(tts_response.wave_data)
-        obs.api.write_tone_output(tone)
+        self._obs_service.write_tone_output(tone)
 
         return tone, wav_file_path
 

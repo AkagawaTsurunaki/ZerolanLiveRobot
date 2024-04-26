@@ -8,10 +8,10 @@ from typing import List
 from loguru import logger
 from playsound import playsound
 
-import obs.api
 import utils.util
 from common.abs_service import AbstractService, ServiceStatus
 from utils.datacls import AudioPair
+from obs.api import ObsService
 
 # Config logger
 logger.remove()
@@ -27,7 +27,7 @@ class AudioPlayerStatus(ServiceStatus):
 
 class AudioPlayerService(AbstractService):
 
-    def __init__(self):
+    def __init__(self, obs_service: ObsService):
         super().__init__()
         # List to store all audio pairs
         self.g_audio_list: List[AudioPair] = []
@@ -41,6 +41,8 @@ class AudioPlayerService(AbstractService):
 
         # Control whether break from dead loop
         self._running = False
+
+        self._obs_service = obs_service
 
     def start(self):
         self._running = True
@@ -72,7 +74,7 @@ class AudioPlayerService(AbstractService):
         wav_file_path = os.path.abspath(audio_pair.wav_file_path)
         logger.debug(f'Playing audio file: "{wav_file_path}".')
         # TODO: Write obs subtitle here, will be refactored.
-        obs.api.write_llm_output(audio_pair.transcript)
+        self._obs_service.write_llm_output(text=audio_pair.transcript)
         playsound(wav_file_path)
         audio_pair.played = True
         logger.debug(f'Finished playing audio file: "{wav_file_path}".')

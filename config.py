@@ -166,6 +166,7 @@ class ZerolanLiveRobotConfig:
     host: str = "127.0.0.1"
     port: int = 9888
     role_play_template_path: str = "template/role_play_template_short.yaml"
+    lang: str = 'zh'
 
 
 @dataclass
@@ -459,12 +460,15 @@ def load_zrl_config(cfg: dict) -> ZerolanLiveRobotConfig:
     enable: bool = cfg.get('enable', None)
     assert enable is not None, \
         f'Invalid configuration item "zerolan_live_robot_config.enable": True or False excepted, but now {enable}.'
+
     if enable:
+        lang = cfg.get('lang')
+        assert lang in ['zh', 'en', 'ja']
         host, port, debug = _safe_get_app_args(cfg, 'zerolan_live_robot_config')
         role_play_template_path = _safe_get_path(cfg['role_play_template_path'],
                                                  'zerolan_live_robot_config.role_play_template_path')
         return ZerolanLiveRobotConfig(enable=enable, host=host, port=port, debug=debug,
-                                      role_play_template_path=role_play_template_path)
+                                      role_play_template_path=role_play_template_path, lang=lang)
     else:
         return ZerolanLiveRobotConfig(enable=enable)
 

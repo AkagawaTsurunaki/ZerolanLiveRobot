@@ -4,8 +4,6 @@ from typing import List
 
 from loguru import logger
 
-import initzr
-from llm.pipeline import LLMPipeline
 from utils import util
 from utils.datacls import Chat, Role, LLMQuery
 from utils.datacls import Tone
@@ -14,7 +12,7 @@ logger.remove()
 handler_id = logger.add(sys.stderr, level="INFO")
 
 # Configuration for tone analysis service
-CONFIG = initzr.load_tone_analysis_service_config()
+CONFIG = raise Exception()
 
 # All tone loaded and stored here. Once it inited, it should not be changed anymore.
 tone_list: list[Tone] = []

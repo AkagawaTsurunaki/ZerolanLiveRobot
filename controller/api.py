@@ -5,10 +5,9 @@ import gradio
 import requests
 from loguru import logger
 
-import initzr
 from utils.datacls import HTTPResponseBody
 
-URL = initzr.load_zerolan_live_robot_config().url()
+URL = ''
 
 
 def obs_clear():
