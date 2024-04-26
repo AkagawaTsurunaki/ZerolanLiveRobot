@@ -1,4 +1,5 @@
 import asyncio
+import copy
 import json
 
 from loguru import logger
@@ -191,3 +192,6 @@ class LifeCycle:
 
     def read_game_event(self):
         return minecraft.app.select01()
+
+    def memory(self):
+        return copy.deepcopy(self._memory)

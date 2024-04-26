@@ -25,7 +25,7 @@ def obs_clear():
 
 def audio_player_switch():
     try:
-        response = requests.post(url=f'{URL}/audio_player/switch')
+        response = requests.post(url=f'{URL}/audio-player/switch')
         assert response.status_code == HTTPStatus.OK
         response = HTTPResponseBody(**response.json())
         assert response.ok
@@ -37,7 +37,7 @@ def audio_player_switch():
 
 def get_history():
     try:
-        response = requests.get(url=f'{URL}/history')
+        response = requests.get(url=f'{URL}/memory/fetch')
         history: List[dict] = response.json()
         history = [item.get('content') for item in history]
         result = []
@@ -52,7 +52,7 @@ def get_history():
 
 
 def llm_reset():
-    response = requests.get(url=f'{URL}/llm/reset')
+    response = requests.get(url=f'{URL}/memory/reset')
     assert response.status_code == 200, '无法执行命令'
 
 
