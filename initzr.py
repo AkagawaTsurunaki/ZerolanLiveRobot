@@ -3,12 +3,8 @@ from os import PathLike
 
 from loguru import logger
 
-import utils.util
-from config.global_config import BilibiliLiveConfig, ScreenshotConfig, BlipImageCaptioningLargeConfig, \
-    GPTSoVITSServiceConfig, ToneAnalysisServiceConfig, OBSConfig, ASRConfig, VADConfig, \
-    ZerolanLiveRobotConfig, LLMServiceConfig
+from config.global_config import ToneAnalysisServiceConfig, OBSConfig, ZerolanLiveRobotConfig
 from utils.util import is_valid_port, create_file_if_not_exists, read_yaml
-from utils.datacls import ServiceNameConst as SNR
 
 
 def _load_global_config(path: str | PathLike = 'config/global_config.yaml'):
@@ -29,33 +25,6 @@ def _load_global_config(path: str | PathLike = 'config/global_config.yaml'):
 
 GLOBAL_CONFIG = _load_global_config()
 
-
-def load_blip_image_captioning_large_config() -> BlipImageCaptioningLargeConfig:
-    """
-    Load the config of the Image-to-Caption service.
-    :return:
-    """
-    config: dict = GLOBAL_CONFIG.get('blip_image_captioning_large_config', None)
-    assert config, f'❌️ Failed to load the config of the Image-to-Caption service because the config object is None.'
-
-    model_path = config.get('model_path', SNR.BLIP)
-    assert os.path.exists(model_path), f'❌️ blip-image-captioning-large 服务配置中的字段 model_path 所指向的路径不存在'
-
-    debug = config.get('debug', False)
-    host = config.get('host', '127.0.0.1')
-
-    port = config.get('port', 5926)
-    assert is_valid_port(port), f'❌️ {SNR.BLIP} 服务所配置的端口不合法'
-
-    text_prompt = config.get('text_prompt', 'There')
-
-    return BlipImageCaptioningLargeConfig(
-        model_path=model_path,
-        text_prompt=text_prompt,
-        debug=debug,
-        host=host,
-        port=port
-    )
 
 
 def load_tone_analysis_service_config():
@@ -91,57 +60,6 @@ def load_obs_config():
         llm_output_path=llm_output_path
     )
 
-
-def load_asr_config():
-    config = GLOBAL_CONFIG.get('asr_config')
-
-    speech_model_path = config.get('speech_model_path', 'paraformer-zh')
-    assert os.path.exists(speech_model_path), f'❌️ 自动语音识别服务配置中的字段 speech_model_path 所指向的路径不存在'
-
-    vad_model_path = config.get('speech_model_path', 'fsmn-vad')
-    assert os.path.exists(vad_model_path), f'❌️ 自动语音识别服务配置中的字段 vad_model_path 所指向的路径不存在'
-
-    host = config.get('host', '127.0.0.1')
-
-    port = config.get('port', 9882)
-    assert utils.util.is_valid_port(port), f'❌️ 自动语音识别服务所配置的端口不合法'
-    debug = config.get('debug', False)
-
-    return ASRConfig(
-        vad_model_path=vad_model_path,
-        speech_model_path=speech_model_path,
-        port=port,
-        host=host,
-        debug=debug
-    )
-
-
-def load_vad_config():
-    config = GLOBAL_CONFIG.get('vad_config')
-
-    save_dir = config.get('save_dir', '.tmp/records')
-    if not os.path.exists(save_dir):
-        os.mkdir(save_dir)
-
-    chunk = config.get('chunk', 4096)
-    assert chunk > 0, f'❌️ VAD 服务配置中的字段 chunk 必须是正整数'
-
-    sample_rate = config.get('sample_rate', 16000)
-    assert sample_rate > 0, f'❌️ VAD 服务配置中的字段 sample_rate 必须是正整数'
-
-    threshold = config.get('threshold', 600)
-    assert threshold > 0, f'❌️ VAD 服务配置中的字段 threshold 必须是正整数'
-
-    max_mute_count = config.get('max_mute_count', 10)
-    assert max_mute_count > 0, f'❌️ VAD 服务配置中的字段 max_mute_count 必须是正整数'
-
-    return VADConfig(
-        save_dir=save_dir,
-        chunk=chunk,
-        sample_rate=sample_rate,
-        threshold=threshold,
-        max_mute_count=max_mute_count
-    )
 
 
 def load_zerolan_live_robot_config():

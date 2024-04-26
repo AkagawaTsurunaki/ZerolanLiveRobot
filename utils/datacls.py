@@ -35,19 +35,6 @@ class AudioPair:
 
 
 @dataclass
-class GPTSoVITSChangeRefer:
-    refer_wav_path: str
-    prompt_text: str
-    prompt_language: str
-
-
-@dataclass
-class GPTSoVITSRequest:
-    text: str
-    text_language: str
-
-
-@dataclass
 class Tone:
     id: str
     refer_wav_path: str

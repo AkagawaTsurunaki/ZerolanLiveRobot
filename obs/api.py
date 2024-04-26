@@ -1,7 +1,4 @@
-from loguru import logger
-
 import initzr
-from config.global_config import OBSConfig
 from utils.datacls import Danmaku, Tone
 
 CONFIG = initzr.load_obs_config()
