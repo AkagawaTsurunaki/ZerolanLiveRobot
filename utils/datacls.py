@@ -3,7 +3,6 @@ from os import PathLike
 from typing import Any, List
 
 from common.abs_pipeline import AbstractModelQuery, AbstractModelResponse
-from io.writer import Writable
 
 
 @dataclass

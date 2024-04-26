@@ -4,11 +4,12 @@ import threading
 
 from loguru import logger
 
-import minecraft.app
+from minecraft.app import MinecraftApp
 import service_starter
 from config import GLOBAL_CONFIG as G_CFG
 from controller.app import ControllerApp
 from lifecycle import LifeCycle
+from obs.service import ObsService
 from vad.service import VADService
 
 logger.remove()
@@ -36,16 +37,20 @@ if __name__ == '__main__':
             vad_service = VADService(G_CFG)
             thread_list.append(threading.Thread(target=vad_service.start))
 
+        if G_CFG.obs.enable:
+            obs_service = ObsService(G_CFG)
+
         if G_CFG.text_to_speech.enable:
             # 播放器线程
             from audio_player.service import AudioPlayerService
 
-            audio_player_service = AudioPlayerService()
+            audio_player_service = AudioPlayerService(obs_service)
             thread_list.append(threading.Thread(target=audio_player_service.start))
 
         if G_CFG.minecraft.enable:
             # Minecraft 游戏事件监听线程
-            thread_list.append(threading.Thread(target=minecraft.app.start))
+            minecraft_app = MinecraftApp(G_CFG)
+            thread_list.append(threading.Thread(target=minecraft_app.start))
 
         # Life cycle
         life_cycle = LifeCycle(cfg=G_CFG, asr_service=asr_service, audio_player_service=audio_player_service)
