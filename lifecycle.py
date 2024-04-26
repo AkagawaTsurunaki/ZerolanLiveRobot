@@ -14,7 +14,7 @@ from llm.pipeline import LLMPipeline
 from minecraft.app import GameEvent
 from obs.api import ObsService
 from scrnshot import api as scrn_serv
-from tone_ana import api as tone_serv
+from tone_ana.service import ToneAnalysisService
 from tts.pipeline import TTSPipeline, TTSQuery
 from utils import util
 from utils.datacls import Danmaku, LLMQuery, Chat, Role
@@ -25,7 +25,8 @@ class LifeCycle:
     def __init__(self, cfg: GlobalConfig,
                  asr_service: ASRService,
                  audio_player_service: AudioPlayerService,
-                 obs_service: ObsService):
+                 obs_service: ObsService,
+                 tone_ana_service: ToneAnalysisService):
         self._lang: str = 'zh'
         self._dev_name: str = 'AkagawaTsurunaki'
         self._max_history: int = 40
@@ -42,6 +43,7 @@ class LifeCycle:
         self._asr_service = asr_service
         self._audio_player_service = audio_player_service
         self._obs_service = obs_service
+        self._tone_ana_service = tone_ana_service
 
     async def update(self):
 
@@ -183,7 +185,7 @@ class LifeCycle:
 
     def tts_with_tone(self, sentence: str):
         # 利用 LLM 分析句子语气
-        tone = tone_serv.analyze_tone(sentence)
+        tone = self._tone_ana_service.analyze_tone(sentence)
 
         # 根据语气切换 TTS 的提示合成对应的语音
         tts_query = TTSQuery(text=sentence, text_language=self._lang, refer_wav_path=tone.refer_wav_path,
