@@ -149,7 +149,8 @@ def read_game_event():
 
 async def life_circle(audio_player_service: AudioPlayerService,
                       asr_service: ASRService,
-                      img_cap_pipeline: ImageCapPipeline
+                      img_cap_pipeline: ImageCapPipeline,
+                      tts_pipeline: TTSPipeline
                       ):
     global LANG, memory
 
@@ -195,7 +196,7 @@ async def life_circle(audio_player_service: AudioPlayerService,
             continue
 
         # 自动语气语音合成
-        tone, wav_file_path = tts_with_tone(sentence)
+        tone, wav_file_path = tts_with_tone(sentence, tts_pipeline)
 
         logger.info(f'🗒️ 历史记录：{len(llm_response.history)} \n💖 语气：{tone.id} \n💭 {sentence}')
 
@@ -209,11 +210,12 @@ async def life_circle(audio_player_service: AudioPlayerService,
     memory.history = ret_llm_response.history
 
 
-async def start_cycle(ap_serv: AudioPlayerService, asr_serv: ASRService, img_cap_pipeline: ImageCapPipeline):
+async def start_cycle(ap_serv: AudioPlayerService, asr_serv: ASRService, img_cap_pipeline: ImageCapPipeline,
+                      tts_pipeline: TTSPipeline):
     logger.info('💜 ZerolanLiveRobot，启动！')
     while True:
         await life_circle(audio_player_service=ap_serv,
                           asr_service=asr_serv,
                           img_cap_pipeline=img_cap_pipeline
-                          )
+                          , tts_pipeline=tts_pipeline)
         await asyncio.sleep(2)
