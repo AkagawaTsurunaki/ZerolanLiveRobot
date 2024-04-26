@@ -9,12 +9,11 @@ from utils.datacls import ServiceNameConst as SNR, PlatformConst
 
 
 def start_asr(config: ASRConfig):
-    debug, host, port = config.debug, config.host, config.port
     model = config.models[0]
     if SNR.PARAFORMER == model.model_name:
-        import asr.speech_paraformer.app
+        from asr.speech_paraformer.app import SpeechParaformerApp
 
-        asr.speech_paraformer.app.start(model_path=model.model_path, host=host, port=port, debug=debug, version=model.version)
+        SpeechParaformerApp(config).start()
 
 
 def start_img_cap(config: ImageCaptioningConfig):
