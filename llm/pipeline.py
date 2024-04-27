@@ -6,7 +6,7 @@ import requests
 
 from common.abs_pipeline import AbstractPipeline
 from config import GlobalConfig
-from utils.datacls import LLMQuery, Chat, LLMResponse
+from common.datacls import LLMQuery, Chat, LLMResponse
 
 
 class LLMPipeline(AbstractPipeline):

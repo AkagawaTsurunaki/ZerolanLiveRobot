@@ -16,9 +16,9 @@ from obs.service import ObsService
 from scrnshot.service import ScreenshotService
 from tone_ana.service import ToneAnalysisService
 from tts.pipeline import TTSPipeline, TTSQuery
-from utils import util
-from utils.datacls import Danmaku, LLMQuery, Chat, Role
-from utils.util import is_blank, write_wav
+from common import util
+from common.datacls import Danmaku, LLMQuery, Chat, Role
+from common.util import is_blank, write_wav
 
 
 class LifeCycle:

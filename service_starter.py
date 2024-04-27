@@ -3,9 +3,9 @@ import argparse
 from loguru import logger
 
 from common.abs_service import AbstractService
-from config import ASRConfig, ImageCaptioningConfig, LLMServiceConfig, TextToSpeechConfig, GlobalConfig
+from config import ASRConfig, ImageCaptioningConfig, TextToSpeechConfig, GlobalConfig
 from config import GLOBAL_CONFIG as G_CFG
-from utils.datacls import ServiceNameConst as SNC, PlatformConst
+from common.datacls import ServiceNameConst as SNC, PlatformConst
 
 
 def start_asr(config: ASRConfig):
@@ -24,25 +24,24 @@ def start_img_cap(config: ImageCaptioningConfig):
         BlipApp(config).start()
 
 
-def start_llm(config: LLMServiceConfig):
-    debug, host, port = config.debug, config.host, config.port
-    model = config.models[0]
+def start_llm(config: GlobalConfig):
+    model = config.large_language_model.models[0]
     if SNC.CHATGLM3 == model.model_name:
-        import llm.chatglm3.app
+        from llm.chatglm3.app import ChatGLM3App
 
-        llm.chatglm3.app.start(model.model_path, model.quantize, host, port, debug)
+        ChatGLM3App(config).start()
     elif SNC.QWEN == model.model_name:
-        import llm.qwen.app
+        from llm.qwen.app import QwenApp
 
-        llm.qwen.app.start(model.model_path, model.loading_mode, host, port, debug)
+        QwenApp(config).start()
     elif SNC.YI == model.model_name:
-        import llm.yi_6b.app
+        from llm.yi_6b.app import YiApp
 
-        llm.yi_6b.app.start(model.model_path, model.loading_mode, host, port, debug)
+        YiApp(config).start()
     elif SNC.SHISA == model.model_name:
-        import llm.shisa.app
+        from llm.shisa.app import ShisaApp
 
-        llm.shisa.app.start(model.model_path, host, port, debug)
+        ShisaApp(config).start()
 
 
 def start_tts(config: TextToSpeechConfig):
@@ -56,12 +55,6 @@ def get_live_stream_service(config: GlobalConfig) -> AbstractService:
     if platform.platform_name == PlatformConst.BILIBILI:
         from livestream.bilibili.service import BilibiliService
         return BilibiliService(config)
-
-
-def start():
-    processes = []
-
-    return processes
 
 
 if __name__ == '__main__':

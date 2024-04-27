@@ -13,7 +13,7 @@ from loguru import logger
 
 from common.abs_service import AbstractService, ServiceStatus
 from config import GlobalConfig
-from utils.datacls import WavFile
+from common.datacls import WavFile
 
 logger.remove()
 logger.add(sys.stderr, level="INFO")

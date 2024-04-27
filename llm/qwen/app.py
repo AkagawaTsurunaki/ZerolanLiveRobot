@@ -6,7 +6,7 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 from common.abs_app import AbstractApp
 from config import GlobalConfig
 from llm.pipeline import LLMPipeline
-from utils.datacls import LLMResponse, Chat, LLMQuery
+from common.datacls import LLMResponse, Chat, LLMQuery
 
 app = Flask(__name__)
 

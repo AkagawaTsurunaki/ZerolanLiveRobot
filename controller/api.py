@@ -5,7 +5,7 @@ import gradio
 import requests
 from loguru import logger
 
-from utils.datacls import HTTPResponseBody
+from common.datacls import HTTPResponseBody
 
 URL = ''
 

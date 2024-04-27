@@ -8,8 +8,8 @@ from loguru import logger
 from vad.service import VADService
 from asr.pipeline import ASRPipeline, ASRModelQuery
 from common.abs_service import AbstractService, ServiceStatus
-from config import GlobalConfig, ASRConfig
-from utils.datacls import Transcript
+from config import GlobalConfig
+from common.datacls import Transcript
 
 # Config logger
 logger.remove()

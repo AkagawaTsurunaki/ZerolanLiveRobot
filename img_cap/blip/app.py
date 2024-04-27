@@ -10,7 +10,7 @@ from transformers import BlipProcessor, BlipForConditionalGeneration
 from common.abs_app import AbstractApp
 from config import ImageCaptioningConfig
 from img_cap.pipeline import ImageCapPipeline, ImageCapResponse, ImageCapQuery
-from utils.datacls import ServiceNameConst as SNR
+from common.datacls import ServiceNameConst as SNR
 
 app = Flask(__name__)
 

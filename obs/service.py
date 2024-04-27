@@ -1,6 +1,6 @@
 from config import GlobalConfig
 from io.writer import Writer
-from utils.datacls import Danmaku, Tone
+from common.datacls import Danmaku, Tone
 
 
 class ObsService:

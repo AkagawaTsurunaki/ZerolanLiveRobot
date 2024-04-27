@@ -10,7 +10,7 @@ from loguru import logger
 
 from common.abs_service import AbstractService, ServiceStatus
 from config import GlobalConfig
-from utils.datacls import Danmaku
+from common.datacls import Danmaku
 
 
 @dataclass

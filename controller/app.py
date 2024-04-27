@@ -9,7 +9,7 @@ from audio_player.service import AudioPlayerService, AudioPlayerStatus
 from common.abs_app import AbstractApp
 from config import GlobalConfig
 from lifecycle import LifeCycle
-from utils.datacls import Chat, LLMQuery
+from common.datacls import Chat, LLMQuery
 
 app = Flask(__name__.splits('.')[0])
 

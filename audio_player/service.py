@@ -8,9 +8,9 @@ from typing import List
 from loguru import logger
 from playsound import playsound
 
-import utils.util
+import common.util
 from common.abs_service import AbstractService, ServiceStatus
-from utils.datacls import AudioPair
+from common.datacls import AudioPair
 from obs.service import ObsService
 
 # Config logger
@@ -62,7 +62,7 @@ class AudioPlayerService(AbstractService):
         self.add_audio_event.clear()
         self.audio_play_event.clear()
         # Save all audio files to the disk
-        utils.util.save_service('audio_player', self.g_audio_list)
+        common.util.save_service('audio_player', self.g_audio_list)
         # Reset audio list
         self.g_audio_list = []
         logger.warning('Audio player service has been stopped.')

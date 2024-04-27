@@ -6,8 +6,8 @@ from loguru import logger
 
 from config import GlobalConfig
 from llm.pipeline import LLMPipeline
-from utils import util
-from utils.datacls import Tone, LLMQuery, Chat, Role
+from common import util
+from common.datacls import Tone, LLMQuery, Chat, Role
 
 logger.remove()
 handler_id = logger.add(sys.stderr, level="INFO")

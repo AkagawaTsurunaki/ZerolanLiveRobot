@@ -1,5 +1,5 @@
 from config import GlobalConfig
-from utils.datacls import Danmaku, PlatformConst
+from common.datacls import Danmaku, PlatformConst
 
 
 class LiveStreamPipeline:

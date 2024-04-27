@@ -12,7 +12,7 @@ from transformers import AutoTokenizer, AutoModelForCausalLM, TextStreamer
 from common.abs_app import AbstractApp
 from config import GlobalConfig
 from llm.pipeline import LLMPipeline
-from utils.datacls import LLMQuery, LLMResponse, Chat, Role
+from common.datacls import LLMQuery, LLMResponse, Chat, Role
 
 app = Flask(__name__)
 
