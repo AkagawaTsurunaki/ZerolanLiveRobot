@@ -9,7 +9,7 @@ from config import GlobalConfig
 from llm.pipeline import LLMPipeline
 
 # Global attributes
-app = Flask(__name__)  # Flask application instance
+_app = Flask(__name__)  # Flask application instance
 
 _host: str  # Host address for the Flask application
 _port: int  # Port number for the Flask application
@@ -17,6 +17,7 @@ _debug: bool  # Debug mode flag for the Flask application
 
 _tokenizer: AutoTokenizer  # Tokenizer for the language model
 _model: AutoModel  # Language model for generating responses
+
 
 def _predict(llm_query: LLMQuery) -> LLMResponse:
     """
@@ -54,8 +55,8 @@ def _stream_predict(llm_query: LLMQuery):
                              return_past_key_values=True)
 
 
-@app.route(f'/llm/predict', methods=['GET', 'POST'])
-def handle_predict():
+@_app.route(f'/llm/predict', methods=['GET', 'POST'])
+def _handle_predict():
     """
     Handles prediction requests by generating a response from the language model based on the received query.
 
@@ -68,8 +69,8 @@ def handle_predict():
     return jsonify(asdict(llm_response))
 
 
-@app.route(f'/llm/stream-predict', methods=['GET', 'POST'])
-def handle_stream_predict():
+@_app.route(f'/llm/stream-predict', methods=['GET', 'POST'])
+def _handle_stream_predict():
     """
     Handles streaming prediction requests by streaming responses from the language model based on the received query.
 
@@ -81,7 +82,7 @@ def handle_stream_predict():
     llm_query = LLMPipeline.parse_query_from_json(json_val)
 
     def generate_output(q: LLMQuery):
-        with app.app_context():
+        with _app.app_context():
             for response, history, past_key_values in next(_stream_predict(q)):
                 history = [Chat(role=chat['role'], content=chat['content']) for chat in history]
                 llm_response = LLMResponse(
@@ -119,4 +120,4 @@ def start():
     """
     Starts the Flask application with the configured host, port, and debug mode.
     """
-    app.run(host=_host, port=_port, debug=_debug)
+    _app.run(host=_host, port=_port, debug=_debug)
