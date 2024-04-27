@@ -7,47 +7,52 @@ from flask import Flask, request, jsonify
 from loguru import logger
 from transformers import BlipProcessor, BlipForConditionalGeneration
 
-from common.abs_app import AbstractApp
-from config import ImageCaptioningConfig
-from img_cap.pipeline import ImageCapPipeline, ImageCapResponse, ImageCapQuery
 from common.datacls import ServiceNameConst as SNR
+from config import GlobalConfig
+from img_cap.pipeline import ImageCapPipeline, ImageCapResponse, ImageCapQuery
 
-app = Flask(__name__)
+_app = Flask(__name__)
+_host: str  # Host address for the Flask application
+_port: int  # Port number for the Flask application
+_debug: bool  # Debug mode flag for the Flask application
+processor: any
+model: any
 
 
-class BlipApp(AbstractApp):
+def init(cfg: GlobalConfig):
+    global _host, _port, _debug, processor, model
 
-    def __init__(self, cfg: ImageCaptioningConfig):
-        super().__init__()
-        self._model_path = cfg.models[0].model_path
-        self._host: str = cfg.host
-        self._port: int = cfg.port
-        self._debug: bool = cfg.debug
-        logger.info(f'👀 Model {SNR.BLIP} is loading...')
-        self._processor: BlipProcessor = BlipProcessor.from_pretrained(self._model_path)
-        self._model: BlipForConditionalGeneration = BlipForConditionalGeneration.from_pretrained(self._model_path,
-                                                                                                 torch_dtype=torch.float16).to(
-            "cuda")
-        logger.info(f'👀 Model {SNR.BLIP} loaded successfully.')
-        self._img_cap_pipeline = ImageCapPipeline(cfg)
+    _host = cfg.image_captioning.host
+    _port = cfg.image_captioning.port
+    _debug = cfg.image_captioning.debug
 
-    def start(self):
-        app.run(host=self._host, port=self._port, debug=self._debug)
+    blip_cfg = cfg.image_captioning
+    model_path = blip_cfg.models[0].model_path
+    logger.info(f'👀 Model {SNR.BLIP} is loading...')
+    processor = BlipProcessor.from_pretrained(model_path)
+    model = BlipForConditionalGeneration.from_pretrained(model_path, torch_dtype=torch.float16).to("cuda")
+    logger.info(f'👀 Model {SNR.BLIP} loaded successfully.')
 
-    @app.route(f'/image-captioning/predict', methods=['GET'])
-    def handle_predict(self):
-        query = ImageCapPipeline.parse_query_from_json(request.json)
-        assert os.path.exists(query.img_path), f'Can not find image file: "{query.img_path}"'
-        response = self._predict(query)
-        return jsonify(asdict(response))
 
-    def _predict(self, query: ImageCapQuery):
-        raw_image = Image.open(query.img_path).convert('RGB')
+def start():
+    _app.run(host=_host, port=_port, debug=_debug)
 
-        # conditional image captioning
-        inputs = self._processor(raw_image, query.prompt, return_tensors="pt").to("cuda", torch.float16)
 
-        out = self._model.generate(**inputs)
-        output_text = self._processor.decode(out[0], skip_special_tokens=True)
+def _predict(query: ImageCapQuery):
+    raw_image = Image.open(query.img_path).convert('RGB')
 
-        return ImageCapResponse(caption=output_text)
+    # conditional image captioning
+    inputs = processor(raw_image, query.prompt, return_tensors="pt").to("cuda", torch.float16)
+
+    out = model.generate(**inputs)
+    output_text = processor.decode(out[0], skip_special_tokens=True)
+
+    return ImageCapResponse(caption=output_text)
+
+
+@_app.route(f'/image-captioning/predict', methods=['GET'])
+def _handle_predict():
+    query = ImageCapPipeline.parse_query_from_json(request.json)
+    assert os.path.exists(query.img_path), f'Can not find image file: "{query.img_path}"'
+    response = _predict(query)
+    return jsonify(asdict(response))
