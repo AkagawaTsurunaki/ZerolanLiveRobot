@@ -1,23 +1,23 @@
 from dataclasses import asdict
 
 from flask import Flask, request, jsonify
-from transformers import AutoModelForCausalLM, AutoTokenizer, AutoModel
+from transformers import AutoModelForCausalLM, AutoTokenizer
 
-from llm.pipeline import LLMPipeline
 from common.datacls import LLMResponse, Chat, LLMQuery
+from llm.pipeline import LLMPipeline
 
 app = Flask(__name__)
 
 # Model names: "Qwen/Qwen-7B-Chat", "Qwen/Qwen-14B-Chat"
-TOKENIZER: AutoTokenizer
-MODEL: AutoModelForCausalLM | AutoModel
+_tokenizer: any
+_model: any
 
 
 def _predict(llm_query: LLMQuery):
     query = llm_query.text
     history = llm_query.history
     history = [{'role': chat.role, 'content': chat.content} for chat in history]
-    response, history = MODEL.chat(TOKENIZER, query, history=history)
+    response, history = _model.chat(_tokenizer, query, history=history)
     history = [Chat(role=chat['role'], content=chat['content']) for chat in history]
     llm_response = LLMResponse(response=response, history=history)
     return llm_response
@@ -37,21 +37,21 @@ def handle_predict():
 
 
 def start(model_path, mode, host, port, debug):
-    global MODEL, TOKENIZER
+    global _model, _tokenizer
     # Load model on given mode
     if mode == 'bf16':
-        MODEL = AutoModelForCausalLM.from_pretrained(model_path, device_map="auto", trust_remote_code=True,
-                                                     bf16=True).eval()
+        _model = AutoModelForCausalLM.from_pretrained(model_path, device_map="auto", trust_remote_code=True,
+                                                      bf16=True).eval()
     elif mode == 'fp16':
-        MODEL = AutoModelForCausalLM.from_pretrained(model_path, device_map="auto", trust_remote_code=True,
-                                                     fp16=True).eval()
+        _model = AutoModelForCausalLM.from_pretrained(model_path, device_map="auto", trust_remote_code=True,
+                                                      fp16=True).eval()
     elif mode == 'cpu':
-        MODEL = AutoModelForCausalLM.from_pretrained(model_path, device_map="cpu", trust_remote_code=True).eval()
+        _model = AutoModelForCausalLM.from_pretrained(model_path, device_map="cpu", trust_remote_code=True).eval()
     else:
-        MODEL = AutoModelForCausalLM.from_pretrained(model_path, device_map="auto", trust_remote_code=True).eval()
+        _model = AutoModelForCausalLM.from_pretrained(model_path, device_map="auto", trust_remote_code=True).eval()
 
-        # Load auto tokenizer
-    TOKENIZER = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
+        # Load auto _tokenizer
+    _tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
 
     # Specify hyperparameters for generation. But if you use transformers>=4.32.0, there is no need to do this.
     # model.generation_config = GenerationConfig.from_pretrained("Qwen/Qwen-7B-Chat", trust_remote_code=True)
