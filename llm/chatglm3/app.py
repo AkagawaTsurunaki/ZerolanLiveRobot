@@ -9,13 +9,14 @@ from config import GlobalConfig
 from llm.pipeline import LLMPipeline
 
 # Global attributes
-_tokenizer: AutoTokenizer  # Tokenizer for the language model
-_model: AutoModel  # Language model for generating responses
 app = Flask(__name__)  # Flask application instance
+
 _host: str  # Host address for the Flask application
 _port: int  # Port number for the Flask application
 _debug: bool  # Debug mode flag for the Flask application
 
+_tokenizer: AutoTokenizer  # Tokenizer for the language model
+_model: AutoModel  # Language model for generating responses
 
 def _predict(llm_query: LLMQuery) -> LLMResponse:
     """
