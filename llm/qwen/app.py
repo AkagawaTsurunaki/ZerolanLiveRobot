@@ -8,7 +8,7 @@ from config import GlobalConfig
 from llm.pipeline import LLMPipeline
 
 # Global attributes
-app = Flask(__name__)  # Flask application instance
+_app = Flask(__name__)  # Flask application instance
 
 _host: str  # Host address for the Flask application
 _port: int  # Port number for the Flask application
@@ -54,7 +54,7 @@ def start():
     Starts the Flask application with the configured host, port, and debug mode.
     """
     # Run application
-    app.run(host=_host, port=_port, debug=_debug)
+    _app.run(host=_host, port=_port, debug=_debug)
 
 
 def _predict(llm_query: LLMQuery):
@@ -76,7 +76,7 @@ def _predict(llm_query: LLMQuery):
     return llm_response
 
 
-@app.route('/llm/predict', methods=['GET', 'POST'])
+@_app.route('/llm/predict', methods=['GET', 'POST'])
 def _handle_predict():
     """
     Handles prediction requests by generating a response from the language model based on the received query.
@@ -90,7 +90,7 @@ def _handle_predict():
     return jsonify(asdict(llm_response))
 
 
-@app.route('/llm/stream-predict', methods=['GET', 'POST'])
+@_app.route('/llm/stream-predict', methods=['GET', 'POST'])
 def _handle_stream_predict():
     """
     Handles streaming prediction requests. This route has not been implemented yet.
