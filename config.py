@@ -193,7 +193,7 @@ class GlobalConfig:
 
 
 def _safe_get_model_path(model: dict, model_name: str, cfg_item: str) -> str:
-    model_path = model.get('model_path', model_name)
+    model_path = model[model_name].get('model_path', model_name)
     if model_path != model_name:
         assert os.path.exists(model_path), \
             f'Invalid configuration item "{cfg_item}": Path "{model_path}" does not exist.'
