@@ -8,7 +8,7 @@ from loguru import logger
 from vad.service import VADService
 from asr.pipeline import ASRPipeline, ASRModelQuery
 from common.abs_service import AbstractService, ServiceStatus
-from config import GlobalConfig
+from config import GlobalConfig, ASRConfig
 from utils.datacls import Transcript
 
 # Config logger
@@ -24,11 +24,11 @@ class ASRServiceStatus(ServiceStatus):
 
 
 class ASRService(AbstractService):
-    def __init__(self, g_cfg: GlobalConfig, vad_service: VADService):
+    def __init__(self, cfg: GlobalConfig, vad_service: VADService):
         self.g_transcript_list: List[Transcript] = []
         self._running: bool = False
         self._selecting_wav_event: threading.Event = threading.Event()
-        self._pipeline = ASRPipeline(g_cfg)
+        self._pipeline = ASRPipeline(cfg)
         self._vad_service = vad_service
 
     def start(self):

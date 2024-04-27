@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from urllib.parse import urljoin
 
 from common.abs_pipeline import AbstractPipeline, AbstractModelResponse, AbstractModelQuery
-from config import GlobalConfig
+from config import GlobalConfig, ASRConfig
 
 
 @dataclass
@@ -18,8 +18,9 @@ class ASRModelResponse(AbstractModelResponse):
 class ASRPipeline(AbstractPipeline):
     def __init__(self, cfg: GlobalConfig):
         super().__init__()
-        self.model: str = cfg.auto_speech_recognition.models[0].model_name
-        host, port = cfg.auto_speech_recognition.host, cfg.auto_speech_recognition.port
+        asr_config = cfg.auto_speech_recognition
+        self.model: str = asr_config.models[0].model_name
+        host, port = asr_config.host, asr_config.port
         self.predict_url = urljoin(f'http://{host}:{port}', f'/asr/predict')
 
     def predict(self, query: ASRModelQuery) -> ASRModelResponse | None:

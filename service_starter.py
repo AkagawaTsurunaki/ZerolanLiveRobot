@@ -2,15 +2,15 @@ import argparse
 
 from loguru import logger
 
-import livestream.bilibili.service
-from config import ASRConfig, ImageCaptioningConfig, LLMServiceConfig, TextToSpeechConfig, LiveStreamConfig
+from common.abs_service import AbstractService
+from config import ASRConfig, ImageCaptioningConfig, LLMServiceConfig, TextToSpeechConfig, GlobalConfig
 from config import GLOBAL_CONFIG as G_CFG
-from utils.datacls import ServiceNameConst as SNR, PlatformConst
+from utils.datacls import ServiceNameConst as SNC, PlatformConst
 
 
 def start_asr(config: ASRConfig):
     model = config.models[0]
-    if SNR.PARAFORMER == model.model_name:
+    if SNC.PARAFORMER == model.model_name:
         from asr.speech_paraformer.app import SpeechParaformerApp
 
         SpeechParaformerApp(config).start()
@@ -18,7 +18,7 @@ def start_asr(config: ASRConfig):
 
 def start_img_cap(config: ImageCaptioningConfig):
     model = config.models[0]
-    if SNR.BLIP == model.model_name:
+    if SNC.BLIP == model.model_name:
         from img_cap.blip.app import BlipApp
 
         BlipApp(config).start()
@@ -27,19 +27,19 @@ def start_img_cap(config: ImageCaptioningConfig):
 def start_llm(config: LLMServiceConfig):
     debug, host, port = config.debug, config.host, config.port
     model = config.models[0]
-    if SNR.CHATGLM3 == model.model_name:
+    if SNC.CHATGLM3 == model.model_name:
         import llm.chatglm3.app
 
         llm.chatglm3.app.start(model.model_path, model.quantize, host, port, debug)
-    elif SNR.QWEN == model.model_name:
+    elif SNC.QWEN == model.model_name:
         import llm.qwen.app
 
         llm.qwen.app.start(model.model_path, model.loading_mode, host, port, debug)
-    elif SNR.YI == model.model_name:
+    elif SNC.YI == model.model_name:
         import llm.yi_6b.app
 
         llm.yi_6b.app.start(model.model_path, model.loading_mode, host, port, debug)
-    elif SNR.SHISA == model.model_name:
+    elif SNC.SHISA == model.model_name:
         import llm.shisa.app
 
         llm.shisa.app.start(model.model_path, host, port, debug)
@@ -47,15 +47,15 @@ def start_llm(config: LLMServiceConfig):
 
 def start_tts(config: TextToSpeechConfig):
     model = config.models[0]
-    if SNR.GPT_SOVITS == model.model_name:
+    if SNC.GPT_SOVITS == model.model_name:
         pass
 
 
-def live_stream_start(config: LiveStreamConfig):
-    platform = config.platforms[0]
+def get_live_stream_service(config: GlobalConfig) -> AbstractService:
+    platform = config.live_stream.platforms[0]
     if platform.platform_name == PlatformConst.BILIBILI:
-        room_id, sessdata, bili_jct, buvid3 = platform.room_id, platform.sessdata, platform.bili_jct, platform.buvid3
-        livestream.bilibili.service.start(sessdata, bili_jct, buvid3, room_id)
+        from livestream.bilibili.service import BilibiliService
+        return BilibiliService(config)
 
 
 def start():

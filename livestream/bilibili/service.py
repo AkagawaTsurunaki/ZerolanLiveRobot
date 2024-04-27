@@ -1,4 +1,5 @@
 import random
+import threading
 from dataclasses import dataclass
 from typing import List
 
@@ -8,27 +9,32 @@ from bilibili_api.live import LiveDanmaku
 from loguru import logger
 
 from common.abs_service import AbstractService, ServiceStatus
-from config import BilibiliConfig
+from config import GlobalConfig
 from utils.datacls import Danmaku
 
 
 @dataclass
 class BilibiliServiceStatus(ServiceStatus):
-    RUNNING = 'RUNNING'
+    LISTENING = 'LISTENING'
     PAUSED = 'PAUSED'
     STOP = 'STOP'
 
 
 class BilibiliService(AbstractService):
-    def __init__(self, cfg: BilibiliConfig):
-        self._room_id = cfg.room_id
-        self._credential = Credential(sessdata=cfg.sessdata, bili_jct=cfg.bili_jct, buvid3=cfg.buvid3)
+    def __init__(self, cfg: GlobalConfig):
+        bili_cfg = cfg.live_stream.platforms[0]
+        self._room_id = bili_cfg.room_id
+        self._credential = Credential(sessdata=bili_cfg.sessdata, bili_jct=bili_cfg.bili_jct, buvid3=bili_cfg.buvid3)
         self._danmaku_list: List[Danmaku] = []
         # Bilibili live stream monitor
         self._monitor = LiveDanmaku(self._room_id, credential=self._credential)
+        self._recv_event = threading.Event()
+        self._running = False
 
     def start(self):
-        logger.info('🍻 Bilibili 直播间监听启动')
+
+        self._running = True
+        logger.info('Bilibili service starting...')
 
         @self._monitor.on("DANMU_MSG")
         async def recv(self, event):
@@ -46,21 +52,37 @@ class BilibiliService(AbstractService):
 
             self._add(danmaku)
 
+        self._running = False
         sync(self._monitor.connect())
-        logger.warning('🍻 Bilibili 直播间监听已结束')
+        logger.warning('Bilibili monitor disconnected.')
 
     def stop(self):
-        # TODO
-        pass
+        self._running = False
+        self._monitor.disconnect()
+        logger.warning('Bilibili service stopped.')
 
     def pause(self):
-        pass
+        if self._recv_event.is_set():
+            self._recv_event.clear()
+            logger.warning('Bilibili service paused.')
+        else:
+            logger.warning('Invalid operation: Bilibili service has been paused.')
 
     def resume(self):
-        pass
+        if not self._recv_event.is_set():
+            self._recv_event.set()
+            logger.warning('Bilibili service resumed.')
+        else:
+            logger.warning('Invalid operation: Bilibili service has been resumed.')
 
-    def status(self) -> ServiceStatus:
-        pass
+    def status(self) -> BilibiliServiceStatus:
+        if self._running:
+            if self._recv_event.is_set():
+                return BilibiliServiceStatus.LISTENING
+            else:
+                return BilibiliServiceStatus.PAUSED
+        else:
+            return BilibiliServiceStatus.STOP
 
     def _add(self, danmaku: Danmaku):
         # TODO: 这里可以实现多个过滤规则的运作

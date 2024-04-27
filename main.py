@@ -4,13 +4,17 @@ import threading
 
 from loguru import logger
 
-from minecraft.app import MinecraftApp
 import service_starter
+from asr.service import ASRService
+from audio_player.service import AudioPlayerService
 from config import GLOBAL_CONFIG as G_CFG
 from controller.app import ControllerApp
 from lifecycle import LifeCycle
+from minecraft.app import MinecraftApp
 from obs.service import ObsService
+from scrnshot.service import ScreenshotService
 from vad.service import VADService
+from tone_ana.service import ToneAnalysisService
 
 logger.remove()
 logger.add(sys.stderr, level="INFO")
@@ -18,58 +22,59 @@ logger.add(sys.stderr, level="INFO")
 if __name__ == '__main__':
     try:
 
-        # 线程列表
+        # Thread list for all services
         thread_list = []
 
-        # 弹幕监听服务
-        if G_CFG.live_stream.enable:
-            thread_list.append(threading.Thread(target=service_starter.live_stream_start))
+        # Live stream service thread
+        live_stream_serv = service_starter.get_live_stream_service(G_CFG.live_stream)
+        thread_list.append(threading.Thread(target=live_stream_serv.start))
 
-        if G_CFG.auto_speech_recognition.enable:
-            # ASR 线程
-            from asr import ASRService
+        # VAD service thread
+        vad_serv = VADService(G_CFG)
+        thread_list.append(threading.Thread(target=vad_serv.start))
 
-            asr_service = ASRService()
-            thread_list.append(threading.Thread(target=asr_service.start))
+        # ASR service thread
+        asr_service = ASRService(G_CFG, vad_serv)
+        thread_list.append(threading.Thread(target=asr_service.start))
 
-        if G_CFG.voice_activity_detection.enable:
-            # VAD 服务线程
-            vad_service = VADService(G_CFG)
-            thread_list.append(threading.Thread(target=vad_service.start))
+        # OBS service (no thread need)
+        obs_service = ObsService(G_CFG)
 
-        if G_CFG.obs.enable:
-            obs_service = ObsService(G_CFG)
+        # Tone analysis service
+        tone_analysis_service = ToneAnalysisService(G_CFG)
 
-        if G_CFG.text_to_speech.enable:
-            # 播放器线程
-            from audio_player.service import AudioPlayerService
+        # Screenshot service
+        scrnshot_service = ScreenshotService(G_CFG)
 
-            audio_player_service = AudioPlayerService(obs_service)
-            thread_list.append(threading.Thread(target=audio_player_service.start))
+        audio_player_service = AudioPlayerService(obs_service)
+        thread_list.append(threading.Thread(target=audio_player_service.start))
 
-        if G_CFG.minecraft.enable:
-            # Minecraft 游戏事件监听线程
-            minecraft_app = MinecraftApp(G_CFG)
-            thread_list.append(threading.Thread(target=minecraft_app.start))
+        minecraft_app = MinecraftApp(G_CFG)
+        thread_list.append(threading.Thread(target=minecraft_app.start))
 
         # Life cycle
-        life_cycle = LifeCycle(cfg=G_CFG, asr_service=asr_service, audio_player_service=audio_player_service)
+        life_cycle = LifeCycle(cfg=G_CFG,
+                               asr_service=asr_service,
+                               audio_player_service=audio_player_service,
+                               obs_service=obs_service,
+                               tone_ana_service=tone_analysis_service,
+                               screenshot_service=scrnshot_service)
 
-        # 控制器线程
+        # Controller app thread
         controller_app = ControllerApp(cfg=G_CFG, lifecycle=life_cycle, audio_player_service=audio_player_service)
         thread_list.append(threading.Thread(target=controller_app.start))
 
-        # 启动所有线程
+        # Start all threads
         for thread in thread_list:
             thread.start()
 
-        # 启动生命周期
+        # Start lifecycle
         asyncio.run(life_cycle.start())
 
-        # 等待所有线程结束
+        # Wait for all threads finishing
         for thread in thread_list:
             thread.join()
 
     except Exception as e:
         logger.exception(e)
-        logger.critical(f'💥 Zerolan Live Robot 因无法处理的异常而退出')
+        logger.critical(f'Zerolan Live Robot exited: Unhandled exception.')
