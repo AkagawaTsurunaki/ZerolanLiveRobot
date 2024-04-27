@@ -4,12 +4,57 @@ from flask import Flask, request, jsonify
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 from common.datacls import LLMResponse, Chat, LLMQuery
+from config import GlobalConfig
 from llm.pipeline import LLMPipeline
 
 # Global attributes
 app = Flask(__name__)  # Flask application instance
+
+_host: str  # Host address for the Flask application
+_port: int  # Port number for the Flask application
+_debug: bool  # Debug mode flag for the Flask application
+
 _tokenizer: any  # Tokenizer for the language model
 _model: any  # Language model for generating responses
+
+
+def init(cfg: GlobalConfig):
+    """
+    Initializes the application with the given configuration.
+
+    Args:
+        cfg (GlobalConfig): Configuration object containing settings for the application.
+    """
+    global _model, _tokenizer, _host, _port, _debug
+    mode = cfg.large_language_model.models[0].loading_mode
+    model_path = cfg.large_language_model.models[0].model_path
+
+    _host = cfg.large_language_model.host
+    _port = cfg.large_language_model.port
+    _debug = cfg.large_language_model.debug
+
+    # Load model on given mode
+    if mode == 'bf16':
+        _model = AutoModelForCausalLM.from_pretrained(model_path, device_map="auto", trust_remote_code=True,
+                                                      bf16=True).eval()
+    elif mode == 'fp16':
+        _model = AutoModelForCausalLM.from_pretrained(model_path, device_map="auto", trust_remote_code=True,
+                                                      fp16=True).eval()
+    elif mode == 'cpu':
+        _model = AutoModelForCausalLM.from_pretrained(model_path, device_map="cpu", trust_remote_code=True).eval()
+    else:
+        _model = AutoModelForCausalLM.from_pretrained(model_path, device_map="auto", trust_remote_code=True).eval()
+
+    # Load auto _tokenizer
+    _tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
+
+
+def start():
+    """
+    Starts the Flask application with the configured host, port, and debug mode.
+    """
+    # Run application
+    app.run(host=_host, port=_port, debug=_debug)
 
 
 def _predict(llm_query: LLMQuery):
@@ -54,34 +99,3 @@ def _handle_stream_predict():
         NotImplementedError: Indicates that the route is not implemented.
     """
     raise NotImplementedError('This route has not been implemented yet.')
-
-
-def start(model_path, mode, host, port, debug):
-    """
-    Initializes and starts the Flask application with the specified model, mode, host, port, and debug settings.
-
-    Args:
-        model_path (str): Path to the pretrained model.
-        mode (str): Mode for loading the model (bf16, fp16, cpu).
-        host (str): Host address for the Flask application.
-        port (int): Port number for the Flask application.
-        debug (bool): Debug mode flag for the Flask application.
-    """
-    global _model, _tokenizer
-    # Load model on given mode
-    if mode == 'bf16':
-        _model = AutoModelForCausalLM.from_pretrained(model_path, device_map="auto", trust_remote_code=True,
-                                                      bf16=True).eval()
-    elif mode == 'fp16':
-        _model = AutoModelForCausalLM.from_pretrained(model_path, device_map="auto", trust_remote_code=True,
-                                                      fp16=True).eval()
-    elif mode == 'cpu':
-        _model = AutoModelForCausalLM.from_pretrained(model_path, device_map="cpu", trust_remote_code=True).eval()
-    else:
-        _model = AutoModelForCausalLM.from_pretrained(model_path, device_map="auto", trust_remote_code=True).eval()
-
-    # Load auto _tokenizer
-    _tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
-
-    # Run application
-    app.run(host=host, port=port, debug=debug)
