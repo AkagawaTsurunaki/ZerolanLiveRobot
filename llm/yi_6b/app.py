@@ -8,9 +8,11 @@ from llm.pipeline import LLMPipeline
 
 # Global attributes
 app = Flask(__name__)  # Flask application instance
+
 _host: str  # Host address for the Flask application
 _port: int  # Port number for the Flask application
 _debug: bool  # Debug mode flag for the Flask application
+
 _tokenizer: LlamaTokenizer  # Tokenizer for the language model
 _model: any  # Language model for generating responses
 
