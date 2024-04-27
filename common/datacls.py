@@ -73,7 +73,7 @@ class ServiceNameConst:
     BLIP = 'Salesforce/blip-image-captioning-large'
     CHATGLM3 = 'THUDM/chatglm3-6b'
     QWEN = 'Qwen/Qwen-7B-Chat'
-    YI = '01-ai/Yi'
+    YI = '01-ai/Yi-6B-Chat'
     SHISA = "augmxnt/shisa-7b-v1"
     PARAFORMER = "speech_paraformer"
 
