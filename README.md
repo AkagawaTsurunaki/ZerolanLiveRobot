@@ -31,11 +31,12 @@
 
 ### 大语言模型（Large Language Model，LLM）
 
-| 模型                                                         | 语言支持    | 显存占用 | 描述 |
-| ------------------------------------------------------------ | ----------- | -------- | ---- |
-| [THUDM/chatglm3-6b](https://huggingface.co/THUDM/chatglm3-6b) | ✅中 ✅英 ❌日 |          |      |
-| [Qwen/Qwen-7B-Chat](https://huggingface.co/Qwen/Qwen-7B-Chat) | ✅中 ✅英 ❌日 |          |      |
-|                                                              |             |          |      |
+| 模型                                                         | 语言支持    | 显存占用      | 描述 |
+| ------------------------------------------------------------ | ----------- | ------------- | ---- |
+| [THUDM/chatglm3-6b](https://huggingface.co/THUDM/chatglm3-6b) | ✅中 ✅英 ❌日 | 5.4GB (4-bit) |      |
+| [Qwen/Qwen-7B-Chat](https://huggingface.co/Qwen/Qwen-7B-Chat) | ✅中 ✅英 ❌日 | -             |      |
+| [01-ai/Yi-6B-Chat](https://huggingface.co/01-ai/Yi-6B-Chat)  | ✅中 ✅英 ❌日 | -             |      |
+| [augmxnt/shisa-7b-v1](https://huggingface.co/augmxnt/shisa-7b-v1) | ❌中 ✅英 ✅日 | 11.6GB        |      |
 
 
 
