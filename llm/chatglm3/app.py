@@ -19,6 +19,35 @@ _tokenizer: AutoTokenizer  # Tokenizer for the language model
 _model: AutoModel  # Language model for generating responses
 
 
+def init(cfg: GlobalConfig):
+    """
+    Initializes the application with the given configuration.
+
+    Args:
+        cfg (GlobalConfig): The configuration object containing settings for the application.
+    """
+    global _host, _port, _debug, _model, _tokenizer
+    _host = cfg.large_language_model.host
+    _port = cfg.large_language_model.port
+    _debug = cfg.large_language_model.debug
+    model_path = cfg.large_language_model.models[0].model_path
+    quantize = cfg.large_language_model.models[0].quantize
+    _tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
+    if quantize:
+        _model = AutoModel.from_pretrained(model_path, trust_remote_code=True).quantize(quantize).to(
+            'cuda').eval()
+    else:
+        _model = AutoModel.from_pretrained(model_path, trust_remote_code=True).to('cuda').eval()
+    logger.info(f'💭 ChatGLM3 model loaded.')
+
+
+def start():
+    """
+    Starts the Flask application with the configured host, port, and debug mode.
+    """
+    _app.run(host=_host, port=_port, debug=_debug)
+
+
 def _predict(llm_query: LLMQuery) -> LLMResponse:
     """
     Generates a response from the language model based on the given query.
@@ -92,32 +121,3 @@ def _handle_stream_predict():
                 yield jsonify(llm_response).data + b'\n'
 
     return Response(stream_with_context(generate_output(llm_query)), content_type='application/json')
-
-
-def init(cfg: GlobalConfig):
-    """
-    Initializes the application with the given configuration.
-
-    Args:
-        cfg (GlobalConfig): The configuration object containing settings for the application.
-    """
-    global _host, _port, _debug, _model, _tokenizer
-    _host = cfg.large_language_model.host
-    _port = cfg.large_language_model.port
-    _debug = cfg.large_language_model.debug
-    model_path = cfg.large_language_model.models[0].model_path
-    quantize = cfg.large_language_model.models[0].quantize
-    _tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
-    if quantize:
-        _model = AutoModel.from_pretrained(model_path, trust_remote_code=True).quantize(quantize).to(
-            'cuda').eval()
-    else:
-        _model = AutoModel.from_pretrained(model_path, trust_remote_code=True).to('cuda').eval()
-    logger.info(f'💭 ChatGLM3 model loaded.')
-
-
-def start():
-    """
-    Starts the Flask application with the configured host, port, and debug mode.
-    """
-    _app.run(host=_host, port=_port, debug=_debug)
