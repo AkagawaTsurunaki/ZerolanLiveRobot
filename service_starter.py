@@ -17,12 +17,11 @@ def start_asr(config: ASRConfig):
 
 
 def start_img_cap(config: ImageCaptioningConfig):
-    debug, host, port = config.debug, config.host, config.port
     model = config.models[0]
     if SNR.BLIP == model.model_name:
-        import img_cap.blip.app
+        from img_cap.blip.app import BlipApp
 
-        img_cap.blip_img_cap.app.start(model_path=model.model_path, host=host, port=port, debug=debug)
+        BlipApp(config).start()
 
 
 def start_llm(config: LLMServiceConfig):
@@ -47,7 +46,6 @@ def start_llm(config: LLMServiceConfig):
 
 
 def start_tts(config: TextToSpeechConfig):
-    debug, host, port = config.debug, config.host, config.port
     model = config.models[0]
     if SNR.GPT_SOVITS == model.model_name:
         pass

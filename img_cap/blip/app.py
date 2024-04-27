@@ -7,44 +7,47 @@ from flask import Flask, request, jsonify
 from loguru import logger
 from transformers import BlipProcessor, BlipForConditionalGeneration
 
-from utils.datacls import HTTPResponseBody, ServiceNameConst as SNR
+from common.abs_app import AbstractApp
+from config import ImageCaptioningConfig
+from img_cap.pipeline import ImageCapPipeline, ImageCapResponse, ImageCapQuery
+from utils.datacls import ServiceNameConst as SNR
 
 app = Flask(__name__)
 
-PROCESSOR: BlipProcessor
-MODEL: BlipForConditionalGeneration
 
+class BlipApp(AbstractApp):
 
-@app.route(f'/image-captioning/predict', methods=['GET'])
-def handle_blip_infer():
-    req = request.json
-    img_path = req.get('img_path', None)
-    if not os.path.exists(img_path):
-        response = HTTPResponseBody(ok=False, msg='Image path does not exist.')
+    def __init__(self, cfg: ImageCaptioningConfig):
+        super().__init__()
+        self._model_path = cfg.models[0].model_path
+        self._host: str = cfg.host
+        self._port: int = cfg.port
+        self._debug: bool = cfg.debug
+        logger.info(f'👀 Model {SNR.BLIP} is loading...')
+        self._processor: BlipProcessor = BlipProcessor.from_pretrained(self._model_path)
+        self._model: BlipForConditionalGeneration = BlipForConditionalGeneration.from_pretrained(self._model_path,
+                                                                                                 torch_dtype=torch.float16).to(
+            "cuda")
+        logger.info(f'👀 Model {SNR.BLIP} loaded successfully.')
+        self._img_cap_pipeline = ImageCapPipeline(cfg)
+
+    def start(self):
+        app.run(host=self._host, port=self._port, debug=self._debug)
+
+    @app.route(f'/image-captioning/predict', methods=['GET'])
+    def handle_predict(self):
+        query = ImageCapPipeline.parse_query_from_json(request.json)
+        assert os.path.exists(query.img_path), f'Can not find image file: "{query.img_path}"'
+        response = self._predict(query)
         return jsonify(asdict(response))
-    prompt = req.get('prompt', None)
-    caption = _infer_by_path(img_path, prompt)
-    response = HTTPResponseBody(ok=True, msg=f'{SNR.BLIP} predicted successfully.', data={'caption': caption})
-    return jsonify(asdict(response))
 
+    def _predict(self, query: ImageCapQuery):
+        raw_image = Image.open(query.img_path).convert('RGB')
 
-def _infer_by_path(img_path: str, text: str):
-    raw_image = Image.open(img_path).convert('RGB')
+        # conditional image captioning
+        inputs = self._processor(raw_image, query.prompt, return_tensors="pt").to("cuda", torch.float16)
 
-    # conditional image captioning
-    inputs = PROCESSOR(raw_image, text, return_tensors="pt").to("cuda", torch.float16)
+        out = self._model.generate(**inputs)
+        output_text = self._processor.decode(out[0], skip_special_tokens=True)
 
-    out = MODEL.generate(**inputs)
-    output_text = PROCESSOR.decode(out[0], skip_special_tokens=True)
-    return output_text
-
-
-def start(model_path, host, port, debug):
-    global PROCESSOR, MODEL
-
-    logger.info(f'👀 Model {SNR.BLIP} is loading...')
-    PROCESSOR = BlipProcessor.from_pretrained(model_path)
-    MODEL = BlipForConditionalGeneration.from_pretrained(model_path, torch_dtype=torch.float16).to("cuda")
-    assert PROCESSOR and MODEL, f'❌️ Model {SNR.BLIP} loaded failed.'
-    logger.info(f'👀 Model {SNR.BLIP} loaded successfully.')
-    app.run(host=host, port=port, debug=debug)
+        return ImageCapResponse(caption=output_text)
