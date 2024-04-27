@@ -2,11 +2,9 @@ import copy
 from dataclasses import dataclass
 from typing import List
 
-from flask import Flask
-from flask import request
+from flask import Flask, request
 from loguru import logger
 
-from common.abs_app import AbstractApp
 from config import GlobalConfig
 
 app = Flask(__name__)
@@ -27,43 +25,44 @@ class GameEvent:
         return False
 
 
-class MinecraftApp(AbstractApp):
+# Global variable for shared state
+_game_event_list: List[GameEvent] = []
 
-    def __init__(self, cfg: GlobalConfig):
-        super().__init__()
-        self._game_event_list: List[GameEvent] = []
-        self.host = cfg.minecraft.host
-        self.port = cfg.minecraft.port
-        self.debug = cfg.minecraft.debug
 
-    def start(self):
-        app.run(host=self.host, port=self.port, debug=self.debug)
+def handle_add_event():
+    try:
+        game_event = GameEvent(**request.json)
+        if game_event:
+            _game_event_list.append(game_event)
+            logger.info(f'Game Event: {request.json}')
+            return 'OK.'
+    except Exception as e:
+        logger.exception(e)
+        return "Failed to add event."
 
-    @app.route('/minecraft/addevent', methods=['POST'])
-    def handle_add_event(self):
-        try:
-            game_event = GameEvent(**request.json)
-            if game_event:
-                self._game_event_list.append(game_event)
-                logger.info(f'Game Event: {request.json}')
-                return 'OK.'
-        except Exception as e:
-            logger.exception(e)
-            return "Failed to add event."
 
-    def select01(self):
-        if self._game_event_list and len(self._game_event_list) > 0:
-            ret = copy.deepcopy(self._game_event_list[-1])
-            self._game_event_list.clear()
+@app.route('/minecraft/addevent', methods=['POST'])
+def add_event_route():
+    return handle_add_event()
+
+
+def mark_last_event_as_read_and_clear_list():
+    if _game_event_list and len(_game_event_list) > 0:
+        ret = copy.deepcopy(_game_event_list[-1])
+        _game_event_list.clear()
+        return ret
+    return None
+
+
+def select_last_unread_event():
+    if _game_event_list:
+        unread_event_list = [event for event in _game_event_list if not event.read]
+        if unread_event_list and len(unread_event_list) > 0:
+            ret = unread_event_list[-1]
+            ret.read = True
             return ret
+    return None
 
-        return None
 
-    def select02(self):
-        if self._game_event_list:
-            unread_event_list = [event for event in self._game_event_list if not event.read]
-            if unread_event_list and len(unread_event_list) > 0:
-                ret = unread_event_list[-1]
-                ret.read = True
-                return ret
-        return None
+def start(cfg: GlobalConfig):
+    app.run(host=cfg.minecraft.host, port=cfg.minecraft.port, debug=cfg.minecraft.debug)

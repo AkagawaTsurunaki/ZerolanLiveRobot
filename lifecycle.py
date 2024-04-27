@@ -199,7 +199,7 @@ class LifeCycle:
         return tone, wav_file_path
 
     def read_game_event(self):
-        return minecraft.app.select01()
+        return minecraft.app.mark_last_event_as_read_and_clear_list()
 
     def memory(self):
         return copy.deepcopy(self._memory)
