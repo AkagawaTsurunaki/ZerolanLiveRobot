@@ -14,7 +14,7 @@ from config import GlobalConfig
 from llm.pipeline import LLMPipeline
 
 # Global attributes
-app = Flask(__name__)  # Flask application instance
+_app = Flask(__name__)  # Flask application instance
 
 _host: str  # Host address for the Flask application
 _port: int  # Port number for the Flask application
@@ -23,6 +23,35 @@ _debug: bool  # Debug mode flag for the Flask application
 _tokenizer: any  # Tokenizer for the language _model
 _model: any  # Language _model for generating responses
 _streamer: TextStreamer  # Text streamer for streaming responses
+
+
+def init(cfg: GlobalConfig):
+    """
+    Initializes the application with the given configuration.
+
+    Args:
+        cfg (GlobalConfig): Configuration object containing settings for the application.
+    """
+    global _tokenizer, _model, _streamer, _debug, _host, _port
+
+    _host = cfg.large_language_model.host
+    _port = cfg.large_language_model.port
+    _debug = cfg.large_language_model.debug
+
+    model_path = cfg.large_language_model.models[0].model_path
+    _tokenizer = AutoTokenizer.from_pretrained(model_path, use_fast=True)
+    _model = AutoModelForCausalLM.from_pretrained(
+        model_path,
+        torch_dtype=torch.bfloat16 if torch.cuda.is_bf16_supported() else torch.float16,
+    ).to('cuda')
+    _streamer = TextStreamer(_tokenizer, skip_prompt=True)
+
+
+def start():
+    """
+    Starts the Flask application with the configured host, port, and debug mode.
+    """
+    _app.run(host=_host, port=_port, debug=_debug)
 
 
 def _predict(llm_query: LLMQuery):
@@ -63,7 +92,7 @@ def _predict(llm_query: LLMQuery):
     return LLMResponse(response=response, history=llm_query.history)
 
 
-@app.route('/llm/predict', methods=['POST', 'GET'])
+@_app.route('/llm/predict', methods=['POST', 'GET'])
 def _handle_predict():
     """
     Handles prediction requests by generating a response from the language _model based on the received query.
@@ -77,7 +106,7 @@ def _handle_predict():
     return jsonify(asdict(llm_response))
 
 
-@app.route('/llm/stream-predict', methods=['GET', 'POST'])
+@_app.route('/llm/stream-predict', methods=['GET', 'POST'])
 def _handle_predict():
     """
     Handles streaming prediction requests. This route has not been implemented yet.
@@ -86,32 +115,3 @@ def _handle_predict():
         NotImplementedError: Indicates that the route is not implemented.
     """
     raise NotImplementedError('This route has not been implemented yet.')
-
-
-def init(cfg: GlobalConfig):
-    """
-    Initializes the application with the given configuration.
-
-    Args:
-        cfg (GlobalConfig): Configuration object containing settings for the application.
-    """
-    global _tokenizer, _model, _streamer, _debug, _host, _port
-
-    _host = cfg.large_language_model.host
-    _port = cfg.large_language_model.port
-    _debug = cfg.large_language_model.debug
-
-    model_path = cfg.large_language_model.models[0].model_path
-    _tokenizer = AutoTokenizer.from_pretrained(model_path, use_fast=True)
-    _model = AutoModelForCausalLM.from_pretrained(
-        model_path,
-        torch_dtype=torch.bfloat16 if torch.cuda.is_bf16_supported() else torch.float16,
-    ).to('cuda')
-    _streamer = TextStreamer(_tokenizer, skip_prompt=True)
-
-
-def start():
-    """
-    Starts the Flask application with the configured host, port, and debug mode.
-    """
-    app.run(host=_host, port=_port, debug=_debug)
