@@ -58,7 +58,7 @@
 
 ## 背景
 
-> 这一部分是对本项目的由来的阐述，可以更好地让您了解项目的成长过程。
+> 本节是对本项目的由来的阐述，可以更好地让您了解项目的成长过程。
 
 2022 年末至 2023 年初，此时正值人工智能模型，尤其是大语言模型的爆火时期，我也有幸体验到了诸如 [ChatGPT](https://openai.com/chatgpt) 等基于大语言模型的应用。虽然其具有一定逻辑和专业知识的对话体验深深震撼了我，然而当时的我却没有意识到这其实是虚拟主播世界的一次基于人工智能变革的前夕。
 
@@ -86,9 +86,60 @@
 
 ## 架构设计
 
-环境-智能体
+> 本节介绍 ZerolanLiveRobot 的整体架构。
 
-具体地说，对于 Zerolan Live Robot 的外部环境，例如用户的语音输入、文本输入、电脑快照、
+ZerolanLiveRobot 作为一个基于多种人工智能的级联系统，我们将视其为一种可以与周围环境交互并进行自我迭代的智能体。
+
+### 管线
+
+具体地说，对于 Zerolan Live Robot 的外部环境，我们需要用管线统一管理各个模型的输入输出。以 ModelQuery 为模型通用管线的输入，ModelResponse 为模型通用管线的输出。整合所有模型的信息流都应该通过管线，而不是硬编码地将流接受。
+
+接下来介绍，各个管线的通用接口。
+
+#### 自动语音识别模型通用管线
+
+##### ASRModelQuery
+
+```json
+{
+    "wav_path": "/path"
+}
+```
+
+`wav_path`：将要被识别的语音音频文件的绝对路径。
+
+##### ASRModelResponse
+
+```json
+{
+	"transcript": "Hello world!"
+}
+```
+
+`transcript`：根据语音音频识别得到的转录纯文本。
+
+#### Image-Captionning 模型通用管线
+
+##### ImageCaptioningModelQuery
+
+```json
+{
+	"img_path": "/",
+	"prompt": "/"
+}
+```
+
+`ima_path`：将要被进行识别处理的图片文件的绝对路径。
+
+`prompt`：（可选）作为模型的提示词。
+
+##### ImageCaptioningModelResponse
+
+```json
+{
+	"caption": ""
+}
+```
 
 
 
