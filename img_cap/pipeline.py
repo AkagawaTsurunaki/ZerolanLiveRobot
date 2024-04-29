@@ -5,13 +5,13 @@ from config import ImageCaptioningConfig
 
 
 @dataclass
-class ImageCapQuery(AbstractModelQuery):
+class ImageCaptioningModelQuery(AbstractModelQuery):
     img_path: str
     prompt: str
 
 
 @dataclass
-class ImageCapResponse(AbstractModelResponse):
+class ImageCaptioningModelResponse(AbstractModelResponse):
     caption: str
 
 
@@ -21,16 +21,16 @@ class ImageCapPipeline(AbstractPipeline):
         host, port = cfg.host, cfg.port
         self.predict_url = f'http://{host}:{port}/image-captioning/predict'
 
-    def predict(self, query: ImageCapQuery) -> ImageCapResponse | None:
+    def predict(self, query: ImageCaptioningModelQuery) -> ImageCaptioningModelResponse | None:
         return super().predict(query)
 
     @staticmethod
-    def parse_response_from_json(obj: any) -> ImageCapResponse:
+    def parse_response_from_json(obj: any) -> ImageCaptioningModelResponse:
         caption = obj['caption']
-        return ImageCapResponse(caption=caption)
+        return ImageCaptioningModelResponse(caption=caption)
 
     @staticmethod
-    def parse_query_from_json(obj: any) -> ImageCapQuery:
+    def parse_query_from_json(obj: any) -> ImageCaptioningModelQuery:
         img_path = obj['img_path']
         prompt = obj['prompt']
-        return ImageCapQuery(img_path=img_path, prompt=prompt)
+        return ImageCaptioningModelQuery(img_path=img_path, prompt=prompt)

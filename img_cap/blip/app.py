@@ -9,7 +9,7 @@ from transformers import BlipProcessor, BlipForConditionalGeneration
 
 from common.datacls import ServiceNameConst as SNR
 from config import GlobalConfig
-from img_cap.pipeline import ImageCapPipeline, ImageCapResponse, ImageCapQuery
+from img_cap.pipeline import ImageCapPipeline, ImageCaptioningModelResponse, ImageCaptioningModelQuery
 
 _app = Flask(__name__)
 _host: str  # Host address for the Flask application
@@ -38,7 +38,7 @@ def start():
     _app.run(host=_host, port=_port, debug=_debug)
 
 
-def _predict(query: ImageCapQuery):
+def _predict(query: ImageCaptioningModelQuery):
     raw_image = Image.open(query.img_path).convert('RGB')
 
     # conditional image captioning
@@ -47,7 +47,7 @@ def _predict(query: ImageCapQuery):
     out = model.generate(**inputs)
     output_text = processor.decode(out[0], skip_special_tokens=True)
 
-    return ImageCapResponse(caption=output_text)
+    return ImageCaptioningModelResponse(caption=output_text)
 
 
 @_app.route(f'/image-captioning/predict', methods=['GET'])

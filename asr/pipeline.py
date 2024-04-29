@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from urllib.parse import urljoin
 
 from common.abs_pipeline import AbstractPipeline, AbstractModelResponse, AbstractModelQuery
-from config import GlobalConfig, ASRConfig
+from config import GlobalConfig
 
 
 @dataclass

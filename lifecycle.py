@@ -8,7 +8,7 @@ import minecraft.app
 from asr.service import ASRService
 from audio_player.service import AudioPlayerService
 from config import GlobalConfig
-from img_cap.pipeline import ImageCapPipeline, ImageCapQuery
+from img_cap.pipeline import ImageCapPipeline, ImageCaptioningModelQuery
 from livestream.pipeline import LiveStreamPipeline
 from llm.pipeline import LLMPipeline
 from minecraft.app import GameEvent
@@ -147,7 +147,7 @@ class LifeCycle:
     def read_screen(self) -> str | None:
         img_save_path = self._screenshot_service.screen_cap()
         if img_save_path:
-            caption = self._img_cap_pipeline.predict(ImageCapQuery(img_path=img_save_path, prompt='There'))
+            caption = self._img_cap_pipeline.predict(ImageCaptioningModelQuery(img_path=img_save_path, prompt='There'))
             return caption
         return None
 
