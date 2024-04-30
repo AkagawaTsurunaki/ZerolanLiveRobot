@@ -10,14 +10,14 @@ from audio_player.service import AudioPlayerService
 from config import GlobalConfig
 from img_cap.pipeline import ImageCapPipeline, ImageCaptioningModelQuery
 from livestream.pipeline import LiveStreamPipeline
-from llm.pipeline import LLMPipeline
+from llm.pipeline import LLMPipeline, LLMQuery, Role, Chat
 from minecraft.app import GameEvent
 from obs.service import ObsService
 from scrnshot.service import ScreenshotService
 from tone_ana.service import ToneAnalysisService
 from tts.pipeline import TTSPipeline, TTSQuery
 from common import util
-from common.datacls import Danmaku, LLMQuery, Chat, Role
+from common.datacls import Danmaku
 from common.util import is_blank, write_wav
 
 

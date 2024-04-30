@@ -4,7 +4,7 @@ from typing import List
 from flask import Flask, jsonify
 
 from audio_player.service import AudioPlayerService, AudioPlayerStatus
-from common.datacls import Chat, LLMQuery
+from llm.pipeline import LLMQuery, Chat
 from config import GlobalConfig
 from lifecycle import LifeCycle
 from obs.service import ObsService

@@ -5,9 +5,9 @@ from typing import List
 from loguru import logger
 
 from config import GlobalConfig
-from llm.pipeline import LLMPipeline
+from llm.pipeline import LLMPipeline, LLMQuery, Role, Chat
 from common import util
-from common.datacls import Tone, LLMQuery, Chat, Role
+from common.datacls import Tone
 
 logger.remove()
 handler_id = logger.add(sys.stderr, level="INFO")

@@ -1,8 +1,6 @@
 from dataclasses import dataclass
 from os import PathLike
-from typing import Any, List
-
-from common.abs_pipeline import AbstractModelQuery, AbstractModelResponse
+from typing import Any
 
 
 @dataclass
@@ -40,31 +38,6 @@ class Tone:
     refer_wav_path: str
     prompt_text: str
     prompt_language: str
-
-
-@dataclass
-class Chat:
-    role: str
-    content: str
-
-
-@dataclass
-class LLMResponse(AbstractModelResponse):
-    response: str
-    history: List[Chat]
-
-
-@dataclass
-class LLMQuery(AbstractModelQuery):
-    text: str
-    history: List[Chat]
-
-
-@dataclass
-class Role:
-    USER = 'user'
-    ASSISTANT = 'assistant'
-    SYSTEM = 'system'
 
 
 class ServiceNameConst:
