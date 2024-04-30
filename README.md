@@ -102,7 +102,7 @@ ZerolanLiveRobot 作为一个基于多种人工智能的级联系统，我们将
 
 ```json
 {
-    "wav_path": "/path"
+  "wav_path": "/path"
 }
 ```
 
@@ -112,20 +112,20 @@ ZerolanLiveRobot 作为一个基于多种人工智能的级联系统，我们将
 
 ```json
 {
-	"transcript": "Hello world!"
+  "transcript": "Hello world!"
 }
 ```
 
 `transcript`：根据语音音频识别得到的转录纯文本。
 
-#### Image-Captionning 模型通用管线
+#### 图像字幕模型通用管线
 
 ##### ImageCaptioningModelQuery
 
 ```json
 {
-	"img_path": "/",
-	"prompt": "/"
+  "img_path": "/",
+  "prompt": "/"
 }
 ```
 
@@ -137,7 +137,7 @@ ZerolanLiveRobot 作为一个基于多种人工智能的级联系统，我们将
 
 ```json
 {
-	"caption": ""
+  "caption": "There is a girl standing on the lawn."
 }
 ```
 
