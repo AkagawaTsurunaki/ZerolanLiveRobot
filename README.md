@@ -4,20 +4,13 @@
 
 ![Static Badge](https://img.shields.io/badge/AI%20VTuber%20-%20green) ![Static Badge](https://img.shields.io/badge/Bilibli%20Live%20-%20green) ![Static Badge](https://img.shields.io/badge/Large%20Language%20Model%20-%20green) ![Static Badge](https://img.shields.io/badge/Text%20to%20Speech%20-%20green) ![Static Badge](https://img.shields.io/badge/Image%20to%20Text%20-%20green) ![Static Badge](https://img.shields.io/badge/Minecraft%20AI%20Agent%20-%20green) ![Static Badge](https://img.shields.io/badge/Automatic%20Speech%20Recognition%20%20-%20green)
 
-*Docs
-Languages: [简体中文](https://github.com/AkagawaTsurunaki/ZerolanLiveRobot/blob/main/README.md) | [English](https://github.com/AkagawaTsurunaki/ZerolanLiveRobot/blob/main/docs/en/README.md) | [日本語](https://github.com/AkagawaTsurunaki/ZerolanLiveRobot/blob/main/docs/ja/README.md)*
+*Docs Languages: [简体中文](https://github.com/AkagawaTsurunaki/ZerolanLiveRobot/blob/main/README.md) | [English](https://github.com/AkagawaTsurunaki/ZerolanLiveRobot/blob/main/docs/en/README.md) | [日本語](https://github.com/AkagawaTsurunaki/ZerolanLiveRobot/blob/main/docs/ja/README.md)*
 
-基于大语言模型、计算机视觉、语音合成、语音识别人工智能技术的虚拟形象直播机器人。
+基于大语言模型、计算机视觉、语音合成、语音识别等人工智能技术的具有视、听、说多感知的 AI 游戏直播虚拟形象。
 
-你或许已经听说过著名的 [Neurosama](https://virtualyoutuber.fandom.com/wiki/Neuro-sama)
-，或者是来自中国的[木几萌](https://mobile.moegirl.org.cn/%E6%9C%A8%E5%87%A0%E8%90%8C)。
+你或许已经听说过著名的 [Neurosama](https://virtualyoutuber.fandom.com/wiki/Neuro-sama)，或者是来自中国的[木几萌](https://mobile.moegirl.org.cn/%E6%9C%A8%E5%87%A0%E8%90%8C)。目前，越来越多的 AI VTuber 广泛地出现在 Twitch、Youtube、Bilibili 等平台，这些 AI VTuber 可以与直播间的观众互动、闲聊、看视频、打游戏等操作。同时，也有更多的公司正在基于 AI 等技术开发相关的直播机器人。这些虚拟形象通常覆盖了直播、游戏、娱乐等广泛的服务范围。
 
-目前，越来越多的 AI VTuber 广泛地出现在 Twitch、Youtube、Bilibili 等平台，这些 AI VTuber
-可以与直播间的观众互动、闲聊、看视频、打游戏等操作。同时，也有更多的公司正在基于 AI
-等技术开发相关的直播机器人。这些虚拟形象通常覆盖了直播、游戏、娱乐等广泛的服务范围。
-
-本人希望能让世界上每一个人，可在消费级显卡上部署一个 AI 虚拟形象，你可以将其作为自己的朋友、伴侣，或任何您想让 TA
-成为的形象，融入您的日常生活，在赛博世界中永远陪伴着你。
+本人希望能让世界上每一个人，可在消费级显卡上部署一个 AI 虚拟形象，你可以将其作为自己的朋友、伴侣，或任何您想让 TA 成为的形象，融入您的日常生活，在赛博世界中永远陪伴着你。
 
 ## 项目功能
 
@@ -36,24 +29,24 @@ Languages: [简体中文](https://github.com/AkagawaTsurunaki/ZerolanLiveRobot/b
 
 ### 大语言模型
 
-| 模型名称                                                              | 语言支持     | 显存占用          | 描述   |
-|-------------------------------------------------------------------|----------|---------------|------|
-| [THUDM/chatglm3-6b](https://huggingface.co/THUDM/chatglm3-6b)     | ✅中 ✅英 ❌日 | 5.4GB (4-bit) | 支持量化 |
-| [Qwen/Qwen-7B-Chat](https://huggingface.co/Qwen/Qwen-7B-Chat)     | ✅中 ✅英 ❌日 | -             | 支持量化 |
-| [01-ai/Yi-6B-Chat](https://huggingface.co/01-ai/Yi-6B-Chat)       | ✅中 ✅英 ❌日 | -             |      |
-| [augmxnt/shisa-7b-v1](https://huggingface.co/augmxnt/shisa-7b-v1) | ❌中 ✅英 ✅日 | 11.6GB        |      |
+| 模型名称                                                     | 语言支持    | 显存占用       | 描述     |
+| ------------------------------------------------------------ | ----------- | -------------- | -------- |
+| [THUDM/chatglm3-6b](https://huggingface.co/THUDM/chatglm3-6b) | ✅中 ✅英 ❌日 | 5.4 GB (4-bit) | 支持量化 |
+| [Qwen/Qwen-7B-Chat](https://huggingface.co/Qwen/Qwen-7B-Chat) | ✅中 ✅英 ❌日 | -              | 支持量化 |
+| [01-ai/Yi-6B-Chat](https://huggingface.co/01-ai/Yi-6B-Chat)  | ✅中 ✅英 ❌日 | -              |          |
+| [augmxnt/shisa-7b-v1](https://huggingface.co/augmxnt/shisa-7b-v1) | ❌中 ✅英 ✅日 | 11.6 GB        |          |
 
 ### 文本转语音模型
 
-| 模型名称                                                          | 语言支持     | 显存占用 | 描述            |
-|---------------------------------------------------------------|----------|------|---------------|
-| [RVC-Boss/GPT-SoVITS](https://github.com/RVC-Boss/GPT-SoVITS) | ✅中 ✅英 ✅日 | -    | 语音克隆 \| 文本转语音 |
+| 模型名称                                                     | 语言支持    | 显存占用 | 描述                   |
+| ------------------------------------------------------------ | ----------- | -------- | ---------------------- |
+| [RVC-Boss/GPT-SoVITS](https://github.com/RVC-Boss/GPT-SoVITS) | ✅中 ✅英 ✅日 | 2.3 GB   | 语音克隆 \| 文本转语音 |
 
 ### 视觉模型
 
-| 模型名称                                                                                                    | 类型                | 显存占用 | 描述 |
-|---------------------------------------------------------------------------------------------------------|-------------------|------|----|
-| [Salesforce/blip-image-captioning-large](https://huggingface.co/Salesforce/blip-image-captioning-large) | Image captionning | -    | -  |
+| 模型名称                                                     | 类型              | 显存占用 | 描述 |
+| ------------------------------------------------------------ | ----------------- | -------- | ---- |
+| [Salesforce/blip-image-captioning-large](https://huggingface.co/Salesforce/blip-image-captioning-large) | Image captionning | 1.1 GB   | -    |
 
 ### 自动语音识别模型
 
@@ -122,30 +115,11 @@ conda activate zerolanliverobot # 激活刚刚创建的虚拟环境
 pip install -r requirements.txt # 安装依赖
 ```
 
-### 安装依赖
-
-首先，让我们使用 Anaconda 创建一个虚拟环境。
-
-```shell
-conda create --name zerolanliverobot python=3.10 -y # 创建虚拟环境
-```
-
-这将命令 Anaconda 创建一个名为`zerolanliverobot`的虚拟环境，且指定了 Python 版本为 3.10。
-
-```shell
-cd YourDirectory/ZerolanLiveRobot # 切换目录至本仓库的目录
-conda activate zerolanliverobot # 激活刚刚创建的虚拟环境
-pip install -r requirements.txt # 安装依赖
-```
-
-在这里注意的是，本项目中的依赖 `torch~=2.1.1+cu118` 可能因为您的 CUDA 设备具有不同的驱动版本而在安装时报错，如果报错请切换至对应的版本。
-
 ### 修改配置
 
-您需要找到本项目中的配置文件`config/template_config.yaml`，
-将其**复制后重命名**为 `config.yaml`。
+您需要找到本项目中的配置文件`config/template_config.yaml`，将其**复制后重命名**为 `config.yaml`。
 
-接下来，我们将会详细介绍配置文件中的每块内容。
+接下来，我们将会详细介绍配置文件中的每块内容，您需要按照注释和文档的要求修改配置项以适应您的环境。
 
 #### 直播平台服务配置：`live_stream`
 
@@ -243,8 +217,7 @@ text_to_speech:
       # 如果你使用本项目，不需要进行多余的配置，但不要删除此字段。
 ```
 
-如果您使用的模型是[RVC-Boss/GPT-SoVITS](https://github.com/RVC-Boss/GPT-SoVITS)
-，这是一个可以支持仅需3到10秒的音频克隆的模型。请移步至官方仓库，了解如何下载并使用该模型。
+如果您使用的模型是[RVC-Boss/GPT-SoVITS](https://github.com/RVC-Boss/GPT-SoVITS)，这是一个可以支持仅需3到10秒的音频克隆的模型。请移步至官方仓库，了解如何下载并使用该模型。
 
 关于 GPT-SoVITS 官方的 API 如何支持中英、日英混读，请参考如下的[教程](https://github.com/jianchang512/gptsovits-api)修改。
 
@@ -534,19 +507,13 @@ WARNING  | scrnshot.service:screen_cap:32 - 无法找到窗口 xxx
 
 > 本节是对本项目的由来的阐述，可以更好地让您了解项目的成长过程。
 
-2022 年末至 2023
-年初，此时正值人工智能模型，尤其是大语言模型的爆火时期，我也有幸体验到了诸如 [ChatGPT](https://openai.com/chatgpt)
-等基于大语言模型的应用。虽然其具有一定逻辑和专业知识的对话体验深深震撼了我，然而当时的我却没有意识到这其实是虚拟主播世界的一次基于人工智能变革的前夕。
+2022 年末至 2023 年初，此时正值人工智能模型，尤其是大语言模型的爆火时期，我也有幸体验到了诸如 [ChatGPT](https://openai.com/chatgpt) 等基于大语言模型的应用。虽然其具有一定逻辑和专业知识的对话体验深深震撼了我，然而当时的我却没有意识到这其实是虚拟主播世界的一次基于人工智能变革的前夕。
 
-在 2023 年，本人第一次接触到 [Neurosama](https://virtualyoutuber.fandom.com/wiki/Neuro-sama)
-的时候，为其可爱的外表、有趣的对话和行为所吸引。在观看了相当一部分的切片视频后，我越发对其背后的实现机理和架构着迷，于是在
-2023 年末，我开启了第一次的尝试，并将此项目命名为 LingController。
+在 2023 年，本人第一次接触到 [Neurosama](https://virtualyoutuber.fandom.com/wiki/Neuro-sama) 的时候，为其可爱的外表、有趣的对话和行为所吸引。在观看了相当一部分的切片视频后，我越发对其背后的实现机理和架构着迷，于是在2023 年末，我开启了第一次的尝试，并将此项目命名为 LingController。
 
 无论是从直播间读取弹幕等信息，还是获取现实世界中人类发出的语音，对于大语言模型来说，无非是将一段文字转换为另一段文字。因此，不难想到将大语言模型作为整个项目的核心模块。通过语音识别模块，我们可以将一段来自外界的语音转录为一段纯文本，并将其输入给大语言模型，而大语言模型的输出文字将会被传递给一个文字转语音模型。
 
-在当时，鉴于 GPU 的局限性，我选择了 [THUDM/ChatGLM2-6B](https://github.com/thudm/chatglm2-6b)
-作为大语言模型，和当时较为有潜力的文本转语音模型 [Plachtaa/VALL-E-X](https://github.com/Plachtaa/VALL-E-X)
-（此模型结构原为微软提出），以及百度[飞桨PaddlePaddle](https://www.paddlepaddle.org.cn/) 的一个自动语音识别模型。
+在当时，鉴于 GPU 的局限性，我选择了 [THUDM/ChatGLM2-6B](https://github.com/thudm/chatglm2-6b) 作为大语言模型，和当时较为有潜力的文本转语音模型 [Plachtaa/VALL-E-X](https://github.com/Plachtaa/VALL-E-X)（此模型结构原为微软提出），以及百度[飞桨PaddlePaddle](https://www.paddlepaddle.org.cn/) 的一个自动语音识别模型。
 
 大概耗时数周，LingController 最终可以运行，但是存在诸多问题：
 
@@ -554,17 +521,15 @@ WARNING  | scrnshot.service:screen_cap:32 - 无法找到窗口 xxx
 2. 合成语音存在频发的吞字、漏字、不清晰以及严重的第二语言问题。
 3. 作为一个实验项目，LingController 并没有优良的架构设计。
 
-在 2024 年，全新的语音合成模型的出现，和越来越多的开源大语言模型的应用，使我重新对项目进行了更改。同时为了更好地支持开源社区，我重新创建了这个名为
-Zerolan Live Robot 的开源项目，并且增加了更多的功能。
+在 2024 年，全新的语音合成模型的出现，和越来越多的开源大语言模型的应用，使我重新对项目进行了更改。同时为了更好地支持开源社区，我重新创建了这个名为 [AkagawaTsurunaki/ZerolanLiveRobot: An AI game live streaming virtual character based on LLM, CV, TTS, and ASR technologies, with multi-sensory capabilities of seeing, hearing, and speaking. (github.com)](https://github.com/AkagawaTsurunaki/ZerolanLiveRobot) 的开源项目，并且增加了更多的功能。
 
-因此在发布了 Zerolan Live Robot 的第一个版本后，我很快意识到了其它问题。
+在发布了 Zerolan Live Robot 的第一个版本后，我很快意识到了其它问题。
 
 1. 不同的开源仓库或模型使用了不同的接口设计方案，这导致各个模型的信息流交互会随着模型的增加越来越困难。
 
 2. 未来可能会支持更多的游戏智能体，而不局限于 Minecraft。
 
-为了方便开发，我设计了一套通用管线用以处理各个模型之间的交互流，同时将 Minecraft AI 智能体作为一个单独的开源项目
-Koneko。我们希望这种管线数据流的模型交互框架可以适用于更多的 AI 模型，以便能为您提供更加多样复杂的底层模型组合和交互方法，最终达成打造更加个性化的交互机器人解决方案。
+为了方便开发，我设计了一套通用管线用以处理各个模型之间的交互流，同时将 Minecraft AI 智能体作为一个单独的开源项目 [AkagawaTsurunaki/Koneko: AI Minecraft agent based on mineflayer and LLM. Related to ZerolanLiveRobot. (github.com)](https://github.com/AkagawaTsurunaki/Koneko)。我们希望这种管线数据流的模型交互框架可以适用于更多的 AI 模型，以便能为您提供更加多样复杂的底层模型组合和交互方法，最终达成打造更加个性化的交互机器人解决方案。
 
 ## 设计思路
 
@@ -574,8 +539,7 @@ ZerolanLiveRobot 作为一个基于多种人工智能的级联系统，我们将
 
 ### 管线
 
-具体地说，对于 Zerolan Live Robot 的外部环境，我们需要用管线统一管理各个模型的输入输出。以 ModelQuery
-为模型通用管线的输入，ModelResponse 为模型通用管线的输出。整合所有模型的信息流都应该通过管线，而不是硬编码地将流接受。
+具体地说，对于 Zerolan Live Robot 的外部环境，我们需要用管线统一管理各个模型的输入输出。以 ModelQuery 为模型通用管线的输入，ModelResponse 为模型通用管线的输出。整合所有模型的信息流都应该通过管线，而不是硬编码地将流接受。
 
 接下来介绍，各个管线的通用接口。
 
@@ -728,11 +692,9 @@ ZerolanLiveRobot 作为一个基于多种人工智能的级联系统，我们将
 
 ![img](./docs/assets/zerolan-live-robot-architecture.png)
 
-如图所示，ZerolanLiveRobot 将会获取来自外部环境的信息，经过一系列组合模型的综合处理，
-给出输出。
+如图所示，ZerolanLiveRobot 将会获取来自外部环境的信息，经过一系列组合模型的综合处理，给出输出。
 
-我们将所有来自环境的可能输入到 ZerolanLiveRobot 的信息流的来源称为输入源；
-由 ZerolanLiveRobot 输出的信息流成为输出源。
+我们将所有来自环境的可能输入到 ZerolanLiveRobot 的信息流的来源称为输入源；由 ZerolanLiveRobot 输出的信息流成为输出源。
 
 下表展示了可能的输入源信息：
 
@@ -752,8 +714,11 @@ ZerolanLiveRobot 作为一个基于多种人工智能的级联系统，我们将
 
 ## 即将到来
 
-- [ ] 虚拟形象控制
+- [ ] Live2D 虚拟形象控制
 - [ ] 唱歌
+- [ ] 更好的记忆方式
+- [ ] 向量数据库
+- [ ] QQ 机器人
 
 ## 开源许可证
 
@@ -784,5 +749,4 @@ ZerolanLiveRobot 作为一个基于多种人工智能的级联系统，我们将
 Github：AkagawaTsurunaki
 
 Bilibili：赤川鶴鳴_Channel
-
 
