@@ -27,14 +27,16 @@
 
 为了能够使更多的人可以在本地部署本项目，目前测试了一系列的开源人工智能模型。
 
+*注：在不同机型上，数据会略有差异，请以实际部署时为主。*
+
 ### 大语言模型
 
-| 模型名称                                                     | 语言支持    | 显存占用       | 描述     |
-| ------------------------------------------------------------ | ----------- | -------------- | -------- |
-| [THUDM/chatglm3-6b](https://huggingface.co/THUDM/chatglm3-6b) | ✅中 ✅英 ❌日 | 5.4 GB (4-bit) | 支持量化 |
-| [Qwen/Qwen-7B-Chat](https://huggingface.co/Qwen/Qwen-7B-Chat) | ✅中 ✅英 ❌日 | 10 GB          | 支持量化 |
-| [01-ai/Yi-6B-Chat](https://huggingface.co/01-ai/Yi-6B-Chat)  | ✅中 ✅英 ❌日 | 8.4 GB         |          |
-| [augmxnt/shisa-7b-v1](https://huggingface.co/augmxnt/shisa-7b-v1) | ❌中 ✅英 ✅日 | 11.6 GB        |          |
+| 模型名称                                                     | 语言支持    | 显存占用           | 描述     |
+| ------------------------------------------------------------ | ----------- | ------------------ | -------- |
+| [THUDM/chatglm3-6b](https://huggingface.co/THUDM/chatglm3-6b) | ✅中 ✅英 ❌日 | 6 GB (4-bit) <br>5 | 支持量化 |
+| [Qwen/Qwen-7B-Chat](https://huggingface.co/Qwen/Qwen-7B-Chat) | ✅中 ✅英 ❌日 | 10 GB (auto)       |          |
+| [01-ai/Yi-6B-Chat](https://huggingface.co/01-ai/Yi-6B-Chat)  | ✅中 ✅英 ❌日 | 9.1 GB             |          |
+| [augmxnt/shisa-7b-v1](https://huggingface.co/augmxnt/shisa-7b-v1) | ❌中 ✅英 ✅日 | 11.6 GB            |          |
 
 ### 文本转语音模型
 
