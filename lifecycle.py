@@ -12,7 +12,7 @@ from img_cap.pipeline import ImageCapPipeline, ImageCaptioningModelQuery
 from livestream.pipeline import LiveStreamPipeline
 from llm.pipeline import LLMPipeline, LLMQuery, Role, Chat
 from minecraft.app import GameEvent
-from obs.service import ObsService
+from obs.api import ObsService
 from scrnshot.service import ScreenshotService
 from tone_ana.service import ToneAnalysisService
 from tts.pipeline import TTSPipeline, TTSQuery

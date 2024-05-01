@@ -8,7 +8,7 @@ from audio_player.service import AudioPlayerService, AudioPlayerStatus
 from llm.pipeline import LLMQuery, Chat
 from config import GlobalConfig
 from lifecycle import LifeCycle
-from obs.service import ObsService
+from obs.api import ObsService
 from vad.service import VADServiceStatus
 
 _app = Flask(__name__.split('.')[0])

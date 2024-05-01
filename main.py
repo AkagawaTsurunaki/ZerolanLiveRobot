@@ -8,13 +8,11 @@ import service_starter
 from asr.service import ASRService
 from audio_player.service import AudioPlayerService
 from config import GLOBAL_CONFIG as G_CFG
-from controller.app import ControllerApp
 from lifecycle import LifeCycle
-from minecraft.app import MinecraftApp
-from obs.service import ObsService
+from obs.api import ObsService
 from scrnshot.service import ScreenshotService
-from vad.service import VADService
 from tone_ana.service import ToneAnalysisService
+from vad.service import VADService
 
 logger.remove()
 logger.add(sys.stderr, level="INFO")
@@ -26,8 +24,8 @@ if __name__ == '__main__':
         thread_list = []
 
         # Live stream service thread
-        live_stream_serv = service_starter.get_live_stream_service(G_CFG.live_stream)
-        thread_list.append(threading.Thread(target=live_stream_serv.start))
+
+        thread_list.append(threading.Thread(target=service_starter.start_live_stream_service))
 
         # VAD service thread
         vad_serv = VADService(G_CFG)
@@ -49,8 +47,8 @@ if __name__ == '__main__':
         audio_player_service = AudioPlayerService(obs_service)
         thread_list.append(threading.Thread(target=audio_player_service.start))
 
-        minecraft_app = MinecraftApp(G_CFG)
-        thread_list.append(threading.Thread(target=minecraft_app.start))
+        # Minecraft
+        thread_list.append(threading.Thread(target=service_starter.start_minecraft_service))
 
         # Life cycle
         life_cycle = LifeCycle(cfg=G_CFG,
@@ -61,7 +59,7 @@ if __name__ == '__main__':
                                screenshot_service=scrnshot_service)
 
         # Controller app thread
-        controller_app = ControllerApp(cfg=G_CFG, lifecycle=life_cycle, audio_player_service=audio_player_service)
+
         thread_list.append(threading.Thread(target=controller_app.start))
 
         # Start all threads

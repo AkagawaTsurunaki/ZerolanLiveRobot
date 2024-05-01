@@ -11,12 +11,14 @@ from config import GlobalConfig
 def start_asr(model_name: str):
     if SNC.PARAFORMER == model_name:
         import asr.speech_paraformer.app
+        asr.speech_paraformer.app.init(G_CFG)
         asr.speech_paraformer.app.start()
 
 
 def start_img_cap(model_name: str):
     if SNC.BLIP == model_name:
         import img_cap.blip.app
+        img_cap.blip.app.init(G_CFG)
         img_cap.blip.app.start()
 
 
@@ -44,11 +46,22 @@ def start_tts(model_name: str):
         logger.warning('No need to start app...')
 
 
-def get_live_stream_service(config: GlobalConfig) -> AbstractService:
-    platform = config.live_stream.platforms[0]
-    if platform.platform_name == PlatformConst.BILIBILI:
-        from livestream.bilibili.service import BilibiliService
-        return BilibiliService(config)
+def start_live_stream_service():
+    platform_name = G_CFG.live_stream.platforms[0].platform_name
+    if PlatformConst.BILIBILI == platform_name:
+        import livestream.bilibili.service
+        livestream.bilibili.service.init(G_CFG)
+        livestream.bilibili.service.start()
+
+
+def start_minecraft_service():
+    import minecraft.app
+    minecraft.app.start(G_CFG)
+
+
+def start_controller_service():
+    import controller.app
+    controller.app.init()
 
 
 if __name__ == '__main__':
