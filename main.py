@@ -6,13 +6,11 @@ from loguru import logger
 
 import asr.service
 import audio_player.service
+import controller.app
+import lifecycle
 import scrnshot.service
 import service_starter
 import vad.service
-from config import GLOBAL_CONFIG as G_CFG
-from lifecycle import LifeCycle
-from scrnshot.service import ScreenshotService
-from tone_ana.service import ToneAnalysisService
 
 logger.remove()
 logger.add(sys.stderr, level="INFO")
@@ -42,24 +40,15 @@ if __name__ == '__main__':
         # Minecraft
         thread_list.append(threading.Thread(target=service_starter.start_minecraft_service))
 
-        # Life cycle
-        life_cycle = LifeCycle(cfg=G_CFG,
-                               asr_service=asr_service,
-                               audio_player_service=audio_player_service,
-                               obs_service=obs_service,
-                               tone_ana_service=tone_analysis_service,
-                               screenshot_service=scrnshot_service)
-
         # Controller app thread
-
-        thread_list.append(threading.Thread(target=controller_app.start))
+        thread_list.append(threading.Thread(target=controller.app.start))
 
         # Start all threads
         for thread in thread_list:
             thread.start()
 
         # Start lifecycle
-        asyncio.run(life_cycle.start())
+        asyncio.run(lifecycle.start())
 
         # Wait for all threads finishing
         for thread in thread_list:
