@@ -1,5 +1,5 @@
 from config import GlobalConfig
-from io.writer import Writer
+from zio.writer import Writer
 from common.datacls import Danmaku, Tone
 
 
