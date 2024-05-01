@@ -74,14 +74,15 @@ def _predict(llm_query: LLMQuery):
     if llm_query.history[0].role == Role.SYSTEM:
         sys_prompt = llm_query.history[0].content
         if len(history_content_list) > 0:
-            history_content_list[0] += sys_prompt
+            history_content_list = history_content_list[1:]
+            history_content_list[0] = sys_prompt + history_content_list[0]
 
     assert len(history_content_list) % 2 == 0, f'Length of the history for Qwen must be even number.'
 
     # Convert content list as tuple
     history: list[tuple] = []
 
-    for i in range(0, len(history_content_list) - 2, 2):
+    for i in range(0, len(history_content_list), 2):
         history.append((history_content_list[i], history_content_list[i + 1]))
 
     response, history = _model.chat(_tokenizer, llm_query.text, history=history)
