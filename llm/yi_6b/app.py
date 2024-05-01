@@ -34,7 +34,6 @@ def init(cfg):
     _model = AutoModelForCausalLM.from_pretrained(
         model_path,
         device_map=mode,
-        torch_dtype='auto'
     ).eval()
 
 
