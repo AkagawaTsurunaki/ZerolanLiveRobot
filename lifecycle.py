@@ -4,202 +4,217 @@ import json
 
 from loguru import logger
 
+import audio_player.service
 import minecraft.app
-from asr.service import ASRService
-from audio_player.service import AudioPlayerService
-from config import GlobalConfig
+import obs.api
+import scrnshot.service
+import tone_ana.service
+from common import util
+from common.datacls import Danmaku
+from common.util import is_blank, write_wav
+from config import GLOBAL_CONFIG as G_CFG
 from img_cap.pipeline import ImageCapPipeline, ImageCaptioningModelQuery
 from livestream.pipeline import LiveStreamPipeline
 from llm.pipeline import LLMPipeline, LLMQuery, Role, Chat
 from minecraft.app import GameEvent
-from obs.api import ObsService
-from scrnshot.service import ScreenshotService
-from tone_ana.service import ToneAnalysisService
 from tts.pipeline import TTSPipeline, TTSQuery
-from common import util
-from common.datacls import Danmaku
-from common.util import is_blank, write_wav
+import asr.service
+
+_lang: str
+_dev_name: str
+_max_history: int
+_waiting_interval: int
+
+_role_play_template_path: str
+_memory: LLMQuery | None
+
+_llm_pipeline: LLMPipeline
+_live_stream_pipeline: LiveStreamPipeline
+_img_cap_pipeline: ImageCapPipeline
+_tts_pipeline: TTSPipeline
 
 
-class LifeCycle:
-    def __init__(self, cfg: GlobalConfig,
-                 asr_service: ASRService,
-                 audio_player_service: AudioPlayerService,
-                 obs_service: ObsService,
-                 tone_ana_service: ToneAnalysisService,
-                 screenshot_service: ScreenshotService):
-        self._lang: str = 'zh'
-        self._dev_name: str = 'AkagawaTsurunaki'
-        self._max_history: int = 40
-        self._waiting_interval: int = 2
+def init():
+    global _lang, _dev_name, _max_history, _waiting_interval, _role_play_template_path, \
+        _memory, _llm_pipeline, _live_stream_pipeline, _img_cap_pipeline, _tts_pipeline
 
-        self._role_play_template_path = cfg.zerolan_live_robot_config.role_play_template_path
-        self._memory: LLMQuery | None = None
-        # Pipelines
-        self._llm_pipeline = LLMPipeline(cfg)
-        self._live_stream_pipeline = LiveStreamPipeline(cfg)
-        self._img_cap_pipeline = ImageCapPipeline(cfg)
-        self._tts_pipeline = TTSPipeline(cfg)
-        # Services
-        self._asr_service = asr_service
-        self._audio_player_service = audio_player_service
-        self._obs_service = obs_service
-        self._tone_ana_service = tone_ana_service
-        self._screenshot_service = screenshot_service
+    _lang: str = 'zh'
+    _dev_name: str = 'AkagawaTsurunaki'
+    _max_history: int = 40
+    _waiting_interval: int = 2
 
-    async def update(self):
+    _role_play_template_path = G_CFG.zerolan_live_robot_config.role_play_template_path
+    _memory: LLMQuery | None = None
+    # Pipelines
+    _llm_pipeline = LLMPipeline(G_CFG)
+    _live_stream_pipeline = LiveStreamPipeline(G_CFG)
+    _img_cap_pipeline = ImageCapPipeline(G_CFG)
+    _tts_pipeline = TTSPipeline(G_CFG)
 
-        self.try_reset_memory()
 
-        # 尝试读取语音 | 抽取弹幕 | 截图识别 | 获取游戏事件
-        transcript = self.read_from_microphone()
-        danmaku = self.read_danmaku()
-        screen_desc = self.read_screen()
-        game_event = self.read_game_event()
+async def update():
+    try_reset_memory()
 
-        # 将上述获取的信息转化为对话的请求
-        query = self.convert_2_query(transcript, danmaku, screen_desc, game_event)
+    # 尝试读取语音 | 抽取弹幕 | 截图识别 | 获取游戏事件
+    transcript = read_from_microphone()
+    danmaku = read_danmaku()
+    screen_desc = read_screen()
+    game_event = read_game_event()
 
-        if query is None or query == '':
-            logger.warning('生命周期提前结束')
-            return
+    # 将上述获取的信息转化为对话的请求
+    query = convert_2_query(transcript, danmaku, screen_desc, game_event)
 
-        self._memory.text = query
-        logger.info(query)
+    if query is None or query == '':
+        logger.warning('生命周期提前结束')
+        return
 
-        # 注意这里, 开发者说的话会覆盖弹幕
-        if danmaku:
-            self._obs_service.write_danmaku_output(danmaku)
+    _memory.text = query
+    logger.info(query)
 
-        if transcript:
-            self._obs_service.write_voice_input(transcript)
+    # 注意这里, 开发者说的话会覆盖弹幕
+    if danmaku:
+        obs.api.write_danmaku_output(danmaku)
 
-        last_split_idx = 0
+    if transcript:
+        obs.api.write_voice_input(transcript)
 
-        ret_llm_response = None
+    last_split_idx = 0
 
-        async for llm_response in self._llm_pipeline.stream_predict(self._memory):
-            ret_llm_response = llm_response
-            response = llm_response.response
-            if not response or response[-1] not in ['。', '！', '？', '!', '?']:
-                continue
+    ret_llm_response = None
 
-            sentence = response[last_split_idx:]
-            last_split_idx = len(response)
+    async for llm_response in _llm_pipeline.stream_predict(_memory):
+        ret_llm_response = llm_response
+        response = llm_response.response
+        if not response or response[-1] not in ['。', '！', '？', '!', '?']:
+            continue
 
-            if is_blank(sentence):
-                continue
+        sentence = response[last_split_idx:]
+        last_split_idx = len(response)
 
-            # 自动语气语音合成
-            tone, wav_file_path = self.tts_with_tone(sentence)
+        if is_blank(sentence):
+            continue
 
-            logger.info(f'🗒️ 历史记录：{len(llm_response.history)} \n💖 语气：{tone.id} \n💭 {sentence}')
+        # 自动语气语音合成
+        tone, wav_file_path = tts_with_tone(sentence)
 
-            if not wav_file_path:
-                logger.warning(f'❕ 这条语音未能合成：{sentence}')
-                break
+        logger.info(f'🗒️ 历史记录：{len(llm_response.history)} \n💖 语气：{tone.id} \n💭 {sentence}')
 
-            # 播放语音
-            self._audio_player_service.add_audio(wav_file_path, sentence)
+        if not wav_file_path:
+            logger.warning(f'❕ 这条语音未能合成：{sentence}')
+            break
 
-        self.memory.history = ret_llm_response.history
+        # 播放语音
+        audio_player.service.add_audio(wav_file_path, sentence)
 
-    async def start(self):
-        logger.info('Zerolan Live Robot Starting!')
-        while True:
-            await self.update()
-            await asyncio.sleep(self._waiting_interval)
+    memory.history = ret_llm_response.history
 
-    def load_history(self):
-        template = util.read_yaml(self._role_play_template_path)
-        format = json.dumps(template['format'], ensure_ascii=False, indent=4)
 
-        # Assign history
-        history: list[Chat] = []
-        for chat in template['history']:
-            if isinstance(chat, dict):
-                content = json.dumps(chat, ensure_ascii=False, indent=4)
-                history.append(Chat(role=Role.USER, content=content))
-            elif isinstance(chat, str):
-                history.append(Chat(role=Role.ASSISTANT, content=chat))
+async def start():
+    logger.info('Zerolan Live Robot Starting!')
+    while True:
+        await update()
+        await asyncio.sleep(_waiting_interval)
 
-        # Assign system prompt
-        for chat in history:
-            chat.content = chat.content.replace('${format}', format)
 
-        return LLMQuery(text='', history=history)
+def load_history():
+    template = util.read_yaml(_role_play_template_path)
+    fmt = json.dumps(template['format'], ensure_ascii=False, indent=4)
 
-    def try_reset_memory(self, force: bool = False):
-        # Prevent bot from slow-calculation block for too long
-        if force:
-            self.memory = self.load_history()
-        elif not self.memory:
-            self.memory = self.load_history()
-        elif len(self.memory.history) > self._max_history:
-            self.memory = self.load_history()
+    # Assign history
+    history: list[Chat] = []
+    for chat in template['history']:
+        if isinstance(chat, dict):
+            content = json.dumps(chat, ensure_ascii=False, indent=4)
+            history.append(Chat(role=Role.USER, content=content))
+        elif isinstance(chat, str):
+            history.append(Chat(role=Role.ASSISTANT, content=chat))
 
-    def read_danmaku(self) -> Danmaku | None:
-        danmaku = self._live_stream_pipeline.read_danmaku_latest_longest(k=3)
-        if danmaku:
-            logger.info(f'✅ [{danmaku.username}]({danmaku.uid}) {danmaku.msg}')
-        return danmaku
+    # Assign system prompt
+    for chat in history:
+        chat.content = chat.content.replace('${format}', fmt)
 
-    def read_screen(self) -> str | None:
-        img_save_path = self._screenshot_service.screen_cap()
-        if img_save_path:
-            caption = self._img_cap_pipeline.predict(ImageCaptioningModelQuery(img_path=img_save_path, prompt='There'))
-            return caption
-        return None
+    return LLMQuery(text='', history=history)
 
-    def read_from_microphone(self) -> str | None:
-        transcript = self._asr_service.select_latest_unread()
 
-        if transcript:
-            logger.info(f'🎙️ 用户语音输入：{transcript}')
-        return transcript
+def try_reset_memory(force: bool = False):
+    global _memory
 
-    @staticmethod
-    def convert_2_query(transcript: str, danmaku: Danmaku, screen_desc: str, game_event: GameEvent) -> str | None:
-        query = {}
+    # Prevent bot from slow-calculation block for too long
+    if force:
+        _memory = load_history()
+    elif not _memory:
+        _memory = load_history()
+    elif len(_memory.history) > _max_history:
+        _memory = load_history()
 
-        if transcript:
-            query['开发者说'] = transcript
-        if danmaku:
-            query['弹幕'] = {
-                "用户名": danmaku.username,
-                "内容": danmaku.msg
-            }
 
-        if screen_desc:
-            query['游戏画面'] = f'{screen_desc}'
+def read_danmaku() -> Danmaku | None:
+    danmaku = _live_stream_pipeline.read_danmaku_latest_longest(k=3)
+    if danmaku:
+        logger.info(f'✅ [{danmaku.username}]({danmaku.uid}) {danmaku.msg}')
+    return danmaku
 
-        if game_event:
-            query['游戏状态'] = {
-                "生命值": game_event.health,
-                "饥饿值": game_event.food,
-                "环境": game_event.description
-            }
-        if query:
-            query = str(json.dumps(obj=query, indent=4, ensure_ascii=False))
-            query = f'```\n{query}\n```'
-            return query
-        return None
 
-    def tts_with_tone(self, sentence: str):
-        # 利用 LLM 分析句子语气
-        tone = self._tone_ana_service.analyze_tone(sentence)
+def read_screen() -> str | None:
+    img_save_path = scrnshot.service.screen_cap()
+    if img_save_path:
+        caption = _img_cap_pipeline.predict(ImageCaptioningModelQuery(img_path=img_save_path, prompt='There'))
+        return caption
+    return None
 
-        # 根据语气切换 TTS 的提示合成对应的语音
-        tts_query = TTSQuery(text=sentence, text_language=self._lang, refer_wav_path=tone.refer_wav_path,
-                             prompt_text=tone.prompt_text, prompt_language=tone.prompt_language)
-        tts_response = self._tts_pipeline.predict(tts_query)
-        wav_file_path = write_wav(tts_response.wave_data)
-        self._obs_service.write_tone_output(tone)
 
-        return tone, wav_file_path
+def read_from_microphone() -> str | None:
+    transcript = asr.service.select_latest_unread()
 
-    def read_game_event(self):
-        return minecraft.app.mark_last_event_as_read_and_clear_list()
+    if transcript:
+        logger.info(f'🎙️ 用户语音输入：{transcript}')
+    return transcript
 
-    def memory(self):
-        return copy.deepcopy(self._memory)
+
+def convert_2_query(transcript: str, danmaku: Danmaku, screen_desc: str, game_event: GameEvent) -> str | None:
+    query = {}
+
+    if transcript:
+        query['开发者说'] = transcript
+    if danmaku:
+        query['弹幕'] = {
+            "用户名": danmaku.username,
+            "内容": danmaku.msg
+        }
+
+    if screen_desc:
+        query['游戏画面'] = f'{screen_desc}'
+
+    if game_event:
+        query['游戏状态'] = {
+            "生命值": game_event.health,
+            "饥饿值": game_event.food,
+            "环境": game_event.description
+        }
+    if query:
+        query = str(json.dumps(obj=query, indent=4, ensure_ascii=False))
+        query = f'```\n{query}\n```'
+        return query
+    return None
+
+
+def tts_with_tone(sentence: str):
+    # 利用 LLM 分析句子语气
+    tone = tone_ana.service.analyze_tone(sentence)
+
+    # 根据语气切换 TTS 的提示合成对应的语音
+    tts_query = TTSQuery(text=sentence, text_language=_lang, refer_wav_path=tone.refer_wav_path,
+                         prompt_text=tone.prompt_text, prompt_language=tone.prompt_language)
+    tts_response = _tts_pipeline.predict(tts_query)
+    wav_file_path = write_wav(tts_response.wave_data)
+    obs.api.write_tone_output(tone)
+
+    return tone, wav_file_path
+
+
+def read_game_event():
+    return minecraft.app.mark_last_event_as_read_and_clear_list()
+
+
+def memory():
+    return copy.deepcopy(_memory)

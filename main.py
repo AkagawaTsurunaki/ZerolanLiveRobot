@@ -4,48 +4,40 @@ import threading
 
 from loguru import logger
 
+import asr.service
+import audio_player.service
+import scrnshot.service
 import service_starter
-from asr.service import ASRService
-from audio_player.service import AudioPlayerService
+import vad.service
 from config import GLOBAL_CONFIG as G_CFG
 from lifecycle import LifeCycle
-from obs.api import ObsService
 from scrnshot.service import ScreenshotService
 from tone_ana.service import ToneAnalysisService
-from vad.service import VADService
 
 logger.remove()
 logger.add(sys.stderr, level="INFO")
 
 if __name__ == '__main__':
     try:
+        audio_player.service.init()
+        vad.service.init()
+        scrnshot.service.init()
+        asr.service.init()
 
         # Thread list for all services
         thread_list = []
 
         # Live stream service thread
-
         thread_list.append(threading.Thread(target=service_starter.start_live_stream_service))
 
         # VAD service thread
-        vad_serv = VADService(G_CFG)
-        thread_list.append(threading.Thread(target=vad_serv.start))
+        thread_list.append(threading.Thread(target=vad.service.start))
 
         # ASR service thread
-        asr_service = ASRService(G_CFG, vad_serv)
-        thread_list.append(threading.Thread(target=asr_service.start))
+        thread_list.append(threading.Thread(target=asr.service.start))
 
-        # OBS service (no thread need)
-        obs_service = ObsService(G_CFG)
-
-        # Tone analysis service
-        tone_analysis_service = ToneAnalysisService(G_CFG)
-
-        # Screenshot service
-        scrnshot_service = ScreenshotService(G_CFG)
-
-        audio_player_service = AudioPlayerService(obs_service)
-        thread_list.append(threading.Thread(target=audio_player_service.start))
+        # Audio player thread
+        thread_list.append(threading.Thread(target=audio_player.service.start))
 
         # Minecraft
         thread_list.append(threading.Thread(target=service_starter.start_minecraft_service))

@@ -2,10 +2,8 @@ import argparse
 
 from loguru import logger
 
-from common.abs_service import AbstractService
 from common.datacls import ServiceNameConst as SNC, PlatformConst
 from config import GLOBAL_CONFIG as G_CFG
-from config import GlobalConfig
 
 
 def start_asr(model_name: str):

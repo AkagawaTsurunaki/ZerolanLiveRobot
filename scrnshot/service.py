@@ -5,35 +5,41 @@ import pyautogui
 import pygetwindow as gw
 from loguru import logger
 
-from config import GlobalConfig
+from config import GLOBAL_CONFIG as G_CFG
+
+_k: float
+_save_path: str
+_win_title: str
 
 
-class ScreenshotService:
-    def __init__(self, cfg: GlobalConfig):
-        self._k = cfg.screenshot.k
-        self._save_path = cfg.screenshot.save_directory
-        self._win_title = cfg.screenshot.window_title
+def init():
+    global _k, _save_path, _win_title
 
-    def screen_cap(self):
-        try:
-            # 获取窗口
-            win_list = gw.getWindowsWithTitle(self._win_title)
-            if len(win_list) == 0:
-                logger.warning(f'Can not find window: {self._win_title}')
-                return None
-            w = win_list[0]
-            # 激活窗口
-            w.activate()
-            # 计算屏幕位置
-            region = (
-            w.centerx - self._k * w.width / 2, w.centery - self._k * w.height / 2, w.centerx + self._k * w.width / 2,
-            w.centery + self._k * w.height / 2)
-            region = tuple(int(num * self._k) for num in region)
-            # 截图
-            img = pyautogui.screenshot(region=region)
-            img_save_path = os.path.join(self._save_path, f'{time.time()}.png')
-            img.save(img_save_path)
-            return img_save_path
-        except Exception as e:
-            logger.error(f'Failed to capture window: {self._save_path}')
+    _k = G_CFG.screenshot.k
+    _save_path = G_CFG.screenshot.save_directory
+    _win_title = G_CFG.screenshot.window_title
+
+
+def screen_cap():
+    try:
+        # 获取窗口
+        win_list = gw.getWindowsWithTitle(_win_title)
+        if len(win_list) == 0:
+            logger.warning(f'Can not find window: {_win_title}')
             return None
+        w = win_list[0]
+        # 激活窗口
+        w.activate()
+        # 计算屏幕位置
+        region = (
+            w.centerx - _k * w.width / 2, w.centery - _k * w.height / 2, w.centerx + _k * w.width / 2,
+            w.centery + _k * w.height / 2)
+        region = tuple(int(num * _k) for num in region)
+        # 截图
+        img = pyautogui.screenshot(region=region)
+        img_save_path = os.path.join(_save_path, f'{time.time()}.png')
+        img.save(img_save_path)
+        return img_save_path
+    except Exception as e:
+        logger.error(f'Failed to capture window: {_save_path}')
+        return None
