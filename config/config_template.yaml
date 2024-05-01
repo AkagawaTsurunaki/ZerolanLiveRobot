@@ -78,7 +78,6 @@ large_language_model:
         quantize: 4
     - Qwen/Qwen-7B-Chat:
         model_path: Qwen/Qwen-7B-Chat
-        quantize: 4
         # bf16, fp16, cpu or auto
         loading_mode: auto
     - 01-ai/Yi-6B-Chat:
