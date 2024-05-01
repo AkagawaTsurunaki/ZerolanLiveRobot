@@ -193,7 +193,7 @@ class GlobalConfig:
 
 
 def _safe_get_model_path(model: dict, model_name: str, cfg_item: str) -> str:
-    model_path = model[model_name].get('model_path', model_name)
+    model_path = model.get('model_path', model_name)
     if model_path != model_name:
         assert os.path.exists(model_path), \
             f'Invalid configuration item "{cfg_item}": Path "{model_path}" does not exist.'
@@ -206,7 +206,7 @@ def _safe_get_cur_model(cfg: dict, cfg_item_name: str) -> (str, dict):
         f'Invalid configuration item "{cfg_item_name}.models": 1 model excepted, but now {len(models)}.'
     model = models[0]
     model_name = next(iter(model))
-    return model_name, model
+    return model_name, model.get(model_name, None)
 
 
 def _safe_get_model_quantize(model: dict, model_name: str) -> int:
