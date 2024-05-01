@@ -1,5 +1,4 @@
 from dataclasses import asdict
-from typing import List
 
 from flask import Flask, request, jsonify
 from transformers import AutoModelForCausalLM, AutoTokenizer
