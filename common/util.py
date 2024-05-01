@@ -132,6 +132,8 @@ def read_yaml(path: str | PathLike):
 
 
 def is_english_string(input_string):
+    if not input_string:
+        return False
     # 正则表达式匹配英文字符、数字、空格和标点符号
     pattern = r'^[a-zA-Z0-9\s\.,;:!?]*$'
     # 使用re.match()函数检查输入字符串是否匹配正则表达式

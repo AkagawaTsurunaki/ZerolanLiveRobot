@@ -288,7 +288,7 @@ def load_image_captioning_config(cfg: dict) -> ImageCaptioningConfig:
         if SNC.BLIP == model_name:
             model_path = _safe_get_model_path(model, model_name=SNC.BLIP,
                                               cfg_item="image_captioning.models.Salesforce/blip-image-captioning-large.model_path")
-            text_prompt = cfg.get('text_prompt', None)
+            text_prompt = model.get('text_prompt', None)
             assert util.is_english_string(
                 text_prompt), f'Invalid configuration item "image_captioning.models.Salesforce/blip-image-captioning-large.text_prompt": English only.'
             blip_config = BlipConfig(model_name=SNC.BLIP, model_path=model_path, text_prompt=text_prompt)
@@ -319,8 +319,6 @@ def load_tts_config(cfg: dict) -> TextToSpeechConfig:
         model_name = next(iter(model))
 
         if SNC.GPT_SOVITS == model_name:
-            assert util.is_url_online(f'http://{host}:{port}'), \
-                f'TTS service failure: GPT-SoVITS service is not online.'
             gpt_sovits_config = GPTSoVITSConfig(model_name=SNC.GPT_SOVITS)
             return TextToSpeechConfig(enable=enable, debug=debug, host=host, port=port, save_directory=save_directory,
                                       models=[gpt_sovits_config])
