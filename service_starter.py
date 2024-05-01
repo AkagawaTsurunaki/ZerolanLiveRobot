@@ -23,15 +23,19 @@ def start_img_cap(model_name: str):
 def start_llm(model_name: str):
     if SNC.CHATGLM3 == model_name:
         import llm.chatglm3.app
+        llm.chatglm3.app.init(G_CFG)
         llm.chatglm3.app.start()
     elif SNC.QWEN == model_name:
         import llm.qwen.app
+        llm.qwen.app.init(G_CFG)
         llm.qwen.app.start()
     elif SNC.YI == model_name:
         import llm.yi_6b.app
+        llm.yi_6b.app.init(G_CFG)
         llm.yi_6b.app.start()
     elif SNC.SHISA == model_name:
         import llm.shisa.app
+        llm.shisa.app.init(G_CFG)
         llm.shisa.app.start()
 
 
