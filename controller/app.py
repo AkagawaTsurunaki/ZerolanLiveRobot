@@ -3,18 +3,18 @@ from typing import List
 
 from flask import Flask, jsonify
 
+import vad.service
 from audio_player.service import AudioPlayerService, AudioPlayerStatus
 from llm.pipeline import LLMQuery, Chat
 from config import GlobalConfig
 from lifecycle import LifeCycle
 from obs.service import ObsService
-from vad.service import VADService, VADServiceStatus
+from vad.service import VADServiceStatus
 
 _app = Flask(__name__.split('.')[0])
 
 _audio_player_service: AudioPlayerService
 _obs_service: ObsService
-_vad_service: VADService
 _lifecycle: LifeCycle
 
 _host: str  # Host address for the Flask application
@@ -44,15 +44,13 @@ class VADControlResponse(ControllerResponse):
 
 def init(cfg: GlobalConfig, lifecycle: LifeCycle,
          audio_player_service: AudioPlayerService,
-         vad_service: VADService,
          obs_service: ObsService):
-    global _host, _debug, _port, _audio_player_service, _obs_service, _vad_service, _lifecycle
+    global _host, _debug, _port, _audio_player_service, _obs_service, _lifecycle
     _host = cfg.zerolan_live_robot_config.host
     _port = cfg.zerolan_live_robot_config.port
     _debug = cfg.zerolan_live_robot_config.debug
     _audio_player_service = audio_player_service
     _obs_service = obs_service
-    _vad_service = vad_service
     _lifecycle = lifecycle
 
 
@@ -77,21 +75,21 @@ def _handle_memory_fetch():
 
 @_app.route('/vad/pause', methods=['POST'])
 def _handle_vad_pause():
-    _vad_service.pause()
+    vad.service.pause()
     message = 'VAD service paused.'
     return jsonify(asdict(ControllerResponse(message=message)))
 
 
 @_app.route('/vad/resume', methods=['POST'])
 def _handle_vad_resume():
-    _vad_service.resume()
+    vad.service.resume()
     message = 'VAD service resumed.'
     return jsonify(asdict(ControllerResponse(message=message)))
 
 
 @_app.route('/vad/status', methods=['POST'])
 def _handle_vad_status():
-    status = _vad_service.status()
+    status = vad.service.status()
     message = f'VAD service status: {status}'
     return jsonify(asdict(VADControlResponse(message=message, status=status)))
 
