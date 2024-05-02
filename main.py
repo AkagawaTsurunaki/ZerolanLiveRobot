@@ -11,6 +11,7 @@ import lifecycle
 import scrnshot.service
 import service_starter
 import vad.service
+from common.exc import InitError
 
 logger.remove()
 logger.add(sys.stderr, level="INFO")
@@ -53,7 +54,9 @@ if __name__ == '__main__':
         # Wait for all threads finishing
         for thread in thread_list:
             thread.join()
-
+    except InitError as e:
+        logger.exception(e)
+        logger.critical('❌️ ' + e.message)
     except Exception as e:
         logger.exception(e)
-        logger.critical(f'Zerolan Live Robot exited: Unhandled exception.')
+        logger.critical(f'😭 Zerolan Live Robot exited: Unhandled exception.')

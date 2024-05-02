@@ -40,13 +40,13 @@ def init():
     global _lang, _dev_name, _max_history, _waiting_interval, _role_play_template_path, \
         _memory, _llm_pipeline, _live_stream_pipeline, _img_cap_pipeline, _tts_pipeline
 
-    _lang: str = 'zh'
-    _dev_name: str = 'AkagawaTsurunaki'
-    _max_history: int = 40
-    _waiting_interval: int = 2
+    _lang = 'zh'
+    _dev_name = 'AkagawaTsurunaki'
+    _max_history = 40
+    _waiting_interval = 2
 
     _role_play_template_path = G_CFG.zerolan_live_robot_config.role_play_template_path
-    _memory: LLMQuery | None = None
+    _memory = None
     # Pipelines
     _llm_pipeline = LLMPipeline(G_CFG)
     _live_stream_pipeline = LiveStreamPipeline(G_CFG)

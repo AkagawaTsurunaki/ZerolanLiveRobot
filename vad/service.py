@@ -11,6 +11,7 @@ import scipy
 from loguru import logger
 
 from common.datacls import WavFile, VADServiceStatus
+from common.exc import InitError
 from config import GLOBAL_CONFIG as G_CFG
 
 logger.remove()
@@ -36,9 +37,13 @@ def init():
     _sample_rate = G_CFG.voice_activity_detection.sample_rate
     _threshold = G_CFG.voice_activity_detection.threshold
     _max_mute_count = G_CFG.voice_activity_detection.max_mute_count
-    _stream = pyaudio.PyAudio().open(
-        format=pyaudio.paInt16, channels=1, rate=_sample_rate, input=True, frames_per_buffer=_chunk
-    )
+    try:
+        _stream = pyaudio.PyAudio().open(
+            format=pyaudio.paInt16, channels=1, rate=_sample_rate, input=True, frames_per_buffer=_chunk
+        )
+    except OSError as e:
+        if e.errno == -9996:
+            raise InitError('Input device unavailable: Maybe you did not give the microphone permission.')
 
     # Record speech in loop event
     _record_speech_in_loop_event = threading.Event()

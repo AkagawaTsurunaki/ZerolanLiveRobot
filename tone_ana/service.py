@@ -1,14 +1,12 @@
 import copy
 import sys
-from typing import List
 
 from loguru import logger
 
 import zio.util
+from common.datacls import Tone
 from config import GlobalConfig
 from llm.pipeline import LLMPipeline, LLMQuery, Role, Chat
-from common import util
-from common.datacls import Tone
 
 logger.remove()
 handler_id = logger.add(sys.stderr, level="INFO")
@@ -24,15 +22,14 @@ _tone_analysis_template: LLMQuery
 def init(cfg: GlobalConfig):
     global _tone_list, _llm_pipeline, _tone_analysis_template
 
-    _tone_list: list[Tone] = []
-    _llm_pipeline: LLMPipeline = LLMPipeline(cfg)
-    _tone_analysis_template: LLMQuery
+    _tone_list = []
+    _llm_pipeline = LLMPipeline(cfg)
 
     tone_analysis_template_path = cfg.tone_analysis.tone_analysis_template_path
     tone_analysis_template_dict = zio.util.read_yaml(tone_analysis_template_path)
-    task: str = tone_analysis_template_dict['task']
-    tone_dict: dict = tone_analysis_template_dict['tone']
-    history: List[Chat] = []
+    task = tone_analysis_template_dict['task']
+    tone_dict = tone_analysis_template_dict['tone']
+    history = []
     for tone_id in tone_dict.keys():
         tone = Tone(
             id=tone_id,
