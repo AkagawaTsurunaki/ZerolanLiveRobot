@@ -1,46 +1,32 @@
 import sys
 import threading
-from dataclasses import dataclass
-from typing import List
 
 from loguru import logger
 
 import vad.service
 from asr.pipeline import ASRPipeline, ASRModelQuery
-from common.abs_service import ServiceStatus
-from common.datacls import Transcript
+from common.datacls import Transcript, ASRServiceStatus
 from config import GLOBAL_CONFIG as G_CFG
-from common.util import log_status
 
 # Config logger
 logger.remove()
 handler_id = logger.add(sys.stderr, level="INFO")
 
-
-@dataclass
-class ASRServiceStatus(ServiceStatus):
-    RUNNING = 'RUNNING'
-    PAUSED = 'PAUSED'
-    STOP = 'STOP'
-
-
 _selecting_wav_event: threading.Event
-_transcript_list: List[Transcript]
+_transcript_list: list[Transcript]
 _running: bool
 _pipeline: ASRPipeline
 
 
-@log_status('👂️', 'ASR service', 'initializing...')
 def init():
     global _selecting_wav_event, _transcript_list, _running, _pipeline
 
-    _transcript_list: List[Transcript] = []
-    _running: bool = False
-    _selecting_wav_event: threading.Event = threading.Event()
+    _transcript_list = []
+    _running = False
+    _selecting_wav_event = threading.Event()
     _pipeline = ASRPipeline(G_CFG)
 
 
-@log_status('👂️', 'ASR service', 'starting...')
 def start():
     global _running
 

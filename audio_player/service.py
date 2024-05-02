@@ -1,46 +1,36 @@
 import os
 import sys
 import threading
-from dataclasses import dataclass
 from os import PathLike
 from typing import List
 
 from loguru import logger
 from playsound import playsound
 
-from common.abs_service import ServiceStatus
-from common.datacls import AudioPair
+from common.datacls import AudioPair, AudioPlayerStatus
 from config import GLOBAL_CONFIG as G_CFG
 
 # Config logger
 logger.remove()
 handler_id = logger.add(sys.stderr, level="INFO")
 
-
-@dataclass
-class AudioPlayerStatus(ServiceStatus):
-    PLAYING = 'PLAYING'
-    PAUSED = 'PAUSED'
-    STOP = 'STOP'
-
-
-_g_audio_list: List[AudioPair]
+_audio_list: List[AudioPair]
 _add_audio_event: threading.Event
 _audio_play_event: threading.Event
 _running: bool
 
 
 def init():
-    global _g_audio_list, _add_audio_event, _audio_play_event, _running
+    global _audio_list, _add_audio_event, _audio_play_event, _running
     # List to store all audio pairs
-    _g_audio_list: List[AudioPair] = []
+    _audio_list = []
 
     # Add audio thread event, only after new AudioPair is added,
     # the audio play thread will run, reducing CPU usage
-    _add_audio_event: threading.Event = threading.Event()
+    _add_audio_event = threading.Event()
 
     # Audio play event, used to control whether to play.
-    _audio_play_event: threading.Event = threading.Event()
+    _audio_play_event = threading.Event()
 
     # Control whether break from dead loop
     _running = False
@@ -61,13 +51,13 @@ def start():
 
 
 def stop():
-    global _running, _g_audio_list
+    global _running, _audio_list
     # Set all flags to false
     _running = False
     _add_audio_event.clear()
     _audio_play_event.clear()
     # Reset audio list
-    _g_audio_list = []
+    _audio_list = []
     logger.warning('Audio player service has been stopped.')
 
 
@@ -87,8 +77,8 @@ def _play(audio_pair: AudioPair):
 
 
 def select_latest_unplayed():
-    if len(_g_audio_list) > 0:
-        latest_unplayed_list = [item for item in _g_audio_list if not item.played]
+    if len(_audio_list) > 0:
+        latest_unplayed_list = [item for item in _audio_list if not item.played]
         if len(latest_unplayed_list) > 0:
             latest_unplayed = latest_unplayed_list[-1]
             latest_unplayed.played = True
@@ -98,7 +88,7 @@ def select_latest_unplayed():
 
 def add_audio(wav_file_path: str | PathLike, transcript: str):
     audiopair = AudioPair(transcript=transcript, wav_file_path=wav_file_path, played=False)
-    _g_audio_list.append(audiopair)
+    _audio_list.append(audiopair)
     _add_audio_event.set()
 
 

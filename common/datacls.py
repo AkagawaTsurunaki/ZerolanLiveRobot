@@ -63,3 +63,29 @@ class WavFile:
     wav_file_path: str
 
 
+@dataclass
+class AudioPlayerStatus(Enum):
+    PLAYING = 'PLAYING'
+    PAUSED = 'PAUSED'
+    STOP = 'STOP'
+
+
+@dataclass
+class BilibiliServiceStatus(Enum):
+    LISTENING = 'LISTENING'
+    PAUSED = 'PAUSED'
+    STOP = 'STOP'
+
+
+@dataclass
+class VADServiceStatus(Enum):
+    RECORDING = 'RECORDING'
+    PAUSED = 'PAUSED'
+    STOP = 'STOP'
+
+
+@dataclass
+class ASRServiceStatus(Enum):
+    RUNNING = 'RUNNING'
+    PAUSED = 'PAUSED'
+    STOP = 'STOP'

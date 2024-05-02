@@ -1,6 +1,5 @@
 import copy
 import threading
-from dataclasses import dataclass
 from typing import List
 
 from bilibili_api import Credential, sync
@@ -8,17 +7,8 @@ from bilibili_api import Danmaku
 from bilibili_api.live import LiveDanmaku
 from loguru import logger
 
-from common.abs_service import ServiceStatus
-from common.datacls import Danmaku
+from common.datacls import Danmaku, BilibiliServiceStatus
 from config import GlobalConfig
-
-
-@dataclass
-class BilibiliServiceStatus(ServiceStatus):
-    LISTENING = 'LISTENING'
-    PAUSED = 'PAUSED'
-    STOP = 'STOP'
-
 
 _monitor: LiveDanmaku
 _recv_event: threading.Event

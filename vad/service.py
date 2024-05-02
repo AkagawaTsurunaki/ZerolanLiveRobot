@@ -3,7 +3,6 @@ import queue
 import sys
 import threading
 import time
-from dataclasses import dataclass
 from typing import List
 
 import numpy as np
@@ -11,20 +10,11 @@ import pyaudio
 import scipy
 from loguru import logger
 
-from common.abs_service import ServiceStatus
-from common.datacls import WavFile
+from common.datacls import WavFile, VADServiceStatus
 from config import GLOBAL_CONFIG as G_CFG
 
 logger.remove()
 logger.add(sys.stderr, level="INFO")
-
-
-@dataclass
-class VADServiceStatus(ServiceStatus):
-    RECORDING = 'RECORDING'
-    PAUSED = 'PAUSED'
-    STOP = 'STOP'
-
 
 _save_dir: str
 _chunk: int
@@ -41,11 +31,11 @@ _running: bool
 def init():
     global _save_dir, _chunk, _save_dir, _sample_rate, _threshold, _max_mute_count, _stream, _record_speech_in_loop_event, _wave_records, _g_wav_file_list, _running
 
-    _save_dir: str = G_CFG.voice_activity_detection.save_dir
-    _chunk: int = G_CFG.voice_activity_detection.chunk
-    _sample_rate: int = G_CFG.voice_activity_detection.sample_rate
-    _threshold: int = G_CFG.voice_activity_detection.threshold
-    _max_mute_count: int = G_CFG.voice_activity_detection.max_mute_count
+    _save_dir = G_CFG.voice_activity_detection.save_dir
+    _chunk = G_CFG.voice_activity_detection.chunk
+    _sample_rate = G_CFG.voice_activity_detection.sample_rate
+    _threshold = G_CFG.voice_activity_detection.threshold
+    _max_mute_count = G_CFG.voice_activity_detection.max_mute_count
     _stream = pyaudio.PyAudio().open(
         format=pyaudio.paInt16, channels=1, rate=_sample_rate, input=True, frames_per_buffer=_chunk
     )
@@ -54,7 +44,7 @@ def init():
     _record_speech_in_loop_event = threading.Event()
 
     _wave_records = queue.Queue()
-    _g_wav_file_list: List[WavFile] = []
+    _g_wav_file_list = []
 
     _running = False
 

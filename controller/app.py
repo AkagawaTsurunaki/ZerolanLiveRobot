@@ -4,10 +4,9 @@ from typing import List
 from flask import Flask, jsonify
 
 import vad.service
-from audio_player.service import AudioPlayerStatus
+from common.datacls import AudioPlayerStatus, VADServiceStatus
 from llm.pipeline import LLMQuery, Chat
 from config import GLOBAL_CONFIG as G_CFG
-from vad.service import VADServiceStatus
 
 _app = Flask(__name__.split('.')[0])
 
