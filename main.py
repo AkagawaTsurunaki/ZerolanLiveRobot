@@ -8,13 +8,13 @@ import asr.service
 import audio_player.service
 import controller.app
 import lifecycle
-import scrnshot.api
-import service_starter
-import vad.service
-from common.exc import InitError
 import livestream.bilibili.service
-from config import GLOBAL_CONFIG as G_CFG
+import service_starter
+import tone_ana.service
+import vad.service
 from common.datacls import PlatformConst as PC
+from common.exc import InitError
+from config import GLOBAL_CONFIG as G_CFG
 
 logger.remove()
 logger.add(sys.stderr, level="INFO")
@@ -25,8 +25,8 @@ if __name__ == '__main__':
     try:
         audio_player.service.init()
         vad.service.init()
-        scrnshot.service.init()
         asr.service.init()
+        tone_ana.service.init()
         controller.app.init()
         lifecycle.init()
 

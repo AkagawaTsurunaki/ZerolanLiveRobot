@@ -5,7 +5,7 @@ from loguru import logger
 
 import zio.util
 from common.datacls import Tone, Chat, LLMQuery, Role
-from config import GlobalConfig
+from config import GLOBAL_CONFIG as G_CFG
 from llm.pipeline import LLMPipeline
 
 logger.remove()
@@ -19,13 +19,13 @@ _llm_pipeline: LLMPipeline
 _tone_analysis_template: LLMQuery
 
 
-def init(cfg: GlobalConfig):
+def init():
     global _tone_list, _llm_pipeline, _tone_analysis_template
 
     _tone_list = []
-    _llm_pipeline = LLMPipeline(cfg)
+    _llm_pipeline = LLMPipeline(G_CFG)
 
-    tone_analysis_template_path = cfg.tone_analysis.tone_analysis_template_path
+    tone_analysis_template_path = G_CFG.tone_analysis.tone_analysis_template_path
     tone_analysis_template_dict = zio.util.read_yaml(tone_analysis_template_path)
     task = tone_analysis_template_dict['task']
     tone_dict = tone_analysis_template_dict['tone']
