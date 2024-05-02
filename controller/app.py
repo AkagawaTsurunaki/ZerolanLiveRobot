@@ -4,18 +4,12 @@ from typing import List
 from flask import Flask, jsonify
 
 import vad.service
-from audio_player.service import AudioPlayerService, AudioPlayerStatus
+from audio_player.service import AudioPlayerStatus
 from llm.pipeline import LLMQuery, Chat
-from config import GlobalConfig
-from lifecycle import LifeCycle
-from obs.api import ObsService
+from config import GLOBAL_CONFIG as G_CFG
 from vad.service import VADServiceStatus
 
 _app = Flask(__name__.split('.')[0])
-
-_audio_player_service: AudioPlayerService
-_obs_service: ObsService
-_lifecycle: LifeCycle
 
 _host: str  # Host address for the Flask application
 _port: int  # Port number for the Flask application
@@ -42,16 +36,11 @@ class VADControlResponse(ControllerResponse):
     status: VADServiceStatus
 
 
-def init(cfg: GlobalConfig, lifecycle: LifeCycle,
-         audio_player_service: AudioPlayerService,
-         obs_service: ObsService):
+def init():
     global _host, _debug, _port, _audio_player_service, _obs_service, _lifecycle
-    _host = cfg.zerolan_live_robot_config.host
-    _port = cfg.zerolan_live_robot_config.port
-    _debug = cfg.zerolan_live_robot_config.debug
-    _audio_player_service = audio_player_service
-    _obs_service = obs_service
-    _lifecycle = lifecycle
+    _host = G_CFG.zerolan_live_robot_config.host
+    _port = G_CFG.zerolan_live_robot_config.port
+    _debug = G_CFG.zerolan_live_robot_config.debug
 
 
 def start():

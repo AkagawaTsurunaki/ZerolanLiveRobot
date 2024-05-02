@@ -2,45 +2,45 @@ import argparse
 
 from loguru import logger
 
-from common.datacls import ModelNameConst as SNC, PlatformConst
+from common.datacls import ModelNameConst as MNC, PlatformConst
 from config import GLOBAL_CONFIG as G_CFG
 
 
 def start_asr(model_name: str):
-    if SNC.PARAFORMER == model_name:
+    if MNC.PARAFORMER == model_name:
         import asr.speech_paraformer.app
-        asr.speech_paraformer.app.init(G_CFG)
+        asr.speech_paraformer.app.init()
         asr.speech_paraformer.app.start()
 
 
 def start_img_cap(model_name: str):
-    if SNC.BLIP == model_name:
+    if MNC.BLIP == model_name:
         import img_cap.blip.app
-        img_cap.blip.app.init(G_CFG)
+        img_cap.blip.app.init()
         img_cap.blip.app.start()
 
 
 def start_llm(model_name: str):
-    if SNC.CHATGLM3 == model_name:
+    if MNC.CHATGLM3 == model_name:
         import llm.chatglm3.app
         llm.chatglm3.app.init(G_CFG)
         llm.chatglm3.app.start()
-    elif SNC.QWEN == model_name:
+    elif MNC.QWEN == model_name:
         import llm.qwen.app
         llm.qwen.app.init(G_CFG)
         llm.qwen.app.start()
-    elif SNC.YI == model_name:
+    elif MNC.YI == model_name:
         import llm.yi_6b.app
         llm.yi_6b.app.init(G_CFG)
         llm.yi_6b.app.start()
-    elif SNC.SHISA == model_name:
+    elif MNC.SHISA == model_name:
         import llm.shisa.app
         llm.shisa.app.init(G_CFG)
         llm.shisa.app.start()
 
 
 def start_tts(model_name: str):
-    if SNC.GPT_SOVITS == model_name:
+    if MNC.GPT_SOVITS == model_name:
         logger.warning('No need to start app...')
 
 
