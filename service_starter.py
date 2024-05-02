@@ -23,7 +23,7 @@ def start_img_cap(model_name: str):
 def start_llm(model_name: str):
     if MNC.CHATGLM3 == model_name:
         import llm.chatglm3.app
-        llm.chatglm3.app.init(G_CFG)
+        llm.chatglm3.app.init()
         llm.chatglm3.app.start()
     elif MNC.QWEN == model_name:
         import llm.qwen.app

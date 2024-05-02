@@ -4,8 +4,9 @@ from flask import Flask, jsonify, stream_with_context, Response, request
 from loguru import logger
 from transformers import AutoTokenizer, AutoModel
 
-from config import GlobalConfig
+from config import GLOBAL_CONFIG as G_CFG
 from llm.pipeline import LLMPipeline, LLMQuery, LLMResponse, Chat
+from common.datacls import ModelNameConst as MNC
 
 # Global attributes
 _app = Flask(__name__)  # Flask application instance
@@ -14,37 +15,38 @@ _host: str  # Host address for the Flask application
 _port: int  # Port number for the Flask application
 _debug: bool  # Debug mode flag for the Flask application
 
-_tokenizer: AutoTokenizer  # Tokenizer for the language model
-_model: AutoModel  # Language model for generating responses
+_tokenizer: any  # Tokenizer for the language model
+_model: any  # Language model for generating responses
 
 
-def init(cfg: GlobalConfig):
-    """
-    Initializes the application with the given configuration.
-
-    Args:
-        cfg (GlobalConfig): The configuration object containing settings for the application.
-    """
+def init():
+    logger.info(f'💭 Application {MNC.CHATGLM3} is initializing...')
     global _host, _port, _debug, _model, _tokenizer
-    _host = cfg.large_language_model.host
-    _port = cfg.large_language_model.port
-    _debug = cfg.large_language_model.debug
-    model_path = cfg.large_language_model.models[0].model_path
-    quantize = cfg.large_language_model.models[0].quantize
+
+    llm_cfg = G_CFG.large_language_model
+    _host, _port, _debug = llm_cfg.host, llm_cfg.port, llm_cfg.debug
+    model_path, quantize = llm_cfg.models[0].model_path, llm_cfg.models[0].quantize
+
+    logger.info(f'💭 Model {MNC.CHATGLM3} is loading...')
     _tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
     if quantize:
         _model = AutoModel.from_pretrained(model_path, trust_remote_code=True).quantize(quantize).to(
             'cuda').eval()
     else:
         _model = AutoModel.from_pretrained(model_path, trust_remote_code=True).to('cuda').eval()
-    logger.info(f'💭 ChatGLM3 model loaded.')
+    assert _tokenizer and _model, f'❌️ Model {MNC.CHATGLM3} failed to load.'
+    logger.info(f'💭 Model {MNC.CHATGLM3} loaded successfully..')
+
+    logger.info(f'💭 Application {MNC.CHATGLM3} initialized successfully.')
 
 
 def start():
     """
     Starts the Flask application with the configured host, port, and debug mode.
     """
+    logger.info(f'💭 Application {MNC.CHATGLM3} is starting...')
     _app.run(host=_host, port=_port, debug=_debug)
+    logger.info(f'💭 Application {MNC.CHATGLM3} is stopped.')
 
 
 def _predict(llm_query: LLMQuery) -> LLMResponse:
