@@ -7,45 +7,50 @@ from flask import Flask, request, jsonify
 from loguru import logger
 from transformers import BlipProcessor, BlipForConditionalGeneration
 
-from common.datacls import ServiceNameConst as SNR
+from common.datacls import ModelNameConst as SNR
 from config import GlobalConfig
 from img_cap.pipeline import ImageCapPipeline, ImageCaptioningModelResponse, ImageCaptioningModelQuery
 
 _app = Flask(__name__)
+
 _host: str  # Host address for the Flask application
 _port: int  # Port number for the Flask application
 _debug: bool  # Debug mode flag for the Flask application
-processor: any
-model: any
+_processor: any
+_model: any
 
 
 def init(cfg: GlobalConfig):
-    global _host, _port, _debug, processor, model
-
-    _host = cfg.image_captioning.host
-    _port = cfg.image_captioning.port
-    _debug = cfg.image_captioning.debug
+    logger.info(f'👀 Application {SNR.BLIP} is initializing...')
+    global _host, _port, _debug, _processor, _model
 
     blip_cfg = cfg.image_captioning
+    _host, _port, _debug = blip_cfg.host, blip_cfg.port, blip_cfg.debug
     model_path = blip_cfg.models[0].model_path
+
     logger.info(f'👀 Model {SNR.BLIP} is loading...')
-    processor = BlipProcessor.from_pretrained(model_path)
-    model = BlipForConditionalGeneration.from_pretrained(model_path, torch_dtype=torch.float16).to("cuda")
+    _processor = BlipProcessor.from_pretrained(model_path)
+    _model = BlipForConditionalGeneration.from_pretrained(model_path, torch_dtype=torch.float16).to("cuda")
+    assert _processor and _model, f'❌️ Model {SNR.BLIP} failed to load.'
     logger.info(f'👀 Model {SNR.BLIP} loaded successfully.')
+
+    logger.info(f'👀 Application {SNR.BLIP} initialized successfully.')
 
 
 def start():
+    logger.info(f'👀 Application {SNR.BLIP} is starting...')
     _app.run(host=_host, port=_port, debug=_debug)
+    logger.warning(f'👀 Application {SNR.BLIP} stopped.')
 
 
 def _predict(query: ImageCaptioningModelQuery):
     raw_image = Image.open(query.img_path).convert('RGB')
 
     # conditional image captioning
-    inputs = processor(raw_image, query.prompt, return_tensors="pt").to("cuda", torch.float16)
+    inputs = _processor(raw_image, query.prompt, return_tensors="pt").to("cuda", torch.float16)
 
-    out = model.generate(**inputs)
-    output_text = processor.decode(out[0], skip_special_tokens=True)
+    out = _model.generate(**inputs)
+    output_text = _processor.decode(out[0], skip_special_tokens=True)
 
     return ImageCaptioningModelResponse(caption=output_text)
 
