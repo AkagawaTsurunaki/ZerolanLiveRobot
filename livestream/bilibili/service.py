@@ -7,8 +7,8 @@ from bilibili_api import Danmaku
 from bilibili_api.live import LiveDanmaku
 from loguru import logger
 
-from common.datacls import Danmaku, BilibiliServiceStatus
-from config import GlobalConfig
+from common.datacls import Danmaku, BilibiliServiceStatus, PlatformConst as PC
+from config import GLOBAL_CONFIG as G_CFG
 
 _monitor: LiveDanmaku
 _recv_event: threading.Event
@@ -16,9 +16,10 @@ _danmaku_list: List[Danmaku] = []
 _running: bool
 
 
-def init(cfg: GlobalConfig):
+def init():
+    logger.info(f'🍻 Live stream service {PC.BILIBILI} is initializing...')
     global _monitor, _recv_event, _danmaku_list, _running
-    bili_cfg = cfg.live_stream.platforms[0]
+    bili_cfg = G_CFG.live_stream.platforms[0]
     room_id = bili_cfg.room_id
     credential = Credential(sessdata=bili_cfg.sessdata, bili_jct=bili_cfg.bili_jct, buvid3=bili_cfg.buvid3)
     _danmaku_list = []
@@ -26,12 +27,13 @@ def init(cfg: GlobalConfig):
     _monitor = LiveDanmaku(room_id, credential=credential)
     _recv_event = threading.Event()
     _running = False
+    logger.info(f'🍻 Live stream service {PC.BILIBILI} initialized successfully.')
 
 
 def start():
     global _running, _danmaku_list
     _running = True
-    logger.info('Bilibili service starting...')
+    logger.info(f'🍻 Live stream service {PC.BILIBILI} starting...')
 
     @_monitor.on("DANMU_MSG")
     async def recv(self, event):
@@ -51,7 +53,7 @@ def start():
 
     _running = False
     sync(_monitor.connect())
-    logger.warning('Bilibili monitor disconnected.')
+    logger.warning(f'Live stream service {PC.BILIBILI} disconnected.')
 
 
 def _add(danmaku: Danmaku):

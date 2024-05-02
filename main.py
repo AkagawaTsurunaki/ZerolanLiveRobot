@@ -12,9 +12,14 @@ import scrnshot.service
 import service_starter
 import vad.service
 from common.exc import InitError
+import livestream.bilibili.service
+from config import GLOBAL_CONFIG as G_CFG
+from common.datacls import PlatformConst as PC
 
 logger.remove()
 logger.add(sys.stderr, level="INFO")
+
+live_stream_platform_name = G_CFG.live_stream.platforms[0].platform_name
 
 if __name__ == '__main__':
     try:
@@ -29,7 +34,12 @@ if __name__ == '__main__':
         thread_list = []
 
         # Live stream service thread
-        thread_list.append(threading.Thread(target=service_starter.start_live_stream_service))
+        if PC.BILIBILI == live_stream_platform_name:
+            livestream.bilibili.service.init()
+            thread_list.append(threading.Thread(target=livestream.bilibili.service.start))
+        else:
+            raise NotImplementedError(f'Unsupported live stream platform: {live_stream_platform_name}')
+        # thread_list.append(threading.Thread(target=service_starter.start_live_stream_service))
 
         # VAD service thread
         thread_list.append(threading.Thread(target=vad.service.start))

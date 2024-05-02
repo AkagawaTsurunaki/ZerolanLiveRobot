@@ -2,7 +2,7 @@ import argparse
 
 from loguru import logger
 
-from common.datacls import ModelNameConst as MNC, PlatformConst
+from common.datacls import ModelNameConst as MNC
 from config import GLOBAL_CONFIG as G_CFG
 
 
@@ -42,14 +42,6 @@ def start_llm(model_name: str):
 def start_tts(model_name: str):
     if MNC.GPT_SOVITS == model_name:
         logger.warning('No need to start app...')
-
-
-def start_live_stream_service():
-    platform_name = G_CFG.live_stream.platforms[0].platform_name
-    if PlatformConst.BILIBILI == platform_name:
-        import livestream.bilibili.service
-        livestream.bilibili.service.init(G_CFG)
-        livestream.bilibili.service.start()
 
 
 def start_minecraft_service():
