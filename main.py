@@ -22,6 +22,8 @@ if __name__ == '__main__':
         vad.service.init()
         scrnshot.service.init()
         asr.service.init()
+        controller.app.init()
+        lifecycle.init()
 
         # Thread list for all services
         thread_list = []

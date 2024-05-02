@@ -17,6 +17,7 @@ from config import GLOBAL_CONFIG as G_CFG
 logger.remove()
 logger.add(sys.stderr, level="INFO")
 
+_input_device_index = 0
 _save_dir: str
 _chunk: int
 _sample_rate: int
@@ -38,7 +39,9 @@ def init():
     _threshold = G_CFG.voice_activity_detection.threshold
     _max_mute_count = G_CFG.voice_activity_detection.max_mute_count
     try:
+        logger.warning('Input device index can be set here!')
         _stream = pyaudio.PyAudio().open(
+            input_device_index=_input_device_index,
             format=pyaudio.paInt16, channels=1, rate=_sample_rate, input=True, frames_per_buffer=_chunk
         )
     except OSError as e:

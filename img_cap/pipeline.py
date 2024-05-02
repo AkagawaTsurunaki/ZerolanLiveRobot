@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 from common import util
 from common.abs_pipeline import AbstractPipeline, AbstractModelQuery, AbstractModelResponse
-from config import ImageCaptioningConfig
+from config import ImageCaptioningConfig, GlobalConfig
 
 
 @dataclass
@@ -17,9 +17,10 @@ class ImageCaptioningModelResponse(AbstractModelResponse):
 
 
 class ImageCapPipeline(AbstractPipeline):
-    def __init__(self, cfg: ImageCaptioningConfig):
+    def __init__(self, cfg: GlobalConfig):
         super().__init__()
-        host, port = cfg.host, cfg.port
+        ic_cfg = cfg.image_captioning
+        host, port = ic_cfg.host, ic_cfg.port
         self.predict_url = util.urljoin(host, port, '/image-captioning/predict')
 
     def predict(self, query: ImageCaptioningModelQuery) -> ImageCaptioningModelResponse | None:

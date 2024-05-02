@@ -3,6 +3,9 @@ from typing import List
 
 from flask import Flask, jsonify
 
+import audio_player.service
+import lifecycle
+import obs.api
 import vad.service
 from common.datacls import AudioPlayerStatus, VADServiceStatus
 from llm.pipeline import LLMQuery, Chat
@@ -36,7 +39,7 @@ class VADControlResponse(ControllerResponse):
 
 
 def init():
-    global _host, _debug, _port, _audio_player_service, _obs_service, _lifecycle
+    global _host, _debug, _port
     _host = G_CFG.zerolan_live_robot_config.host
     _port = G_CFG.zerolan_live_robot_config.port
     _debug = G_CFG.zerolan_live_robot_config.debug
@@ -48,14 +51,14 @@ def start():
 
 @_app.route('/memory/reset', methods=['POST'])
 def _handle_memory_reset():
-    _lifecycle.try_reset_memory(force=True)
+    lifecycle.try_reset_memory(force=True)
     message = 'Memory reset'
     return jsonify(asdict(ControllerResponse(message=message)))
 
 
 @_app.route('/memory/fetch', methods=['GET'])
 def _handle_memory_fetch():
-    memory: LLMQuery = _lifecycle.memory()
+    memory: LLMQuery = lifecycle.memory()
     message = f'{len(memory.history)} conversations.'
     response = MemoryControlResponse(message=message, history=memory.history)
     return jsonify(asdict(response))
@@ -84,27 +87,27 @@ def _handle_vad_status():
 
 @_app.route('/audio-player/pause', methods=['POST'])
 def _handle_audio_player_pause():
-    _audio_player_service.pause()
+    audio_player.service.pause()
     message = 'Audio player service paused.'
     return jsonify(asdict(ControllerResponse(message=message)))
 
 
 @_app.route('/audio-player/resume', methods=['POST'])
 def _handle_audio_player_resume():
-    _audio_player_service.resume()
+    audio_player.service.resume()
     message = 'Audio player service resumed.'
     return jsonify(asdict(ControllerResponse(message=message)))
 
 
 @_app.route('/audio-player/status', methods=['POST'])
 def _handle_audio_player_status():
-    status = _audio_player_service.status()
+    status = audio_player.service.status()
     message = f'Audio player status: {status}'
     return jsonify(asdict(AudioPlayerControlResponse(message=message, status=status)))
 
 
 @_app.route('/obs/clear', methods=['POST'])
 def _handle_obs_clear():
-    _obs_service.clear_output()
+    obs.api.clear_output()
     message = 'OBS subtitle cleared.'
     return jsonify(asdict(ControllerResponse(message=message)))

@@ -21,7 +21,7 @@ def init(cfg: GlobalConfig):
     bili_cfg = cfg.live_stream.platforms[0]
     room_id = bili_cfg.room_id
     credential = Credential(sessdata=bili_cfg.sessdata, bili_jct=bili_cfg.bili_jct, buvid3=bili_cfg.buvid3)
-    _danmaku_list: List[Danmaku] = []
+    _danmaku_list = []
     # Bilibili live stream monitor
     _monitor = LiveDanmaku(room_id, credential=credential)
     _recv_event = threading.Event()

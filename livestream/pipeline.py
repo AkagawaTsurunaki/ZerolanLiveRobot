@@ -18,12 +18,12 @@ class LiveStreamQuery:
 class LiveStreamPipeline:
 
     def __init__(self, cfg: GlobalConfig):
-        self.platform = next(iter(cfg.live_stream.platforms))
+        self.platform = cfg.live_stream.platforms[0].platform_name
 
     def read_danmaku_latest_longest(self, k: int = 3) -> Danmaku | None:
         if self.platform == PlatformConst.BILIBILI:
-            import bilibili.service
-            danmaku_list = bilibili.service.all_danmakus()
+            import livestream.bilibili.service
+            danmaku_list = livestream.bilibili.service.all_danmakus()
             return self._select_latest_longest(danmaku_list, k)
         else:
             raise NotImplementedError(f'Platform {self.platform} is not supported.')
