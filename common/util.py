@@ -3,8 +3,6 @@ import re
 import time
 from typing import Any, Final
 
-import requests
-
 from zio.util import save_json
 
 # 这个常数记录了模块被第一次导入时的时间, 这个数值此后不会再发生变化
@@ -38,47 +36,24 @@ def is_valid_port(port):
         return False
 
 
-def urljoin(host, port, protocol='http'):
-    if not host or not port or not protocol:
-        return None
-
-    if protocol not in ['http']:
-        return None
+def urljoin(host: str, port: int, path: str = None, protocol: str = 'http'):
+    assert host and port and protocol
+    assert isinstance(host, str) and isinstance(port, int) and isinstance(protocol, str)
+    assert protocol in ['http', 'https'], f'Unsupported protocol.'
 
     url = f"{protocol}://{host}:{port}"
+    if path:
+        assert isinstance(path, str)
+        assert path[0] == '/', f'"path" should begin with "/".'
+        url += path
+
     return url
-
-
-def create_file_if_not_exists(file_path):
-    # 获取目录路径
-    dir_path = os.path.dirname(file_path)
-
-    # 创建目录及父级目录
-    os.makedirs(dir_path, exist_ok=True)
-
-    # 创建文件
-    with open(file=file_path, mode='w', encoding='utf-8') as f:
-        f.write("")
 
 
 def save(dir: str | os.PathLike, obj: Any):
     cur_time_str = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
     save_path = os.path.join(dir, cur_time_str)
     save_json(save_path, obj)
-
-
-def is_port_in_use(port):
-    """
-    检查指定端口是否被占用
-    :param port: int, 待检查的端口号
-    :return: bool, 如果端口被占用返回 True，否则返回 False
-    """
-    import psutil
-    for proc in psutil.process_iter():
-        for con in proc.connections():
-            if con.status == 'LISTEN' and con.laddr.port == port:
-                return True
-    return False
 
 
 def is_english_string(input_string):
@@ -91,19 +66,3 @@ def is_english_string(input_string):
         return True
     else:
         return False
-
-
-def is_url_online(url):
-    try:
-        # 发送一个GET请求到指定的URL
-        response = requests.get(url, timeout=5)
-        # 检查响应状态码是否为200，表示请求成功
-        if response.status_code == 200:
-            return True
-        else:
-            return False
-    except Exception:
-        # 捕获请求异常，如超时、连接错误等
-        return False
-
-

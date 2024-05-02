@@ -6,7 +6,7 @@ import requests
 from common.abs_pipeline import AbstractPipeline, AbstractModelQuery, AbstractModelResponse
 from config import GlobalConfig
 from common.datacls import ServiceNameConst as SNC
-
+from common import util
 
 @dataclass
 class TTSQuery(AbstractModelQuery):
@@ -26,8 +26,9 @@ class TTSPipeline(AbstractPipeline):
     def __init__(self, cfg: GlobalConfig):
         super().__init__()
         host, port = cfg.text_to_speech.host, cfg.text_to_speech.port
-        self.predict_url = f'http://{host}:{port}/tts/predict'
-        self.predict_url_4_gpt_sovits = f'http://{host}:{port}'
+
+        self.predict_url = util.urljoin(host, port, '/tts/predict')
+        self.predict_url_4_gpt_sovits = util.urljoin(host, port)
         self.model_name = cfg.text_to_speech.models[0].model_name
 
     def predict(self, query: TTSQuery) -> TTSResponse | None:

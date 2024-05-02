@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 
+from common import util
 from common.abs_pipeline import AbstractPipeline, AbstractModelQuery, AbstractModelResponse
 from config import ImageCaptioningConfig
 
@@ -19,7 +20,7 @@ class ImageCapPipeline(AbstractPipeline):
     def __init__(self, cfg: ImageCaptioningConfig):
         super().__init__()
         host, port = cfg.host, cfg.port
-        self.predict_url = f'http://{host}:{port}/image-captioning/predict'
+        self.predict_url = util.urljoin(host, port, '/image-captioning/predict')
 
     def predict(self, query: ImageCaptioningModelQuery) -> ImageCaptioningModelResponse | None:
         return super().predict(query)

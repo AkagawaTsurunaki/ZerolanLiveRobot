@@ -1,6 +1,6 @@
 from dataclasses import dataclass
-from urllib.parse import urljoin
 
+from common import util
 from common.abs_pipeline import AbstractPipeline, AbstractModelResponse, AbstractModelQuery
 from config import GlobalConfig
 
@@ -21,7 +21,7 @@ class ASRPipeline(AbstractPipeline):
         asr_config = cfg.auto_speech_recognition
         self.model: str = asr_config.models[0].model_name
         host, port = asr_config.host, asr_config.port
-        self.predict_url = urljoin(f'http://{host}:{port}', f'/asr/predict')
+        self.predict_url = util.urljoin(host, port, '/asr/predict')
 
     def predict(self, query: ASRModelQuery) -> ASRModelResponse | None:
         return super().predict(query)

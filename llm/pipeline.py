@@ -7,6 +7,7 @@ import requests
 
 from common.abs_pipeline import AbstractPipeline, AbstractModelQuery, AbstractModelResponse
 from config import GlobalConfig
+from common import util
 
 
 @dataclass
@@ -40,9 +41,8 @@ class LLMPipeline(AbstractPipeline):
         super().__init__()
         self.model = cfg.large_language_model.models[0].model_name
         host, port = cfg.large_language_model.host, cfg.large_language_model.port
-        url = f'http://{host}:{port}'
-        self.predict_url = urljoin(url, f'/llm/predict')
-        self.stream_predict_url = urljoin(url, f'/llm/stream-predict')
+        self.predict_url = util.urljoin(host, port, '/llm/predict')
+        self.stream_predict_url = util.urljoin(host, port, f'/llm/stream-predict')
 
     def predict(self, query: LLMQuery) -> LLMResponse | None:
         return super().predict(query)
