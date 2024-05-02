@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from enum import Enum
 from os import PathLike
 from typing import Any
 
@@ -40,7 +41,7 @@ class Tone:
     prompt_language: str
 
 
-class ServiceNameConst:
+class ModelNameConst:
     GPT_SOVITS = 'RVC-Boss/GPT-SoVITS'
     ASR = 'asr'
     BLIP = 'Salesforce/blip-image-captioning-large'
@@ -60,3 +61,5 @@ class PlatformConst:
 class WavFile:
     is_read: bool
     wav_file_path: str
+
+

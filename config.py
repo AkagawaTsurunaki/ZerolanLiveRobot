@@ -7,7 +7,7 @@ import zio.util
 from common import util
 from common.datacls import PlatformConst
 from common.util import is_valid_port
-from common.datacls import ServiceNameConst as SNC
+from common.datacls import ModelNameConst as SNC
 
 
 @dataclass

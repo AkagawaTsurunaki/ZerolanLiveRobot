@@ -10,6 +10,7 @@ from asr.pipeline import ASRPipeline, ASRModelQuery
 from common.abs_service import ServiceStatus
 from common.datacls import Transcript
 from config import GLOBAL_CONFIG as G_CFG
+from common.util import log_status
 
 # Config logger
 logger.remove()
@@ -29,6 +30,7 @@ _running: bool
 _pipeline: ASRPipeline
 
 
+@log_status('👂️', 'ASR service', 'initializing...')
 def init():
     global _selecting_wav_event, _transcript_list, _running, _pipeline
 
@@ -38,12 +40,12 @@ def init():
     _pipeline = ASRPipeline(G_CFG)
 
 
+@log_status('👂️', 'ASR service', 'starting...')
 def start():
     global _running
 
     _running = True
     _selecting_wav_event.set()
-    logger.info('ASR service starting...')
     while _running:
         if _selecting_wav_event.is_set():
             wav_file_path = vad.service.select_latest_unread()

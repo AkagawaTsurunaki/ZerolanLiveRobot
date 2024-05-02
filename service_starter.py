@@ -2,7 +2,7 @@ import argparse
 
 from loguru import logger
 
-from common.datacls import ServiceNameConst as SNC, PlatformConst
+from common.datacls import ModelNameConst as SNC, PlatformConst
 from config import GLOBAL_CONFIG as G_CFG
 
 

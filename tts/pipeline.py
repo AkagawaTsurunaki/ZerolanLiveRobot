@@ -5,7 +5,7 @@ import requests
 
 from common.abs_pipeline import AbstractPipeline, AbstractModelQuery, AbstractModelResponse
 from config import GlobalConfig
-from common.datacls import ServiceNameConst as SNC
+from common.datacls import ModelNameConst as SNC
 from common import util
 
 @dataclass
