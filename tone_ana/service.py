@@ -4,9 +4,9 @@ import sys
 from loguru import logger
 
 import zio.util
-from common.datacls import Tone
+from common.datacls import Tone, Chat, LLMQuery, Role
 from config import GlobalConfig
-from llm.pipeline import LLMPipeline, LLMQuery, Role, Chat
+from llm.pipeline import LLMPipeline
 
 logger.remove()
 handler_id = logger.add(sys.stderr, level="INFO")

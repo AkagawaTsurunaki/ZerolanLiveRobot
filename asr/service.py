@@ -1,3 +1,4 @@
+import copy
 import sys
 import threading
 
@@ -42,7 +43,7 @@ def start():
                     _transcript_list.append(t)
 
 
-def select_latest_unread() -> str | None:
+def select_latest_unread() -> Transcript | None:
     """
     Select the most recent unread item in the recognized speech sequence.
     :return:
@@ -53,7 +54,7 @@ def select_latest_unread() -> str | None:
             latest_unread = unread_list[-1]
             for item in _transcript_list:
                 item.is_read = True
-            return latest_unread.content
+            return copy.deepcopy(latest_unread)
 
     return None
 

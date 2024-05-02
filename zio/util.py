@@ -3,8 +3,10 @@ import os
 import uuid
 from os import PathLike
 from typing import Any
-
+from config import GLOBAL_CONFIG as G_CFG
 import yaml
+
+_tts_save_dir = G_CFG.text_to_speech.save_directory
 
 
 def save_json(file_path: str | os.PathLike, obj: Any):
@@ -32,10 +34,8 @@ def read_yaml(path: str | PathLike):
 
 
 def write_wav(wave_data):
-    from config import GLOBAL_CONFIG
-    save_dir = GLOBAL_CONFIG.text_to_speech.save_directory
     ran_file_name = uuid.uuid4()
-    tmp_wav_file_path = os.path.join(save_dir, f'{ran_file_name}.wav')
+    tmp_wav_file_path = os.path.join(_tts_save_dir, f'{ran_file_name}.wav')
     with open(file=tmp_wav_file_path, mode='wb') as wav_file:
         wav_file.write(wave_data)
     tmp_wav_file_path = tmp_wav_file_path.replace("/", "\\")

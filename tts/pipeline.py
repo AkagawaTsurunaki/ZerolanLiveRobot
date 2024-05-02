@@ -1,25 +1,12 @@
-from dataclasses import asdict, dataclass
+from dataclasses import asdict
 from http import HTTPStatus
 
 import requests
 
-from common.abs_pipeline import AbstractPipeline, AbstractModelQuery, AbstractModelResponse
+from common.abs_pipeline import AbstractPipeline
 from config import GlobalConfig
-from common.datacls import ModelNameConst as SNC
+from common.datacls import ModelNameConst as SNC, TTSQuery, TTSResponse
 from common import util
-
-@dataclass
-class TTSQuery(AbstractModelQuery):
-    text: str
-    text_language: str
-    refer_wav_path: str
-    prompt_text: str
-    prompt_language: str
-
-
-@dataclass
-class TTSResponse(AbstractModelResponse):
-    wave_data: bytes
 
 
 class TTSPipeline(AbstractPipeline):

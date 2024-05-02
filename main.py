@@ -8,7 +8,7 @@ import asr.service
 import audio_player.service
 import controller.app
 import lifecycle
-import scrnshot.service
+import scrnshot.api
 import service_starter
 import vad.service
 from common.exc import InitError

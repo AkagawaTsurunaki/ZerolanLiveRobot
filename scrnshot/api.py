@@ -7,17 +7,9 @@ from loguru import logger
 
 from config import GLOBAL_CONFIG as G_CFG
 
-_k: float
-_save_path: str
-_win_title: str
-
-
-def init():
-    global _k, _save_path, _win_title
-
-    _k = G_CFG.screenshot.k
-    _save_path = G_CFG.screenshot.save_directory
-    _win_title = G_CFG.screenshot.window_title
+_k: float = G_CFG.see.k
+_save_path: str = G_CFG.see.save_directory
+_win_title: str = G_CFG.see.window_title
 
 
 def screen_cap():
@@ -36,7 +28,7 @@ def screen_cap():
             w.centery + _k * w.height / 2)
         region = tuple(int(num * _k) for num in region)
         # 截图
-        img = pyautogui.screenshot(region=region)
+        img = pyautogui.see(region=region)
         img_save_path = os.path.join(_save_path, f'{time.time()}.png')
         img.save(img_save_path)
         return img_save_path

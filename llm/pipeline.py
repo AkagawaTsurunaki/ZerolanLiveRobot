@@ -1,38 +1,12 @@
 import json
-from dataclasses import asdict, dataclass
-from typing import List
-from urllib.parse import urljoin
+from dataclasses import asdict
 
 import requests
 
-from common.abs_pipeline import AbstractPipeline, AbstractModelQuery, AbstractModelResponse
+from common.abs_pipeline import AbstractPipeline
+from common.datacls import Chat, LLMQuery, LLMResponse
 from config import GlobalConfig
 from common import util
-
-
-@dataclass
-class Chat:
-    role: str
-    content: str
-
-
-@dataclass
-class LLMQuery(AbstractModelQuery):
-    text: str
-    history: List[Chat]
-
-
-@dataclass
-class LLMResponse(AbstractModelResponse):
-    response: str
-    history: List[Chat]
-
-
-@dataclass
-class Role:
-    USER = 'user'
-    ASSISTANT = 'assistant'
-    SYSTEM = 'system'
 
 
 class LLMPipeline(AbstractPipeline):
