@@ -14,6 +14,7 @@ from livestream.pipeline import LiveStreamPipeline
 from llm.pipeline import LLMPipeline
 from minecraft.app import GameEvent
 from tts.pipeline import TTSPipeline
+from zio.writer import Writer
 
 
 class FusionPipeline:
@@ -24,6 +25,7 @@ class FusionPipeline:
         self._tts_pipeline = TTSPipeline(G_CFG)
         self._lang = G_CFG.zerolan_live_robot_config.lang
         self._role_play_template_path = G_CFG.zerolan_live_robot_config.role_play_template_path
+        self.wav_writer = Writer(G_CFG.text_to_speech.save_directory)
 
     def see(self) -> str | None:
         img_save_path = scrnshot.api.screen_cap()
@@ -86,7 +88,7 @@ class FusionPipeline:
         tts_query = TTSQuery(text=sentence, text_language=self._lang, refer_wav_path=tone.refer_wav_path,
                              prompt_text=tone.prompt_text, prompt_language=tone.prompt_language)
         tts_response = self._tts_pipeline.predict(tts_query)
-        wav_file_path = zio.util.write_wav(tts_response.wave_data)
+        wav_file_path = self.wav_writer.write_wav(tts_response.wave_data)
 
         return tone, wav_file_path
 
