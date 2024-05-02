@@ -3,8 +3,8 @@ import os.path
 from flask import Flask, request, jsonify
 from funasr import AutoModel
 from loguru import logger
-
-from config import GlobalConfig
+from common.datacls import ModelNameConst as MNC
+from config import GLOBAL_CONFIG as G_CFG
 
 # Global attributes
 _app = Flask(__name__)  # Flask application instance
@@ -16,21 +16,26 @@ _debug: bool  # Debug mode flag for the Flask application
 _model: any  # ASR model for recognize speeches
 
 
-def init(cfg: GlobalConfig):
+def init():
+    logger.info(f'👂️ Application {MNC.PARAFORMER} is initializing...')
     global _host, _port, _debug, _model
-    asr_cfg = cfg.auto_speech_recognition
-    model_path = asr_cfg.models[0].model_path
-    version = asr_cfg.models[0].version
-    _host = asr_cfg.host
-    _port = asr_cfg.port
-    _debug = asr_cfg.debug
-    logger.info('👂️ Auto speech recognition service initializing...')
+
+    asr_cfg = G_CFG.auto_speech_recognition
+    model_path, version = asr_cfg.models[0].model_path, asr_cfg.models[0].version
+    _host, _port, _debug = asr_cfg.host, asr_cfg.port, asr_cfg.debug
+
+    logger.info(f'👂️ Model {MNC.PARAFORMER} is loading...')
     _model = AutoModel(model=model_path, model_revision=version)
-    logger.info(f'👂️ Auto speech recognition model {model_path} loaded.')
+    assert _model, f'❌️ Model {MNC.BLIP} failed to load.'
+    logger.info(f'👂️ Model {MNC.PARAFORMER} loaded successfully.')
+
+    logger.info(f'👂️ Application {MNC.PARAFORMER} initialized successfully.')
 
 
 def start():
+    logger.info(f'👂️ Application {MNC.PARAFORMER} is starting...')
     _app.run(host=_host, port=_port, debug=_debug)
+    logger.warning(f'⚠️ Application {MNC.PARAFORMER} stopped.')
 
 
 def _predict(wav_path) -> str | None:

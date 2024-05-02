@@ -8,7 +8,7 @@ from loguru import logger
 from transformers import BlipProcessor, BlipForConditionalGeneration
 
 from common.datacls import ModelNameConst as SNR
-from config import GlobalConfig
+from config import GLOBAL_CONFIG as G_CFG
 from img_cap.pipeline import ImageCapPipeline, ImageCaptioningModelResponse, ImageCaptioningModelQuery
 
 _app = Flask(__name__)
@@ -20,11 +20,11 @@ _processor: any
 _model: any
 
 
-def init(cfg: GlobalConfig):
+def init():
     logger.info(f'👀 Application {SNR.BLIP} is initializing...')
     global _host, _port, _debug, _processor, _model
 
-    blip_cfg = cfg.image_captioning
+    blip_cfg = G_CFG.image_captioning
     _host, _port, _debug = blip_cfg.host, blip_cfg.port, blip_cfg.debug
     model_path = blip_cfg.models[0].model_path
 
@@ -40,7 +40,7 @@ def init(cfg: GlobalConfig):
 def start():
     logger.info(f'👀 Application {SNR.BLIP} is starting...')
     _app.run(host=_host, port=_port, debug=_debug)
-    logger.warning(f'👀 Application {SNR.BLIP} stopped.')
+    logger.warning(f'⚠️ Application {SNR.BLIP} stopped.')
 
 
 def _predict(query: ImageCaptioningModelQuery):
