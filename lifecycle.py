@@ -19,8 +19,7 @@ fusion_pipeline = FusionPipeline()
 
 
 def init():
-    global _max_history, _waiting_interval, _role_play_template_path, \
-        _memory
+    global _max_history, _waiting_interval, _role_play_template_path, _memory
 
     _max_history = 40
     _waiting_interval = 2
@@ -39,7 +38,8 @@ async def update():
     game_event = fusion_pipeline.minecraft_event()
 
     # 将上述获取的信息转化为对话的请求
-    query = fusion_pipeline.merge(transcript=transcript, danmaku=danmaku, screen_desc=screen_desc, game_event=game_event)
+    query = fusion_pipeline.merge(transcript=transcript, danmaku=danmaku, screen_desc=screen_desc,
+                                  game_event=game_event)
 
     if query is None or query == '':
         logger.warning('生命周期提前结束')
