@@ -24,15 +24,15 @@ class ASRServiceStatus(ServiceStatus):
 
 
 _selecting_wav_event: threading.Event
-g_transcript_list: List[Transcript]
+_transcript_list: List[Transcript]
 _running: bool
 _pipeline: ASRPipeline
 
 
 def init():
-    global _selecting_wav_event, g_transcript_list, _running, _pipeline
+    global _selecting_wav_event, _transcript_list, _running, _pipeline
 
-    g_transcript_list: List[Transcript] = []
+    _transcript_list: List[Transcript] = []
     _running: bool = False
     _selecting_wav_event: threading.Event = threading.Event()
     _pipeline = ASRPipeline(G_CFG)
@@ -51,7 +51,7 @@ def start():
                 asr_response = _pipeline.predict(ASRModelQuery(wav_path=wav_file_path))
                 if asr_response:
                     t = Transcript(is_read=False, content=asr_response.transcript)
-                    g_transcript_list.append(t)
+                    _transcript_list.append(t)
 
 
 def select_latest_unread() -> str | None:
@@ -59,11 +59,11 @@ def select_latest_unread() -> str | None:
     Select the most recent unread item in the recognized speech sequence.
     :return:
     """
-    if len(g_transcript_list) > 0:
-        unread_list = [transcript for transcript in g_transcript_list if not transcript.is_read]
+    if len(_transcript_list) > 0:
+        unread_list = [transcript for transcript in _transcript_list if not transcript.is_read]
         if len(unread_list) > 0:
             latest_unread = unread_list[-1]
-            for item in g_transcript_list:
+            for item in _transcript_list:
                 item.is_read = True
             return latest_unread.content
 
