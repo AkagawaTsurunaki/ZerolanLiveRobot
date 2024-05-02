@@ -4,6 +4,7 @@ from typing import List
 
 from loguru import logger
 
+import zio.util
 from config import GlobalConfig
 from llm.pipeline import LLMPipeline, LLMQuery, Role, Chat
 from common import util
@@ -28,7 +29,7 @@ def init(cfg: GlobalConfig):
     _tone_analysis_template: LLMQuery
 
     tone_analysis_template_path = cfg.tone_analysis.tone_analysis_template_path
-    tone_analysis_template_dict = util.read_yaml(tone_analysis_template_path)
+    tone_analysis_template_dict = zio.util.read_yaml(tone_analysis_template_path)
     task: str = tone_analysis_template_dict['task']
     tone_dict: dict = tone_analysis_template_dict['tone']
     history: List[Chat] = []

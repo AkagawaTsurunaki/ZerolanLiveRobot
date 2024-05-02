@@ -9,9 +9,11 @@ import minecraft.app
 import obs.api
 import scrnshot.service
 import tone_ana.service
+import zio.util
 from common import util
 from common.datacls import Danmaku
-from common.util import is_blank, write_wav
+from common.util import is_blank
+from zio.util import write_wav
 from config import GLOBAL_CONFIG as G_CFG
 from img_cap.pipeline import ImageCapPipeline, ImageCaptioningModelQuery
 from livestream.pipeline import LiveStreamPipeline
@@ -117,7 +119,7 @@ async def start():
 
 
 def load_history():
-    template = util.read_yaml(_role_play_template_path)
+    template = zio.util.read_yaml(_role_play_template_path)
     fmt = json.dumps(template['format'], ensure_ascii=False, indent=4)
 
     # Assign history

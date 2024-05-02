@@ -1,14 +1,11 @@
-import json
-import math
 import os
 import re
 import time
-import uuid
-from os import PathLike
 from typing import Any, Final
 
 import requests
-import yaml
+
+from zio.util import save_json
 
 # 这个常数记录了模块被第一次导入时的时间, 这个数值此后不会再发生变化
 # 在Windows系统中，文件名不允许使用的字符有： < > / \ | : " * ?
@@ -41,7 +38,7 @@ def is_valid_port(port):
         return False
 
 
-def url_join(host, port, protocol='http'):
+def urljoin(host, port, protocol='http'):
     if not host or not port or not protocol:
         return None
 
@@ -64,42 +61,10 @@ def create_file_if_not_exists(file_path):
         f.write("")
 
 
-def save_json(file_path: str | os.PathLike, obj: Any):
-    """
-    保存 JSON 文件。如果目录不存在会自动创建。
-    :param file_path: 目标文件路径。
-    :param obj: 将被转换为 JSON 的对象
-    :return:
-    """
-    dir_path = os.path.dirname(file_path)
-    os.makedirs(dir_path, exist_ok=True)
-    with open(file=file_path, mode='w+', encoding='utf-8') as file:
-        json.dump(fp=file, obj=obj)
-
-
 def save(dir: str | os.PathLike, obj: Any):
     cur_time_str = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
     save_path = os.path.join(dir, cur_time_str)
     save_json(save_path, obj)
-
-
-def save_service(service_name: str, obj: Any, tmp_dir='.tmp'):
-    """
-    根据服务名和默认临时文件夹生成服务存档
-    :param service_name: 服务名
-    :param obj: 服务内部的数据
-    :param tmp_dir: 临时文件夹路径
-    """
-    if obj is not None:
-        save_dir = os.path.join(tmp_dir, service_name)
-        # .tmp/{service_name}
-        if not os.path.exists(save_dir):
-            os.mkdir(save_dir)
-        # .tmp/{service_name}/{SERVICE_START_TIME}.json
-        assert os.path.exists(save_dir)
-        save_path = os.path.join(save_dir, f'{SERVICE_START_TIME}.json')
-        with open(file=save_path, mode='w+', encoding='utf-8') as file:
-            json.dump(fp=file, obj=obj, ensure_ascii=False)
 
 
 def is_port_in_use(port):
@@ -114,21 +79,6 @@ def is_port_in_use(port):
             if con.status == 'LISTEN' and con.laddr.port == port:
                 return True
     return False
-
-
-def time_stamp_diff_sec(ts1: int, ts2: int):
-    return math.fabs(ts1 - ts2) / 1000.
-
-
-def read_json(path: str | os.PathLike) -> Any:
-    assert os.path.exists(path)
-    with open(file=path, encoding='utf-8', mode='r') as file:
-        return json.load(file)
-
-
-def read_yaml(path: str | PathLike):
-    with open(file=path, mode='r', encoding='utf-8') as file:
-        return yaml.safe_load(file)
 
 
 def is_english_string(input_string):
@@ -157,12 +107,3 @@ def is_url_online(url):
         return False
 
 
-def write_wav(wave_data):
-    from config import GLOBAL_CONFIG
-    save_dir = GLOBAL_CONFIG.text_to_speech.save_directory
-    ran_file_name = uuid.uuid4()
-    tmp_wav_file_path = os.path.join(save_dir, f'{ran_file_name}.wav')
-    with open(file=tmp_wav_file_path, mode='wb') as wav_file:
-        wav_file.write(wave_data)
-    tmp_wav_file_path = tmp_wav_file_path.replace("/", "\\")
-    return tmp_wav_file_path

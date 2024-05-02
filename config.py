@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from typing import List
 
 import common.util
+import zio.util
 from common import util
 from common.datacls import PlatformConst
 from common.util import is_valid_port
@@ -476,7 +477,7 @@ def load_zrl_config(cfg: dict) -> ZerolanLiveRobotConfig:
 
 
 def load_global_config():
-    config_yaml: dict = common.util.read_yaml('./config/config.yaml')
+    config_yaml: dict = zio.util.read_yaml('./config/config.yaml')
 
     global_config = GlobalConfig(
         live_stream=load_live_stream_config(config_yaml['live_stream']),
