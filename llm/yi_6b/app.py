@@ -4,6 +4,9 @@ from flask import Flask, request, jsonify
 from transformers import AutoModelForCausalLM, AutoTokenizer, LlamaTokenizer
 
 from llm.pipeline import LLMPipeline, LLMResponse, Role, Chat
+from loguru import logger
+from config import GLOBAL_CONFIG as G_CFG
+from common.datacls import ModelNameConst as MNC
 
 # Global attributes
 _app = Flask(__name__)  # Flask application instance
@@ -16,33 +19,36 @@ _tokenizer: LlamaTokenizer  # Tokenizer for the language model
 _model: any  # Language model for generating responses
 
 
-def init(cfg):
+def init():
     """
     Initializes the application with the given configuration.
-
-    Args:
-        cfg: Configuration object containing settings for the application.
     """
+    logger.info(f'💭 Application {MNC.YI} is initializing...')
     global _host, _port, _debug, _model, _tokenizer
-    _host = cfg.large_language_model.host
-    _port = cfg.large_language_model.port
-    _debug = cfg.large_language_model.debug
 
-    model_path = cfg.large_language_model.models[0].model_path
-    mode = cfg.large_language_model.models[0].loading_mode
+    llm_cfg = G_CFG.large_language_model
+    _host, _port, _debug = llm_cfg.host, llm_cfg.port, llm_cfg.debug
+    model_path, mode = llm_cfg.models[0].model_path, llm_cfg.models[0].loading_mode
+
+    logger.info(f'💭 Model {MNC.YI} is loading...')
     _tokenizer = AutoTokenizer.from_pretrained(model_path, use_fast=False)
     _model = AutoModelForCausalLM.from_pretrained(
         model_path,
         device_map=mode,
     ).eval()
+    assert _tokenizer and _model, f'❌️ Model {MNC.YI} failed to load.'
+    logger.info(f'💭 Model {MNC.YI} loaded successfully..')
+
+    logger.info(f'💭 Application {MNC.YI} initialized successfully.')
 
 
 def start():
     """
     Starts the Flask application with the configured host, port, and debug mode.
     """
-    global _host, _port, _debug
+    logger.info(f'💭 Application {MNC.YI} is starting...')
     _app.run(host=_host, port=_port, debug=_debug)
+    logger.info(f'💭 Application {MNC.YI} is stopped.')
 
 
 def _predict(llm_query):

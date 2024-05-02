@@ -3,8 +3,10 @@ from dataclasses import asdict
 from flask import Flask, request, jsonify
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
-from config import GlobalConfig
+from config import GLOBAL_CONFIG as G_CFG
+from common.datacls import ModelNameConst as MNC
 from llm.pipeline import LLMPipeline, LLMQuery, LLMResponse, Chat, Role
+from loguru import logger
 
 # Global attributes
 _app = Flask(__name__)  # Flask application instance
@@ -17,21 +19,17 @@ _tokenizer: any  # Tokenizer for the language model
 _model: any  # Language model for generating responses
 
 
-def init(cfg: GlobalConfig):
+def init():
     """
     Initializes the application with the given configuration.
-
-    Args:
-        cfg (GlobalConfig): Configuration object containing settings for the application.
     """
+    logger.info(f'💭 Application {MNC.QWEN} is initializing...')
     global _model, _tokenizer, _host, _port, _debug
-    mode = cfg.large_language_model.models[0].loading_mode
-    model_path = cfg.large_language_model.models[0].model_path
+    llm_cfg = G_CFG.large_language_model
+    mode, model_path = llm_cfg.models[0].loading_mode, llm_cfg.models[0].model_path
+    _host, _port, _debug = llm_cfg.host, llm_cfg.port, llm_cfg.debug
 
-    _host = cfg.large_language_model.host
-    _port = cfg.large_language_model.port
-    _debug = cfg.large_language_model.debug
-
+    logger.info(f'👀 Model {MNC.QWEN} is loading...')
     # Load model on given mode
     if mode == 'bf16':
         _model = AutoModelForCausalLM.from_pretrained(model_path, device_map="auto", trust_remote_code=True,
@@ -47,13 +45,20 @@ def init(cfg: GlobalConfig):
     # Load auto _tokenizer
     _tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
 
+    assert _tokenizer and _model, f'❌️ Model {MNC.QWEN} failed to load.'
+
+    logger.info(f'💭 Model {MNC.QWEN} loaded successfully..')
+
+    logger.info(f'💭 Application {MNC.QWEN} initialized successfully.')
+
 
 def start():
     """
     Starts the Flask application with the configured host, port, and debug mode.
     """
-    # Run application
+    logger.info(f'💭 Application {MNC.QWEN} is starting...')
     _app.run(host=_host, port=_port, debug=_debug)
+    logger.info(f'💭 Application {MNC.QWEN} is stopped.')
 
 
 def _predict(llm_query: LLMQuery):

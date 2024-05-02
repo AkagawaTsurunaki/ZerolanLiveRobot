@@ -8,9 +8,10 @@ from dataclasses import asdict
 import torch
 from flask import Flask, request, jsonify
 from transformers import AutoTokenizer, AutoModelForCausalLM, TextStreamer
-
-from config import GlobalConfig
+from config import GLOBAL_CONFIG as G_CFG
 from llm.pipeline import LLMPipeline, LLMQuery, LLMResponse, Role, Chat
+from loguru import logger
+from common.datacls import ModelNameConst as MNC
 
 # Global attributes
 _app = Flask(__name__)  # Flask application instance
@@ -24,33 +25,37 @@ _model: any  # Language _model for generating responses
 _streamer: TextStreamer  # Text streamer for streaming responses
 
 
-def init(cfg: GlobalConfig):
+def init():
     """
     Initializes the application with the given configuration.
-
-    Args:
-        cfg (GlobalConfig): Configuration object containing settings for the application.
     """
+    logger.info(f'💭 Application {MNC.SHISA} is initializing...')
     global _tokenizer, _model, _streamer, _debug, _host, _port
 
-    _host = cfg.large_language_model.host
-    _port = cfg.large_language_model.port
-    _debug = cfg.large_language_model.debug
+    llm_cfg = G_CFG.large_language_model
+    _host, _port, _debug = llm_cfg.host, llm_cfg.port, llm_cfg.debug
+    model_path = llm_cfg.models[0].model_path
 
-    model_path = cfg.large_language_model.models[0].model_path
+    logger.info(f'💭 Model {MNC.SHISA} is loading...')
     _tokenizer = AutoTokenizer.from_pretrained(model_path, use_fast=True)
     _model = AutoModelForCausalLM.from_pretrained(
         model_path,
         torch_dtype=torch.bfloat16 if torch.cuda.is_bf16_supported() else torch.float16,
     ).to('cuda')
     _streamer = TextStreamer(_tokenizer, skip_prompt=True)
+    assert _tokenizer and _model and _streamer, f'❌️ Model {MNC.SHISA} failed to load.'
+    logger.info(f'💭 Model {MNC.SHISA} loaded successfully.')
+
+    logger.info(f'💭 Application {MNC.CHATGLM3} initialized successfully.')
 
 
 def start():
     """
     Starts the Flask application with the configured host, port, and debug mode.
     """
+    logger.info(f'💭 Application {MNC.SHISA} is starting...')
     _app.run(host=_host, port=_port, debug=_debug)
+    logger.info(f'💭 Application {MNC.SHISA} is stopped.')
 
 
 def _predict(llm_query: LLMQuery):
