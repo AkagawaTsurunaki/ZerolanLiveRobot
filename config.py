@@ -91,7 +91,6 @@ class ChatGlm3Config(LLMConfig):
 @dataclass
 class QwenConfig(LLMConfig):
     model_path: str
-    quantize: int
     loading_mode: str
 
 
@@ -348,10 +347,8 @@ def load_llm_config(cfg: dict) -> LLMServiceConfig:
         elif SNC.QWEN == model_name:
             model_path = _safe_get_model_path(model, model_name=SNC.QWEN,
                                               cfg_item=f'large_language_model.models.{SNC.QWEN}')
-            quantize = _safe_get_model_quantize(model, model_name=SNC.QWEN)
             loading_mode = model.get('loading_mode', 'auto')
-            qwen_config = QwenConfig(model_name=SNC.QWEN, model_path=model_path, loading_mode=loading_mode,
-                                     quantize=quantize)
+            qwen_config = QwenConfig(model_name=SNC.QWEN, model_path=model_path, loading_mode=loading_mode)
             return LLMServiceConfig(enable=enable, debug=debug, host=host, port=port, models=[qwen_config])
 
         elif SNC.YI == model_name:
