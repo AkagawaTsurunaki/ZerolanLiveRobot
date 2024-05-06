@@ -66,3 +66,10 @@ def is_english_string(input_string):
         return True
     else:
         return False
+
+
+def try_mkdir(directory: str):
+    flag = input(f'Directory "{directory}" does not exist, should we create it? [y]/n')
+    if 'n' == flag:
+        return
+    os.makedirs(directory)
