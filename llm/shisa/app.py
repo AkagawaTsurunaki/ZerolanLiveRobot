@@ -96,22 +96,24 @@ def _predict(llm_query: LLMQuery):
     return LLMResponse(response=response, history=llm_query.history)
 
 
-@_app.route('/llm/predict', methods=['POST', 'GET'])
+@_app.route('/llm/predict', methods=['GET', 'POST'])
 def _handle_predict():
     """
-    Handles prediction requests by generating a response from the language _model based on the received query.
+    Handles prediction requests by generating a response from the language model based on the received query.
 
     Returns:
         Response: A JSON response containing the generated response and conversation history.
     """
+    logger.info('↘️ Request received: Processing...')
     json_val = request.get_json()
     llm_query = LLMPipeline.parse_query_from_json(json_val)
     llm_response = _predict(llm_query)
+    logger.info(f'✅ Response: {llm_response.response}')
     return jsonify(asdict(llm_response))
 
 
 @_app.route('/llm/stream-predict', methods=['GET', 'POST'])
-def _handle_predict():
+def _handle_stream_predict():
     """
     Handles streaming prediction requests. This route has not been implemented yet.
 

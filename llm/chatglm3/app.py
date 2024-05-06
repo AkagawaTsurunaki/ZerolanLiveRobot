@@ -85,7 +85,7 @@ def _stream_predict(llm_query: LLMQuery):
                              return_past_key_values=True)
 
 
-@_app.route(f'/llm/predict', methods=['GET', 'POST'])
+@_app.route('/llm/predict', methods=['GET', 'POST'])
 def _handle_predict():
     """
     Handles prediction requests by generating a response from the language model based on the received query.
@@ -93,9 +93,11 @@ def _handle_predict():
     Returns:
         Response: A JSON response containing the generated response and conversation history.
     """
+    logger.info('↘️ Request received: Processing...')
     json_val = request.get_json()
     llm_query = LLMPipeline.parse_query_from_json(json_val)
     llm_response = _predict(llm_query)
+    logger.info(f'✅ Response: {llm_response.response}')
     return jsonify(asdict(llm_response))
 
 
