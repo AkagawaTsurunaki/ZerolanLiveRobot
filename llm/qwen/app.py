@@ -8,6 +8,9 @@ from common.datacls import ModelNameConst as MNC, Chat, LLMQuery, LLMResponse, R
 from llm.pipeline import LLMPipeline
 from loguru import logger
 
+import os 
+os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+
 # Global attributes
 _app = Flask(__name__)  # Flask application instance
 
@@ -30,6 +33,7 @@ def init():
     _host, _port, _debug = llm_cfg.host, llm_cfg.port, llm_cfg.debug
 
     logger.info(f'👀 Model {MNC.QWEN} is loading...')
+    logger.warn(f'⚠️ Model {MNC.QWEN} does not support multi-GPU prediction.')
     # Load model on given mode
     if mode == 'bf16':
         _model = AutoModelForCausalLM.from_pretrained(model_path, device_map="auto", trust_remote_code=True,
