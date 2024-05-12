@@ -24,19 +24,17 @@ def start_llm(model_name: str):
     if MNC.CHATGLM3 == model_name:
         import llm.chatglm3.app
         llm.chatglm3.app.init()
-        llm.chatglm3.app.start()
     elif MNC.QWEN == model_name:
         import llm.qwen.app
         llm.qwen.app.init()
-        llm.qwen.app.start()
     elif MNC.YI == model_name:
         import llm.yi_6b.app
         llm.yi_6b.app.init()
-        llm.yi_6b.app.start()
     elif MNC.SHISA == model_name:
         import llm.shisa.app
         llm.shisa.app.init()
-        llm.shisa.app.start()
+    import llm.app
+    llm.app.start()
 
 
 def start_tts(model_name: str):
