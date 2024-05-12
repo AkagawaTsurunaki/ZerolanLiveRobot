@@ -58,7 +58,7 @@ def start():
     logger.info(f'💭 Application {MNC.SHISA} is stopped.')
 
 
-def _predict(llm_query: LLMQuery):
+def predict(llm_query: LLMQuery):
     """
     Generates a response from the language _model based on the given query.
 
@@ -107,7 +107,7 @@ def _handle_predict():
     logger.info('↘️ Request received: Processing...')
     json_val = request.get_json()
     llm_query = LLMPipeline.parse_query_from_json(json_val)
-    llm_response = _predict(llm_query)
+    llm_response = predict(llm_query)
     logger.info(f'✅ Response: {llm_response.response}')
     return jsonify(asdict(llm_response))
 
