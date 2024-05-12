@@ -1,11 +1,10 @@
 from dataclasses import asdict
-from typing import Generator, Iterable
 
 from flask import Flask, request, jsonify, stream_with_context, Response
 from loguru import logger
 
 from llm.pipeline import LLMPipeline
-from common.datacls import ModelNameConst as MNC, LLMQuery, LLMResponse
+from common.datacls import ModelNameConst as MNC, LLMQuery
 from config import GLOBAL_CONFIG as G_CFG
 
 _app = Flask(__name__)
@@ -30,7 +29,7 @@ def _model_predict(llm_query: LLMQuery):
         return llm.yi_6b.app.predict(llm_query)
 
 
-def _model_stream_predict(llm_query: LLMQuery) -> Generator[LLMResponse, None, None]:
+def _model_stream_predict(llm_query: LLMQuery):
     if not isinstance(llm_query, LLMQuery):
         raise ValueError('"llm_query" must be an instance of LLMQuery.')
     if MNC.CHATGLM3 == model_name:
@@ -74,3 +73,8 @@ def _handle_stream_predict():
                 yield jsonify(llm_response).data + b'\n'
 
     return Response(stream_with_context(generate_output(llm_query)), content_type='application/json')
+
+
+def start():
+    host, port, debug = G_CFG.large_language_model.host, G_CFG.large_language_model.port, G_CFG.large_language_model.debug
+    _app.run(host=host, port=port, debug=debug)
