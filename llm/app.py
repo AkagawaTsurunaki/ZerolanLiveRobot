@@ -35,6 +35,9 @@ def _model_stream_predict(llm_query: LLMQuery):
     if MNC.CHATGLM3 == model_name:
         import llm.chatglm3.app
         yield llm.chatglm3.app.stream_predict(llm_query)
+    elif MNC.QWEN == model_name:
+        import llm.qwen.app
+        yield llm.qwen.app.stream_predict(llm_query)
     raise NotImplementedError('This route has not been implemented yet.')
 
 
