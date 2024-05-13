@@ -39,7 +39,7 @@ def start_llm(model_name: str):
 
 def start_tts(model_name: str):
     if MNC.GPT_SOVITS == model_name:
-        logger.warning('No need to start app...')
+        logger.info(f'此模型需要使用特殊机制启动，请查看 ./scripts/GPT-SoVITS.bat。')
 
 
 def start_minecraft_service():
