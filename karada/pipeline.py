@@ -1,3 +1,4 @@
+import base64
 import json
 
 from loguru import logger
@@ -15,7 +16,7 @@ from llm.pipeline import LLMPipeline
 from minecraft.app import GameEvent
 from tts.pipeline import TTSPipeline
 from zio.writer import Writer
-
+from common import util
 
 class FusionPipeline:
     def __init__(self):
@@ -28,12 +29,13 @@ class FusionPipeline:
         self.wav_writer = Writer(G_CFG.text_to_speech.save_directory)
 
     def see(self) -> str | None:
-        img_save_path = scrnshot.api.screen_cap()
-        if img_save_path:
-            query = ImageCaptioningModelQuery(img_path=img_save_path, prompt='There')
-            caption = self._img_cap_pipeline.predict(query)
-            return caption.caption
-        return None
+        img = scrnshot.api.screen_cap()
+        if not img:
+            return None
+        img_data = util.convert_pil_image_to_base64_str(img)
+        query = ImageCaptioningModelQuery(img_data=img_data, prompt='There')
+        response = self._img_cap_pipeline.predict(query)
+        return response.caption
 
     def hear(self) -> Transcript | None:
         transcript = asr.service.select_latest_unread()
@@ -89,7 +91,8 @@ class FusionPipeline:
                              prompt_text=tone.prompt_text, prompt_language=tone.prompt_language)
         tts_response = self._tts_pipeline.predict(tts_query)
         wav_file_path = self.wav_writer.write_wav(tts_response.wave_data)
-
+        if not wav_file_path:
+            logger.warning(f'这条语音未能合成：{sentence}')
         return tone, wav_file_path
 
     def load_history(self):

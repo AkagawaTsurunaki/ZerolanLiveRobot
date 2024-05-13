@@ -2,6 +2,8 @@ import os
 import re
 import time
 from typing import Any, Final
+import base64
+import io
 
 from zio.util import save_json
 
@@ -73,3 +75,43 @@ def try_mkdir(directory: str):
     if 'n' == flag:
         return
     os.makedirs(directory)
+
+
+import PIL.Image
+
+
+def convert_pil_image_to_base64_str(image: PIL.Image.Image):
+    """
+    将 PIL.Image.Image 转化为 Base64 字符串
+    Reference: https://zhuanlan.zhihu.com/p/629598995
+    :return:
+    """
+    assert isinstance(image, PIL.Image.Image), f'image 必须是 PIL.Image.Image 类型。'
+    # 创建一个BytesIO对象，用于临时存储图像数据
+    image_data = io.BytesIO()
+
+    # 将图像保存到BytesIO对象中，格式为PNG
+    image.save(image_data, format='PNG')
+
+    # 将BytesIO对象的内容转换为字节串
+    image_data_bytes = image_data.getvalue()
+
+    # 将图像数据编码为Base64字符串
+    encoded_image = base64.b64encode(image_data_bytes).decode('utf-8')
+
+    return encoded_image
+
+
+def convert_base64_str_to_pil_image(encoded_image: str):
+    """
+    将 Base64 字符串转化为 PIL.Image.Image
+    Reference: https://zhuanlan.zhihu.com/p/629598995
+    :param encoded_image:
+    :return:
+    """
+    assert isinstance(encoded_image, str), f'encoded_image 必须是字符串 str 类型。'
+    img_data = base64.b64decode(encoded_image)
+    img_data = io.BytesIO(img_data)
+    # base64解码为PIL图像
+    image = PIL.Image.open(img_data).convert("RGB")
+    return image

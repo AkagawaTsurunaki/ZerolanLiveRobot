@@ -2,12 +2,13 @@ from dataclasses import dataclass
 
 from common import util
 from common.abs_pipeline import AbstractPipeline, AbstractModelQuery, AbstractModelResponse
-from config import ImageCaptioningConfig, GlobalConfig
+from config import GlobalConfig
 
 
 @dataclass
 class ImageCaptioningModelQuery(AbstractModelQuery):
-    img_path: str
+    # Base64 编码
+    img_data: str
     prompt: str
 
 
@@ -33,6 +34,6 @@ class ImageCapPipeline(AbstractPipeline):
 
     @staticmethod
     def parse_query_from_json(obj: any) -> ImageCaptioningModelQuery:
-        img_path = obj['img_path']
+        img_data = obj['img_data']
         prompt = obj['prompt']
-        return ImageCaptioningModelQuery(img_path=img_path, prompt=prompt)
+        return ImageCaptioningModelQuery(img_data=img_data, prompt=prompt)
