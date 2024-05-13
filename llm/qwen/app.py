@@ -6,7 +6,7 @@ from loguru import logger
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 from common.datacls import ModelNameConst as MNC, Chat, LLMQuery, LLMResponse, Role
-from common.exc import model_loading_log
+from common.exc import llm_loading_log
 from config import GLOBAL_CONFIG as G_CFG
 
 logger.remove()
@@ -22,7 +22,7 @@ _tokenizer: any
 _model: any
 
 
-@model_loading_log
+@llm_loading_log
 def init():
     global _model, _tokenizer
 

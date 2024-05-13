@@ -9,7 +9,7 @@ from flask import Flask
 from transformers import AutoTokenizer, AutoModelForCausalLM, TextStreamer
 
 from common.datacls import Chat, LLMQuery, LLMResponse, Role
-from common.exc import model_loading_log
+from common.exc import llm_loading_log
 from config import GLOBAL_CONFIG as G_CFG
 
 _app = Flask(__name__)
@@ -19,7 +19,7 @@ _model: any
 _streamer: TextStreamer
 
 
-@model_loading_log
+@llm_loading_log
 def init():
     global _tokenizer, _model, _streamer
 

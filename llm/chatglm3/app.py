@@ -3,7 +3,7 @@ from loguru import logger
 from transformers import AutoTokenizer, AutoModel
 
 from common.datacls import Chat, LLMQuery, LLMResponse
-from common.exc import model_loading_log
+from common.exc import llm_loading_log
 from config import GLOBAL_CONFIG as G_CFG
 
 _app = Flask(__name__)
@@ -12,7 +12,7 @@ _tokenizer: any
 _model: any
 
 
-@model_loading_log
+@llm_loading_log
 def init():
     global _model, _tokenizer
 
