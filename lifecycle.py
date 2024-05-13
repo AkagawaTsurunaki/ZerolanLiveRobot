@@ -25,7 +25,6 @@ def init():
     _waiting_interval = 2
 
     _memory = None
-    # Pipelines
 
 
 async def update():
@@ -41,17 +40,15 @@ async def update():
     query = fusion_pipeline.merge(transcript=transcript, danmaku=danmaku, screen_desc=screen_desc,
                                   game_event=game_event)
 
-    if query is None or query == '':
-        logger.warning('生命周期提前结束')
-        return
+    assert query and query != '', '生命周期提前结束，因为没有足够的信息进行综合推理'
 
     _memory.text = query
     logger.info(query)
 
-    # 注意这里, 开发者说的话会覆盖弹幕
     if danmaku:
         obs.api.write_danmaku_output(danmaku)
 
+    # 注意这里, 开发者说的话会覆盖弹幕
     if transcript:
         obs.api.write_voice_input(transcript.content)
 
@@ -77,27 +74,28 @@ async def update():
 
         logger.info(f'🗒️ 历史记录：{len(llm_response.history)} \n💖 语气：{tone.id} \n💭 {sentence}')
 
-        if not wav_file_path:
-            logger.warning(f'❕ 这条语音未能合成：{sentence}')
-            break
-
         # 播放语音
-        audio_player.service.add_audio(wav_file_path, sentence)
+        if wav_file_path:
+            audio_player.service.add_audio(wav_file_path, sentence)
 
+    # 推理后更新历史
     memory.history = ret_llm_response.history
 
 
 async def start():
-    logger.info('Zerolan Live Robot Starting!')
+    logger.info('💜 Zerolan Live Robot 启动！')
     while True:
-        await update()
+        try:
+            await update()
+        except AssertionError as e:
+            logger.warning()
         await asyncio.sleep(_waiting_interval)
 
 
 def try_reset_memory(force: bool = False):
     global _memory
 
-    # Prevent bot from slow-calculation block for too long
+    # 避免 bot 因为阻塞而停止运行
     if force:
         _memory = fusion_pipeline.load_history()
     elif not _memory:
