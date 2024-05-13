@@ -23,6 +23,9 @@ class TTSPipeline(AbstractPipeline):
         else:
             raise NotImplementedError("尚未实现")
 
+    def stream_predict(self, query: TTSQuery) -> TTSResponse | None:
+        ...
+
     def _predict(self, tts_query: TTSQuery) -> TTSResponse | None:
         query = asdict(tts_query)
         response = requests.post(self.predict_url, json=query)
