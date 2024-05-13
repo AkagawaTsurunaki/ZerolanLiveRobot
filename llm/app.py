@@ -14,7 +14,7 @@ model_name: str = G_CFG.large_language_model.models[0].model_name
 
 def _model_predict(llm_query: LLMQuery):
     if not isinstance(llm_query, LLMQuery):
-        raise ValueError('"llm_query" must be an instance of LLMQuery.')
+        raise ValueError('“llm_query” 必须是 LLMQuery 的实例。')
     if MNC.CHATGLM3 == model_name:
         import llm.chatglm3.app
         return llm.chatglm3.app.predict(llm_query)
@@ -41,38 +41,38 @@ def _model_stream_predict(llm_query: LLMQuery):
     raise NotImplementedError('This route has not been implemented yet.')
 
 
+def _to_pipeline_format() -> LLMQuery:
+    logger.info('↘️ 请求接受：处理中……')
+    json_val = request.get_json()
+    llm_query = LLMPipeline.parse_query_from_json(json_val)
+    logger.info(f'🤔 用户输入： {llm_query.text}')
+    return llm_query
+
+
 @_app.route('/llm/predict', methods=['GET', 'POST'])
 def _handle_predict():
     """
-    Handles prediction requests by generating a response from the language model based on the received query.
-
-    Returns:
-        Response: A JSON response containing the generated response and conversation history.
+    处理推理请求
+    :return:
     """
-    logger.info('↘️ Request received: Processing...')
-    json_val = request.get_json()
-    llm_query = LLMPipeline.parse_query_from_json(json_val)
+    llm_query = _to_pipeline_format()
     llm_response = _model_predict(llm_query)
-    logger.info(f'✅ Response: {llm_response.response}')
+    logger.info(f'✅ 模型响应：{llm_response.response}')
     return jsonify(asdict(llm_response))
 
 
 @_app.route('/llm/stream-predict', methods=['GET', 'POST'])
 def _handle_stream_predict():
     """
-    Handles streaming prediction requests by streaming responses from the language model based on the received query.
-
-    Warning: Some models may not support this method.
-    :return: A streaming JSON response containing the generated responses and conversation history.
-
+    处理流式推理
+    :return:
     """
-    json_val = request.get_json()
-    print(json_val)
-    llm_query = LLMPipeline.parse_query_from_json(json_val)
+    llm_query = _to_pipeline_format()
 
     def generate_output(q: LLMQuery):
         with _app.app_context():
             for llm_response in next(_model_stream_predict(q)):
+                logger.info(f'✅ 模型响应：{llm_response.response}')
                 yield jsonify(llm_response).data + b'\n'
 
     return Response(stream_with_context(generate_output(llm_query)), content_type='application/json')

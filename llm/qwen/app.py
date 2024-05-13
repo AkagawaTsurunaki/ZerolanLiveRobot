@@ -1,4 +1,5 @@
 import os
+import sys
 
 from flask import Flask
 from loguru import logger
@@ -7,6 +8,9 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 from common.datacls import ModelNameConst as MNC, Chat, LLMQuery, LLMResponse, Role
 from common.exc import model_loading_log
 from config import GLOBAL_CONFIG as G_CFG
+
+logger.remove()
+logger.add(sys.stderr, level="INFO")
 
 # 指定使用哪张显卡
 logger.warning(f'⚠️ 模型 {MNC.QWEN} 使用多卡推理可能会报错，因此我们默认使用 CUDA 0 设备。')
