@@ -25,7 +25,7 @@ class AbstractPipeline(ABC):
     def predict(self, query: AbstractModelQuery) -> AbstractModelResponse | None:
         try:
             query_dict = asdict(query)
-            response = requests.get(url=self.predict_url, stream=True, json=query_dict)
+            response = requests.post(url=self.predict_url, stream=True, json=query_dict)
             if response.status_code == HTTPStatus.OK:
                 json_val = response.json()
                 response = self.parse_response_from_json(json_val)
