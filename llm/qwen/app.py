@@ -9,7 +9,7 @@ from common.exc import model_loading_log
 from config import GLOBAL_CONFIG as G_CFG
 
 # 指定使用哪张显卡
-logger.warning(f'⚠️ 模型 {MNC.QWEN} 并不支持多卡推理，因此默认使用第 1 显卡。')
+logger.warning(f'⚠️ 模型 {MNC.QWEN} 使用多卡推理可能会报错，因此我们默认使用 CUDA 0 设备。')
 os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
 _app = Flask(__name__)
@@ -105,6 +105,8 @@ def stream_predict(llm_query: LLMQuery):
     :return:
     """
     text, history, sys_prompt = to_qwen_format(llm_query)
+    history.append((text, ""))
     for response in _model.chat_stream(_tokenizer, llm_query.text, history=history):
         logger.debug(response)
+        history[-1] = (text, response)
         yield to_pipeline_format(response, history, sys_prompt)
