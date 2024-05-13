@@ -38,6 +38,9 @@ def _model_stream_predict(llm_query: LLMQuery):
     elif MNC.QWEN == model_name:
         import llm.qwen.app
         yield llm.qwen.app.stream_predict(llm_query)
+    elif MNC.SHISA == model_name:
+        import llm.shisa.app
+        yield llm.shisa.app.stream_predict(llm_query)
     raise NotImplementedError('This route has not been implemented yet.')
 
 

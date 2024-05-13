@@ -28,13 +28,13 @@ def init():
     assert _tokenizer and _model
 
 
-def to_chatglm_format(llm_query: LLMQuery) -> (str, list[dict[str:str]]):
+def _to_chatglm_format(llm_query: LLMQuery) -> (str, list[dict[str:str]]):
     text = llm_query.text
     history = [{'role': chat.role, 'metadata': '', 'content': chat.content} for chat in llm_query.history]
     return text, history
 
 
-def to_pipeline_format(response: str, history: list[dict[str:str]]) -> LLMResponse:
+def _to_pipeline_format(response: str, history: list[dict[str:str]]) -> LLMResponse:
     history = [Chat(role=chat['role'], content=chat['content']) for chat in history]
     llm_response = LLMResponse(response=response, history=history)
     return llm_response
@@ -46,10 +46,10 @@ def predict(llm_query: LLMQuery) -> LLMResponse:
     :param llm_query:
     :return:
     """
-    text, history = to_chatglm_format(llm_query)
+    text, history = _to_chatglm_format(llm_query)
     response, history = _model.chat(_tokenizer, text, history, top_p=1., temperature=1., past_key_values=None)
     logger.debug(response)
-    return to_pipeline_format(response, history)
+    return _to_pipeline_format(response, history)
 
 
 def stream_predict(llm_query: LLMQuery):
@@ -58,10 +58,10 @@ def stream_predict(llm_query: LLMQuery):
     :param llm_query:
     :return:
     """
-    text, history = to_chatglm_format(llm_query)
+    text, history = _to_chatglm_format(llm_query)
     for response, history, past_key_values in _model.stream_chat(_tokenizer, text, history=history, top_p=1.,
                                                                  temperature=1.,
                                                                  past_key_values=None,
                                                                  return_past_key_values=True):
         logger.debug(response)
-        yield to_pipeline_format(response, history)
+        yield _to_pipeline_format(response, history)

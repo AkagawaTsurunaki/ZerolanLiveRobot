@@ -18,17 +18,13 @@ os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
 _app = Flask(__name__)
 
-_host: str
-_port: int
-_debug: bool
-
 _tokenizer: any
 _model: any
 
 
 @model_loading_log
 def init():
-    global _model, _tokenizer, _host, _port, _debug, _streamer
+    global _model, _tokenizer
 
     llm_cfg = G_CFG.large_language_model
     mode, model_path = llm_cfg.models[0].loading_mode, llm_cfg.models[0].model_path
@@ -48,7 +44,7 @@ def init():
     assert _tokenizer and _model
 
 
-def to_qwen_format(llm_query: LLMQuery) -> (str, list[tuple[str, str]], str):
+def _to_qwen_format(llm_query: LLMQuery) -> (str, list[tuple[str, str]], str):
     history_content_list: list[str] = [chat.content for chat in llm_query.history]
 
     sys_prompt = None
@@ -71,7 +67,7 @@ def to_qwen_format(llm_query: LLMQuery) -> (str, list[tuple[str, str]], str):
     return text, history, sys_prompt
 
 
-def to_pipeline_format(response: str, history: list[tuple[str, str]], sys_prompt: str) -> LLMResponse:
+def _to_pipeline_format(response: str, history: list[tuple[str, str]], sys_prompt: str) -> LLMResponse:
     # 将 history 转化为 pipeline 的格式
     ret_history: list[Chat] = []
     for chat in history:
@@ -96,10 +92,10 @@ def predict(llm_query: LLMQuery):
     :param llm_query:
     :return:
     """
-    text, history, sys_prompt = to_qwen_format(llm_query)
+    text, history, sys_prompt = _to_qwen_format(llm_query)
     response, history = _model.chat(_tokenizer, llm_query.text, history=history)
     logger.debug(response)
-    return to_pipeline_format(response, history, sys_prompt)
+    return _to_pipeline_format(response, history, sys_prompt)
 
 
 def stream_predict(llm_query: LLMQuery):
@@ -108,9 +104,9 @@ def stream_predict(llm_query: LLMQuery):
     :param llm_query:
     :return:
     """
-    text, history, sys_prompt = to_qwen_format(llm_query)
+    text, history, sys_prompt = _to_qwen_format(llm_query)
     history.append((text, ""))
     for response in _model.chat_stream(_tokenizer, llm_query.text, history=history):
         logger.debug(response)
         history[-1] = (text, response)
-        yield to_pipeline_format(response, history, sys_prompt)
+        yield _to_pipeline_format(response, history, sys_prompt)
