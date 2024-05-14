@@ -39,7 +39,6 @@ if __name__ == '__main__':
             thread_list.append(threading.Thread(target=livestream.bilibili.service.start))
         else:
             raise NotImplementedError(f'Unsupported live stream platform: {live_stream_platform_name}')
-        # thread_list.append(threading.Thread(target=service_starter.start_live_stream_service))
 
         # VAD service thread
         thread_list.append(threading.Thread(target=vad.service.start))
@@ -71,4 +70,4 @@ if __name__ == '__main__':
         logger.critical('❌️ ' + e.message)
     except Exception as e:
         logger.exception(e)
-        logger.critical(f'😭 Zerolan Live Robot exited: Unhandled exception.')
+        logger.critical(f'😭 Zerolan Live Robot 退出: 无法处理的异常。')
