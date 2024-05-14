@@ -88,7 +88,7 @@ async def start():
         try:
             await update()
         except AssertionError as e:
-            logger.warning()
+            logger.warning(f"{e}")
         await asyncio.sleep(_waiting_interval)
 
 
