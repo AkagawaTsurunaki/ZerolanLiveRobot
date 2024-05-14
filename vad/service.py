@@ -1,6 +1,5 @@
 import os
 import queue
-import sys
 import threading
 import time
 from typing import List
@@ -14,8 +13,8 @@ from common.datacls import WavFile, VADServiceStatus
 from common.exc import InitError
 from config import GLOBAL_CONFIG as G_CFG
 
-logger.remove()
-logger.add(sys.stderr, level="INFO")
+# logger.remove()
+# logger.add(sys.stderr, level="DEBUG")
 
 _input_device_index = 0
 _save_dir: str
@@ -58,6 +57,8 @@ def init():
 
 
 def start():
+    global _running
+    _running = True
     audio_record_thread = threading.Thread(target=record_speech_in_loop)
     speech_recognize_thread = threading.Thread(target=save_speech_in_loop)
     _record_speech_in_loop_event.set()
@@ -91,7 +92,7 @@ def resume():
         _record_speech_in_loop_event.set()
         logger.info('🎙️ VAD 服务继续')
     else:
-        logger.warning('Invalid operation: VAD service has been resumed.')
+        logger.warning('⚠️ Invalid operation: VAD service has been resumed.')
 
 
 def status() -> VADServiceStatus:
@@ -109,6 +110,7 @@ def record_speech_in_loop():
         _record_speech_in_loop_event.wait()
         data = np.fromstring(_stream.read(_chunk), dtype=np.int16)
         _wave_records.put(data)
+    logger.warning("⚠️ 用户语音录制线程退出。")
 
 
 def save_speech_in_loop():
@@ -136,7 +138,7 @@ def vad():
         rec = _wave_records.get()
         energy = np.sum(np.abs(rec))
         ret.append(rec)
-        logger.debug(f"now: {energy} thr: {rec.shape[0] * _threshold}")
+        logger.info(f"now: {energy} thr: {rec.shape[0] * _threshold}")
         if energy < rec.shape[0] * _threshold:
             mute_count += 1
         else:

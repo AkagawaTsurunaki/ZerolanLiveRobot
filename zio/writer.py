@@ -8,6 +8,7 @@ class Writer:
         self.encode: str = 'utf-8'
 
     def write_str(self, content: str):
+        content = '' if content is None else content
         with open(file=self.path, mode='w+', encoding=self.encode) as f:
             f.write(content)
 

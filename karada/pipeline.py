@@ -1,4 +1,3 @@
-import base64
 import json
 
 from loguru import logger
@@ -8,6 +7,7 @@ import minecraft.app
 import scrnshot.api
 import tone_ana.service
 import zio.util
+from common import util
 from common.datacls import Transcript, Danmaku, TTSQuery, Chat, Role, LLMQuery
 from config import GLOBAL_CONFIG as G_CFG
 from img_cap.pipeline import ImageCapPipeline, ImageCaptioningModelQuery
@@ -16,7 +16,7 @@ from llm.pipeline import LLMPipeline
 from minecraft.app import GameEvent
 from tts.pipeline import TTSPipeline
 from zio.writer import Writer
-from common import util
+
 
 class FusionPipeline:
     def __init__(self):
@@ -39,9 +39,10 @@ class FusionPipeline:
 
     def hear(self) -> Transcript | None:
         transcript = asr.service.select_latest_unread()
-        if transcript:
-            logger.info(f'🎙️ User voice: {transcript}')
-        return transcript
+        if transcript and transcript.content:
+            logger.info(f'🎙️ 用户语言输入：{transcript.content}')
+            return transcript
+        return None
 
     def danmaku(self) -> Danmaku | None:
         danmaku = self._live_stream_pipeline.read_danmaku_latest_longest(k=3)
@@ -60,7 +61,7 @@ class FusionPipeline:
         query = {}
 
         if transcript:
-            query['开发者说'] = transcript
+            query['开发者说'] = transcript.content
         if danmaku:
             query['弹幕'] = {
                 "用户名": danmaku.username,
