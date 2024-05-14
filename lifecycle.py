@@ -59,6 +59,8 @@ async def update():
     async for llm_response in fusion_pipeline.llm_pipeline.stream_predict(_memory):
         ret_llm_response = llm_response
         response = llm_response.response
+        if len(response) < 5:
+            continue
         if not response or response[-1] not in ['。', '！', '？', '!', '?']:
             continue
 
