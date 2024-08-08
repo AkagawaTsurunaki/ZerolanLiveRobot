@@ -74,11 +74,13 @@ class Controller:
         if config.game_config.enable:
             mge = self._game_service.game_evt_buf.select_last_one_and_clear()
         game_scn = None
+
+        # 将画面解释为自然语言
         try:
             game_scn = await scnshot_cap_task
         except Exception as e:
             logger.exception(e)
-            Toast(message="❌️ 视觉系统故障：无法理解画面内容。", level="error").show_toast()
+            Toast(message="🧠⇆❌️⇆👁️ 视觉系统故障", level="error").show_toast()
 
         result = MinecraftLiveStreamData(dev_say="",
                                          danmaku=dbo.danmaku if dbo is not None else None,
@@ -105,7 +107,12 @@ class Controller:
         else:
             # 非流式推理
             # 非流式推理当您的 GPU 运算速率够快，可以忽略 LLM 推理时的延时时可以尝试启用
-            llm_prediction = self._llm_pipeline.predict(llm_query)
+            try:
+                llm_prediction = self._llm_pipeline.predict(llm_query)
+            except Exception as e:
+                logger.exception(e)
+                Toast(message="🧠⇆❌️⇆💭 语言系统故障", level="error").show_toast()
+                raise e
             self._history = llm_prediction.history
             logger.info(f"角色说：{llm_prediction.response}")
 
@@ -128,7 +135,13 @@ class Controller:
                              refer_wav_path=tts_prompt.audio_path,
                              prompt_text=tts_prompt.transcript,
                              prompt_language=tts_prompt.lang.name())
-        tts_prediction = self._tts_pipeline.predict(query=tts_query)
+        try:
+            tts_prediction = self._tts_pipeline.predict(query=tts_query)
+        except Exception as e:
+            logger.exception(e)
+            Toast(message="🧠⇆❌️⇆🗣️ 语音系统故障", level="error").show_toast()
+            raise e
+
         tmp_wav_file = file_util.create_temp_file(prefix="tts", suffix=".wav", tmpdir="audio")
         with open(tmp_wav_file, "wb") as f:
             f.write(tts_prediction.wave_data)
