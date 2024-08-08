@@ -4,6 +4,7 @@ from typing import List, Coroutine, Any
 
 from loguru import logger
 
+from api.toasts import Toast
 from common.buffer.danmaku_buffer import DanmakuBufferObject
 from common.buffer.game_buf import MinecraftGameEvent
 from common.config.chara_config import CustomCharacterConfig, TTSPrompt
@@ -72,8 +73,12 @@ class Controller:
         mge: MinecraftGameEvent | None = None
         if config.game_config.enable:
             mge = self._game_service.game_evt_buf.select_last_one_and_clear()
-
-        game_scn = await scnshot_cap_task
+        game_scn = None
+        try:
+            game_scn = await scnshot_cap_task
+        except Exception as e:
+            logger.exception(e)
+            Toast(message="❌️ 视觉系统故障：无法理解画面内容。", level="error").show_toast()
 
         result = MinecraftLiveStreamData(dev_say="",
                                          danmaku=dbo.danmaku if dbo is not None else None,
