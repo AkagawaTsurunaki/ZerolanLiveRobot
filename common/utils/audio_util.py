@@ -4,13 +4,13 @@ import subprocess
 import numpy as np
 
 
-def convert_to_mono(input_file, output_file, sample_rate: int=16000):
+def convert_to_mono(input_file, output_file, sample_rate: int = 16000):
     # ffmpeg command to convert audio to mono wav
     command = [
         'ffmpeg',
         '-i', input_file,  # input file
         '-ac', '1',  # set number of audio channels to 1 (mono)
-        '-ar', str(sample_rate),     # set audio sample rate
+        '-ar', str(sample_rate),  # set audio sample rate
         '-c:a', 'pcm_s16le',  # set audio codec to PCM 16-bit little-endian
         output_file  # output file
     ]
@@ -49,3 +49,18 @@ def from_ndarray_to_bytes(speech_chunk, sample_rate):
     wave_file = io.BytesIO()
     wavfile.write(filename=wave_file, rate=sample_rate, data=speech_chunk)
     return wave_file.getvalue()
+
+
+def check_wav_info(file_path) -> (int, int, float):
+    import wave
+    # 打开WAV文件
+    wav_file = wave.open(file_path, mode='rb')
+    # 获取采样率
+    sample_rate = wav_file.getframerate()
+    # 获取通道数
+    num_channels = wav_file.getnchannels()
+    # 获取时长
+    duration = wav_file.getnframes() / sample_rate
+    # 关闭文件
+    wav_file.close()
+    return sample_rate, num_channels, duration

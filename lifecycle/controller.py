@@ -10,7 +10,7 @@ from common.buffer.game_buf import MinecraftGameEvent
 from common.config.chara_config import CustomCharacterConfig, TTSPrompt
 from common.decorator import log_run_time
 from common.enum.lang import Language
-from common.utils import file_util
+from common.utils import file_util, audio_util
 from lifecycle.env_data import MinecraftLiveStreamData
 from manager.device.speaker import Speaker
 from services.game.minecraft.app import MinecraftEventListeningApplication
@@ -125,8 +125,10 @@ class Controller:
             for sentence in sentences:
                 tts_tasks.append(self.tts(sentence, tts_prompt))
 
-            for tts_task in tts_tasks:
+            for idx, tts_task in enumerate(tts_tasks):
                 tmp_wav_file = await tts_task
+                _, _, duration = audio_util.check_wav_info(tmp_wav_file)
+                Toast(message=sentences[idx], duration=duration, level="info").show_toast()
                 Speaker.playsound(tmp_wav_file, block=True)
 
     async def tts(self, sentence: str, tts_prompt: TTSPrompt):
