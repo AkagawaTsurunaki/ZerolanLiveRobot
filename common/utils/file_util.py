@@ -7,6 +7,7 @@ import yaml
 
 project_dir = os.getenv('ZEROLAN_LIVE_ROBOT_PROJECT_DIR')
 assert project_dir, "环境变量 ZEROLAN_LIVE_ROBOT_PROJECT_DIR 未设置"
+temp_data_dir = os.path.join(project_dir, "data/temp")
 
 
 def find_dir(dir_path: str, tgt_dir_name: str) -> str | None:
@@ -20,7 +21,9 @@ def find_dir(dir_path: str, tgt_dir_name: str) -> str | None:
 
 
 def create_temp_file(prefix: str, suffix: str, tmpdir: Literal["image", "video", "audio"]) -> str:
-    temp_file_path = os.path.join(f"../data/temp/{tmpdir}", f"{prefix}-{time()}-{uuid.uuid4()}{suffix}")
+    tmp_dir = os.path.join(temp_data_dir, tmpdir)
+    tmp_dir = os.path.abspath(tmp_dir)
+    temp_file_path = os.path.join(f"{tmp_dir}", f"{prefix}-{time()}-{uuid.uuid4()}{suffix}")
     temp_file_path = temp_file_path.replace("\\", "/")
     temp_file_path = os.path.abspath(temp_file_path)
     return temp_file_path
