@@ -1,0 +1,12 @@
+flask==3.0.3
+loguru==0.7.2
+dataclasses_json==0.6.7
+
+pyyaml==6.0.1
+# 如果报错，请执行下列代码进行安装
+# CUDA 12.3: 
+#  python -m pip install paddlepaddle-gpu==3.0.0b1 -i https://www.paddlepaddle.org.cn/packages/stable/cu123/
+# CUDA 11.8: 
+# python3 -m pip install paddlepaddle-gpu==3.0.0b1 -i https://www.paddlepaddle.org.cn/packages/stable/cu118/
+paddlepaddle-gpu==3.0.0b1
+paddleocr==2.8.1

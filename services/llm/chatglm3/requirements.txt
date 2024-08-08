@@ -1,0 +1,11 @@
+loguru==0.7.2
+flask==3.0.3
+dataclasses-json==0.6.7
+
+torch==2.3.1+cu121
+# transformers 超过 4.41.2 会报错
+transformers==4.41.2
+
+sentencepiece==0.2.0
+# numpy 版本不能高于 0.2.0 否则报错
+numpy==1.26.4

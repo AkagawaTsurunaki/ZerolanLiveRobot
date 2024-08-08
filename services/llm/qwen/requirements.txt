@@ -1,0 +1,7 @@
+flask==3.0.3
+loguru==0.7.2
+dataclasses_json==0.6.7
+
+torch==2.3.1+cu121
+# 超过 4.32.0 Qwen 推理报错
+transformers==4.32.0
