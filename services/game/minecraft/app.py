@@ -80,6 +80,7 @@ class KonekoMinecraftAIAgent:
             message = f"""
             你被{entity_type if entity_type is not None else ""}{display_name if display_name is not None else ""}攻击并受伤了
             """.strip()
+            logger.debug(f"🧟 [{entity_type}]{display_name} => 🤖 ")
             return MinecraftGameEvent(event=Action.bot_damage,
                                       message=message,
                                       body=dto.body)

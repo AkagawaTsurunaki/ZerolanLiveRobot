@@ -1,3 +1,4 @@
+import asyncio
 import copy
 import threading
 from typing import List, Coroutine, Any
@@ -11,7 +12,7 @@ from common.config.chara_config import CustomCharacterConfig, TTSPrompt
 from common.decorator import log_run_time
 from common.enum.lang import Language
 from common.utils import file_util, audio_util
-from lifecycle.env_data import MinecraftLiveStreamData
+from lifecycle.env_data import CustomLiveStreamData
 from manager.device.speaker import Speaker
 from services.game.minecraft.app import KonekoMinecraftAIAgent
 from services.img_cap.pipeline import ImaCapPipeline
@@ -44,23 +45,24 @@ class Controller:
         # Tasks
         self._scnshot_cap_task = ScreenshotCaptionTask(self._llm_pipeline, self._imgcap_pipeline)
         self.sentiment_tts_prompt_task = SentimentTtsPromptTask(self._llm_pipeline, self._chara_config.tts_prompts)
+        self._game_task = None
 
         # Threads
         self.threads: List[threading.Thread] = []
 
         self._is_stream = False
 
-    def awake(self):
+    async def awake(self):
         if config.live_stream_config.enable:
             self.threads.append(threading.Thread(target=self._bilibli_service.start))
         if config.game_config.enable:
-            self.threads.append(threading.Thread(target=self._game_service.start))
+            self._game_task = asyncio.create_task(self._game_service.start())
 
         for thread in self.threads:
             thread.start()
 
     @log_run_time(lambda time_used: f"收集环境信息用时 {time_used} 秒")
-    async def collect_env_input(self) -> MinecraftLiveStreamData | None:
+    async def collect_env_input(self) -> CustomLiveStreamData | None:
         # 获取直播间弹幕
         dbo: DanmakuBufferObject | None = None
         if config.live_stream_config.enable:
@@ -82,11 +84,11 @@ class Controller:
             logger.exception(e)
             Toast(message="🧠⇆❌️⇆👁️ 视觉系统故障", level="error").show_toast()
 
-        result = MinecraftLiveStreamData(dev_say="",
-                                         danmaku=dbo.danmaku if dbo is not None else None,
-                                         game_scn=game_scn if not is_blank(game_scn) else None,
-                                         game_env_info=mge if mge is not None else None)
-        if not result.is_empty():
+        result = CustomLiveStreamData(dev_say="",
+                                      danmaku=dbo.danmaku if dbo is not None else None,
+                                      game_scene=game_scn if not is_blank(game_scn) else None,
+                                      game_event=mge.message if mge is not None else None)
+        if result.is_meaningful():
             logger.debug("环境数据采集完毕")
             return result
         else:
@@ -98,7 +100,7 @@ class Controller:
         if not env:
             return
 
-        llm_query = LLMQuery(text=str(env), history=self._history)
+        llm_query = LLMQuery(text=env.interpret(), history=self._history)
 
         if self._is_stream:
             # 流式推理

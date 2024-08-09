@@ -9,7 +9,7 @@ virtual_character_name = "AkagawaTsurunaki"
 
 async def run():
     controller = Controller()
-    controller.awake()
+    await controller.awake()
     while True:
         try:
             await controller.update()
