@@ -72,9 +72,9 @@ class Controller:
         scnshot_cap_task = self._scnshot_cap_task.run(win_title='Minecraft', k=0.8)
 
         # 获取游戏事件
-        mge: MinecraftGameEvent | None = None
+        game_event: MinecraftGameEvent | None = None
         if config.game_config.enable:
-            mge = self._game_service.game_evt_buf.select_last_one_and_clear()
+            game_event = self._game_service.game_evt_buf.select_last_one_and_clear()
         game_scn = None
 
         # 将画面解释为自然语言
@@ -87,7 +87,7 @@ class Controller:
         result = CustomLiveStreamData(dev_say="",
                                       danmaku=dbo.danmaku if dbo is not None else None,
                                       game_scene=game_scn if not is_blank(game_scn) else None,
-                                      game_event=mge.message if mge is not None else None)
+                                      game_event=game_event if game_event is not None else None)
         if result.is_meaningful():
             logger.debug("环境数据采集完毕")
             return result
