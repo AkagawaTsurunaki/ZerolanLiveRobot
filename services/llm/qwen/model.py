@@ -91,20 +91,22 @@ class Qwen7BChat(AbstractModel):
         history_content_list: list[str] = [c.content for c in llm_query.history]
 
         sys_prompt = None
+        history = []
         # 拼接系统提示词
-        if llm_query.history[0].role == "system":
-            sys_prompt = llm_query.history[0].content
-            if len(history_content_list) > 0:
-                history_content_list = history_content_list[1:]
-                history_content_list[0] = sys_prompt + history_content_list[0]
+        if len(llm_query.history) > 0:
+            if llm_query.history[0].role == "system":
+                sys_prompt = llm_query.history[0].content
+                if len(history_content_list) > 0:
+                    history_content_list = history_content_list[1:]
+                    history_content_list[0] = sys_prompt + history_content_list[0]
 
-        assert len(history_content_list) % 2 == 0, f'必须为偶数'
+            assert len(history_content_list) % 2 == 0, f'必须为偶数'
 
-        # 转化为 tuple
-        history: list[tuple] = []
+            # 转化为 tuple
+            history: list[tuple] = []
 
-        for i in range(0, len(history_content_list), 2):
-            history.append((history_content_list[i], history_content_list[i + 1]))
+            for i in range(0, len(history_content_list), 2):
+                history.append((history_content_list[i], history_content_list[i + 1]))
 
         text = llm_query.text
         return text, history, sys_prompt
