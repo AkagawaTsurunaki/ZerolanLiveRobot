@@ -41,6 +41,7 @@ def spath(path: str) -> str:
         return locate_path_upwards(path, project_dir)
     except FileNotFoundError:
         pass
+    path = path.replace("\\", "/").split("/")[-1]
     for dirpath, dirnames, filenames in os.walk(project_dir):
         for filename in filenames:
             if filename == path:

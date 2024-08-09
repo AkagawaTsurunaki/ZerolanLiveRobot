@@ -10,19 +10,9 @@ from common.buffer.asb_buf import AbstractBuffer, BufferObject
 @dataclass_json
 @dataclass
 class MinecraftGameEvent(BufferObject):
-    health: int
-    food: int
-    type: str
-    description: str
-
-    def same_type(self, other):
-        if other and isinstance(other, MinecraftGameEvent):
-            if other.type == self.type:
-                return True
-        return False
-
-    def __str__(self):
-        return f'❤️{self.health} 🍗{self.food} => {self.description}'
+    event: str
+    message: str
+    body: any
 
 
 class MinecraftGameEventBuffer(AbstractBuffer):

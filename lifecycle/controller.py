@@ -13,7 +13,7 @@ from common.enum.lang import Language
 from common.utils import file_util, audio_util
 from lifecycle.env_data import MinecraftLiveStreamData
 from manager.device.speaker import Speaker
-from services.game.minecraft.app import MinecraftEventListeningApplication
+from services.game.minecraft.app import KonekoMinecraftAIAgent
 from services.img_cap.pipeline import ImaCapPipeline
 from services.live_stream.bilibili.service import BilibiliService
 from services.llm.pipeline import LLMPipeline, LLMQuery, Conversation
@@ -38,7 +38,7 @@ class Controller:
         self._llm_pipeline = LLMPipeline()
         self._tts_pipeline = TTSPipeline()
         self._bilibli_service = BilibiliService()
-        self._game_service = MinecraftEventListeningApplication()
+        self._game_service = KonekoMinecraftAIAgent()
         self._imgcap_pipeline = ImaCapPipeline()
 
         # Tasks
