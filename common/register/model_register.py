@@ -20,6 +20,12 @@ class ASRModels:
 
 
 class LLMModels:
+    LLAMA3_70B = ModelInfo(
+        id="meta-llama/Meta-Llama-3-70B",
+        path="meta-llama/Meta-Llama-3-70B",
+        site="https://llama.meta.com/llama3",
+        langs=["zh", "en"]
+    )
     CHATGLM3_6B = ModelInfo(
         id="THUDM/chatglm3-6b",
         path="THUDM/chatglm3-6b",
