@@ -5,8 +5,7 @@ from typing import Literal
 
 import yaml
 
-project_dir = os.getenv('ZEROLAN_LIVE_ROBOT_PROJECT_DIR')
-assert project_dir, "环境变量 ZEROLAN_LIVE_ROBOT_PROJECT_DIR 未设置"
+project_dir = os.getcwd()
 temp_data_dir = os.path.join(project_dir, "data/temp")
 
 

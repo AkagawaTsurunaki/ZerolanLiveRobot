@@ -89,7 +89,6 @@ python3 -m pip install paddlepaddle-gpu==3.0.0b1 -i https://www.paddlepaddle.org
 
 配置环境变量
 ```shell
-ZEROLAN_LIVE_ROBOT_PROJECT_DIR = ... # 这个项目的目录
 ZEROLAN_LIVE_ROBOT_MODELS = ... # 存放这个项目所用到的模型的目录
 ```
 
