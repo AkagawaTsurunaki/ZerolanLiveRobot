@@ -8,7 +8,10 @@ class AbstractFilter(ABC):
         pass
 
 class FirstMatchedFilter:
-    def __init__(self, words: list[str]) -> None:
+    def __init__(self) -> None:
+        pass
+    
+    def set_words(self, words: list[str]):
         self.words = words
         self.words.sort(key=lambda word: len(word))
         if len(self.words) > 0:
@@ -29,8 +32,3 @@ class FirstMatchedFilter:
                 return False
         return True
     
-_content_filter = FirstMatchedFilter()
-    
-def content_filter() -> AbstractFilter:
-    # 默认使用首次匹配内容过滤器
-    return _content_filter

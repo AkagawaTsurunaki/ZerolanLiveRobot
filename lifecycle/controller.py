@@ -14,7 +14,7 @@ from common.enum.lang import Language
 from common.utils import file_util, audio_util
 from lifecycle.env_data import CustomLiveStreamData
 from manager.device.speaker import Speaker
-from services.filter.strategy import content_filter
+from services.filter.strategy import FirstMatchedFilter
 from services.game.minecraft.app import KonekoMinecraftAIAgent
 from services.img_cap.pipeline import ImaCapPipeline
 from services.live_stream.bilibili.service import BilibiliService
@@ -35,6 +35,10 @@ class Controller:
         self._history = [
                             Conversation(role="system", content=self._chara_config.system_prompt),
                         ] + copy.deepcopy(self._chara_config.example_cases)
+        
+        # Filter
+        self._content_filter = FirstMatchedFilter()
+        self._content_filter.set_words(self._chara_config.bad_words)
 
         # Services and Pipelines
         self._llm_pipeline = LLMPipeline()
@@ -120,7 +124,7 @@ class Controller:
             logger.info(f"角色说：{llm_prediction.response}")
 
             ### TODO: Remember to test here
-            if not content_filter().filter(llm_prediction.response):
+            if not self._content_filter.filter(llm_prediction.response):
                 logger.warning("本次对话存在敏感内容，已被过滤")
                 return
             ###

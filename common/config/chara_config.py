@@ -50,9 +50,15 @@ class CustomCharacterConfig(CharacterConfig):
     def __init__(self):
         super().__init__()
         self.user_input_format: dict = {}
+        self.bad_words = []
+
+    def load_filter_config(self):
+        config_dict = read_yaml(spath("resources/config/character_config.yaml"))
+        self.bad_words = config_dict["bad_words"]
 
     def load_config(self):
         super().load_config()
+        self.load_filter_config()
 
     def load_llm_prompts(self):
 
