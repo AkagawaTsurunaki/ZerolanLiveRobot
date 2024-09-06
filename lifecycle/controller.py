@@ -14,6 +14,7 @@ from common.enum.lang import Language
 from common.utils import file_util, audio_util
 from lifecycle.env_data import CustomLiveStreamData
 from manager.device.speaker import Speaker
+from services.filter.strategy import content_filter
 from services.game.minecraft.app import KonekoMinecraftAIAgent
 from services.img_cap.pipeline import ImaCapPipeline
 from services.live_stream.bilibili.service import BilibiliService
@@ -105,7 +106,7 @@ class Controller:
         if self._is_stream:
             # 流式推理
             # 当你的 GPU 运算速率有限，或者瓶颈在 LLM 推理时请开启流式推理
-            pass
+            raise NotImplementedError("这一部分尚未实现")
         else:
             # 非流式推理
             # 非流式推理当您的 GPU 运算速率够快，可以忽略 LLM 推理时的延时时可以尝试启用
@@ -117,6 +118,12 @@ class Controller:
                 raise e
             self._history = llm_prediction.history
             logger.info(f"角色说：{llm_prediction.response}")
+
+            ### TODO: Remember to test here
+            if not content_filter().filter(llm_prediction.response):
+                logger.warning("本次对话存在敏感内容，已被过滤")
+                return
+            ###
 
             # 带情感的语音合成和播放
             tts_prompt = await self.sentiment_tts_prompt_task.run(llm_prediction.response)
