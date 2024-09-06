@@ -8,8 +8,8 @@ class AbstractFilter(ABC):
         pass
 
 class FirstMatchedFilter:
-    def __init__(self) -> None:
-        self.words = []
+    def __init__(self, words: list[str]) -> None:
+        self.words = words
         self.words.sort(key=lambda word: len(word))
         if len(self.words) > 0:
             self.min_len = self.words[0]
