@@ -3,7 +3,7 @@ from dataclasses import asdict
 from flask import Flask, jsonify, request, Response, stream_with_context
 from loguru import logger
 
-from common.abs_app import AbstractApplication
+from common.abs_app import AbstractApplication, AppStatusEnum
 from common.config.service_config import ServiceConfig
 from common.register.model_register import LLMModels
 from services.llm.pipeline import LLMQuery
@@ -26,7 +26,7 @@ else:
 class LLMApplication(AbstractApplication):
 
     def __init__(self):
-        super().__init__()
+        super().__init__("llm")
         self._app = Flask(__name__)
         self._app.add_url_rule(rule='/llm/predict', view_func=self._handle_predict,
                                methods=["GET", "POST"])
@@ -35,7 +35,9 @@ class LLMApplication(AbstractApplication):
         self._llm = LLM()
 
     def run(self):
+        self.status = AppStatusEnum.INITIALIZING
         self._llm.load_model()
+        self.status = AppStatusEnum.OK
         self._app.run(config.host, config.port, False)
 
     def _to_pipeline_format(self) -> LLMQuery:
