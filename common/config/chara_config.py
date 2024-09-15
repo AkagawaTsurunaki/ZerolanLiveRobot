@@ -87,7 +87,11 @@ class CustomCharacterConfig(CharacterConfig):
     def load_tts_prompts(self):
         for dirpath, dirnames, filenames in os.walk(spath("resources/static/audio/momoi")):
             for filename in filenames:
-                lang, sentiment, transcript = self.parse_tts_prompt_filename(filename)
+                try:
+                    lang, sentiment, transcript = self.parse_tts_prompt_filename(filename)
+                except ValueError:
+                    logger.warning(f"因为找不到合适的文件名解析策略，音频文件将会跳过：{filename}")
+                    continue
                 audio_path = str(os.path.join(dirpath, filename))
                 tts_prompt = TTSPrompt(audio_path=audio_path, lang=lang, sentiment=sentiment, transcript=transcript)
                 self.tts_prompts.append(tts_prompt)
