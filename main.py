@@ -2,12 +2,17 @@ import asyncio
 
 from loguru import logger
 
+import init
+from api.toasts import Toast
 from lifecycle.controller import Controller
 
 virtual_character_name = "AkagawaTsurunaki"
 
 
 async def run():
+    init.start_ui_process()
+    Toast(message="ZerolanLiveRobot 初始化完毕").show_toast()
+
     controller = Controller()
     await controller.awake()
     while True:
