@@ -11,7 +11,7 @@ virtual_character_name = "AkagawaTsurunaki"
 
 async def run():
     init.start_ui_process()
-    Toast(message="ZerolanLiveRobot 初始化完毕").show_toast()
+    Toast(message="ZerolanLiveRobot UI 模块初始化完毕").show_toast()
 
     controller = Controller()
     await controller.awake()
