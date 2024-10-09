@@ -1,14 +1,44 @@
-# ZerolanLiveRobot
+# ZerolanLiveRobot 2.0
 
 [正在开发中...]
+
+ZerolanLiveRobot 2.0 版本与旧版本不兼容，因此您可能需要重新配置。
 
 它是一个集成了众多人工智能模型或服务的“摇篮”，旨在使用通用的管线和统一的 Web API
 接口封装大语言模型（LLM）、自动语音识别（ASR）、文本转语音（TTS）、图像字幕（Image
 Captioning）、光学字符识别（OCR）等一系列的人工智能模型。并可以使用统一的配置文件和服务启动器快速部署和启动 AI 服务。
 
+## 安装方式
+
+运行指令，这会安装基础环境需要的依赖包。
+
+```shell
+conda create --name ZerolanLiveRobot python=3.10
+conda activate ZerolanLiveRobot
+pip install -r requirements.txt
+```
+
+运行命令的过程中，如果遇到以下错误
+
+```
+ERROR: Could not find a version that satisfies the requirement torch==2.3.1+cu121 (from versions: 1.11.0, 1.12.0, 1.12.1, 1.13.0, 1.13.1, 2.0.0, 2.0.1, 2.1.0, 2.1.1, 2.1.2, 2.2.0, 2.2.1, 2.2.2, 2.3.0, 2.3.1, 2.4.0, 2.4.1)
+ERROR: No matching distribution found for torch==2.3.1+cu121
+```
+
+请到[这里](https://download.pytorch.org/whl/torch/)下载适合您的 PyTorch 版本，然后使用以下指令进行手动安装：
+
+```shell
+pip install 你下载的PyTorch的文件地址
+```
+
+注意，各个AI模型可能依赖了不同版本的依赖，为了防止冲突，请根据 `/services` 下各个模型文件夹中所带的 `requirements.txt` 文件按需下载。
+
+
 ## 集成模型
 
 注意：以问号标注表示数据暂时未测量。
+
+以下的模型已经过作者的测试，可以正常使用，然而不同系统的环境差异显著，实在无法广泛覆盖所有情况，如有意外敬请谅解。
 
 ### 自动语音识别模型
 
