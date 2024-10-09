@@ -62,22 +62,25 @@ def get_obj_from_json(request: Request, type: Any) -> Any:
     return obj
 
 
-def urljoin(host: str, port: int, path: str = None, protocol: str = 'http'):
+def urljoin(host: str, port: int, path: str = None):
     """
     根据协议、主机、端口号和路径，拼接 URL。
     Args:
         host: 主机，例如 127.0.0.1。
         port: 端口号，例如 11451。
         path: 路径，例如 /test/speak。
-        protocol: 协议，例如 http、https等。
 
     Returns:
 
     """
-    assert host and port and protocol
-    assert isinstance(host, str) and isinstance(port, int) and isinstance(protocol, str)
+    assert host and port
+    assert isinstance(host, str) and isinstance(port, int)
 
-    url = f"{protocol}://{host}:{port}"
+    if ("http://" not in host) and ("https://" not in host):
+        url = f"http://{host}:{port}"
+    else:
+        url = f"{host}:{port}"
+
     if path:
         assert isinstance(path, str)
         assert path[0] == '/', f'"path" should begin with "/".'
