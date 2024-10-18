@@ -392,5 +392,3 @@ WARNING  | scrnshot.service:screen_cap:32 - 无法找到窗口 xxx
 如果您对本项目有何建议或问题等，可以通过以下联系方式与开发者交流。
 
 邮箱：AkagawaTsurunaki@outlook.com
-
-QQ群：858378209
