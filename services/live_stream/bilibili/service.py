@@ -4,7 +4,7 @@ from loguru import logger
 
 from common.buffer.danmaku_buffer import DanmakuBuffer, DanmakuBufferObject
 from common.config.service_config import ServiceConfig
-from services.live_stream.pipeline import Danmaku
+from zerolan_live_robot_data.data.danmaku import Danmaku
 
 config = ServiceConfig.live_stream_config
 assert config.platform == "bilibili", f"当前配置中指定的直播间平台是 {config.platform} 而不是 bilibili"
