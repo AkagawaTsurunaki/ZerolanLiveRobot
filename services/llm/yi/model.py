@@ -4,7 +4,7 @@ from common.abs_model import AbstractModel
 from common.config.model_config import ModelConfigLoader
 from common.decorator import log_model_loading
 from common.register.model_register import LLMModels
-from services.llm.pipeline import LLMQuery, Conversation, LLMPrediction
+from zerolan_live_robot_data.data.llm import LLMQuery, Conversation, LLMPrediction
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 config = ModelConfigLoader.yi_model_config

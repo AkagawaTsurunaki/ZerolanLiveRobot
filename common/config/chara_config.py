@@ -9,7 +9,7 @@ from loguru import logger
 
 from common.enum.lang import Language
 from common.utils.file_util import read_yaml, spath
-from services.llm.pipeline import Conversation
+from zerolan_live_robot_data.data.llm import Conversation
 
 
 @dataclass

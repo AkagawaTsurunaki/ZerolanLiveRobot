@@ -13,7 +13,7 @@ from common.abs_model import AbstractModel
 from common.config.model_config import ModelConfigLoader
 from common.decorator import log_model_loading
 from common.register.model_register import LLMModels
-from services.llm.pipeline import LLMQuery, LLMPrediction, Conversation
+from zerolan_live_robot_data.data.llm import LLMQuery, LLMPrediction, Conversation
 
 config = ModelConfigLoader.shisa_model_config
 

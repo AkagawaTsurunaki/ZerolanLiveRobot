@@ -3,9 +3,10 @@ from typing import Literal
 
 from dataclasses_json import dataclass_json
 
-from common.utils import web_util
-from common.abs_pipeline import AbstractModelQuery, AbstractModelPrediction, AbstractPipeline
+from common.abs_pipeline import AbstractModelQuery, AbstractPipeline
 from common.config.service_config import ServiceConfig
+from common.utils import web_util
+from zerolan_live_robot_data.data.llm import LLMPrediction
 
 config = ServiceConfig.llm_config
 
@@ -21,13 +22,6 @@ class Conversation:
 @dataclass
 class LLMQuery(AbstractModelQuery):
     text: str
-    history: list[Conversation]
-
-
-@dataclass_json
-@dataclass
-class LLMPrediction(AbstractModelPrediction):
-    response: str
     history: list[Conversation]
 
 

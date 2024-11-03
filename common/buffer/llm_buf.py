@@ -1,7 +1,7 @@
 from typing import List
 
 from common.buffer.asb_buf import BufferObject, AbstractBuffer
-from services.llm.pipeline import LLMPrediction
+from zerolan_live_robot_data.data.llm import LLMPrediction
 
 
 class LLMPredictionBufferObject(BufferObject):

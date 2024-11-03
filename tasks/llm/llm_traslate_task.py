@@ -1,5 +1,6 @@
 from common.enum.lang import Language
-from services.llm.pipeline import LLMPipeline, LLMQuery
+from services.llm.pipeline import LLMPipeline
+from zerolan_live_robot_data.data.llm import LLMQuery
 from loguru import logger
 
 from tasks.llm.prompt import ICIOPrompt

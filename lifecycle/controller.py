@@ -5,6 +5,7 @@ from typing import List, Coroutine, Any
 
 from loguru import logger
 
+from services.llm.pipeline import LLMPipeline
 from zerolan_live_robot_ui.api.toasts import Toast
 from common.abs_app import AppStatusEnum
 from common.buffer.danmaku_buffer import DanmakuBufferObject
@@ -19,7 +20,7 @@ from services.filter.strategy import FirstMatchedFilter
 from services.game.minecraft.app import KonekoMinecraftAIAgent
 from services.img_cap.pipeline import ImaCapPipeline
 from services.live_stream.bilibili.service import BilibiliService
-from services.llm.pipeline import LLMPipeline, LLMQuery, Conversation
+from zerolan_live_robot_data.data.llm import LLMQuery, Conversation
 from services.tts.pipeline import TTSPipeline, TTSQuery
 from common.config.service_config import ServiceConfig as config
 from common.utils.str_util import is_blank, split_by_punctuations, adjust_strings

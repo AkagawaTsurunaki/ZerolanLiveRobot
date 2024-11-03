@@ -12,7 +12,7 @@ from common.decorator import log_model_loading
 from common.register.model_register import LLMModels
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
-from services.llm.pipeline import LLMQuery, LLMPrediction, Conversation
+from zerolan_live_robot_data.data.llm import LLMQuery, LLMPrediction, Conversation
 
 config = ModelConfigLoader.qwen_model_config
 

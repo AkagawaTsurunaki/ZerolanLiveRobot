@@ -6,7 +6,7 @@ from loguru import logger
 from common.abs_app import AbstractApplication, AppStatusEnum
 from common.config.service_config import ServiceConfig
 from common.register.model_register import LLMModels
-from services.llm.pipeline import LLMQuery
+from zerolan_live_robot_data.data.llm import LLMQuery
 
 config = ServiceConfig.llm_config
 

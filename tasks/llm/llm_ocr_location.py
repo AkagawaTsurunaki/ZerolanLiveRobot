@@ -3,7 +3,8 @@ import re
 
 from loguru import logger
 
-from services.llm.pipeline import LLMPipeline, LLMQuery
+from services.llm.pipeline import LLMPipeline
+from zerolan_live_robot_data.data.llm import LLMQuery
 from services.ocr.pipeline import OcrPipeline, OCRQuery, OCRPrediction
 from tasks.llm.prompt import ICIOPrompt
 

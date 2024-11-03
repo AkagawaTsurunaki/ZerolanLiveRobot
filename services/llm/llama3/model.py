@@ -6,7 +6,7 @@ import torch
 from common.abs_model import AbstractModel
 from common.decorator import log_model_loading
 from common.register.model_register import LLMModels
-from services.llm.pipeline import LLMQuery
+from zerolan_live_robot_data.data.llm import LLMQuery
 
 model_id = "meta-llama/Meta-Llama-3-70B"
 

@@ -1,4 +1,5 @@
-from services.llm.pipeline import LLMPipeline, LLMQuery, Conversation
+from services.llm.pipeline import LLMPipeline
+from zerolan_live_robot_data.data.llm import LLMQuery, Conversation
 
 q = LLMQuery(text="你叫什么名字？",
              history=[
