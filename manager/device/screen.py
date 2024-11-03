@@ -1,5 +1,4 @@
 import pyautogui
-import pygetwindow
 import pygetwindow as gw
 from PIL.Image import Image
 from loguru import logger
@@ -42,7 +41,7 @@ class Screen:
                 logger.warning("窗口捕获失败：分屏情况下截屏可能会出现问题，请尝试将目标窗口放置于主屏幕。")
         except AssertionError as e:
             logger.warning(e)
-        except pygetwindow.PyGetWindowException as e:
+        except gw.PyGetWindowException as e:
             if "Error code from Windows: 0" in str(e):
                 logger.warning("窗口捕获失败：失去画面焦点。")
         except Exception as e:

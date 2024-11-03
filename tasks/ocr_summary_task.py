@@ -5,7 +5,7 @@ from loguru import logger
 from manager.device.screen import Screen
 from pipeline.llm import LLMPipeline
 from zerolan_live_robot_data.data.llm import LLMQuery
-from services.ocr.pipeline import OCRQuery
+from zerolan_live_robot_data.data.ocr import OCRQuery
 from pipeline.ocr import OcrPipeline
 from tasks.llm.prompt import ICIOPrompt
 
