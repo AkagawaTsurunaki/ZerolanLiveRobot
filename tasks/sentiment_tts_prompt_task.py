@@ -2,7 +2,7 @@ from typing import List
 
 from common.config.chara_config import TTSPrompt
 from pipeline.llm import LLMPipeline
-from tasks.llm.llm_sentiment_analyse_task import LLMSentimentAnalyseTask
+from tasks.llm_sentiment_analyse_task import LLMSentimentAnalyseTask
 
 
 class SentimentTtsPromptTask:

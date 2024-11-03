@@ -1,7 +1,7 @@
 import time
 
 from common.enum.lang import Language
-from tasks.llm.llm_traslate_task import LLMTranslateTask
+from tasks.llm_traslate_task import LLMTranslateTask
 from tasks.ocr_summary_task import OcrSummaryTask
 
 

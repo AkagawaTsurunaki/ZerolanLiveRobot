@@ -3,7 +3,7 @@ from manager.device.screen import Screen
 from zerolan_live_robot_data.data.img_cap import ImgCapQuery
 from pipeline.img_cap import ImaCapPipeline
 from pipeline.llm import LLMPipeline
-from tasks.llm.llm_traslate_task import LLMTranslateTask
+from tasks.llm_traslate_task import LLMTranslateTask
 
 
 class ScreenshotCaptionTask:
