@@ -39,7 +39,7 @@ def start_img_cap():
         logger.warning("图像字幕服务已被禁用：检查您的配置，并将 enable 字段的值改为 True 以启用该服务。")
         return
 
-    from services.img_cap.app import ImgCapApplication
+    from img_cap.app import ImgCapApplication
     app = ImgCapApplication()
     app.run()
 
@@ -56,7 +56,7 @@ def start_ocr():
         logger.warning("光学字符识别服务已被禁用：检查您的配置，并将 enable 字段的值改为 True 以启用该服务。")
         return
 
-    from services.ocr.app import OCRApplication
+    from ocr.app import OCRApplication
     app = OCRApplication()
     app.run()
 
@@ -69,7 +69,7 @@ def start_vidcap():
         logger.warning("视频字幕服务已被禁用：检查您的配置，并将 enable 字段的值改为 True 以启用该服务。")
         return
 
-    from services.vid_cap.app import VidCapApplication
+    from vid_cap.app import VidCapApplication
     app = VidCapApplication()
     app.run()
 

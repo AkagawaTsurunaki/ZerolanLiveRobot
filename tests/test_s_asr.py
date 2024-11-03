@@ -6,7 +6,8 @@ from common.config.service_config import ASRServiceConfig as config
 from common.utils.audio_util import from_ndarray_to_bytes
 from gui.toast import toast
 from manager.device.microphone import Microphone
-from services.asr.pipeline import ASRPipeline, ASRModelStreamQuery
+from services.asr.pipeline import ASRModelStreamQuery
+from pipeline.asr import ASRPipeline
 from services.vad.strategy import EasyEnergyVad
 
 sample_rate = config.sample_rate

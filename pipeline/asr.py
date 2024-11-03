@@ -1,23 +1,12 @@
 import json
-from dataclasses import dataclass
 from http import HTTPStatus
 
 import requests
-from dataclasses_json import dataclass_json
 from loguru import logger
 
 from common.abs_pipeline import AbstractPipeline
 from common.utils import web_util
-from zerolan_live_robot_data.data.asr import ASRModelQuery, AbstractModelPrediction, ASRModelStreamQuery
-
-
-@dataclass_json
-@dataclass
-class ASRModelPrediction(AbstractModelPrediction):
-    transcript: str
-
-    def __str__(self):
-        return self.transcript
+from data.asr import ASRModelQuery, ASRModelPrediction, ASRModelStreamQuery
 
 
 class ASRPipeline(AbstractPipeline):

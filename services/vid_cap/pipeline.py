@@ -10,17 +10,6 @@ from common.config.service_config import ServiceConfig
 config = ServiceConfig.vidcap_config
 
 
-@dataclass_json
-@dataclass
-class VidCapQuery(AbstractModelQuery):
-    vid_path: str
-
-
-@dataclass_json
-@dataclass
-class VidCapPrediction(AbstractModelPrediction):
-    caption: str
-    lang: str
 
 
 class VidCapPipeline(AbstractPipeline):

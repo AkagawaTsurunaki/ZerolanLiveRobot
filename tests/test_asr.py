@@ -1,4 +1,5 @@
-from services.asr.pipeline import ASRPipeline, ASRModelQuery
+from services.asr.pipeline import ASRModelQuery
+from pipeline.asr import ASRPipeline
 
 pipeline = ASRPipeline()
 
