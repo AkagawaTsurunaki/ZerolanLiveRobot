@@ -7,7 +7,7 @@ from pipeline.llm import LLMPipeline
 from zerolan_live_robot_data.data.llm import LLMQuery
 from zerolan_live_robot_data.data.ocr import OCRQuery, OCRPrediction
 from pipeline.ocr import OcrPipeline
-from tasks.llm.prompt import ICIOPrompt
+from zerolan_live_robot_data.data.prompt import ICIOPrompt
 
 
 class LLM_OCRLocationTask:
