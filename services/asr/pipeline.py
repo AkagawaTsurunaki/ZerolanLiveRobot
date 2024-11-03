@@ -6,28 +6,10 @@ import requests
 from dataclasses_json import dataclass_json
 from loguru import logger
 
-from common.utils import web_util
-from common.abs_pipeline import AbstractPipeline, AbstractModelPrediction, AbstractModelQuery
+from common.abs_pipeline import AbstractPipeline
 from common.config.service_config import ASRServiceConfig as asr_cfg
-
-
-@dataclass_json
-@dataclass
-class ASRModelQuery(AbstractModelQuery):
-    audio_path: str
-    media_type: str = 'wav'
-    sample_rate: int = 16000
-    channels: int = 1
-
-
-@dataclass_json
-@dataclass
-class ASRModelStreamQuery(AbstractModelQuery):
-    is_final: bool
-    audio_data: bytes
-    media_type: str = 'wav'
-    sample_rate: int = 16000
-    channels: int = 1
+from common.utils import web_util
+from zerolan_live_robot_data.data.asr import ASRModelQuery, AbstractModelPrediction, ASRModelStreamQuery
 
 
 @dataclass_json

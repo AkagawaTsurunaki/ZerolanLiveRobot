@@ -11,7 +11,7 @@ def start_asr():
         logger.warning("ASR 服务已被禁用：检查您的配置，并将 enable 字段的值改为 True 以启用该服务。")
         return
 
-    from services.asr.app import ASRApplication
+    from asr.app import ASRApplication
 
     app = ASRApplication()
     app.run()
@@ -25,7 +25,7 @@ def start_llm():
         logger.warning("LLM 服务已被禁用：检查您的配置，并将 enable 字段的值改为 True 以启用该服务。")
         return
 
-    from services.llm.app import LLMApplication
+    from llm.app import LLMApplication
 
     app = LLMApplication()
     app.run()

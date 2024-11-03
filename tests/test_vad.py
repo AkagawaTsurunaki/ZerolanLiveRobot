@@ -3,7 +3,7 @@ from loguru import logger
 
 from common.buffer.asr_res_buf import ASRResultBuffer
 from manager.device.microphone import Microphone
-from services.asr.paraformer.model import SpeechParaformerModel
+from asr.paraformer.model import SpeechParaformerModel
 from services.vad.strategy import EasyEnergyVad
 
 m = SpeechParaformerModel()
