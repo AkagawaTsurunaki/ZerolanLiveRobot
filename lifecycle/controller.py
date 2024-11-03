@@ -6,6 +6,7 @@ from typing import List, Coroutine, Any
 from loguru import logger
 
 from api.toasts import Toast
+from common.abs_app import AppStatusEnum
 from common.buffer.danmaku_buffer import DanmakuBufferObject
 from common.buffer.game_buf import MinecraftGameEvent
 from common.config.chara_config import CustomCharacterConfig, TTSPrompt
@@ -35,7 +36,7 @@ class Controller:
         self._history = [
                             Conversation(role="system", content=self._chara_config.system_prompt),
                         ] + copy.deepcopy(self._chara_config.example_cases)
-        
+
         # Filter
         self._content_filter = FirstMatchedFilter()
         self._content_filter.set_words(self._chara_config.bad_words)
@@ -47,6 +48,9 @@ class Controller:
         self._game_service = KonekoMinecraftAIAgent()
         self._imgcap_pipeline = ImaCapPipeline()
 
+        # 这里去检验服务是否都已经启动
+        self.check_service_state()
+
         # Tasks
         self._scnshot_cap_task = ScreenshotCaptionTask(self._llm_pipeline, self._imgcap_pipeline)
         self.sentiment_tts_prompt_task = SentimentTtsPromptTask(self._llm_pipeline, self._chara_config.tts_prompts)
@@ -56,6 +60,25 @@ class Controller:
         self.threads: List[threading.Thread] = []
 
         self._is_stream = False
+
+    def check_service_state(self):
+        """
+        检查服务是否正常运行。存在异常将会退出整个程序。
+        """
+        status = {"LLM": self._llm_pipeline.check_state(),
+                  "TTS": self._tts_pipeline.check_state(),
+                  "Image Captioning": self._imgcap_pipeline.check_state()}
+        flag = False
+        for service, state in status.items():
+            if state.state != AppStatusEnum.RUNNING:
+                logger.error(f"{service} 服务异常")
+                flag = True
+
+        if flag:
+            msg = "部分关键服务存在异常，进程结束。"
+            logger.error(msg)
+            Toast(message=msg, level="error").show_toast()
+            exit(0)
 
     async def awake(self):
         if config.live_stream_config.enable:

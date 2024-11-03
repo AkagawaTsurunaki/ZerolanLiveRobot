@@ -37,7 +37,7 @@ class LLMApplication(AbstractApplication):
     def run(self):
         self.status = AppStatusEnum.INITIALIZING
         self._llm.load_model()
-        self.status = AppStatusEnum.OK
+        self.status = AppStatusEnum.RUNNING
         self._app.run(config.host, config.port, False)
 
     def _to_pipeline_format(self) -> LLMQuery:

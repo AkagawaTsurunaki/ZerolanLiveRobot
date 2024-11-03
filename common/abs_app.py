@@ -10,9 +10,10 @@ class AppStatus:
 
 
 class AppStatusEnum:
-    OK = "ok"
+    RUNNING = "running"
     STOPPED = "stopped"
     INITIALIZING = "initializing"
+    UNKNOWN = "unknown"
 
 
 class AbstractApplication(ABC):

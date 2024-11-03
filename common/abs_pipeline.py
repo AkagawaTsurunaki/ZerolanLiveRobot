@@ -5,6 +5,9 @@ from http import HTTPStatus
 
 import requests
 from dataclasses_json import dataclass_json
+from loguru import logger
+
+from common.abs_app import AppStatusEnum
 
 
 @dataclass_json
@@ -19,11 +22,19 @@ class AbstractModelPrediction:
     ...
 
 
+@dataclass_json
+@dataclass
+class ServiceState:
+    state: AppStatusEnum
+    msg: str
+
+
 class AbstractPipeline(ABC):
 
     def __init__(self):
         self.predict_url: str | None = None
         self.stream_predict_url: str | None = None
+        self.state_url: str | None = None
 
     @abstractmethod
     def predict(self, query: AbstractModelQuery) -> AbstractModelPrediction | None:
@@ -55,6 +66,16 @@ class AbstractPipeline(ABC):
     @abstractmethod
     def parse_prediction(self, json_val: any) -> AbstractModelPrediction:
         raise NotImplementedError()
+
+    def check_state(self) -> ServiceState:
+        try:
+            response = requests.get(url=self.state_url, stream=True)
+            if response.status_code == HTTPStatus.OK:
+                state = ServiceState.from_json(response.content)
+                return state
+        except Exception as e:
+            logger.error(e)
+            return ServiceState(state=AppStatusEnum.UNKNOWN, msg=f"{e}")
 
 
 @dataclass_json
