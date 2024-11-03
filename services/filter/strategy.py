@@ -9,7 +9,9 @@ class AbstractFilter(ABC):
 
 class FirstMatchedFilter:
     def __init__(self) -> None:
-        pass
+        self.max_len = None
+        self.min_len = None
+        self.words = None
     
     def set_words(self, words: list[str]):
         self.words = words
