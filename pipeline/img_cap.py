@@ -1,7 +1,7 @@
 from dataclasses import asdict
 
 from abs_data import AbstractModelQuery
-from common.abs_pipeline import AbstractImagePipeline
+from pipeline.abs_pipeline import AbstractImagePipeline
 from common.utils import web_util
 from zerolan_live_robot_data.data.img_cap import ImgCapQuery, ImgCapPrediction
 

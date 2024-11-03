@@ -4,7 +4,7 @@ from http import HTTPStatus
 import requests
 from loguru import logger
 
-from common.abs_pipeline import AbstractPipeline
+from pipeline.abs_pipeline import AbstractPipeline
 from common.utils import web_util
 from zerolan_live_robot_data.data.asr import ASRModelQuery, ASRModelPrediction, ASRModelStreamQuery
 

@@ -2,7 +2,7 @@ import os
 from dataclasses import asdict
 
 from abs_data import AbstractModelQuery
-from common.abs_pipeline import AbstractPipeline
+from pipeline.abs_pipeline import AbstractPipeline
 from common.utils import web_util
 from zerolan_live_robot_data.data.vid_cap import VidCapQuery, VidCapPrediction
 

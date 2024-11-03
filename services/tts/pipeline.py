@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from dataclasses_json import dataclass_json
 
 from common.utils import web_util
-from common.abs_pipeline import AbstractPipeline, AbstractModelPrediction, AbstractModelQuery
+from pipeline.abs_pipeline import AbstractPipeline, AbstractModelPrediction, AbstractModelQuery
 
 from common.config.service_config import ServiceConfig
 
