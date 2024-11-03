@@ -5,7 +5,8 @@ from selenium.webdriver import Keys
 from selenium.webdriver.common.actions.action_builder import ActionBuilder
 
 from manager.device.screen import Screen
-from services.ocr.pipeline import OcrPipeline, OCRQuery
+from services.ocr.pipeline import OCRQuery
+from pipeline.ocr import OcrPipeline
 from manager.browser.driver import DriverInitializer
 
 # 创建Chrome WebDriver实例

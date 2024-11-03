@@ -3,9 +3,10 @@ import copy
 from loguru import logger
 
 from manager.device.screen import Screen
-from services.llm.pipeline import LLMPipeline
+from pipeline.llm import LLMPipeline
 from zerolan_live_robot_data.data.llm import LLMQuery
-from services.ocr.pipeline import OcrPipeline, OCRQuery
+from services.ocr.pipeline import OCRQuery
+from pipeline.ocr import OcrPipeline
 from tasks.llm.prompt import ICIOPrompt
 
 

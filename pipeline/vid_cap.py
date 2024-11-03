@@ -1,20 +1,15 @@
 import os
-from dataclasses import dataclass, asdict
+from dataclasses import asdict
 
-from dataclasses_json import dataclass_json
-
+from abs_data import AbstractModelQuery
+from common.abs_pipeline import AbstractPipeline
 from common.utils import web_util
-from common.abs_pipeline import AbstractModelQuery, AbstractModelPrediction, AbstractPipeline
-from common.config.service_config import ServiceConfig
-
-config = ServiceConfig.vidcap_config
-
-
+from data.vid_cap import VidCapQuery, VidCapPrediction
 
 
 class VidCapPipeline(AbstractPipeline):
 
-    def __init__(self):
+    def __init__(self, config):
         super().__init__()
 
         self._model_id = config.model_id

@@ -5,7 +5,7 @@ from typing import List, Coroutine, Any
 
 from loguru import logger
 
-from services.llm.pipeline import LLMPipeline
+from pipeline.llm import LLMPipeline
 from zerolan_live_robot_ui.api.toasts import Toast
 from common.abs_app import AppStatusEnum
 from common.buffer.danmaku_buffer import DanmakuBufferObject
@@ -18,7 +18,7 @@ from lifecycle.env_data import CustomLiveStreamData
 from manager.device.speaker import Speaker
 from services.filter.strategy import FirstMatchedFilter
 from services.game.minecraft.app import KonekoMinecraftAIAgent
-from services.img_cap.pipeline import ImaCapPipeline
+from pipeline.img_cap import ImaCapPipeline
 from services.live_stream.bilibili.service import BilibiliService
 from zerolan_live_robot_data.data.llm import LLMQuery, Conversation
 from services.tts.pipeline import TTSPipeline, TTSQuery

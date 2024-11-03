@@ -1,7 +1,8 @@
 from common.enum.lang import Language
 from manager.device.screen import Screen
-from services.img_cap.pipeline import ImgCapQuery, ImaCapPipeline
-from services.llm.pipeline import LLMPipeline
+from services.img_cap.pipeline import ImgCapQuery
+from pipeline.img_cap import ImaCapPipeline
+from pipeline.llm import LLMPipeline
 from tasks.llm.llm_traslate_task import LLMTranslateTask
 
 

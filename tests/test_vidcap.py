@@ -1,4 +1,5 @@
-from services.vid_cap.pipeline import VidCapQuery, VidCapPipeline
+from services.vid_cap.pipeline import VidCapQuery
+from pipeline.vid_cap import VidCapPipeline
 
 pipeline = VidCapPipeline()
 q = VidCapQuery(

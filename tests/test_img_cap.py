@@ -1,4 +1,5 @@
-from services.img_cap.pipeline import ImaCapPipeline, ImgCapQuery
+from zerolan_live_robot_data.data.img_cap import ImgCapQuery
+from pipeline.img_cap import ImaCapPipeline
 
 pipeline = ImaCapPipeline()
 

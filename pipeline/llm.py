@@ -1,8 +1,9 @@
 from dataclasses import asdict
 
-from common.abs_pipeline import AbstractModelQuery, AbstractPipeline
+from abs_data import AbstractModelQuery
+from common.abs_pipeline import AbstractPipeline
 from common.utils import web_util
-from zerolan_live_robot_data.data.llm import LLMPrediction, LLMQuery
+from data.llm import LLMQuery, LLMPrediction
 
 
 class LLMPipeline(AbstractPipeline):

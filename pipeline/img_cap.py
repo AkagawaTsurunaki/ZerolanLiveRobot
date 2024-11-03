@@ -1,11 +1,10 @@
 from dataclasses import asdict
 
-from common.abs_pipeline import AbstractModelQuery, AbstractImagePipeline
-from common.config.service_config import ServiceConfig
+from abs_data import AbstractModelQuery
+from common.abs_pipeline import AbstractImagePipeline
 from common.utils import web_util
-from zerolan_live_robot_data.data.img_cap import ImgCapQuery, ImgCapPrediction
-
-config = ServiceConfig.imgcap_config
+from data.img_cap import ImgCapQuery, ImgCapPrediction
+from services.img_cap.pipeline import config
 
 
 class ImaCapPipeline(AbstractImagePipeline):

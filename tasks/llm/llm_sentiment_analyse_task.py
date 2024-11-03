@@ -2,7 +2,7 @@ from typing import List
 
 from loguru import logger
 
-from services.llm.pipeline import LLMPipeline
+from pipeline.llm import LLMPipeline
 from zerolan_live_robot_data.data.llm import LLMQuery
 from tasks.llm.prompt import ICIOPrompt
 

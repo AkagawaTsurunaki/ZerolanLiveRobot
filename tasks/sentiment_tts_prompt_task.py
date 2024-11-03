@@ -1,7 +1,7 @@
 from typing import List
 
 from common.config.chara_config import TTSPrompt
-from services.llm.pipeline import LLMPipeline
+from pipeline.llm import LLMPipeline
 from tasks.llm.llm_sentiment_analyse_task import LLMSentimentAnalyseTask
 
 

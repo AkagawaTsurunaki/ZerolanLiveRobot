@@ -1,11 +1,11 @@
 from dataclasses import asdict
 
-from common.abs_pipeline import AbstractModelQuery, AbstractImagePipeline
-from common.config.service_config import ServiceConfig
+from abs_data import AbstractModelQuery
+from common.abs_pipeline import AbstractImagePipeline
 from common.utils import web_util
-from zerolan_live_robot_data.data.ocr import OCRQuery, OCRPrediction
+from data.ocr import OCRQuery, OCRPrediction
+from services.ocr.pipeline import config
 
-config = ServiceConfig.ocr_config
 
 class OcrPipeline(AbstractImagePipeline):
 

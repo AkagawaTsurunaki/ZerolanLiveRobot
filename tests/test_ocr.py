@@ -1,4 +1,5 @@
-from services.ocr.pipeline import OCRQuery, OcrPipeline
+from services.ocr.pipeline import OCRQuery
+from pipeline.ocr import OcrPipeline
 
 img_path = R"..\res\static\image\ocr-test-zh.png"
 
