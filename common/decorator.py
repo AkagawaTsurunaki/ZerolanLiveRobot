@@ -20,16 +20,3 @@ def log_run_time(log: Callable[[str], str] = None):
 
     return decorator
 
-
-def playsound(path: str):
-    def decorator(func):
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            from manager.device.speaker import Speaker
-            Speaker.playsound(path, block=False)
-            ret = func(*args, **kwargs)
-            return ret
-
-        return wrapper
-
-    return decorator

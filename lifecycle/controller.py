@@ -21,7 +21,7 @@ from services.game.minecraft.app import KonekoMinecraftAIAgent
 from pipeline.img_cap import ImaCapPipeline
 from services.live_stream.bilibili.service import BilibiliService
 from zerolan_live_robot_data.data.llm import LLMQuery, Conversation
-from services.tts.pipeline import TTSPipeline, TTSQuery
+from pipeline.pipeline import TTSPipeline, TTSQuery
 from common.config.service_config import ServiceConfig as config
 from common.utils.str_util import is_blank, split_by_punctuations, adjust_strings
 from tasks.scnshoot_cap_task import ScreenshotCaptionTask
