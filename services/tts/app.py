@@ -1,7 +1,7 @@
 """
 尚未实现
 """
-from common.abs_app import AbstractApplication
+from zerolan_live_robot_core.abs_app import AbstractApplication
 from loguru import logger
 
 

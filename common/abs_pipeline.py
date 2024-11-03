@@ -8,7 +8,7 @@ from dataclasses_json import dataclass_json
 from loguru import logger
 
 from zerolan_live_robot_data.abs_data import AbsractImageModelQuery, AbstractModelQuery, AbstractModelPrediction
-from common.abs_app import AppStatusEnum
+from zerolan_live_robot_core.abs_app import AppStatusEnum
 
 
 @dataclass_json

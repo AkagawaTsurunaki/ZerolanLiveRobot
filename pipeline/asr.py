@@ -6,7 +6,7 @@ from loguru import logger
 
 from common.abs_pipeline import AbstractPipeline
 from common.utils import web_util
-from data.asr import ASRModelQuery, ASRModelPrediction, ASRModelStreamQuery
+from zerolan_live_robot_data.data.asr import ASRModelQuery, ASRModelPrediction, ASRModelStreamQuery
 
 
 class ASRPipeline(AbstractPipeline):

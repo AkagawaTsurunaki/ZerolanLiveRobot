@@ -7,7 +7,7 @@ from loguru import logger
 
 from pipeline.llm import LLMPipeline
 from zerolan_live_robot_ui.api.toasts import Toast
-from common.abs_app import AppStatusEnum
+from zerolan_live_robot_core.abs_app import AppStatusEnum
 from common.buffer.danmaku_buffer import DanmakuBufferObject
 from common.buffer.game_buf import MinecraftGameEvent
 from common.config.chara_config import CustomCharacterConfig, TTSPrompt

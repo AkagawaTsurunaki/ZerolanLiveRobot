@@ -4,12 +4,11 @@ from abs_data import AbstractModelQuery
 from common.abs_pipeline import AbstractImagePipeline
 from common.utils import web_util
 from data.ocr import OCRQuery, OCRPrediction
-from services.ocr.pipeline import config
 
 
 class OcrPipeline(AbstractImagePipeline):
 
-    def __init__(self):
+    def __init__(self, config):
         super().__init__()
 
         self._model_id = config.model_id
