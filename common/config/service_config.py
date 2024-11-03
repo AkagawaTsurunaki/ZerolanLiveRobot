@@ -3,7 +3,6 @@ from typing import Literal
 
 from dataclasses_json import dataclass_json
 
-from common.config.abs_config import AbstractConfigLoader
 from common.utils.file_util import read_yaml, spath
 
 
@@ -47,7 +46,7 @@ class ServiceConfig:
     game_config: GameServiceConfig | None = None
 
 
-class Loader(AbstractConfigLoader):
+class Loader:
     @staticmethod
     def load_config():
         config_data = read_yaml(spath("resources/config/services_config.yaml"))

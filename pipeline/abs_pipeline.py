@@ -1,21 +1,13 @@
 import os
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
 from http import HTTPStatus
 
 import requests
-from dataclasses_json import dataclass_json
 from loguru import logger
 
-from zerolan_live_robot_data.abs_data import AbsractImageModelQuery, AbstractModelQuery, AbstractModelPrediction
 from zerolan_live_robot_core.abs_app import AppStatusEnum
-
-
-@dataclass_json
-@dataclass
-class ServiceState:
-    state: AppStatusEnum
-    msg: str
+from zerolan_live_robot_data.abs_data import AbsractImageModelQuery, AbstractModelQuery, AbstractModelPrediction, \
+    ServiceState
 
 
 class AbstractPipeline(ABC):
@@ -74,11 +66,11 @@ class AbstractImagePipeline(AbstractPipeline):
         self.stream_predict_url: str | None = None
 
     def predict(self, query: AbsractImageModelQuery) -> AbstractModelPrediction | None:
-        # 如果路径在本机那么就读取，否则认为在远程主机的文件系统中存在
+        # If the path is native then it is read, otherwise it is considered to exist in the remote host's file system
         if os.path.exists(query.img_path):
             files = {'image': open(query.img_path, 'rb')}
 
-            # 将 AbsractImageModelQuery 转化为 JSON 字符串并设置为表单对象
+            # Convert AbsractImageModelQuery to a JSON string and set it as a form object
             assert hasattr(query, "to_json")
             data = {'json': query.to_json()}  # type: ignore
 
