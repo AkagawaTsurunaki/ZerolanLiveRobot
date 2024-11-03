@@ -1,29 +1,11 @@
-from dataclasses import dataclass, asdict
-from typing import Literal
-
-from dataclasses_json import dataclass_json
+from dataclasses import asdict
 
 from common.abs_pipeline import AbstractModelQuery, AbstractPipeline
 from common.config.service_config import ServiceConfig
 from common.utils import web_util
-from zerolan_live_robot_data.data.llm import LLMPrediction
+from zerolan_live_robot_data.data.llm import LLMPrediction, LLMQuery
 
 config = ServiceConfig.llm_config
-
-
-@dataclass_json
-@dataclass
-class Conversation:
-    role: Literal["system", "user", "assistant"]
-    content: str
-
-
-@dataclass_json
-@dataclass
-class LLMQuery(AbstractModelQuery):
-    text: str
-    history: list[Conversation]
-
 
 class LLMPipeline(AbstractPipeline):
 
