@@ -1,19 +1,19 @@
 import os
 from dataclasses import asdict
+from urllib.parse import urljoin
 
 from abs_data import AbstractModelQuery
+from const import get_zerolan_live_robot_core_url
 from pipeline.abs_pipeline import AbstractPipeline
-from common.utils import web_util
 from zerolan_live_robot_data.data.vid_cap import VidCapQuery, VidCapPrediction
 
 
 class VidCapPipeline(AbstractPipeline):
 
-    def __init__(self, config):
+    def __init__(self):
         super().__init__()
 
-        self._model_id = config.model_id
-        self.predict_url = web_util.urljoin(config.host, config.port, '/vid-cap/predict')
+        self.predict_url = urljoin(get_zerolan_live_robot_core_url(), '/vid-cap/predict')
 
     def predict(self, query: VidCapQuery) -> VidCapPrediction | None:
         assert os.path.exists(query.vid_path), f"视频路径不存在：{query.vid_path}"

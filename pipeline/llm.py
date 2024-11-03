@@ -1,19 +1,18 @@
 from dataclasses import asdict
+from urllib.parse import urljoin
 
 from abs_data import AbstractModelQuery
+from const import get_zerolan_live_robot_core_url
 from pipeline.abs_pipeline import AbstractPipeline
-from common.utils import web_util
 from zerolan_live_robot_data.data.llm import LLMQuery, LLMPrediction
 
 
 class LLMPipeline(AbstractPipeline):
 
-    def __init__(self, config: any):
+    def __init__(self):
         super().__init__()
-
-        self._model_id = config.model_id
-        self.predict_url = web_util.urljoin(config.host, config.port, '/llm/predict')
-        self.stream_predict_url = web_util.urljoin(config.host, config.port, f'/llm/stream-predict')
+        self.predict_url = urljoin(get_zerolan_live_robot_core_url(), '/llm/predict')
+        self.stream_predict_url = urljoin(get_zerolan_live_robot_core_url(), f'/llm/stream-predict')
 
     def predict(self, query: LLMQuery) -> LLMPrediction | None:
         return super().predict(query)

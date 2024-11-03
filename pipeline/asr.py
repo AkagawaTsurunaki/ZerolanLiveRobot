@@ -1,22 +1,21 @@
 import json
 from http import HTTPStatus
+from urllib.parse import urljoin
 
 import requests
 from loguru import logger
 
+from const import get_zerolan_live_robot_core_url
 from pipeline.abs_pipeline import AbstractPipeline
-from common.utils import web_util
 from zerolan_live_robot_data.data.asr import ASRModelQuery, ASRModelPrediction, ASRModelStreamQuery
 
 
 class ASRPipeline(AbstractPipeline):
 
-    def __init__(self, config):
+    def __init__(self):
         super().__init__()
-        self._model_id = config.model_id
-        host, port = config.host, config.port
-        self.predict_url = web_util.urljoin(host, port, '/asr/predict')
-        self.stream_predict_url = web_util.urljoin(host, port, '/asr/stream-predict')
+        self.predict_url = urljoin(get_zerolan_live_robot_core_url(), "/asr/predict")
+        self.stream_predict_url = urljoin(get_zerolan_live_robot_core_url(), '/asr/stream-predict')
 
     def predict(self, query: ASRModelQuery) -> ASRModelPrediction | None:
         assert isinstance(query, ASRModelQuery)

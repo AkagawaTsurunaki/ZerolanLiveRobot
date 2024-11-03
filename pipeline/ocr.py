@@ -1,18 +1,18 @@
 from dataclasses import asdict
+from urllib.parse import urljoin
 
 from abs_data import AbstractModelQuery
-from pipeline.abs_pipeline import AbstractImagePipeline
-from common.utils import web_util
+from const import get_zerolan_live_robot_core_url
 from data.ocr import OCRQuery, OCRPrediction
+from pipeline.abs_pipeline import AbstractImagePipeline
 
 
 class OcrPipeline(AbstractImagePipeline):
 
-    def __init__(self, config):
+    def __init__(self):
         super().__init__()
 
-        self._model_id = config.model_id
-        self.predict_url = web_util.urljoin(config.host, config.port, '/ocr/predict')
+        self.predict_url = urljoin(get_zerolan_live_robot_core_url(), '/ocr/predict')
 
     def predict(self, query: OCRQuery) -> OCRPrediction | None:
         return super().predict(query)

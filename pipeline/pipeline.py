@@ -1,37 +1,16 @@
-from dataclasses import dataclass
+from urllib.parse import urljoin
 
-from dataclasses_json import dataclass_json
-
-from common.utils import web_util
-from pipeline.abs_pipeline import AbstractPipeline, AbstractModelPrediction, AbstractModelQuery
-
-from common.config.service_config import ServiceConfig
-
-config = ServiceConfig.tts_config
-
-
-@dataclass_json
-@dataclass
-class TTSQuery(AbstractModelQuery):
-    text: str
-    text_language: str
-    refer_wav_path: str
-    prompt_text: str
-    prompt_language: str
-
-
-@dataclass_json
-@dataclass
-class TTSPrediction(AbstractModelPrediction):
-    wave_data: bytes
+from abs_pipeline import AbstractPipeline
+from const import get_zerolan_live_robot_core_url
+from zerolan_live_robot_data.data.tts import TTSQuery, TTSPrediction
 
 
 class TTSPipeline(AbstractPipeline):
 
     def __init__(self):
         super().__init__()
-        self.predict_url = web_util.urljoin(config.host, config.port, '/tts/predict')
-        self.stream_predict_url = web_util.urljoin(config.host, config.port, f'/tts/stream-predict')
+        self.predict_url = urljoin(get_zerolan_live_robot_core_url(), '/tts/predict')
+        self.stream_predict_url = urljoin(get_zerolan_live_robot_core_url(), f'/tts/stream-predict')
 
     def predict(self, query: TTSQuery) -> TTSPrediction | None:
         return super().predict(query)
