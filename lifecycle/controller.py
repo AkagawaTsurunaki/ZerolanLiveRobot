@@ -5,7 +5,7 @@ from typing import List, Coroutine, Any
 
 from loguru import logger
 
-from api.toasts import Toast
+from zerolan_live_robot_ui.api.toasts import Toast
 from common.abs_app import AppStatusEnum
 from common.buffer.danmaku_buffer import DanmakuBufferObject
 from common.buffer.game_buf import MinecraftGameEvent

@@ -3,7 +3,7 @@ import asyncio
 from loguru import logger
 
 import init
-from api.toasts import Toast
+from zerolan_live_robot_ui.api.toasts import Toast
 from lifecycle.controller import Controller
 
 virtual_character_name = "AkagawaTsurunaki"
