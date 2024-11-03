@@ -1,15 +1,13 @@
 from dataclasses import asdict
 
 from common.abs_pipeline import AbstractModelQuery, AbstractPipeline
-from common.config.service_config import ServiceConfig
 from common.utils import web_util
 from zerolan_live_robot_data.data.llm import LLMPrediction, LLMQuery
 
-config = ServiceConfig.llm_config
 
 class LLMPipeline(AbstractPipeline):
 
-    def __init__(self):
+    def __init__(self, config: any):
         super().__init__()
 
         self._model_id = config.model_id

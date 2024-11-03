@@ -7,19 +7,8 @@ import requests
 from dataclasses_json import dataclass_json
 from loguru import logger
 
+from zerolan_live_robot_data.abs_data import AbsractImageModelQuery, AbstractModelQuery, AbstractModelPrediction
 from common.abs_app import AppStatusEnum
-
-
-@dataclass_json
-@dataclass
-class AbstractModelQuery:
-    ...
-
-
-@dataclass_json
-@dataclass
-class AbstractModelPrediction:
-    ...
 
 
 @dataclass_json
@@ -76,12 +65,6 @@ class AbstractPipeline(ABC):
         except Exception as e:
             logger.error(e)
             return ServiceState(state=AppStatusEnum.UNKNOWN, msg=f"{e}")
-
-
-@dataclass_json
-@dataclass
-class AbsractImageModelQuery(AbstractModelQuery):
-    img_path: str | None = None
 
 
 class AbstractImagePipeline(AbstractPipeline):

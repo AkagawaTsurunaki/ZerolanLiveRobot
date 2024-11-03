@@ -1,27 +1,11 @@
-from dataclasses import dataclass, asdict
-from typing import Literal
+from dataclasses import asdict
 
-from dataclasses_json import dataclass_json
-
+from common.abs_pipeline import AbstractModelQuery, AbstractImagePipeline
 from common.config.service_config import ServiceConfig
 from common.utils import web_util
-from common.abs_pipeline import AbstractModelQuery, AbstractModelPrediction, AbstractImagePipeline, \
-    AbsractImageModelQuery
+from zerolan_live_robot_data.data.img_cap import ImgCapQuery, ImgCapPrediction
 
 config = ServiceConfig.imgcap_config
-
-
-@dataclass_json
-@dataclass
-class ImgCapQuery(AbsractImageModelQuery):
-    prompt: str = "There"
-
-
-@dataclass_json
-@dataclass
-class ImgCapPrediction(AbstractModelPrediction):
-    caption: str
-    lang: Literal["zh", "en", "ja"]
 
 
 class ImaCapPipeline(AbstractImagePipeline):

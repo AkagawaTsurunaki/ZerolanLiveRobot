@@ -4,7 +4,7 @@ from typing import Literal
 from dataclasses_json import dataclass_json
 
 from common.config.abs_config import AbstractConfigLoader
-from common.register.model_register import ASRModels, LLMModels, ICModels, OCRModels, VidCapModels, TTSModels
+from common.register.model_register import ICModels, OCRModels, VidCapModels, TTSModels
 from common.utils.file_util import read_yaml, spath
 
 
@@ -12,36 +12,6 @@ from common.utils.file_util import read_yaml, spath
 class ControllerConfig:
     host: str = "127.0.0.1"
     port: int = 11000
-
-
-@dataclass
-class ASRServiceConfig:
-    # 是否启用本服务
-    enable: bool = True
-    # 服务地址
-    host: str = '127.0.0.1'
-    # 服务端口
-    port: int = 11001
-    # 采样率
-    sample_rate: int = 16000
-    # 通道数
-    channels: int = 1
-    # 音频格式
-    format: str = Literal["float32"]
-    # 模型 ID
-    model_id: str = ASRModels.SPEECH_PARAFORMER_ASR.id
-
-
-@dataclass
-class LLMServiceConfig:
-    # 是否启用本服务
-    enable: bool = True
-    # 服务地址
-    host: str = '127.0.0.1'
-    # 服务端口
-    port: int = 11002
-    # 模型 ID
-    model_id: str = LLMModels.CHATGLM3_6B.id
 
 
 @dataclass
@@ -121,8 +91,8 @@ class GameServiceConfig:
 
 
 class ServiceConfig:
-    asr_config: ASRServiceConfig | None = None
-    llm_config: LLMServiceConfig | None = None
+    # asr_config: ASRServiceConfig | None = None
+    # llm_config: LLMServiceConfig | None = None
     ocr_config: OCRServiceConfig | None = None
     imgcap_config: ImgCapServiceConfig | None = None
     controller_config: ControllerConfig | None = None
@@ -136,8 +106,8 @@ class Loader(AbstractConfigLoader):
     @staticmethod
     def load_config():
         config_data = read_yaml(spath("resources/config/services_config.yaml"))
-        ServiceConfig.asr_config = ASRServiceConfig(**config_data.get('ASRServiceConfig', {}))
-        ServiceConfig.llm_config = LLMServiceConfig(**config_data.get('LLMServiceConfig', {}))
+        # ServiceConfig.asr_config = ASRServiceConfig(**config_data.get('ASRServiceConfig', {}))
+        # ServiceConfig.llm_config = LLMServiceConfig(**config_data.get('LLMServiceConfig', {}))
         ServiceConfig.imgcap_config = ImgCapServiceConfig(**config_data.get('ImgCapServiceConfig', {}))
         ServiceConfig.ocr_config = OCRServiceConfig(**config_data.get('OCRServiceConfig', {}))
         ServiceConfig.controller_config = ControllerConfig(**config_data.get('ControllerConfig', {}))

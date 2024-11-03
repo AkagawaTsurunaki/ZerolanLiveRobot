@@ -7,7 +7,6 @@ from dataclasses_json import dataclass_json
 from loguru import logger
 
 from common.abs_pipeline import AbstractPipeline
-from common.config.service_config import ASRServiceConfig as asr_cfg
 from common.utils import web_util
 from zerolan_live_robot_data.data.asr import ASRModelQuery, AbstractModelPrediction, ASRModelStreamQuery
 
@@ -23,10 +22,10 @@ class ASRModelPrediction(AbstractModelPrediction):
 
 class ASRPipeline(AbstractPipeline):
 
-    def __init__(self):
+    def __init__(self, config):
         super().__init__()
-        self._model_id = asr_cfg.model_id
-        host, port = asr_cfg.host, asr_cfg.port
+        self._model_id = config.model_id
+        host, port = config.host, config.port
         self.predict_url = web_util.urljoin(host, port, '/asr/predict')
         self.stream_predict_url = web_util.urljoin(host, port, '/asr/stream-predict')
 

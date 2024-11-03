@@ -1,9 +1,0 @@
-loguru==0.7.2
-flask==3.0.3
-dataclasses-json==0.6.7
-
-torch==2.3.1+cu121
-transformers==4.43.3
-pillow==10.4.0
-# numpy 版本不能高于 0.2.0 否则报错
-numpy==1.26.4

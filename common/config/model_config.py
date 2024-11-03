@@ -6,22 +6,6 @@ from common.utils.file_util import spath
 
 
 @dataclass
-class SpeechParaformerModelConfig:
-    """
-    Speech Paraformer 的配置
-    引用：
-        https://modelscope.cn/models/iic/speech_paraformer_asr_nat-zh-cn-16k-common-vocab8358-tensorflow1/summary
-    """
-
-    model_path: str = ASRModels.SPEECH_PARAFORMER_ASR.path
-    chunk_size: List[int] = field(default_factory=lambda: [0, 10, 5])  # [0, 10, 5] 600ms, [0, 8, 4] 480ms
-    encoder_chunk_look_back: int = 4  # number of chunks to lookback for encoder self-attention
-    decoder_chunk_look_back: int = 1  # number of encoder chunks to lookback for decoder cross-attention
-    version: str = "v2.0.4"
-    chunk_stride: int = 10 * 960  # chunk_size[1] * 960
-
-
-@dataclass
 class BlipModelConfig:
     model_path: str = ICModels.BLIP_IMG_CAP_LARGE.path
     device: str = "cuda"

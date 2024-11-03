@@ -10,7 +10,7 @@ from common.register.model_register import ICModels
 from services.img_cap.pipeline import ImgCapQuery
 
 if config.model_id == ICModels.BLIP_IMG_CAP_LARGE.id:
-    from services.img_cap.blip.model import BlipImageCaptioningLarge as ICM
+    from img_cap.blip.model import BlipImageCaptioningLarge as ICM
 else:
     raise NotImplementedError("不支持此图像字幕（Image Captioning）模型")
 

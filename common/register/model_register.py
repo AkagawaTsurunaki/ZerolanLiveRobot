@@ -10,50 +10,6 @@ class ModelInfo:
     info: str = None
 
 
-class ASRModels:
-    SPEECH_PARAFORMER_ASR = ModelInfo(
-        id="iic/speech_paraformer_asr_nat-zh-cn-16k-common-vocab8358-tensorflow1",
-        path="iic/speech_paraformer_asr_nat-zh-cn-16k-common-vocab8358-tensorflow1",
-        site="https://www.modelscope.cn/models/iic/speech_paraformer_asr_nat-zh-cn-16k-common-vocab8358-tensorflow1",
-        langs=["zh", "en"]
-    )
-
-
-class LLMModels:
-    LLAMA3_70B = ModelInfo(
-        id="meta-llama/Meta-Llama-3-70B",
-        path="meta-llama/Meta-Llama-3-70B",
-        site="https://llama.meta.com/llama3",
-        langs=["zh", "en"]
-    )
-    CHATGLM3_6B = ModelInfo(
-        id="THUDM/chatglm3-6b",
-        path="THUDM/chatglm3-6b",
-        site="https://github.com/THUDM/ChatGLM3",
-        langs=["zh", "en"]
-    )
-    QWEN_7B_CHAT = ModelInfo(
-        id="Qwen/Qwen-7B-Chat",
-        path="Qwen/Qwen-7B-Chat",
-        site="https://huggingface.co/Qwen/Qwen-7B-Chat",
-        langs=["zh", "en"]
-    )
-    YI_6B_CHAT = ModelInfo(
-        id="01-ai/Yi-6B-Chat",
-        path="01-ai/Yi-6B-Chat",
-        site="https://www.modelscope.cn/models/01ai/Yi-6B-Chat",
-        info="可能与本项目环境冲突，需要额外配置 Python 虚拟环境。",
-        langs=["zh", "en"]
-    )
-    SHISA_7B_V1 = ModelInfo(
-        id="augmxnt/shisa-7b-v1",
-        path="augmxnt/shisa-7b-v1",
-        site="https://huggingface.co/augmxnt/shisa-7b-v1",
-        info="本プロジェクト環境とコンフリクトする可能性があり、Python バーチャル環境の追加構成が必要です。",
-        langs=["ja", "en"]
-    )
-
-
 class ICModels:
     """
     图像字幕（Image Caption）模型
