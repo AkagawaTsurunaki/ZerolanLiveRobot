@@ -7,7 +7,7 @@ from loguru import logger
 
 from const import get_zerolan_live_robot_core_url
 from pipeline.abs_pipeline import AbstractPipeline
-from zerolan_live_robot_data.data.asr import ASRModelQuery, ASRModelPrediction, ASRModelStreamQuery
+from zerolan.data.data.asr import ASRModelQuery, ASRModelPrediction, ASRModelStreamQuery
 
 
 class ASRPipeline(AbstractPipeline):
