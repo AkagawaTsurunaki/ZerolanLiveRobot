@@ -2,7 +2,7 @@ import numpy as np
 from loguru import logger
 
 from common.buffer.asr_res_buf import ASRResultBuffer
-from manager.device.microphone import Microphone
+from services.device.microphone import Microphone
 from asr.paraformer.model import SpeechParaformerModel
 from services.vad.strategy import EasyEnergyVad
 

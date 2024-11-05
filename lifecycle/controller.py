@@ -15,7 +15,7 @@ from common.decorator import log_run_time
 from common.enum.lang import Language
 from common.utils import file_util, audio_util
 from lifecycle.env_data import CustomLiveStreamData
-from manager.device.speaker import Speaker
+from services.device.speaker import Speaker
 from services.filter.strategy import FirstMatchedFilter
 from services.game.minecraft.app import KonekoMinecraftAIAgent
 from pipeline.img_cap import ImaCapPipeline

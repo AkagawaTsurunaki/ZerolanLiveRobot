@@ -2,7 +2,7 @@ import copy
 
 from loguru import logger
 
-from manager.device.screen import Screen
+from services.device.screen import Screen
 from pipeline.llm import LLMPipeline
 from zerolan_live_robot_data.data.llm import LLMQuery
 from zerolan_live_robot_data.data.ocr import OCRQuery

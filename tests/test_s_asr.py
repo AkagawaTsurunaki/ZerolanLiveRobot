@@ -3,7 +3,7 @@ from loguru import logger
 
 from common.buffer.asr_res_buf import AudioBuffer, ASRResultBuffer, ASRResultBufferObject
 from common.utils.audio_util import from_ndarray_to_bytes
-from manager.device.microphone import Microphone
+from services.device.microphone import Microphone
 from pipeline.asr import ASRPipeline
 from services.vad.strategy import EasyEnergyVad
 from zerolan_live_robot_data.data.asr import ASRModelStreamQuery

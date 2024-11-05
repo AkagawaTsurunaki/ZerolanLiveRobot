@@ -1,5 +1,5 @@
 from common.enum.lang import Language
-from manager.device.screen import Screen
+from services.device.screen import Screen
 from zerolan_live_robot_data.data.img_cap import ImgCapQuery
 from pipeline.img_cap import ImaCapPipeline
 from pipeline.llm import LLMPipeline

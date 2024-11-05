@@ -4,10 +4,10 @@ from loguru import logger
 from selenium.webdriver import Keys
 from selenium.webdriver.common.actions.action_builder import ActionBuilder
 
-from manager.device.screen import Screen
+from services.device.screen import Screen
 from services.ocr.pipeline import OCRQuery
 from pipeline.ocr import OcrPipeline
-from manager.browser.driver import DriverInitializer
+from services.browser.driver import DriverInitializer
 
 # 创建Chrome WebDriver实例
 driver = DriverInitializer("firefox").get_driver()
