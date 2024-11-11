@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from common.buffer.game_buf import MinecraftGameEvent
 from common.interpretable import Interpretable
 from common.utils.str_util import is_blank
-from services.live_stream.pipeline import Danmaku
+from zerolan.data.data.danmaku import Danmaku
 
 
 @dataclass

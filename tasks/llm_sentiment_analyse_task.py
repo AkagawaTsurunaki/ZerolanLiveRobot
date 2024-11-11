@@ -3,8 +3,8 @@ from typing import List
 from loguru import logger
 
 from pipeline.llm import LLMPipeline
-from zerolan_live_robot_data.data.llm import LLMQuery
-from zerolan_live_robot_data.data.prompt import ICIOPrompt
+from zerolan.data.data.llm import LLMQuery
+from zerolan.data.data.prompt import ICIOPrompt
 
 
 class LLMSentimentAnalyseTask:

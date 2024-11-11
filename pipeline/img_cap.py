@@ -1,10 +1,10 @@
 from dataclasses import asdict
 from urllib.parse import urljoin
 
-from abs_data import AbstractModelQuery
+from zerolan.data.abs_data import AbstractModelQuery
 from const import get_zerolan_live_robot_core_url
 from pipeline.abs_pipeline import AbstractImagePipeline
-from zerolan_live_robot_data.data.img_cap import ImgCapQuery, ImgCapPrediction
+from zerolan.data.data.img_cap import ImgCapQuery, ImgCapPrediction
 
 
 class ImaCapPipeline(AbstractImagePipeline):

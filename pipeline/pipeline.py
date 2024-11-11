@@ -2,7 +2,7 @@ from urllib.parse import urljoin
 
 from abs_pipeline import AbstractPipeline
 from const import get_zerolan_live_robot_core_url
-from zerolan_live_robot_data.data.tts import TTSQuery, TTSPrediction
+from zerolan.data.data.tts import TTSQuery, TTSPrediction
 
 
 class TTSPipeline(AbstractPipeline):

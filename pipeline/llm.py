@@ -1,10 +1,10 @@
 from dataclasses import asdict
 from urllib.parse import urljoin
 
-from abs_data import AbstractModelQuery
+from zerolan.data.abs_data import AbstractModelQuery
 from const import get_zerolan_live_robot_core_url
 from pipeline.abs_pipeline import AbstractPipeline
-from zerolan_live_robot_data.data.llm import LLMQuery, LLMPrediction
+from zerolan.data.data.llm import LLMQuery, LLMPrediction
 
 
 class LLMPipeline(AbstractPipeline):

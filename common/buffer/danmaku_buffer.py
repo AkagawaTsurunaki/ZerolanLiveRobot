@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from typing import List
 
 from common.buffer.asb_buf import AbstractBuffer, BufferObject
-from services.live_stream.pipeline import Danmaku
+from zerolan.data.data.danmaku import Danmaku
 
 
 @dataclass

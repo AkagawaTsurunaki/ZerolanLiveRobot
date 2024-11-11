@@ -1,9 +1,9 @@
 from common.enum.lang import Language
 from pipeline.llm import LLMPipeline
-from zerolan_live_robot_data.data.llm import LLMQuery
+from zerolan.data.data.llm import LLMQuery
 from loguru import logger
 
-from zerolan_live_robot_data.data.prompt import ICIOPrompt
+from zerolan.data.data.prompt import ICIOPrompt
 
 
 class LLMTranslateTask:

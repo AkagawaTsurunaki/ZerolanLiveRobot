@@ -54,7 +54,7 @@ def locate_path_upwards(relative_path, upper_path: str = project_dir) -> str:
     while True:
         file_path = os.path.join(current_dir, relative_path)
         if os.path.exists(file_path):
-            return os.path.abspath(file_path)
+            return os.path.abspath(str(file_path))
         # 向上一级目录
         current_dir = os.path.dirname(current_dir)
         tried_dirs.append(current_dir)

@@ -4,10 +4,10 @@ from loguru import logger
 
 from services.device.screen import Screen
 from pipeline.llm import LLMPipeline
-from zerolan_live_robot_data.data.llm import LLMQuery
-from zerolan_live_robot_data.data.ocr import OCRQuery
+from zerolan.data.data.llm import LLMQuery
+from zerolan.data.data.ocr import OCRQuery
 from pipeline.ocr import OcrPipeline
-from tasks.llm.prompt import ICIOPrompt
+from zerolan.data.data.prompt import ICIOPrompt
 
 
 class OcrSummaryTask:

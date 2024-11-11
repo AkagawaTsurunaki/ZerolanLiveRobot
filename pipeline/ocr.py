@@ -1,9 +1,9 @@
 from dataclasses import asdict
 from urllib.parse import urljoin
 
-from abs_data import AbstractModelQuery
+from zerolan.data.abs_data import AbstractModelQuery
 from const import get_zerolan_live_robot_core_url
-from data.ocr import OCRQuery, OCRPrediction
+from zerolan.data.data.ocr import OCRQuery, OCRPrediction
 from pipeline.abs_pipeline import AbstractImagePipeline
 
 
