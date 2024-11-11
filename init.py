@@ -5,8 +5,7 @@ from multiprocessing import Process
 import requests
 from loguru import logger
 from retry import retry
-
-from zerolan_live_robot_ui import app
+from zerolan.ui import app
 
 
 def try_create_dir(dir_path: str):
