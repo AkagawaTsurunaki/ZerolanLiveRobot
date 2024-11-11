@@ -5,7 +5,7 @@ from selenium.webdriver import Keys
 from selenium.webdriver.common.actions.action_builder import ActionBuilder
 
 from services.device.screen import Screen
-from services.ocr.pipeline import OCRQuery
+from zerolan.data.data.ocr import OCRQuery
 from pipeline.ocr import OcrPipeline
 from services.browser.driver import DriverInitializer
 
