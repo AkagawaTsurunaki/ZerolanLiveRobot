@@ -18,6 +18,12 @@ conda activate ZerolanLiveRobot
 pip install -r requirements.txt
 ```
 
+在开发分支您需要额外安装的有
+```shell
+pip install git+https://github.com/AkagawaTsurunaki/zerolan-ui.git@dev
+pip install git+https://github.com/AkagawaTsurunaki/zerolan-data.git@dev
+```
+
 运行命令的过程中，如果遇到以下错误
 
 ```
