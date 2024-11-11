@@ -5,9 +5,8 @@ from http import HTTPStatus
 import requests
 from loguru import logger
 
-from zerolan_live_robot_core.abs_app import AppStatusEnum
-from zerolan_live_robot_data.abs_data import AbsractImageModelQuery, AbstractModelQuery, AbstractModelPrediction, \
-    ServiceState
+from zerolan.data.data.state import AppStatusEnum, ServiceState
+from zerolan.data.abs_data import AbsractImageModelQuery, AbstractModelQuery, AbstractModelPrediction
 
 
 class AbstractPipeline(ABC):
