@@ -4,10 +4,10 @@ import threading
 from typing import List, Coroutine, Any
 
 from loguru import logger
+from zerolan.data.data.state import AppStatusEnum
 from zerolan.ui.api.toasts import Toast
 
 from pipeline.llm import LLMPipeline
-from zerolan_live_robot_core.abs_app import AppStatusEnum
 from common.buffer.danmaku_buffer import DanmakuBufferObject
 from common.buffer.game_buf import MinecraftGameEvent
 from common.config.chara_config import CustomCharacterConfig, TTSPrompt
@@ -20,8 +20,9 @@ from services.filter.strategy import FirstMatchedFilter
 from services.game.minecraft.app import KonekoMinecraftAIAgent
 from pipeline.img_cap import ImaCapPipeline
 from services.live_stream.bilibili.service import BilibiliService
-from zerolan_live_robot_data.data.llm import LLMQuery, Conversation
-from pipeline.pipeline import TTSPipeline, TTSQuery
+from zerolan.data.data.llm import LLMQuery, Conversation
+from zerolan.data.data.tts import TTSQuery
+from pipeline.pipeline import TTSPipeline
 from common.config.service_config import ServiceConfig as config
 from common.utils.str_util import is_blank, split_by_punctuations, adjust_strings
 from tasks.scnshoot_cap_task import ScreenshotCaptionTask
