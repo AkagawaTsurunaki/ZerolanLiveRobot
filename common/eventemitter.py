@@ -1,5 +1,5 @@
 import inspect
-from typing import Callable, Coroutine, Dict, List
+from typing import Dict, List, Callable, Coroutine
 
 from loguru import logger
 

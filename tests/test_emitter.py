@@ -3,7 +3,7 @@ import time
 
 from loguru import logger
 
-from services.game.minecraft.eventemitter import EventEmitter
+from common.eventemitter import EventEmitter
 from services.game.minecraft.data import Events
 
 
