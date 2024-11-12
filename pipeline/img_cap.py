@@ -9,9 +9,9 @@ from common.decorator import pipeline_enable
 from pipeline.abs_pipeline import AbstractImagePipeline
 
 
-@pipeline_enable(config.enable)
 class ImgCapPipeline(AbstractImagePipeline):
 
+    @pipeline_enable(config.enable)
     def __init__(self):
         super().__init__()
         self.predict_url = urljoin(config.server_url, '/img-cap/predict')

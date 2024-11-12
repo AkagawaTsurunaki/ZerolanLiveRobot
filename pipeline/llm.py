@@ -6,12 +6,12 @@ from zerolan.data.data.llm import LLMQuery, LLMPrediction
 
 from common.config.service_config import LLMPipelineConfig as config
 from common.decorator import pipeline_enable
-from tts.abs_pipeline import AbstractPipeline
+from pipeline.abs_pipeline import AbstractPipeline
 
 
-@pipeline_enable(config.enable)
 class LLMPipeline(AbstractPipeline):
 
+    @pipeline_enable(config.enable)
     def __init__(self):
         super().__init__()
         self.predict_url = urljoin(config.server_url, '/llm/predict')

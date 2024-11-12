@@ -7,12 +7,12 @@ from zerolan.data.data.vid_cap import VidCapQuery, VidCapPrediction
 
 from common.config.service_config import VidCapPipelineConfig as config
 from common.decorator import pipeline_enable
-from tts.abs_pipeline import AbstractPipeline
+from pipeline.abs_pipeline import AbstractPipeline
 
 
-@pipeline_enable(config.enable)
 class VidCapPipeline(AbstractPipeline):
 
+    @pipeline_enable(config.enable)
     def __init__(self):
         super().__init__()
 

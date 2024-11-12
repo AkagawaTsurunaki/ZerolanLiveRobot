@@ -6,12 +6,11 @@ from zerolan.data.data.ocr import OCRQuery, OCRPrediction
 
 from common.config.service_config import OCRPipelineConfig as config
 from common.decorator import pipeline_enable
-from tts.abs_pipeline import AbstractImagePipeline
+from pipeline.abs_pipeline import AbstractImagePipeline
 
 
-@pipeline_enable(config.enable)
 class OCRPipeline(AbstractImagePipeline):
-
+    @pipeline_enable(config.enable)
     def __init__(self):
         super().__init__()
         self.predict_url = urljoin(config.server_url, '/ocr/predict')

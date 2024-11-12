@@ -7,9 +7,8 @@ from common.config.service_config import TTSPipelineConfig as config
 from common.decorator import pipeline_enable
 
 
-@pipeline_enable(config.enable)
 class TTSPipeline(AbstractPipeline):
-
+    @pipeline_enable(config.enable)
     def __init__(self):
         super().__init__()
         self.predict_url = urljoin(config.server_url, '/tts/predict')
