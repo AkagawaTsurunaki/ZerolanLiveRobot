@@ -1,60 +1,46 @@
-ASRServiceConfig:
-  enable: true
+controller:
   host: '127.0.0.1'
-  port: 11001
+  port: 11000
+
+ASRPipelineConfig:
+  enable: true
+  server_url: "http://127.0.0.1:11001"
   sample_rate: 16000
   channels: 1
   format: float32
-  model_id: iic/speech_paraformer_asr_nat-zh-cn-16k-common-vocab8358-tensorflow1
 
-LLMServiceConfig:
+LLMPipelineConfig:
   enable: true
-  host: '127.0.0.1'
-  port: 11002
-  model_id: THUDM/chatglm3-6b
+  server_url: "http://127.0.0.1:11002"
 
-ImgCapServiceConfig:
+ImgCapPipelineConfig:
   enable: true
-  host: '127.0.0.1'
-  port: 11003
-  model_id: Salesforce/blip-image-captioning-large
+  server_url: "http://127.0.0.1:11003"
 
-OCRServiceConfig:
+OCRPipelineConfig:
   enable: true
-  host: '127.0.0.1'
-  port: 11004
-  model_id: paddlepaddle/PaddleOCR
+  server_url: "http://127.0.0.1:11004"
 
-VidCapServiceConfig:
+VidCapPipelineConfig:
   enable: true
-  host: '127.0.0.1'
-  port: 11005
-  model_id: damo/multi-modal_hitea_video-captioning_base_en
+  server_url: "http://127.0.0.1:11005"
 
-TTSServiceConfig:
+TTSPipelineConfig:
   enable: true
-  host: '127.0.0.1'
-  port: 11006
-  model_id: AkagawaTsurunaki/GPT-SoVITS
+  server_url: "http://127.0.0.1:11006"
 
-LiveStreamServiceConfig:
+LiveStreamConfig:
   enable: true
   platform: bilibili
   room_id: null
   credential:
-    # 关于如何获取身份信息[详见](https://nemo2011.github.io/bilibili-api/#/get-credential)
+    # [More details](https://nemo2011.github.io/bilibili-api/#/get-credential)
     sessdata: null
     bili_jct: null
     buvid3: null
 
-GameServiceConfig:
+GameBridgeConfig:
   enable: true
   host: '127.0.0.1'
   port: 11007
   platform: minecraft
-
-ControllerConfig:
-  host: '127.0.0.1'
-  port: 11000
-
-
