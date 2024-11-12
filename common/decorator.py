@@ -20,3 +20,16 @@ def log_run_time(log: Callable[[str], str] = None):
 
     return decorator
 
+
+def pipeline_enable(enable: bool = True):
+    def decorator(func):
+        @wraps(func)
+        def wrapper(self, *args, **kwargs):
+            if not enable:
+                logger.error("The pipeline is disabled in your config!")
+                raise Exception("The pipeline is disabled in your config!")
+            return func(self, *args, **kwargs)
+
+        return wrapper
+
+    return decorator
