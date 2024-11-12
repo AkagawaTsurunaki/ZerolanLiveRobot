@@ -18,34 +18,35 @@ class ZerolanLiveRobot:
 
     async def start(self):
         task = asyncio.create_task(self.start_emitters())
-        task2 = asyncio.create_task(self.test_vad())
+        self.test_vad()
+        self.test_asr()
+        self.test_llm()
         await task
-        await task2
 
     async def start_emitters(self):
         vad_emitter = VadEventEmitter(self.emitter)
         task = asyncio.create_task(vad_emitter.start())
         await task
 
-    async def test_vad(self):
+    def test_vad(self):
         @self.emitter.on("voice")
-        def detect_voice(speech: bytes, channels: int, sample_rate: int):
+        async def detect_voice(speech: bytes, channels: int, sample_rate: int):
             query = ASRModelStreamQuery(is_final=True, audio_data=speech, channels=channels, sample_rate=sample_rate)
             response = self.asr.stream_predict(query)
             logger.debug("asr event emitted")
-            self.emitter.emit("asr", response)
+            await self.emitter.emit("asr", response)
 
-    async def test_asr(self):
+    def test_asr(self):
         @self.emitter.on("asr")
-        def asr_handler(prediction: ASRModelPrediction):
+        async def asr_handler(prediction: ASRModelPrediction):
             logger.info(prediction.transcript)
             query = LLMQuery(text=prediction.transcript, history=[])
             prediction = self.llm.predict(query)
-            self.emitter.emit("llm", prediction)
+            await self.emitter.emit("llm", prediction)
 
-    async def test_llm(self):
+    def test_llm(self):
         @self.emitter.on("llm")
-        def llm_query_handler(prediction: LLMPrediction):
+        async def llm_query_handler(prediction: LLMPrediction):
             logger.info("LLM: " + prediction.response)
 
 
