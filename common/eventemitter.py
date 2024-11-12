@@ -24,9 +24,12 @@ class EventEmitter:
     async def emit(self, event: str, *args, **kwargs) -> None:
         listeners = self.listeners[event]
         for listener in listeners:
-            if inspect.iscoroutinefunction(listener):
-                await listener(*args, **kwargs)
-            else:
-                listener(*args, **kwargs)
+            try:
+                if inspect.iscoroutinefunction(listener):
+                    await listener(*args, **kwargs)
+                else:
+                    listener(*args, **kwargs)
+            except Exception as e:
+                logger.exception(e)
 
         logger.debug(f"Event {event} emitted")
