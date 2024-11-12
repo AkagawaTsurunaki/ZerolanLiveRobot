@@ -3,51 +3,48 @@ from typing import Generator, Any
 import pyaudio
 from loguru import logger
 
-from common.config.model_config import SpeechParaformerModelConfig as spmc
-
 
 class Microphone:
 
     def __init__(self):
         """
-        注意：
-            音频采样后会返回 bytes 类型，但是用 numpy 转换时，numpy 向量的 dtype 类型必须与使用麦克风的数据格式 format 一致，否则可能会发生异常。
+        Note:
+            The bytes type is returned after the audio is sampled, but when converted with numpy,
+            the dtype type of the numpy vector must match the format of the data format using the microphone,
+            otherwise an exception may occur.
         """
-        self._stream = None
-        self._chunk_size = 4096  # 每次读取的音频数据大小
-        self._format = pyaudio.paFloat32  # 录制音频的格式，为了防止可能出现的错误，暂时硬编码为 Float32 格式
-        self._channels = 1  # 声道数
-        self._sample_rate = 16000  # 采样率（每秒采样点数）
+        self._stream: pyaudio.Stream = None
+        self._chunk_size = 4096  # The size of the audio data read at a time
+        self._format = pyaudio.paFloat32  # TODO: The format in which the audio is recorded, temporarily hardcoded to Float32 format to prevent possible errors
+        self.channels = 1
+        self.sample_rate = 16000
         self._p = pyaudio.PyAudio()
-        self._chunk_stride: int = spmc.chunk_stride
+        self._chunk_stride: int = 960 * 10
         self._is_recording: bool = False
 
     def open(self):
-        logger.info("麦克风已开启")
+        logger.info("Open the microphone")
         if self._is_recording:
-            logger.warning("麦克风正在记录")
+            logger.warning("Microphone recording...")
             return
         self._is_recording = True
         self._stream = self._p.open(format=self._format,
-                                    channels=self._channels,
-                                    rate=self._sample_rate,
+                                    channels=self.channels,
+                                    rate=self.sample_rate,
                                     input=True,
                                     frames_per_buffer=self._chunk_size)
 
     def close(self):
-        # 关闭音频输入流
         self._stream.stop_stream()
         self._stream.close()
 
-        # 关闭 PyAudio
         self._p.terminate()
         self._is_recording = False
-        logger.info("麦克风已关闭")
+        logger.info("Close the microphone")
 
     def stream(self) -> Generator[bytes | None, Any, None]:
         try:
             while True:
-                # 从音频输入流中读取音频数据
                 data = self._stream.read(self._chunk_stride)
                 yield data
         except Exception as e:
