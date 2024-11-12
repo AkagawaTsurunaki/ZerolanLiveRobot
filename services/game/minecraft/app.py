@@ -3,6 +3,7 @@ import threading
 from threading import Thread
 
 from loguru import logger
+from websockets import ConnectionClosedError
 from websockets.asyncio.server import serve, ServerConnection
 
 from common.buffer.game_buf import MinecraftGameEventBuffer
@@ -43,7 +44,11 @@ class KonekoMinecraftAIAgent:
     async def send_message(self, msg: KonekoProtocol):
         msg = msg.to_json()
         if self._ws is not None:
-            await self._ws.send(msg)
+            try:
+                await self._ws.send(msg)
+            except ConnectionClosedError as e:
+                logger.error(e)
+                logger.warning("KonekoMinecraftBot should send close message to close this connection. Check your bot is still online?")
 
     def stop(self):
         self._stop_flag = True
