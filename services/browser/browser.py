@@ -6,7 +6,7 @@ from selenium.webdriver.common.actions.action_builder import ActionBuilder
 
 from services.device.screen import Screen
 from zerolan.data.data.ocr import OCRQuery
-from pipeline.ocr import OcrPipeline
+from pipeline.ocr import OCRPipeline
 from services.browser.driver import DriverInitializer
 
 # 创建Chrome WebDriver实例
@@ -36,7 +36,7 @@ ActionBuilder(driver).clear_actions()
 time.sleep(8)
 
 img, img_path = Screen.capture("Firefox")
-pipeline = OcrPipeline()
+pipeline = OCRPipeline()
 
 prediction = pipeline.predict(OCRQuery(img_path))
 

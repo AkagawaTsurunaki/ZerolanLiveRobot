@@ -1,7 +1,7 @@
 from zerolan_live_robot_data.data.img_cap import ImgCapQuery
-from pipeline.img_cap import ImaCapPipeline
+from pipeline.img_cap import ImgCapPipeline
 
-pipeline = ImaCapPipeline()
+pipeline = ImgCapPipeline()
 
 img_path = R"../resources/static/image/imgcap-test.png"
 

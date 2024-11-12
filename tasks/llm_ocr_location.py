@@ -6,14 +6,14 @@ from loguru import logger
 from pipeline.llm import LLMPipeline
 from zerolan.data.data.llm import LLMQuery
 from zerolan.data.data.ocr import OCRQuery, OCRPrediction
-from pipeline.ocr import OcrPipeline
+from pipeline.ocr import OCRPipeline
 from zerolan.data.data.prompt import ICIOPrompt
 
 
 class LLM_OCRLocationTask:
-    def __init__(self, llm_pipeline: LLMPipeline = None, ocr_pipeline: OcrPipeline = None):
+    def __init__(self, llm_pipeline: LLMPipeline = None, ocr_pipeline: OCRPipeline = None):
         self._llm_pipeline: LLMPipeline = LLMPipeline() if llm_pipeline is None else llm_pipeline
-        self._ocr_pipeline: OcrPipeline = OcrPipeline() if ocr_pipeline is None else ocr_pipeline
+        self._ocr_pipeline: OCRPipeline = OCRPipeline() if ocr_pipeline is None else ocr_pipeline
         self._history = []
 
     async def run(self, img_path: str) -> tuple[OCRPrediction | None, int]:

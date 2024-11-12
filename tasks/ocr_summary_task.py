@@ -6,7 +6,7 @@ from services.device.screen import Screen
 from pipeline.llm import LLMPipeline
 from zerolan.data.data.llm import LLMQuery
 from zerolan.data.data.ocr import OCRQuery
-from pipeline.ocr import OcrPipeline
+from pipeline.ocr import OCRPipeline
 from zerolan.data.data.prompt import ICIOPrompt
 
 
@@ -15,9 +15,9 @@ class OcrSummaryTask:
     获取指定窗口中的内容并总结
     """
 
-    def __init__(self, llm_pipeline: LLMPipeline = None, ocr_pipeline: OcrPipeline = None):
+    def __init__(self, llm_pipeline: LLMPipeline = None, ocr_pipeline: OCRPipeline = None):
         self._llm_pipeline: LLMPipeline = LLMPipeline() if llm_pipeline is None else llm_pipeline
-        self._ocr_pipeline: OcrPipeline = OcrPipeline() if ocr_pipeline is None else ocr_pipeline
+        self._ocr_pipeline: OCRPipeline = OCRPipeline() if ocr_pipeline is None else ocr_pipeline
 
         self._sys_prompt: ICIOPrompt = ICIOPrompt(
             instruction=f"你将要对所给的 OCR 内容进行格式整理，注意保持文段整洁性，不要遗漏大量文字",

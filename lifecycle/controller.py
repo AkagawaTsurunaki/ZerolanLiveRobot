@@ -18,11 +18,11 @@ from lifecycle.env_data import CustomLiveStreamData
 from services.device.speaker import Speaker
 from services.filter.strategy import FirstMatchedFilter
 from services.game.minecraft.app import KonekoMinecraftAIAgent
-from pipeline.img_cap import ImaCapPipeline
+from pipeline.img_cap import ImgCapPipeline
 from services.live_stream.bilibili.service import BilibiliService
 from zerolan.data.data.llm import LLMQuery, Conversation
 from zerolan.data.data.tts import TTSQuery
-from pipeline.pipeline import TTSPipeline
+from pipeline.tts import TTSPipeline
 from common.config.service_config import ServiceConfig as config
 from common.utils.str_util import is_blank, split_by_punctuations, adjust_strings
 from tasks.scnshoot_cap_task import ScreenshotCaptionTask
@@ -48,7 +48,7 @@ class Controller:
         self._tts_pipeline = TTSPipeline()
         self._bilibli_service = BilibiliService()
         self._game_service = KonekoMinecraftAIAgent()
-        self._imgcap_pipeline = ImaCapPipeline()
+        self._imgcap_pipeline = ImgCapPipeline()
 
         # 这里去检验服务是否都已经启动
         self.check_service_state()
