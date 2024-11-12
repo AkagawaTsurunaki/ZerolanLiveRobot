@@ -2,17 +2,19 @@ from dataclasses import asdict
 from urllib.parse import urljoin
 
 from zerolan.data.abs_data import AbstractModelQuery
-from const import get_zerolan_live_robot_core_url
 from zerolan.data.data.ocr import OCRQuery, OCRPrediction
-from pipeline.abs_pipeline import AbstractImagePipeline
+
+from common.config.service_config import OCRPipelineConfig as config
+from common.decorator import pipeline_enable
+from tts.abs_pipeline import AbstractImagePipeline
 
 
-class OcrPipeline(AbstractImagePipeline):
+@pipeline_enable(config.enable)
+class OCRPipeline(AbstractImagePipeline):
 
     def __init__(self):
         super().__init__()
-
-        self.predict_url = urljoin(get_zerolan_live_robot_core_url(), '/ocr/predict')
+        self.predict_url = urljoin(config.server_url, '/ocr/predict')
 
     def predict(self, query: OCRQuery) -> OCRPrediction | None:
         return super().predict(query)

@@ -3,17 +3,20 @@ from dataclasses import asdict
 from urllib.parse import urljoin
 
 from zerolan.data.abs_data import AbstractModelQuery
-from const import get_zerolan_live_robot_core_url
-from pipeline.abs_pipeline import AbstractPipeline
 from zerolan.data.data.vid_cap import VidCapQuery, VidCapPrediction
 
+from common.config.service_config import VidCapPipelineConfig as config
+from common.decorator import pipeline_enable
+from tts.abs_pipeline import AbstractPipeline
 
+
+@pipeline_enable(config.enable)
 class VidCapPipeline(AbstractPipeline):
 
     def __init__(self):
         super().__init__()
 
-        self.predict_url = urljoin(get_zerolan_live_robot_core_url(), '/vid-cap/predict')
+        self.predict_url = urljoin(config.server_url, '/vid-cap/predict')
 
     def predict(self, query: VidCapQuery) -> VidCapPrediction | None:
         assert os.path.exists(query.vid_path), f"视频路径不存在：{query.vid_path}"

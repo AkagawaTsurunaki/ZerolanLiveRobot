@@ -1,7 +1,7 @@
 from common.enum.lang import Language
 from services.device.screen import Screen
 from zerolan.data.data.img_cap import ImgCapQuery
-from pipeline.img_cap import ImaCapPipeline
+from pipeline.img_cap import ImgCapPipeline
 from pipeline.llm import LLMPipeline
 from tasks.llm_traslate_task import LLMTranslateTask
 
@@ -10,9 +10,9 @@ class ScreenshotCaptionTask:
     """
     将屏幕截图存储到临时文件，并调用图像字幕模型，获取图像的文字描述内容。
     """
-    def __init__(self, llm_pipeline: LLMPipeline = None, imgcap_pipeline: ImaCapPipeline = None):
+    def __init__(self, llm_pipeline: LLMPipeline = None, imgcap_pipeline: ImgCapPipeline = None):
         self._llm_translate_task: LLMTranslateTask = LLMTranslateTask(llm_pipeline)
-        self._imgcap_pipeline: ImaCapPipeline = ImaCapPipeline() if imgcap_pipeline is None else imgcap_pipeline
+        self._imgcap_pipeline: ImgCapPipeline = ImgCapPipeline() if imgcap_pipeline is None else imgcap_pipeline
 
     async def run(self, win_title: str, k: float):
         # 获取屏幕截图

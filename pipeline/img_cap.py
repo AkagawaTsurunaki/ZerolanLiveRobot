@@ -2,16 +2,19 @@ from dataclasses import asdict
 from urllib.parse import urljoin
 
 from zerolan.data.abs_data import AbstractModelQuery
-from const import get_zerolan_live_robot_core_url
-from pipeline.abs_pipeline import AbstractImagePipeline
 from zerolan.data.data.img_cap import ImgCapQuery, ImgCapPrediction
 
+from common.config.service_config import ImgCapPipelineConfig as config
+from common.decorator import pipeline_enable
+from pipeline.abs_pipeline import AbstractImagePipeline
 
-class ImaCapPipeline(AbstractImagePipeline):
+
+@pipeline_enable(config.enable)
+class ImgCapPipeline(AbstractImagePipeline):
 
     def __init__(self):
         super().__init__()
-        self.predict_url = urljoin(get_zerolan_live_robot_core_url(), '/img-cap/predict')
+        self.predict_url = urljoin(config.server_url, '/img-cap/predict')
 
     def predict(self, query: ImgCapQuery) -> ImgCapPrediction | None:
         return super().predict(query)

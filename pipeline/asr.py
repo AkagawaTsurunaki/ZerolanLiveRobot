@@ -4,18 +4,20 @@ from urllib.parse import urljoin
 
 import requests
 from loguru import logger
-
-from const import get_zerolan_live_robot_core_url
-from pipeline.abs_pipeline import AbstractPipeline
 from zerolan.data.data.asr import ASRModelQuery, ASRModelPrediction, ASRModelStreamQuery
 
+from common.config.service_config import ASRPipelineConfig as config
+from common.decorator import pipeline_enable
+from tts.abs_pipeline import AbstractPipeline
 
+
+@pipeline_enable(config.enable)
 class ASRPipeline(AbstractPipeline):
 
     def __init__(self):
         super().__init__()
-        self.predict_url = urljoin(get_zerolan_live_robot_core_url(), "/asr/predict")
-        self.stream_predict_url = urljoin(get_zerolan_live_robot_core_url(), '/asr/stream-predict')
+        self.predict_url = urljoin(config.server_url, "/asr/predict")
+        self.stream_predict_url = urljoin(config.server_url, '/asr/stream-predict')
 
     def predict(self, query: ASRModelQuery) -> ASRModelPrediction | None:
         assert isinstance(query, ASRModelQuery)
@@ -40,8 +42,7 @@ class ASRPipeline(AbstractPipeline):
         else:
             response.raise_for_status()
 
-    @staticmethod
-    def parse_query(query: ASRModelQuery | ASRModelStreamQuery) -> tuple:
+    def parse_query(self, query: ASRModelQuery | ASRModelStreamQuery) -> tuple:
         if isinstance(query, ASRModelQuery):
             files = {"audio": open(query.audio_path, 'rb')}
             data = {"json": query.to_json()}  # type: ignore
@@ -56,7 +57,6 @@ class ASRPipeline(AbstractPipeline):
         else:
             raise ValueError("无法转换")
 
-    @staticmethod
-    def parse_prediction(json_val: any) -> ASRModelPrediction:
+    def parse_prediction(self, json_val: any) -> ASRModelPrediction:
         assert hasattr(ASRModelPrediction, "from_json")
         return ASRModelPrediction.from_dict(json.loads(json_val))  # type: ignore[attr-defined]
