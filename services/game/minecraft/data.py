@@ -16,8 +16,10 @@ class BotOption:
 @dataclass_json
 @dataclass
 class KonekoProtocol:
+    protocol: str = "Koneko Protocol"
     version: str = "0.1"
-    bot_option: BotOption = None
+    type: str = "hello"
+    data: any = None
 
 
 class Events:
