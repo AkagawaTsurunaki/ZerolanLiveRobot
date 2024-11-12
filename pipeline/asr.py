@@ -8,12 +8,11 @@ from zerolan.data.data.asr import ASRModelQuery, ASRModelPrediction, ASRModelStr
 
 from common.config.service_config import ASRPipelineConfig as config
 from common.decorator import pipeline_enable
-from tts.abs_pipeline import AbstractPipeline
+from pipeline.abs_pipeline import AbstractPipeline
 
 
-@pipeline_enable(config.enable)
 class ASRPipeline(AbstractPipeline):
-
+    @pipeline_enable(config.enable)
     def __init__(self):
         super().__init__()
         self.predict_url = urljoin(config.server_url, "/asr/predict")
