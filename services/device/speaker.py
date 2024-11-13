@@ -6,11 +6,11 @@ from common.utils.file_util import create_temp_file
 
 class Speaker:
 
-    def playsound(self, path_or_data: str | bytes):
+    def playsound(self, path_or_data: str | bytes, block=True):
         if isinstance(path_or_data, bytes):
-            self._playsound_bytes(path_or_data)
+            self._playsound_bytes(path_or_data, block)
         else:
-            self._playsound_file(path_or_data)
+            self._playsound_file(path_or_data, block)
 
     def _playsound_file(self, path: str, block=True):
         pygame.mixer.init()
