@@ -2,9 +2,9 @@ from urllib.parse import urljoin
 
 from zerolan.data.data.tts import TTSQuery, TTSPrediction
 
-from abs_pipeline import AbstractPipeline
 from common.config.service_config import TTSPipelineConfig as config
 from common.decorator import pipeline_enable
+from pipeline.abs_pipeline import AbstractPipeline
 
 
 class TTSPipeline(AbstractPipeline):

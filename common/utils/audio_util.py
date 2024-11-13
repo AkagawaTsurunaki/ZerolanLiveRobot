@@ -22,3 +22,12 @@ def check_wav_info(file_path) -> (int, int, float):
     # 关闭文件
     wav_file.close()
     return sample_rate, num_channels, duration
+
+
+def check_audio_format(audio_bytes) -> str:
+    if audio_bytes.startswith(b'RIFF') and audio_bytes.find(b'WAVE') != -1:
+        return 'wav'
+    elif audio_bytes.startswith(b'OggS'):
+        return 'ogg'
+    else:
+        raise NotImplementedError()
