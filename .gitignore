@@ -3,7 +3,5 @@ __pycache__
 /.idea
 /.vscode
 /assets
-resources/config/services_config.yaml
-resources/config/models_config.yaml
-resources/
+resources/config.yaml
 /data
