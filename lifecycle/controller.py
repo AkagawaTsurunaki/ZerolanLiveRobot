@@ -173,7 +173,7 @@ class Controller:
         tts_query = TTSQuery(text=sentence,
                              text_language=Language.ZH.name(),
                              refer_wav_path=tts_prompt.audio_path,
-                             prompt_text=tts_prompt.transcript,
+                             prompt_text=tts_prompt.prompt_text,
                              prompt_language=tts_prompt.lang.name())
         try:
             tts_prediction = self._tts_pipeline.predict(query=tts_query)
