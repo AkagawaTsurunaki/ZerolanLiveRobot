@@ -4,7 +4,7 @@ from typing import Tuple, List
 
 from loguru import logger
 
-from common.config_loader import get_config
+from common.config import get_config
 from common.data.prompt import TTSPrompt
 from common.enum import Language
 from common.utils.file_util import spath
@@ -16,6 +16,9 @@ class TTSPromptManager:
     def __init__(self):
         self.default_tts_prompt: TTSPrompt
         self.tts_prompts: List[TTSPrompt] = []
+        self.sentiments: List[str] = []
+
+        self.load_tts_prompts(config["character"]["speech"]["prompts_dir"])
 
     def get_tts_prompt(self, sentiment: str) -> TTSPrompt:
         for tts_prompt in self.tts_prompts:
@@ -23,8 +26,8 @@ class TTSPromptManager:
                 return tts_prompt
         return self.default_tts_prompt
 
-    def load_tts_prompts(self):
-        for dirpath, dirnames, filenames in os.walk(spath("resources/static/audio/prompts")):
+    def load_tts_prompts(self, prompts_dir):
+        for dirpath, dirnames, filenames in os.walk(spath(prompts_dir)):
             for filename in filenames:
                 try:
                     lang, sentiment, transcript = self.parse_tts_prompt_filename(filename)
@@ -33,8 +36,9 @@ class TTSPromptManager:
                     continue
                 audio_path = str(os.path.join(dirpath, filename))
                 audio_path = os.path.abspath(audio_path)
-                tts_prompt = TTSPrompt(audio_path=audio_path, lang=lang, sentiment=sentiment, transcript=transcript)
+                tts_prompt = TTSPrompt(audio_path=audio_path, lang=lang, sentiment=sentiment, prompt_text=transcript)
                 self.tts_prompts.append(tts_prompt)
+                self.sentiments.append(sentiment)
                 if tts_prompt.sentiment == "Default":
                     self.default_tts_prompt = tts_prompt
         sentiments = [tts_prompt.sentiment for tts_prompt in self.tts_prompts]
