@@ -7,13 +7,17 @@ from zerolan.data.data.asr import ASRModelStreamQuery, ASRModelPrediction
 from zerolan.data.data.llm import LLMQuery, LLMPrediction
 from zerolan.data.data.tts import TTSQuery, TTSPrediction
 
+from common.config import get_config
 from common.eventemitter import EventEmitter
 from events.vad_event import VadEventEmitter
+from manager.llm_prompt_manager import LLMPromptManager
 from manager.tts_prompt_manager import TTSPromptManager
 from pipeline.asr import ASRPipeline
 from pipeline.llm import LLMPipeline
 from pipeline.tts import TTSPipeline
 from services.device.speaker import Speaker
+
+config = get_config()
 
 
 @dataclass_json
@@ -31,9 +35,8 @@ class ZerolanLiveRobot:
 
         self.speaker = Speaker()
 
-        self.tts_prompts_manager = TTSPromptManager()
-
-        self.history = []
+        self.speech_manager = TTSPromptManager(config.character.speech)
+        self.chat_manager = LLMPromptManager(config.character.chat)
 
     async def start(self):
         task = asyncio.create_task(self.start_emitters())
@@ -75,7 +78,7 @@ class ZerolanLiveRobot:
         @self.emitter.on("llm")
         async def llm_query_handler(prediction: LLMPrediction):
             logger.info("LLM: " + prediction.response)
-            tts_prompt = self.tts_prompts_manager.default_tts_prompt
+            tts_prompt = self.speech_manager.default_tts_prompt
             query = TTSQuery(
                 text=prediction.response,
                 text_language="zh",
@@ -85,6 +88,10 @@ class ZerolanLiveRobot:
             )
             for prediction in self.tts.stream_predict(query):
                 await self.emitter.emit("tts", prediction)
+
+        @self.emitter.on("llm")
+        async def history_handler(prediction: LLMPrediction):
+            self.chat_manager.reset_history(prediction.history)
 
     def on_tts(self):
         @self.emitter.on("tts")

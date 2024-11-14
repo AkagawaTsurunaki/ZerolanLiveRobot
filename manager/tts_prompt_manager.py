@@ -4,21 +4,19 @@ from typing import Tuple, List
 
 from loguru import logger
 
-from common.config import get_config
+from common.config import SpeechConfig
 from common.data.prompt import TTSPrompt
 from common.enum import Language
 from common.utils.file_util import spath
 
-config = get_config()
-
 
 class TTSPromptManager:
-    def __init__(self):
+    def __init__(self, config: SpeechConfig):
         self.default_tts_prompt: TTSPrompt
         self.tts_prompts: List[TTSPrompt] = []
         self.sentiments: List[str] = []
 
-        self.load_tts_prompts(config["character"]["speech"]["prompts_dir"])
+        self.load_tts_prompts(config.prompts_dir)
 
     def get_tts_prompt(self, sentiment: str) -> TTSPrompt:
         for tts_prompt in self.tts_prompts:
