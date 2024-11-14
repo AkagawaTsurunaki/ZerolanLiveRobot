@@ -5,6 +5,7 @@ from zerolan.data.abs_data import AbstractModelQuery
 from zerolan.data.data.img_cap import ImgCapQuery, ImgCapPrediction
 
 from common.config import ImgCapPipelineConfig
+from common.decorator import pipeline_resolve
 from pipeline.abs_pipeline import AbstractImagePipeline
 
 
@@ -17,9 +18,11 @@ class ImgCapPipeline(AbstractImagePipeline):
         self.state_url = urljoin(config.server_url, '/img-cap/state')
         self.check_urls()
 
+    @pipeline_resolve()
     def predict(self, query: ImgCapQuery) -> ImgCapPrediction | None:
         return super().predict(query)
 
+    @pipeline_resolve()
     def stream_predict(self, query: AbstractModelQuery):
         raise NotImplementedError()
 

@@ -7,6 +7,7 @@ from loguru import logger
 from zerolan.data.data.asr import ASRModelQuery, ASRModelPrediction, ASRModelStreamQuery
 
 from common.config import ASRPipelineConfig
+from common.decorator import pipeline_resolve
 from pipeline.abs_pipeline import AbstractPipeline
 
 
@@ -19,6 +20,7 @@ class ASRPipeline(AbstractPipeline):
         self.state_url = urljoin(config.server_url, '/asr/state')
         self.check_urls()
 
+    @pipeline_resolve()
     def predict(self, query: ASRModelQuery) -> ASRModelPrediction | None:
         assert isinstance(query, ASRModelQuery)
         try:
@@ -33,6 +35,7 @@ class ASRPipeline(AbstractPipeline):
             logger.exception(e)
             return None
 
+    @pipeline_resolve()
     def stream_predict(self, query: ASRModelStreamQuery):
         files, data = self.parse_query(query)
         response = requests.get(url=self.stream_predict_url, files=files, data=data)

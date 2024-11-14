@@ -1,5 +1,5 @@
+import json
 from functools import wraps
-from json import JSONDecoder
 from time import time
 from typing import Callable
 
@@ -44,7 +44,16 @@ def pipeline_resolve():
             try:
                 ret = func(*args, **kwargs)
                 return ret
-            except JSONDecoder as e:
-                return e
+            except Exception as e:
+                if isinstance(e, json.decoder.JSONDecodeError):
+                    logger.error("""
+                    Pipeline encountered an error when decode JSON content, please try:
+                    1. Check your connection to your zerolan-core server.
+                    2. Maybe you need authentication to your server.
+                    3. Just enter the url in your browser and see what happened.
+                    """)
+                raise e
+
+        return wrapper
 
     return decorator

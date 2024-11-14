@@ -6,6 +6,7 @@ from zerolan.data.abs_data import AbstractModelQuery
 from zerolan.data.data.vid_cap import VidCapQuery, VidCapPrediction
 
 from common.config import VidCapPipelineConfig
+from common.decorator import pipeline_resolve
 from pipeline.abs_pipeline import AbstractPipeline
 
 
@@ -18,10 +19,12 @@ class VidCapPipeline(AbstractPipeline):
         self.state_url = urljoin(config.server_url, '/vid-cap/state')
         self.check_urls()
 
+    @pipeline_resolve()
     def predict(self, query: VidCapQuery) -> VidCapPrediction | None:
         assert os.path.exists(query.vid_path), f"视频路径不存在：{query.vid_path}"
         return super().predict(query)
 
+    @pipeline_resolve()
     def stream_predict(self, query: AbstractModelQuery):
         raise NotImplementedError()
 

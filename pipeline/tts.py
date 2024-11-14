@@ -3,6 +3,7 @@ from urllib.parse import urljoin
 from zerolan.data.data.tts import TTSQuery, TTSPrediction
 
 from common.config import TTSPipelineConfig as TTSPipelineConfig
+from common.decorator import pipeline_resolve
 from pipeline.abs_pipeline import AbstractPipeline
 
 
@@ -15,9 +16,11 @@ class TTSPipeline(AbstractPipeline):
         self.state_url = urljoin(config.server_url, '/tts/state')
         self.check_urls()
 
+    @pipeline_resolve()
     def predict(self, query: TTSQuery) -> TTSPrediction | None:
         return super().predict(query)
 
+    @pipeline_resolve()
     def stream_predict(self, query: TTSQuery):
         return super().stream_predict(query)
 

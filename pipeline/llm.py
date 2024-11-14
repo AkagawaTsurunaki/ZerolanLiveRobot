@@ -5,6 +5,7 @@ from zerolan.data.abs_data import AbstractModelQuery
 from zerolan.data.data.llm import LLMQuery, LLMPrediction
 
 from common.config import LLMPipelineConfig
+from common.decorator import pipeline_resolve
 from pipeline.abs_pipeline import AbstractPipeline
 
 class LLMPipeline(AbstractPipeline):
@@ -16,9 +17,11 @@ class LLMPipeline(AbstractPipeline):
         self.state_url = urljoin(config.server_url, '/llm/state')
         self.check_urls()
 
+    @pipeline_resolve()
     def predict(self, query: LLMQuery) -> LLMPrediction | None:
         return super().predict(query)
 
+    @pipeline_resolve()
     def stream_predict(self, query: AbstractModelQuery):
         return super().stream_predict(query)
 
