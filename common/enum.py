@@ -28,9 +28,9 @@ class Language:
         s = s.lower()
         if s in ["en", "english", "英文", "英语"]:
             return Language.EN
-        elif s == ["zh", "cn", "chinese", "中文"]:
+        elif s in ["zh", "cn", "chinese", "中文"]:
             return Language.ZH
-        elif s == ["ja", "japanese", "日语", "日本語", "にほんご"]:
+        elif s in ["ja", "japanese", "日语", "日本語", "にほんご"]:
             return Language.JA
         else:
             raise ValueError("Unknown language")
