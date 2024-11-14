@@ -6,4 +6,4 @@ __pycache__
 resources/config/services_config.yaml
 resources/config/models_config.yaml
 resources/
-data
+/data
