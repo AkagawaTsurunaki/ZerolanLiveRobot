@@ -1,27 +1,24 @@
-from enum import Enum
-
-
-class Language(Enum):
+class Language:
     ZH = "zh",
     EN = "en",
     JA = "ja"
 
     def name(self):
-        if self == Language.ZH:
+        if self == self.ZH:
             return "zh"
-        elif self == Language.EN:
+        elif self == self.EN:
             return "en"
-        elif self == Language.JA:
+        elif self == self.JA:
             return "ja"
         else:
             raise ValueError("Unknown language")
 
     def to_zh_name(self):
-        if self == Language.ZH:
+        if self == self.ZH:
             return "中文"
-        elif self == Language.EN:
+        elif self == self.EN:
             return "英文"
-        elif self == Language.JA:
+        elif self == self.JA:
             return "日语"
         else:
             raise ValueError("Unknown language")
@@ -29,11 +26,11 @@ class Language(Enum):
     @staticmethod
     def value_of(s: str):
         s = s.lower()
-        if s == "en":
+        if s in ["en", "english", "英文", "英语"]:
             return Language.EN
-        elif s == "zh":
+        elif s == ["zh", "cn", "chinese", "中文"]:
             return Language.ZH
-        elif s == "ja":
+        elif s == ["ja", "japanese", "日语", "日本語", "にほんご"]:
             return Language.JA
         else:
             raise ValueError("Unknown language")
