@@ -3,7 +3,7 @@ from bilibili_api.live import LiveDanmaku
 from loguru import logger
 
 from common.buffer.danmaku_buffer import DanmakuBuffer, DanmakuBufferObject
-from common.config.service_config import ServiceConfig
+from common.config import ServiceConfig
 from zerolan.data.data.danmaku import Danmaku
 
 config = ServiceConfig.live_stream_config

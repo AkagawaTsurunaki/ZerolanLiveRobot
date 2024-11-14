@@ -23,7 +23,7 @@ from services.live_stream.bilibili.service import BilibiliService
 from zerolan.data.data.llm import LLMQuery, Conversation
 from zerolan.data.data.tts import TTSQuery
 from pipeline.tts import TTSPipeline
-from common.config.service_config import ServiceConfig as config
+from common.config import ServiceConfig as config
 from common.utils.str_util import is_blank, split_by_punctuations, adjust_strings
 from tasks.scnshoot_cap_task import ScreenshotCaptionTask
 from tasks.sentiment_tts_prompt_task import SentimentTtsPromptTask

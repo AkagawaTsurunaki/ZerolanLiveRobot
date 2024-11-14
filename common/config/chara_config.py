@@ -5,6 +5,7 @@ from typing import List
 from loguru import logger
 from zerolan.data.data.llm import Conversation
 
+from common.data.prompt import TTSPrompt
 from common.utils.file_util import read_yaml, spath
 
 
