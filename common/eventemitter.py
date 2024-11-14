@@ -1,3 +1,4 @@
+import asyncio
 import inspect
 from typing import Dict, List, Callable, Coroutine
 
@@ -23,13 +24,16 @@ class EventEmitter:
 
     async def emit(self, event: str, *args, **kwargs) -> None:
         listeners = self.listeners[event]
+        tasks = []
         for listener in listeners:
             try:
                 if inspect.iscoroutinefunction(listener):
-                    await listener(*args, **kwargs)
+                    task = asyncio.create_task(listener(*args, **kwargs))
+                    tasks.append(task)
+                    # await listener(*args, **kwargs)
                 else:
                     listener(*args, **kwargs)
             except Exception as e:
                 logger.exception(e)
-
+        await asyncio.gather(*tasks)
         logger.debug(f"Event {event} emitted")
