@@ -39,6 +39,8 @@ class Language:
 class SystemSoundEnum:
     warn: str = "warn.wav"
     error: str = "error.wav"
+    start: str = "start.wav"
     exit: str = "exit.wav"
     microphone_recoding: str = "microphone-recoding.wav"
     microphone_stopped: str = "microphone-stopped.wav"
+
