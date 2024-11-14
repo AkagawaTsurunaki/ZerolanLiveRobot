@@ -4,7 +4,7 @@ from urllib.parse import urljoin
 from zerolan.data.abs_data import AbstractModelQuery
 from zerolan.data.data.llm import LLMQuery, LLMPrediction
 
-from common.config.service_config import LLMPipelineConfig as config
+from common.config import LLMPipelineConfig as config
 from common.decorator import pipeline_enable
 from pipeline.abs_pipeline import AbstractPipeline
 

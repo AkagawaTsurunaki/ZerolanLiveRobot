@@ -6,7 +6,7 @@ import requests
 from loguru import logger
 from zerolan.data.data.asr import ASRModelQuery, ASRModelPrediction, ASRModelStreamQuery
 
-from common.config.service_config import ASRPipelineConfig as config
+from common.config import ASRPipelineConfig as config
 from common.decorator import pipeline_enable
 from pipeline.abs_pipeline import AbstractPipeline
 

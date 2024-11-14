@@ -4,7 +4,7 @@ from urllib.parse import urljoin
 from zerolan.data.abs_data import AbstractModelQuery
 from zerolan.data.data.img_cap import ImgCapQuery, ImgCapPrediction
 
-from common.config.service_config import ImgCapPipelineConfig as config
+from common.config import ImgCapPipelineConfig as config
 from common.decorator import pipeline_enable
 from pipeline.abs_pipeline import AbstractImagePipeline
 

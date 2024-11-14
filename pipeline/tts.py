@@ -2,7 +2,7 @@ from urllib.parse import urljoin
 
 from zerolan.data.data.tts import TTSQuery, TTSPrediction
 
-from common.config.service_config import TTSPipelineConfig as config
+from common.config import TTSPipelineConfig as config
 from common.decorator import pipeline_enable
 from pipeline.abs_pipeline import AbstractPipeline
 

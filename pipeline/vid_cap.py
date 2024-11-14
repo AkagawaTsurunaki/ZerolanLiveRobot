@@ -5,7 +5,7 @@ from urllib.parse import urljoin
 from zerolan.data.abs_data import AbstractModelQuery
 from zerolan.data.data.vid_cap import VidCapQuery, VidCapPrediction
 
-from common.config.service_config import VidCapPipelineConfig as config
+from common.config import VidCapPipelineConfig as config
 from common.decorator import pipeline_enable
 from pipeline.abs_pipeline import AbstractPipeline
 

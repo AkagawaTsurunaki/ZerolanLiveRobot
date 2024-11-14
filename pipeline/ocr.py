@@ -4,7 +4,7 @@ from urllib.parse import urljoin
 from zerolan.data.abs_data import AbstractModelQuery
 from zerolan.data.data.ocr import OCRQuery, OCRPrediction
 
-from common.config.service_config import OCRPipelineConfig as config
+from common.config import OCRPipelineConfig as config
 from common.decorator import pipeline_enable
 from pipeline.abs_pipeline import AbstractImagePipeline
 
