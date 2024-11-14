@@ -1,10 +1,10 @@
 from functools import wraps
+from json import JSONDecoder
 from time import time
 from typing import Callable
 
 from loguru import logger
 
-from common.enum import SystemSoundEnum
 from services.device.speaker import Speaker
 
 
@@ -24,25 +24,27 @@ def log_run_time(log: Callable[[str], str] = None):
     return decorator
 
 
-def withsound(sound: str):
+def withsound(sound: str, block: bool = False):
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
-            Speaker.play_system_sound(sound)
+            Speaker.play_system_sound(sound, block)
             ret = func(*args, **kwargs)
             return ret
+
         return wrapper
+
     return decorator
 
-def with_error_throw(e_type: type):
+
+def pipeline_resolve():
     def decorator(func):
         @wraps(func)
-        async def wrapper(*args, **kwargs):
+        def wrapper(*args, **kwargs):
             try:
-                ret = await func(*args, **kwargs)
+                ret = func(*args, **kwargs)
                 return ret
-            except e_type as e:
-                Speaker.play_system_sound(SystemSoundEnum.error)
-                raise e
-        return wrapper
+            except JSONDecoder as e:
+                return e
+
     return decorator

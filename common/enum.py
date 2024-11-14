@@ -41,6 +41,6 @@ class SystemSoundEnum:
     error: str = "error.wav"
     start: str = "start.wav"
     exit: str = "exit.wav"
-    microphone_recoding: str = "microphone-recoding.wav"
-    microphone_stopped: str = "microphone-stopped.wav"
+    enable_func: str = "microphone-recoding.wav"
+    disable_func: str = "microphone-stopped.wav"
 

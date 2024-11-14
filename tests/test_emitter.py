@@ -3,31 +3,27 @@ import time
 
 from loguru import logger
 
-from common.eventemitter import EventEmitter
-from services.game.minecraft.data import Events
+from common.eventemitter import emitter
 
 
 async def test_login():
-    emitter = EventEmitter()
-
-    @emitter.on(Events.login)
+    @emitter.on("service.game.login")
     async def print_something():
         logger.info("Bot login!")
 
-    await emitter.emit(Events.login)
+    await emitter.emit("service.game.login")
 
     logger.info("Finished")
 
-async def test_chat():
-    emitter = EventEmitter()
 
-    @emitter.on(Events.chat)
+async def test_chat():
+    @emitter.on("service.game.chat")
     def chat(msg: str):
         logger.info("Bot chat: " + msg)
 
     time.sleep(1)
 
-    await emitter.emit(Events.chat, msg="Hello!!")
+    await emitter.emit("service.game.chat", msg="Hello!!")
 
 
 asyncio.run(test_login())
