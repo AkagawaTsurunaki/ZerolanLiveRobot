@@ -134,10 +134,24 @@ class PipelineConfig:
 
 @dataclass_json
 @dataclass
+class BrowserConfig:
+    profile_dir: str
+    driver: Literal["chrome", "firefox"] = "firefox"
+
+
+@dataclass_json
+@dataclass
+class ExternalToolConfig:
+    browser: BrowserConfig
+
+
+@dataclass_json
+@dataclass
 class ZerolanLiveRobotConfig:
     pipeline: PipelineConfig
     service: ServiceConfig
     character: CharacterConfig
+    external_tool: ExternalToolConfig
 
 
 def get_config() -> ZerolanLiveRobotConfig:
