@@ -1,49 +1,41 @@
-import time
-
-from loguru import logger
-from selenium.webdriver import Keys
+from selenium.webdriver import Firefox, Chrome, Keys
 from selenium.webdriver.common.actions.action_builder import ActionBuilder
+from selenium.webdriver.common.by import By
 
-from services.device.screen import Screen
-from zerolan.data.data.ocr import OCRQuery
-from pipeline.ocr import OCRPipeline
+from common.config import BrowserConfig
+from services.browser import driver
 from services.browser.driver import DriverInitializer
 
-# 创建Chrome WebDriver实例
-driver = DriverInitializer("firefox").get_driver()
 
-# 打开指定的URL
-url = 'https://cn.bing.com/'
-driver.get(url)
+class Browser:
+    def __init__(self, config: BrowserConfig):
+        self.driver: Firefox | Chrome = DriverInitializer(config).get_driver()
 
-# 假设搜索框的位置坐标已知（示例）
-search_box_x = 750
-search_box_y = 400
+    def open(self, url: str):
+        self.driver.get(url)
 
-# 使用ActionChains控制鼠标移动到指定位置（插值缓慢移动）
-action_builder = ActionBuilder(driver)
-action_builder.pointer_action.move_to_location(x=search_box_x, y=search_box_y)
+    def close(self):
+        self.driver.close()
 
-# 在搜索框中输入指定字符（示例）
-search_text = 'Python Selenium'
-action_builder.key_action.send_keys(search_text)
-action_builder.key_action.key_down(Keys.ENTER)
+    def page_source(self):
+        return self.driver.page_source
 
-action_builder.perform()
+    def move_to_search_box(self):
+        # Assuming the location coordinates of the search box are known (example)
+        search_box_x = 750
+        search_box_y = 400
+        # Use ActionChains to control mouse movement to a specified position (interpolation moves slowly)
+        action_builder = ActionBuilder(driver)
+        action_builder.pointer_action.move_to_location(x=search_box_x, y=search_box_y)
 
-ActionBuilder(driver).clear_actions()
+    # Enter a specified character in the search box (example)
+    def send_keys_and_enter(self, keys):
+        action_builder = ActionBuilder(self.driver)
+        action_builder.key_action.send_keys(keys)
+        action_builder.key_action.key_down(Keys.SPACE)
+        action_builder.key_action.key_down(Keys.ENTER)
+        action_builder.perform()
 
-time.sleep(8)
-
-img, img_path = Screen.capture("Firefox")
-pipeline = OCRPipeline()
-
-prediction = pipeline.predict(OCRQuery(img_path))
-
-logger.info(prediction)
-logger.info(prediction.unfold_as_str())
-
-time.sleep(5)
-
-# 关闭浏览器
-# driver.quit()
+    def search(self, text: str):
+        sb_form = self.driver.find_element(By.ID, 'sb_form_q')
+        sb_form.send_keys(text)
