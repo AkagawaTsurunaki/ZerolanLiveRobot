@@ -12,6 +12,7 @@ from common.enum import SystemSoundEnum
 from common.eventemitter import EventEmitter
 from events.vad_event import VadEventEmitter
 from manager.llm_prompt_manager import LLMPromptManager
+from manager.temp_data_manager import TempDataManager
 from manager.tts_prompt_manager import TTSPromptManager
 from pipeline.asr import ASRPipeline
 from pipeline.llm import LLMPipeline
@@ -38,6 +39,7 @@ class ZerolanLiveRobot:
 
         self.speech_manager = TTSPromptManager(config.character.speech)
         self.chat_manager = LLMPromptManager(config.character.chat)
+        self.temp_data_manager = TempDataManager()
 
     async def start(self):
         task = asyncio.create_task(self.start_emitters())

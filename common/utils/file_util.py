@@ -6,7 +6,7 @@ from typing import Literal
 import yaml
 
 project_dir = os.getcwd()
-temp_data_dir = os.path.join(project_dir, "data/temp")
+temp_data_dir = os.path.join(project_dir, ".temp/")
 
 
 def find_dir(dir_path: str, tgt_dir_name: str) -> str | None:
@@ -66,3 +66,9 @@ def locate_path_upwards(relative_path, upper_path: str = project_dir) -> str:
             break
 
     raise FileNotFoundError(f'{tried_dirs}\n尝试了以上的路径，但仍未匹配到该相对路径')
+
+
+def try_create_dir(dir_path: str):
+    if not os.path.exists(dir_path):
+        os.mkdir(dir_path)
+    assert os.path.isdir(dir_path)
