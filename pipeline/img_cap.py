@@ -4,17 +4,18 @@ from urllib.parse import urljoin
 from zerolan.data.abs_data import AbstractModelQuery
 from zerolan.data.data.img_cap import ImgCapQuery, ImgCapPrediction
 
-from common.config import ImgCapPipelineConfig as config
-from common.decorator import pipeline_enable
+from common.config import ImgCapPipelineConfig
 from pipeline.abs_pipeline import AbstractImagePipeline
 
 
 class ImgCapPipeline(AbstractImagePipeline):
 
-    @pipeline_enable(config.enable)
-    def __init__(self):
-        super().__init__()
+    def __init__(self, config: ImgCapPipelineConfig):
+        super().__init__(config)
         self.predict_url = urljoin(config.server_url, '/img-cap/predict')
+        self.stream_predict_url = urljoin(config.server_url, '/img-cap/stream-predict')
+        self.state_url = urljoin(config.server_url, '/img-cap/state')
+        self.check_urls()
 
     def predict(self, query: ImgCapQuery) -> ImgCapPrediction | None:
         return super().predict(query)

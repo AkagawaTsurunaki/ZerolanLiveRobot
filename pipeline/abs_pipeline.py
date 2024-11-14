@@ -4,17 +4,34 @@ from http import HTTPStatus
 
 import requests
 from loguru import logger
-
-from zerolan.data.data.state import AppStatusEnum, ServiceState
 from zerolan.data.abs_data import AbsractImageModelQuery, AbstractModelQuery, AbstractModelPrediction
+from zerolan.data.data.state import AppStatusEnum, ServiceState
+
+from common.utils.web_util import is_valid_url
 
 
 class AbstractPipeline(ABC):
 
-    def __init__(self):
+    def __init__(self, config: any):
+        self.config = config
+        self.is_pipeline_enable()
         self.predict_url: str | None = None
         self.stream_predict_url: str | None = None
         self.state_url: str | None = None
+
+    def is_pipeline_enable(self):
+        if not self.config.enable:
+            raise Exception("The pipeline is disabled in your config!")
+
+    def check_urls(self):
+        urls = {"predict_url": self.predict_url,
+                "stream_predict_url": self.stream_predict_url,
+                "state_url": self.state_url}
+        for url_name, url in urls.items():
+            if url is None:
+                raise ValueError(f"No {url_name} URL was provided.")
+            if not is_valid_url(url):
+                raise ValueError(f"Invalid URL: {url}")
 
     @abstractmethod
     def predict(self, query: AbstractModelQuery) -> AbstractModelPrediction | None:
@@ -59,8 +76,8 @@ class AbstractPipeline(ABC):
 
 
 class AbstractImagePipeline(AbstractPipeline):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, config: any):
+        super().__init__(config)
         self.predict_url: str | None = None
         self.stream_predict_url: str | None = None
 

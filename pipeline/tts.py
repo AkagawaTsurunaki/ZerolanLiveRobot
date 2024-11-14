@@ -2,17 +2,18 @@ from urllib.parse import urljoin
 
 from zerolan.data.data.tts import TTSQuery, TTSPrediction
 
-from common.config import TTSPipelineConfig as config
-from common.decorator import pipeline_enable
+from common.config import TTSPipelineConfig as TTSPipelineConfig
 from pipeline.abs_pipeline import AbstractPipeline
 
 
 class TTSPipeline(AbstractPipeline):
-    @pipeline_enable(config.enable)
-    def __init__(self):
-        super().__init__()
+
+    def __init__(self, config: TTSPipelineConfig):
+        super().__init__(config)
         self.predict_url = urljoin(config.server_url, '/tts/predict')
         self.stream_predict_url = urljoin(config.server_url, f'/tts/stream-predict')
+        self.state_url = urljoin(config.server_url, '/tts/state')
+        self.check_urls()
 
     def predict(self, query: TTSQuery) -> TTSPrediction | None:
         return super().predict(query)

@@ -4,18 +4,17 @@ from urllib.parse import urljoin
 from zerolan.data.abs_data import AbstractModelQuery
 from zerolan.data.data.llm import LLMQuery, LLMPrediction
 
-from common.config import LLMPipelineConfig as config
-from common.decorator import pipeline_enable
+from common.config import LLMPipelineConfig
 from pipeline.abs_pipeline import AbstractPipeline
-
 
 class LLMPipeline(AbstractPipeline):
 
-    @pipeline_enable(config.enable)
-    def __init__(self):
-        super().__init__()
+    def __init__(self, config: LLMPipelineConfig):
+        super().__init__(config)
         self.predict_url = urljoin(config.server_url, '/llm/predict')
         self.stream_predict_url = urljoin(config.server_url, f'/llm/stream-predict')
+        self.state_url = urljoin(config.server_url, '/llm/state')
+        self.check_urls()
 
     def predict(self, query: LLMQuery) -> LLMPrediction | None:
         return super().predict(query)

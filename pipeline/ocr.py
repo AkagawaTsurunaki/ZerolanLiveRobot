@@ -4,16 +4,18 @@ from urllib.parse import urljoin
 from zerolan.data.abs_data import AbstractModelQuery
 from zerolan.data.data.ocr import OCRQuery, OCRPrediction
 
-from common.config import OCRPipelineConfig as config
-from common.decorator import pipeline_enable
+from common.config import OCRPipelineConfig
 from pipeline.abs_pipeline import AbstractImagePipeline
 
 
 class OCRPipeline(AbstractImagePipeline):
-    @pipeline_enable(config.enable)
-    def __init__(self):
-        super().__init__()
+
+    def __init__(self, config: OCRPipelineConfig):
+        super().__init__(config)
         self.predict_url = urljoin(config.server_url, '/ocr/predict')
+        self.stream_predict_url = urljoin(config.server_url, '/ocr/stream-predict')
+        self.state_url = urljoin(config.server_url, '/ocr/state')
+        self.check_urls()
 
     def predict(self, query: OCRQuery) -> OCRPrediction | None:
         return super().predict(query)

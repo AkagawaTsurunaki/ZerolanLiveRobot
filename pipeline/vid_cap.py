@@ -5,18 +5,18 @@ from urllib.parse import urljoin
 from zerolan.data.abs_data import AbstractModelQuery
 from zerolan.data.data.vid_cap import VidCapQuery, VidCapPrediction
 
-from common.config import VidCapPipelineConfig as config
-from common.decorator import pipeline_enable
+from common.config import VidCapPipelineConfig
 from pipeline.abs_pipeline import AbstractPipeline
 
 
 class VidCapPipeline(AbstractPipeline):
 
-    @pipeline_enable(config.enable)
-    def __init__(self):
-        super().__init__()
-
+    def __init__(self, config: VidCapPipelineConfig):
+        super().__init__(config)
         self.predict_url = urljoin(config.server_url, '/vid-cap/predict')
+        self.stream_predict_url = urljoin(config.server_url, '/vid-cap/stream-predict')
+        self.state_url = urljoin(config.server_url, '/vid-cap/state')
+        self.check_urls()
 
     def predict(self, query: VidCapQuery) -> VidCapPrediction | None:
         assert os.path.exists(query.vid_path), f"视频路径不存在：{query.vid_path}"

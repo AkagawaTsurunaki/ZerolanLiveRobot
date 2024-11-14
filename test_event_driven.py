@@ -29,9 +29,9 @@ class GPT_SoVITS_TTS_Query(TTSQuery):
 class ZerolanLiveRobot:
     def __init__(self):
         self.emitter = EventEmitter()
-        self.asr = ASRPipeline()
-        self.llm = LLMPipeline()
-        self.tts = TTSPipeline()
+        self.asr = ASRPipeline(config.pipeline.asr)
+        self.llm = LLMPipeline(config.pipeline.llm)
+        self.tts = TTSPipeline(config.pipeline.tts)
 
         self.speaker = Speaker()
 

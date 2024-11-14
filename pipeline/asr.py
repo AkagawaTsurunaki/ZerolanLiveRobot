@@ -6,17 +6,18 @@ import requests
 from loguru import logger
 from zerolan.data.data.asr import ASRModelQuery, ASRModelPrediction, ASRModelStreamQuery
 
-from common.config import ASRPipelineConfig as config
-from common.decorator import pipeline_enable
+from common.config import ASRPipelineConfig
 from pipeline.abs_pipeline import AbstractPipeline
 
 
 class ASRPipeline(AbstractPipeline):
-    @pipeline_enable(config.enable)
-    def __init__(self):
-        super().__init__()
+
+    def __init__(self, config: ASRPipelineConfig):
+        super().__init__(config)
         self.predict_url = urljoin(config.server_url, "/asr/predict")
         self.stream_predict_url = urljoin(config.server_url, '/asr/stream-predict')
+        self.state_url = urljoin(config.server_url, '/asr/state')
+        self.check_urls()
 
     def predict(self, query: ASRModelQuery) -> ASRModelPrediction | None:
         assert isinstance(query, ASRModelQuery)
