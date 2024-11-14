@@ -8,6 +8,7 @@ from zerolan.data.data.llm import LLMQuery, LLMPrediction
 from zerolan.data.data.tts import TTSQuery, TTSPrediction
 
 from common.config import get_config
+from common.enum import SystemSoundEnum
 from common.eventemitter import EventEmitter
 from events.vad_event import VadEventEmitter
 from manager.llm_prompt_manager import LLMPromptManager
@@ -63,16 +64,17 @@ class ZerolanLiveRobot:
         @self.emitter.on("asr")
         async def asr_handler(prediction: ASRModelPrediction):
             logger.info(prediction.transcript)
-            query = LLMQuery(text=prediction.transcript, history=[])
+            query = LLMQuery(text=prediction.transcript, history=self.chat_manager.current_history)
             prediction = self.llm.predict(query)
+            self.chat_manager.reset_history(prediction.history)
+            logger.info(f"Length of current history: {len(self.chat_manager.current_history)}")
             await self.emitter.emit("llm", prediction)
 
         @self.emitter.on("asr")
         async def command_handler(prediction: ASRModelPrediction):
             if "关机" in prediction.transcript:
-                self.speaker.playsound(
-                    R"D:\AkagawaTsurunaki\WorkSpace\PythonProjects\ZerolanLiveRobot\resources\static\sound\exit.wav")
-                exit()
+                self.speaker.play_system_sound(SystemSoundEnum.exit)
+                logger.debug("Simulate exit")
 
     def on_llm(self):
         @self.emitter.on("llm")

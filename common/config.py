@@ -143,5 +143,5 @@ class ZerolanLiveRobotConfig:
 def get_config() -> ZerolanLiveRobotConfig:
     cfg_dict = read_yaml(spath("resources/config.yaml"))
     assert hasattr(ZerolanLiveRobotConfig, "from_dict")
-    config: ZerolanLiveRobotConfig = ZerolanLiveRobotConfig.from_dict(cfg_dict) # noqa
+    config: ZerolanLiveRobotConfig = ZerolanLiveRobotConfig.from_dict(cfg_dict)  # noqa
     return config

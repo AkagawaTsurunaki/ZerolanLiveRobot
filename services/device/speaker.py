@@ -1,28 +1,43 @@
+import os
+
 import pygame
 
 from common.utils.audio_util import check_audio_format
-from common.utils.file_util import create_temp_file
+from common.utils.file_util import create_temp_file, spath
 
 
 class Speaker:
 
+    def __init__(self):
+        pygame.mixer.init()
+
     def playsound(self, path_or_data: str | bytes, block=True):
         if isinstance(path_or_data, bytes):
-            self._playsound_bytes(path_or_data, block)
+            path_or_data = self._save_tmp_audio(path_or_data)
+        if block:
+            self._sync_playsound(path_or_data)
         else:
-            self._playsound_file(path_or_data, block)
+            self._async_playsound(path_or_data)
 
-    def _playsound_file(self, path: str, block=True):
-        pygame.mixer.init()
+    @staticmethod
+    def _sync_playsound(path: str):
         pygame.mixer.music.load(path)
         pygame.mixer.music.play()
-        if block:
-            while pygame.mixer.music.get_busy():
-                continue
+        while pygame.mixer.music.get_busy():
+            continue
 
-    def _playsound_bytes(self, wave_data: bytes, block=True):
+    @staticmethod
+    def _async_playsound(path: str):
+        sound = pygame.mixer.Sound(path)
+        pygame.mixer.Sound.play(sound)
+
+    @staticmethod
+    def _save_tmp_audio(wave_data: bytes):
         format = check_audio_format(wave_data)
         wav_path = create_temp_file(prefix="tts", suffix=f".{format}", tmpdir="audio")
         with open(wav_path, "wb") as f:
             f.write(wave_data)
-        self._playsound_file(wav_path, block)
+        return wav_path
+
+    def play_system_sound(self, key: str, block: bool = False):
+        self.playsound(spath(os.path.join("resources/static/sound/system", key)), block)
