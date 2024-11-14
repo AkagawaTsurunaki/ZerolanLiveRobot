@@ -1,23 +1,11 @@
 import json
-import os
-import re
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
-from typing import List, Tuple
+from typing import List
 
 from loguru import logger
-
-from common.enum.lang import Language
-from common.utils.file_util import read_yaml, spath
 from zerolan.data.data.llm import Conversation
 
-
-@dataclass
-class TTSPrompt:
-    audio_path: str
-    lang: Language
-    sentiment: str
-    transcript: str
+from common.utils.file_util import read_yaml, spath
 
 
 class CharacterConfig(ABC):
@@ -53,7 +41,7 @@ class CustomCharacterConfig(CharacterConfig):
         self.bad_words = []
 
     def load_filter_config(self):
-        config_dict = read_yaml(spath("resources/config/character_config.yaml"))
+        config_dict = read_yaml(spath("resources/config/chat_config.yaml"))
         self.bad_words = config_dict["bad_words"]
 
     def load_config(self):
@@ -62,7 +50,7 @@ class CustomCharacterConfig(CharacterConfig):
 
     def load_llm_prompts(self):
 
-        config_dict = read_yaml(spath("resources/config/character_config.yaml"))
+        config_dict = read_yaml(spath("resources/config/chat_config.yaml"))
 
         self.user_input_format = config_dict["user_input_format"]
 
@@ -84,41 +72,6 @@ class CustomCharacterConfig(CharacterConfig):
 
         logger.info("角色 LLM 配置加载完成")
 
-    def load_tts_prompts(self):
-        for dirpath, dirnames, filenames in os.walk(spath("resources/static/audio/momoi")):
-            for filename in filenames:
-                try:
-                    lang, sentiment, transcript = self.parse_tts_prompt_filename(filename)
-                except ValueError:
-                    logger.warning(f"因为找不到合适的文件名解析策略，音频文件将会跳过：{filename}")
-                    continue
-                audio_path = str(os.path.join(dirpath, filename))
-                tts_prompt = TTSPrompt(audio_path=audio_path, lang=lang, sentiment=sentiment, transcript=transcript)
-                self.tts_prompts.append(tts_prompt)
-        sentiments = [tts_prompt.sentiment for tts_prompt in self.tts_prompts]
 
-        logger.info(f"角色 TTS 配置加载完成（共 {len(self.tts_prompts)} 条参考语音）：{sentiments}")
 
-    @staticmethod
-    def parse_tts_prompt_filename(s: str) -> Tuple[Language, str, str]:
-        matches = re.findall(r'\[(.*?)\]', s)
 
-        try:
-            lang = Language.value_of(matches[0])
-        except ValueError:
-            raise ValueError(f"非法的语言标记“{matches[0]}”于字符串“{s}”。")
-        except IndexError:
-            raise ValueError(f"找不到语言标记于字符串“{s}”。")
-
-        try:
-            sentiment = matches[1]
-        except ValueError:
-            raise ValueError(f"非法的情感标记“{matches[0]}”于字符串“{s}”。")
-        except IndexError:
-            raise ValueError(f"找不到情感标记于字符串“{s}”。")
-
-        raw_filename = s.replace(f"[{lang.name()}]", "").replace(f"[{sentiment}]", "")
-        filetype = raw_filename.split(".")[-1]
-        transcript = raw_filename[:-len(f".{filetype}")]
-
-        return lang, sentiment, transcript
