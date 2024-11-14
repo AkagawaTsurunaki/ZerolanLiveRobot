@@ -103,8 +103,8 @@ class Controller:
 
         # 获取游戏事件
         game_event: MinecraftGameEvent | None = None
-        if config.game_config.enable:
-            game_event = self._game_service.game_evt_buf.select_last_one_and_clear()
+        # if config.game_config.enable:
+            # game_event = self._game_service.game_evt_buf.select_last_one_and_clear()
         game_scn = None
 
         # 将画面解释为自然语言

@@ -6,7 +6,6 @@ from loguru import logger
 from websockets import ConnectionClosedError
 from websockets.asyncio.server import serve, ServerConnection
 
-from common.buffer.game_buf import MinecraftGameEventBuffer
 from services.game.minecraft.data import KonekoProtocol
 
 
@@ -14,7 +13,6 @@ class KonekoMinecraftAIAgent:
 
     def __init__(self, host: str, port: int):
         super().__init__()
-        self.game_evt_buf: MinecraftGameEventBuffer = MinecraftGameEventBuffer()
         self._host = host
         self._port = port
         self._ws: ServerConnection = None
