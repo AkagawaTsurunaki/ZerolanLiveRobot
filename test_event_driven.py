@@ -19,6 +19,7 @@ from pipeline.llm import LLMPipeline
 from pipeline.tts import TTSPipeline
 from services.browser.browser import Browser
 from services.device.speaker import Speaker
+from services.live_stream.bilibili import BilibiliService
 from services.vad.voice_detector import VoiceDetector
 
 config = get_config()
@@ -38,6 +39,7 @@ class ZerolanLiveRobot:
         self.tts = TTSPipeline(config.pipeline.tts)
 
         self.speaker = Speaker()
+        self.live_stream = BilibiliService(config.service.live_stream)
 
         self.speech_manager = TTSPromptManager(config.character.speech)
         self.chat_manager = LLMPromptManager(config.character.chat)
@@ -45,9 +47,10 @@ class ZerolanLiveRobot:
 
     @withsound(SystemSoundEnum.start)
     async def start(self):
-        task = asyncio.create_task(self.vad.start())
+        tasks = [asyncio.create_task(self.vad.start()),
+                 asyncio.create_task(self.live_stream)]
         self.register_events()
-        await task
+        await asyncio.gather(*tasks)
 
     def register_events(self):
         @emitter.on("service.vad.speech_chunk")
@@ -119,6 +122,7 @@ class ZerolanLiveRobot:
     @withsound(SystemSoundEnum.exit, block=True)
     def _exit(self):
         exit(0)
+
 
 bot = ZerolanLiveRobot()
 
