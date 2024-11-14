@@ -1,6 +1,6 @@
 class Language:
-    ZH = "zh",
-    EN = "en",
+    ZH = "zh"
+    EN = "en"
     JA = "ja"
 
     def name(self):
