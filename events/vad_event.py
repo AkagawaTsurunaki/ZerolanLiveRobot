@@ -1,6 +1,8 @@
 import numpy as np
 from loguru import logger
 
+from common.decorator import withsound
+from common.enum import SystemSoundEnum
 from common.eventemitter import EventEmitter
 from common.limit_list import LimitList
 from common.utils.audio_util import from_ndarray_to_bytes
@@ -16,10 +18,12 @@ class VadEventEmitter:
         self.vad = EasyEnergyVad()
         self.speech_chunks = LimitList(50)
 
+    @withsound(SystemSoundEnum.microphone_recoding)
     async def start(self):
         self.mp.open()
         await self.handler()
 
+    @withsound(SystemSoundEnum.microphone_stopped)
     def stop(self):
         self.mp.close()
 

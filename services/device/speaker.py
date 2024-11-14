@@ -11,13 +11,14 @@ class Speaker:
     def __init__(self):
         pygame.mixer.init()
 
-    def playsound(self, path_or_data: str | bytes, block=True):
+    @staticmethod
+    def playsound(path_or_data: str | bytes, block=True):
         if isinstance(path_or_data, bytes):
-            path_or_data = self._save_tmp_audio(path_or_data)
+            path_or_data = Speaker._save_tmp_audio(path_or_data)
         if block:
-            self._sync_playsound(path_or_data)
+            Speaker._sync_playsound(path_or_data)
         else:
-            self._async_playsound(path_or_data)
+            Speaker._async_playsound(path_or_data)
 
     @staticmethod
     def _sync_playsound(path: str):
@@ -39,5 +40,6 @@ class Speaker:
             f.write(wave_data)
         return wav_path
 
-    def play_system_sound(self, key: str, block: bool = False):
-        self.playsound(spath(os.path.join("resources/static/sound/system", key)), block)
+    @staticmethod
+    def play_system_sound(key: str, block: bool = False):
+        Speaker.playsound(spath(os.path.join("resources/static/sound/system", key)), block)

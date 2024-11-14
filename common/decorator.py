@@ -4,6 +4,9 @@ from typing import Callable
 
 from loguru import logger
 
+from common.enum import SystemSoundEnum
+from services.device.speaker import Speaker
+
 
 def log_run_time(log: Callable[[str], str] = None):
     def decorator(func):
@@ -20,3 +23,26 @@ def log_run_time(log: Callable[[str], str] = None):
 
     return decorator
 
+
+def withsound(sound: str):
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            Speaker.play_system_sound(sound)
+            ret = func(*args, **kwargs)
+            return ret
+        return wrapper
+    return decorator
+
+def with_error_throw(e_type: type):
+    def decorator(func):
+        @wraps(func)
+        async def wrapper(*args, **kwargs):
+            try:
+                ret = await func(*args, **kwargs)
+                return ret
+            except e_type as e:
+                Speaker.play_system_sound(SystemSoundEnum.error)
+                raise e
+        return wrapper
+    return decorator
