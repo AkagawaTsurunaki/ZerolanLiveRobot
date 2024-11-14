@@ -87,11 +87,61 @@ class GameBridgeConfig:
 @dataclass_json
 @dataclass
 class ServiceConfig:
-    controller_config: ControllerConfig | None = None
-    live_stream_config: LiveStreamConfig | None = None
-    game_config: GameBridgeConfig | None = None
+    controller: ControllerConfig
+    live_stream: LiveStreamConfig
+    game: GameBridgeConfig
 
 
-def get_config():
+@dataclass_json
+@dataclass
+class FilterConfig:
+    bad_words: list[str]
+    strategy: Literal["default"] = "default"
+
+
+@dataclass_json
+@dataclass
+class ChatConfig:
+    filter: FilterConfig
+    system_prompt: str
+    injected_history: list[str]
+    max_history: int = 20
+
+
+@dataclass_json
+@dataclass
+class SpeechConfig:
+    prompts_dir: str = "resources/static/prompts/tts"
+
+
+@dataclass_json
+@dataclass
+class CharacterConfig:
+    chat: ChatConfig
+    speech: SpeechConfig
+
+
+@dataclass_json
+@dataclass
+class PipelineConfig:
+    asr: ASRPipelineConfig
+    llm: LLMPipelineConfig
+    img_cap: ImgCapPipelineConfig
+    ocr: OCRPipelineConfig
+    vid_cap: VidCapPipelineConfig
+    tts: TTSPipelineConfig
+
+
+@dataclass_json
+@dataclass
+class ZerolanLiveRobotConfig:
+    pipeline: PipelineConfig
+    service: ServiceConfig
+    character: CharacterConfig
+
+
+def get_config() -> ZerolanLiveRobotConfig:
     cfg_dict = read_yaml(spath("resources/config.yaml"))
-    return cfg_dict
+    assert hasattr(ZerolanLiveRobotConfig, "from_dict")
+    config: ZerolanLiveRobotConfig = ZerolanLiveRobotConfig.from_dict(cfg_dict) # noqa
+    return config
