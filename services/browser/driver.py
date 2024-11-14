@@ -1,6 +1,5 @@
 import getpass
 import os
-from xmlrpc.client import Error
 
 from loguru import logger
 from selenium import webdriver
@@ -30,7 +29,7 @@ class DriverInitializer:
                 self._profile_dir = file_util.find_dir(default_profile_dir, ".default-release")
 
             if self._profile_dir is None:
-                raise Error("Can not find FireFox Profiles. Please set it in your config manually.")
+                raise Exception("Can not find FireFox Profiles. Please set it in your config manually.")
             else:
                 logger.info(f"Probable FireFox Profiles directory: {self._profile_dir}")
 
