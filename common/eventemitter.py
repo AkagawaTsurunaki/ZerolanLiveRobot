@@ -23,7 +23,9 @@ class EventEmitter:
         return decorator
 
     async def emit(self, event: str, *args, **kwargs) -> None:
-        listeners = self.listeners[event]
+        listeners = self.listeners.get(event, None)
+        if listeners is None:
+            return
         tasks = []
         for listener in listeners:
             try:
