@@ -5,11 +5,9 @@ import pygame
 from common.utils.audio_util import check_audio_format
 from common.utils.file_util import create_temp_file, spath
 
+pygame.mixer.init()
 
 class Speaker:
-
-    def __init__(self):
-        pygame.mixer.init()
 
     @staticmethod
     def playsound(path_or_data: str | bytes, block=True):
