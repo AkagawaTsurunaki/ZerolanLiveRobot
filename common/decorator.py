@@ -57,3 +57,24 @@ def pipeline_resolve():
         return wrapper
 
     return decorator
+
+def log_init(service_name: str):
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            ret = func(*args, **kwargs)
+            logger.info(f"{service_name} initialized.")
+            return ret
+        return wrapper
+    return decorator
+
+def log_start(service_name: str):
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            logger.info(f"{service_name} starting...")
+            ret = func(*args, **kwargs)
+            logger.info(f"{service_name} started.")
+            return ret
+        return wrapper
+    return decorator

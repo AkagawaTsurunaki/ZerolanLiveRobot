@@ -71,7 +71,7 @@ class BiliCredential:
 class LiveStreamConfig:
     enable: bool = True
     platform: Literal["bilibili"] = "bilibili"
-    room_id: str = None
+    room_id: int = None
     credential: BiliCredential = None
 
 

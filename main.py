@@ -1,4 +1,5 @@
 import asyncio
+import threading
 from dataclasses import dataclass
 
 from dataclasses_json import dataclass_json
@@ -48,9 +49,15 @@ class ZerolanLiveRobot:
     @withsound(SystemSoundEnum.start)
     async def start(self):
         self.register_events()
-        tasks = [asyncio.create_task(self.vad.start()),
-                 asyncio.create_task(self.live_stream.connect())]
+
+        def run_vad():
+            asyncio.run(self.vad.start())
+
+        vad_thread = threading.Thread(target=run_vad)
+        vad_thread.start()
+        tasks = [asyncio.create_task(self.live_stream.connect())]
         await asyncio.gather(*tasks)
+        vad_thread.join()
 
     def register_events(self):
         @emitter.on("service.vad.speech_chunk")
