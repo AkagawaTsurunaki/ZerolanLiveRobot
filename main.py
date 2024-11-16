@@ -1,13 +1,12 @@
 import threading
-from dataclasses import dataclass
 
-from dataclasses_json import dataclass_json
 from loguru import logger
 from zerolan.data.data.asr import ASRModelStreamQuery, ASRModelPrediction
 from zerolan.data.data.llm import LLMQuery, LLMPrediction
-from zerolan.data.data.tts import TTSQuery, TTSPrediction
+from zerolan.data.data.tts import TTSPrediction
 
 from common.config import get_config
+from common.data import GPT_SoVITS_TTS_Query
 from common.decorator import withsound, start_ui_process, kill_ui_process
 from common.enum import SystemSoundEnum
 from common.eventemitter import emitter
@@ -24,12 +23,6 @@ from services.live_stream.bilibili import BilibiliService
 from services.vad.voice_detector import VoiceEventEmitter
 
 config = get_config()
-
-
-@dataclass_json
-@dataclass
-class GPT_SoVITS_TTS_Query(TTSQuery):
-    cut_punc: str = "，。"
 
 
 class ZerolanLiveRobot:
