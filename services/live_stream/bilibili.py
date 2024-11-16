@@ -1,10 +1,10 @@
-from bilibili_api import Credential
+from bilibili_api import Credential, sync
 from bilibili_api.live import LiveDanmaku
 from loguru import logger
 from zerolan.data.data.danmaku import Danmaku
 
 from common.config import LiveStreamConfig
-from common.decorator import log_init, log_start
+from common.decorator import log_init, log_start, log_stop
 from common.eventemitter import emitter
 
 
@@ -24,8 +24,8 @@ class BilibiliService:
         self.register_listeners()
 
     @log_start("BilibiliService")
-    async def connect(self):
-        await self._monitor.connect()
+    def start(self):
+        sync(self._monitor.connect())
 
     def register_listeners(self):
         """
@@ -71,7 +71,6 @@ class BilibiliService:
             # emitter.emit("service.live_stream.super_chat")
             pass
 
-    async def disconnect(self):
-        logger.info("User ask to disconnect from Bilibili server...")
-        await self._monitor.disconnect()
-        logger.info("Disconnected from Bilibili server.")
+    @log_stop("BilibiliService")
+    def stop(self):
+        sync(self._monitor.disconnect())

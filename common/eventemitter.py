@@ -67,5 +67,7 @@ class EventEmitter:
         await asyncio.gather(*tasks)
         logger.debug(f"Event {event} emitted")
 
+    def stop(self):
+        self.listeners.clear()
 
 emitter = EventEmitter()

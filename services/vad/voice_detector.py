@@ -1,3 +1,5 @@
+import asyncio
+
 import numpy as np
 from loguru import logger
 
@@ -10,24 +12,28 @@ from services.device.microphone import Microphone
 from services.vad.strategy import EasyEnergyVad
 
 
-class VoiceDetector:
+class VoiceEventEmitter:
     def __init__(self):
         super().__init__()
         self.mp = Microphone()
         self.vad = EasyEnergyVad()
         self.speech_chunks = LimitList(50)
+        self._stop_flag = False
 
     @withsound(SystemSoundEnum.enable_func)
-    async def start(self):
+    def start(self):
         self.mp.open()
-        await self.handler()
+        asyncio.run(self.handler())
 
     @withsound(SystemSoundEnum.disable_func)
     def stop(self):
+        self._stop_flag = True
         self.mp.close()
 
     async def handler(self):
         for chunk in self.mp.stream():
+            if self._stop_flag:
+                break
             speech_chunk = np.frombuffer(chunk, dtype=np.float32)
             speech = self.vad.check_stream(speech_chunk)
             if speech is None:

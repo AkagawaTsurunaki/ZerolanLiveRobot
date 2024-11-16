@@ -1,4 +1,3 @@
-import asyncio
 import threading
 from dataclasses import dataclass
 
@@ -9,11 +8,12 @@ from zerolan.data.data.llm import LLMQuery, LLMPrediction
 from zerolan.data.data.tts import TTSQuery, TTSPrediction
 
 from common.config import get_config
-from common.decorator import withsound
+from common.decorator import withsound, start_ui_process, kill_ui_process
 from common.enum import SystemSoundEnum
 from common.eventemitter import emitter
 from manager.llm_prompt_manager import LLMPromptManager
 from manager.temp_data_manager import TempDataManager
+from manager.thread_manager import ThreadManager
 from manager.tts_prompt_manager import TTSPromptManager
 from pipeline.asr import ASRPipeline
 from pipeline.llm import LLMPipeline
@@ -21,7 +21,7 @@ from pipeline.tts import TTSPipeline
 from services.browser.browser import Browser
 from services.device.speaker import Speaker
 from services.live_stream.bilibili import BilibiliService
-from services.vad.voice_detector import VoiceDetector
+from services.vad.voice_detector import VoiceEventEmitter
 
 config = get_config()
 
@@ -34,7 +34,7 @@ class GPT_SoVITS_TTS_Query(TTSQuery):
 
 class ZerolanLiveRobot:
     def __init__(self):
-        self.vad = VoiceDetector()
+        self.vad = VoiceEventEmitter()
         self.asr = ASRPipeline(config.pipeline.asr)
         self.llm = LLMPipeline(config.pipeline.llm)
         self.tts = TTSPipeline(config.pipeline.tts)
@@ -45,19 +45,18 @@ class ZerolanLiveRobot:
         self.speech_manager = TTSPromptManager(config.character.speech)
         self.chat_manager = LLMPromptManager(config.character.chat)
         self.temp_data_manager = TempDataManager()
+        self.thread_manager = ThreadManager()
 
+    @start_ui_process(True)
     @withsound(SystemSoundEnum.start)
-    async def start(self):
+    def start(self):
         self.register_events()
 
-        def run_vad():
-            asyncio.run(self.vad.start())
+        self.thread_manager.start_thread(threading.Thread(target=self.vad.start, name="VoiceEventEmitter"))
+        self.thread_manager.start_thread(
+            threading.Thread(target=self.live_stream.start, name="LiveStreamEventEmitter"))
 
-        vad_thread = threading.Thread(target=run_vad)
-        vad_thread.start()
-        tasks = [asyncio.create_task(self.live_stream.connect())]
-        await asyncio.gather(*tasks)
-        vad_thread.join()
+        self.thread_manager.join_all_threads()
 
     def register_events(self):
         @emitter.on("service.vad.speech_chunk")
@@ -126,15 +125,19 @@ class ZerolanLiveRobot:
             logger.error("Unhandled error, crashed.")
             exit(1)
 
-    @withsound(SystemSoundEnum.exit, block=True)
+    @kill_ui_process(force=True)
     def _exit(self):
+        emitter.stop()
+        self.vad.stop()
+        self.live_stream.stop()
+
+    @withsound(SystemSoundEnum.exit, block=True)
+    def exit(self):
+        logger.info("Good bye!")
         exit(0)
 
 
 if __name__ == '__main__':
     bot = ZerolanLiveRobot()
-    # ui_process = Process(target=zerolan.ui.app.start_ui_application, daemon=True)
-    # ui_process.start()
-    asyncio.run(bot.start())
-    # ui_process.kill()
-    # ui_process.join()
+    bot.start()
+    bot.exit()

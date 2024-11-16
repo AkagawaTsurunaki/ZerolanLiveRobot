@@ -35,11 +35,10 @@ class Microphone:
                                     frames_per_buffer=self._chunk_size)
 
     def close(self):
+        self._is_recording = False
         self._stream.stop_stream()
         self._stream.close()
-
         self._p.terminate()
-        self._is_recording = False
         logger.info("Close the microphone")
 
     def stream(self) -> Generator[bytes | None, Any, None]:
@@ -48,7 +47,15 @@ class Microphone:
                 data = self._stream.read(self._chunk_stride)
                 yield data
         except Exception as e:
-            logger.exception(e)
+            if isinstance(e, OSError):
+                if e.errno == 9988:
+                    if self._is_recording:
+                        logger.exception(e)
+                        logger.error("Microphone stream closed unexpectedly.")
+                    else:
+                        logger.info("Microphone stream closed.")
+            else:
+                logger.exception(e)
             yield None
 
     @property

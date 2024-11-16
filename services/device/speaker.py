@@ -7,10 +7,11 @@ from common.utils.file_util import create_temp_file, spath
 
 pygame.mixer.init()
 
+
 class Speaker:
 
     @staticmethod
-    def playsound(path_or_data: str | bytes, block=True):
+    def playsound(path_or_data: str | bytes, block: bool = True):
         if isinstance(path_or_data, bytes):
             path_or_data = Speaker._save_tmp_audio(path_or_data)
         if block:
@@ -22,6 +23,10 @@ class Speaker:
     def _sync_playsound(path: str):
         pygame.mixer.music.load(path)
         pygame.mixer.music.play()
+        Speaker.wait()
+
+    @staticmethod
+    def wait():
         while pygame.mixer.music.get_busy():
             continue
 
@@ -40,4 +45,4 @@ class Speaker:
 
     @staticmethod
     def play_system_sound(key: str, block: bool = False):
-        Speaker.playsound(spath(os.path.join("resources/static/sound/system", key)), block)
+        Speaker.playsound(spath(os.path.join("resources/static/sound/system", key)), block=block)
