@@ -20,7 +20,7 @@ from pipeline.tts import TTSPipeline
 from services.browser.browser import Browser
 from services.device.speaker import Speaker
 from services.live_stream.bilibili import BilibiliService
-from services.vad.voice_detector import VoiceEventEmitter
+from services.vad.emitter import VoiceEventEmitter
 
 config = get_config()
 
