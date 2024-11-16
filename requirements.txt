@@ -14,3 +14,4 @@ requests
 loguru
 websockets==14.0
 langchain==0.3.7
+langgraph==0.2.50
