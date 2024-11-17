@@ -31,22 +31,22 @@ class KonekoMinecraftAIAgent:
         async with serve(handler, self._host, self._port):
             await stop
 
-    def start(self) -> Thread:
-        def asyncio_run():
-            asyncio.run(self._run())
-
-        t = threading.Thread(target=asyncio_run, daemon=True)
-        t.start()
-        return t
+    def start(self):
+        asyncio.run(self._run())
 
     async def send_message(self, msg: KonekoProtocol):
         msg = msg.to_json()
-        if self._ws is not None:
-            try:
-                await self._ws.send(msg)
-            except ConnectionClosedError as e:
-                logger.error(e)
-                logger.warning("KonekoMinecraftBot should send close message to close this connection. Check your bot is still online?")
+        if self._ws is None:
+            logger.warning("No client connected to your Websocket server. Send message makes no effort.")
+            return
+
+        try:
+            await self._ws.send(msg)
+        except ConnectionClosedError as e:
+            logger.error(e)
+            logger.warning("KonekoMinecraftBot should send close message to close this connection. Check your bot is still online?")
+        except Exception as e:
+            logger.exception(e)
 
     def stop(self):
         self._stop_flag = True
