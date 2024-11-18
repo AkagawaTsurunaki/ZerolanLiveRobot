@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import Optional, Union
 
 from dataclasses_json import dataclass_json
-from pydantic import create_model, Field
+from pydantic import create_model, Field, BaseModel
 
 
 def ts_type_to_py_type(t: str) -> type:
@@ -43,5 +43,7 @@ def generate_model_from_args(class_name: str, args_list: list[FieldMetadata]):
         else:
             fields[name] = (Optional[field_type], Field(default=None, description=description))
 
-    return create_model(class_name, **fields)
+    model = create_model(class_name, **fields)
+    assert issubclass(model, BaseModel)
+    return model
 
