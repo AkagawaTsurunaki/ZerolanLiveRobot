@@ -13,38 +13,31 @@ from langchain_core.runnables import Runnable
 from langchain_core.tools import BaseTool
 from langchain_core.utils.function_calling import convert_to_openai_tool
 from loguru import logger
+from pydantic import BaseModel
 from zerolan.data.data.llm import LLMQuery
 
 from agent.adaptor import LangChainAdaptedLLM, convert
 from common.config import LLMPipelineConfig
 
 
-@dataclass_json
-@dataclass
-class Property:
+class Property(BaseModel):
     description: str
     type: str
 
 
-@dataclass_json
-@dataclass
-class Parameters:
+class Parameters(BaseModel):
     properties: dict[str, Property]
     required: list[str]
     type: str
 
 
-@dataclass_json
-@dataclass
-class Function:
+class Function(BaseModel):
     name: str
     description: str
-    parameters: any
+    parameters: Parameters
 
 
-@dataclass_json
-@dataclass
-class Tool:
+class Tool(BaseModel):
     type: str
     function: Function
 
