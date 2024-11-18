@@ -1,6 +1,5 @@
 import asyncio
 import json
-from typing import Type
 
 from loguru import logger
 from websockets import ConnectionClosedError
@@ -64,34 +63,48 @@ class KonekoMinecraftAIAgent:
     def __init__(self, ws: WebSocketServer):
         super().__init__()
         self.ws = ws
-        self._instructions = []
+        self._instructions: list[KonekoInstructionTool] = []
 
-    @emitter.on(EventEnum.KONEKO_CLIENT_PUSH_INSTRUCTIONS)
-    def tools_register(self, tools: list[Tool]):
-        result = []
-        for i, tool in enumerate(tools):
-            assert tool.type == "function"
-            tool_name = tool.function.name
-            tool_desc = tool.function.description
-            required_props = set(tool.function.parameters.required)
-            params_type = tool.function.parameters.type
-            properties = tool.function.parameters.properties
+    def _init(self):
+        @emitter.on(EventEnum.KONEKO_CLIENT_PUSH_INSTRUCTIONS)
+        def tools_register(tools: list[Tool]):
+            result = []
+            for i, tool in enumerate(tools):
+                assert tool.type == "function"
+                tool_name = tool.function.name
+                tool_desc = tool.function.description
+                required_props = set(tool.function.parameters.required)
+                params_type = tool.function.parameters.type
+                properties = tool.function.parameters.properties
 
-            arg_list: list[FieldMetadata] = []
-            for prop_name, prop in properties.items():
-                metadata = FieldMetadata(name=prop_name, type=prop.type, description=prop.description,
-                                         required=prop_name in required_props)
-                arg_list.append(metadata)
+                arg_list: list[FieldMetadata] = []
+                for prop_name, prop in properties.items():
+                    metadata = FieldMetadata(name=prop_name, type=prop.type, description=prop.description,
+                                             required=prop_name in required_props)
+                    arg_list.append(metadata)
 
-            model = generate_model_from_args(class_name=params_type, args_list=arg_list)
-            tool = KonekoInstructionTool(name=tool_name, description=tool_desc, args_schema=Type[model])
-            result.append(tool)
-        self._instructions = result
+                model = generate_model_from_args(class_name=params_type, args_list=arg_list)
+                tool = KonekoInstructionTool(name=tool_name, description=tool_desc, args_schema=model)
+                result.append(tool)
+            self._instructions = result
 
-    @emitter.on(EventEnum.KONEKO_CLIENT_HELLO)
-    async def fetch_instructions(self):
-        protocol_obj = KonekoProtocol(event=EventEnum.KONEKO_SERVER_FETCH_INSTRUCTIONS)
-        await self.send_message(protocol_obj)
+        @emitter.on(EventEnum.KONEKO_SERVER_CALL_INSTRUCTION)
+        async def send_message(protocol_obj: KonekoProtocol):
+            await self.ws.send_json(protocol_obj)
+
+        @emitter.on(EventEnum.KONEKO_CLIENT_HELLO)
+        async def fetch_instructions():
+            protocol_obj = KonekoProtocol(event=EventEnum.KONEKO_SERVER_FETCH_INSTRUCTIONS)
+            await send_message(protocol_obj)
+
+        @self.ws.on(EventEnum.WEBSOCKET_RECV_JSON)
+        def event_emitter(data: any):
+            protocol_obj = self.valid_protocol(data)
+            if protocol_obj.event == EventEnum.KONEKO_CLIENT_PUSH_INSTRUCTIONS:
+                tools = [Tool.model_validate(tool) for tool in protocol_obj.data]
+                emitter.emit(EventEnum.KONEKO_CLIENT_PUSH_INSTRUCTIONS, tools)
+            elif protocol_obj.event == EventEnum.KONEKO_CLIENT_HELLO:
+                emitter.emit(EventEnum.KONEKO_CLIENT_HELLO)
 
     @staticmethod
     def valid_protocol(data: any) -> KonekoProtocol | None:
@@ -105,15 +118,5 @@ class KonekoMinecraftAIAgent:
         return protocol_obj
 
     def start(self):
-        @self.ws.on(EventEnum.WEBSOCKET_RECV_JSON)
-        def event_emitter(data: any):
-            protocol_obj = self.valid_protocol(data)
-            if protocol_obj.event == EventEnum.KONEKO_CLIENT_PUSH_INSTRUCTIONS:
-                tools = [Tool.model_validate(tool) for tool in protocol_obj.data]
-                emitter.emit(EventEnum.KONEKO_CLIENT_PUSH_INSTRUCTIONS, tools)
-            elif protocol_obj.event == EventEnum.KONEKO_CLIENT_HELLO:
-                emitter.emit(EventEnum.KONEKO_CLIENT_HELLO)
-
-    @emitter.on(EventEnum.KONEKO_SERVER_CALL_INSTRUCTION)
-    async def send_message(self, protocol_obj: KonekoProtocol):
-        await self.ws.send_json(protocol_obj)
+        self._init()
+        self.ws.start()
