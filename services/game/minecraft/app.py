@@ -1,12 +1,14 @@
 import asyncio
-import threading
-from threading import Thread
+from typing import Type
 
 from loguru import logger
 from websockets import ConnectionClosedError
 from websockets.asyncio.server import serve, ServerConnection
 
-from services.game.minecraft.data import KonekoProtocol
+from agent.tool_agent import Tool
+from services.game.minecraft.data import KonekoProtocol, ProtocolTypeEnum, ActionEnum
+from services.game.minecraft.instrcution.input import generate_model_from_args, FieldMetadata
+from services.game.minecraft.instrcution.tool import KonekoInstructionTool
 
 
 class KonekoMinecraftAIAgent:
@@ -18,12 +20,53 @@ class KonekoMinecraftAIAgent:
         self._ws: ServerConnection = None
         self._stop_flag = False
 
+    def tools_register(self, tools: list[Tool]):
+        result = []
+        for i, tool in enumerate(tools):
+            assert tool.type == "function"
+            tool_name = tool.function.name
+            tool_desc = tool.function.description
+            required_props = set(tool.function.parameters.required)
+            params_type = tool.function.parameters.type
+            properties = tool.function.parameters.properties
+
+            arg_list: list[FieldMetadata] = []
+            for prop_name, prop in properties.items():
+                metadata = FieldMetadata(name=prop_name, type=prop.type, description=prop.description,
+                                         required=prop_name in required_props)
+                arg_list.append(metadata)
+
+            model = generate_model_from_args(class_name=params_type, args_list=arg_list)
+            tool = KonekoInstructionTool(name=tool_name, description=tool_desc, args_schema=Type[model], koneko=self)
+            result.append(tool)
+        return result
+
+    def valid_protocol(self, msg: str) -> KonekoProtocol | None:
+        protocol_obj: KonekoProtocol = KonekoProtocol.from_json(msg)
+        if protocol_obj.protocol != "Koneko Protocol":
+            logger.error(f"Unsupported protocol: {protocol_obj.protocol}")
+            return None
+        if protocol_obj.version != "0.2":
+            logger.error(f"Unsupported version: {protocol_obj.version}")
+            return None
+        return protocol_obj
+
     async def _run(self):
         async def handler(websocket: ServerConnection):
             self._ws = websocket
             while not self._stop_flag:
                 msg = await websocket.recv()
-                logger.info(msg)
+                # Get instructions register
+                protocol_obj = self.valid_protocol(msg)
+                if protocol_obj:
+                    if protocol_obj.type == ProtocolTypeEnum.Push:
+                        if protocol_obj.action == ActionEnum.GetInstructions:
+                            tools = []
+                            for tool in protocol_obj.data:
+                                tools.append(Tool.model_validate(tool))
+
+                            self.tools_register(tools)
+                    logger.info(msg)
 
         # set this future to exit the server
         stop = asyncio.get_running_loop().create_future()
@@ -44,7 +87,8 @@ class KonekoMinecraftAIAgent:
             await self._ws.send(msg)
         except ConnectionClosedError as e:
             logger.error(e)
-            logger.warning("KonekoMinecraftBot should send close message to close this connection. Check your bot is still online?")
+            logger.warning(
+                "KonekoMinecraftBot should send close message to close this connection. Check your bot is still online?")
         except Exception as e:
             logger.exception(e)
 
