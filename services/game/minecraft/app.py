@@ -23,7 +23,7 @@ class WebSocketServer(EventEmitter):
         self._stop_flag = False
 
     def start(self):
-        asyncio.ensure_future(self._run())
+        asyncio.run(self._run())
 
     async def _run(self):
         stop = asyncio.get_running_loop().create_future()
@@ -37,15 +37,21 @@ class WebSocketServer(EventEmitter):
             msg = await websocket.recv()
             data = json.loads(msg)
             await self.emit(EventEnum.WEBSOCKET_RECV_JSON, data)
-            logger.info("Web Socket server received: " + data)
+            logger.info(f"Web Socket server received: {data}")
 
-    async def send_json(self, msg: any):
-        msg = json.dumps(msg, ensure_ascii=False, indent=4)
+    async def send_json(self, msg: dict | list):
+        assert isinstance(msg, dict) or isinstance(msg, list)
+        try:
+            msg = json.dumps(msg, ensure_ascii=False, indent=4)
+        except Exception as e:
+            logger.exception(e)
+            return
         if self._ws is None:
             logger.warning("No client connected to your Websocket server. Send message makes no effort.")
             return
         try:
             await self._ws.send(msg)
+            logger.info(f"Send: {msg}")
         except ConnectionClosedError as e:
             logger.exception(e)
             logger.warning("A client disconnected from Web Socket server.")
@@ -90,21 +96,21 @@ class KonekoMinecraftAIAgent:
 
         @emitter.on(EventEnum.KONEKO_SERVER_CALL_INSTRUCTION)
         async def send_message(protocol_obj: KonekoProtocol):
-            await self.ws.send_json(protocol_obj)
+            await self.ws.send_json(protocol_obj.model_dump())
 
         @emitter.on(EventEnum.KONEKO_CLIENT_HELLO)
         async def fetch_instructions():
             protocol_obj = KonekoProtocol(event=EventEnum.KONEKO_SERVER_FETCH_INSTRUCTIONS)
-            await send_message(protocol_obj)
+            await self.ws.send_json(protocol_obj.model_dump())
 
         @self.ws.on(EventEnum.WEBSOCKET_RECV_JSON)
-        def event_emitter(data: any):
+        async def event_emitter(data: any):
             protocol_obj = self.valid_protocol(data)
             if protocol_obj.event == EventEnum.KONEKO_CLIENT_PUSH_INSTRUCTIONS:
                 tools = [Tool.model_validate(tool) for tool in protocol_obj.data]
-                emitter.emit(EventEnum.KONEKO_CLIENT_PUSH_INSTRUCTIONS, tools)
+                await emitter.emit(EventEnum.KONEKO_CLIENT_PUSH_INSTRUCTIONS, tools)
             elif protocol_obj.event == EventEnum.KONEKO_CLIENT_HELLO:
-                emitter.emit(EventEnum.KONEKO_CLIENT_HELLO)
+                await emitter.emit(EventEnum.KONEKO_CLIENT_HELLO)
 
     @staticmethod
     def valid_protocol(data: any) -> KonekoProtocol | None:
