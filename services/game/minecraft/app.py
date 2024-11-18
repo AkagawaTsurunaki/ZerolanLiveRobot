@@ -6,7 +6,8 @@ from websockets import ConnectionClosedError
 from websockets.asyncio.server import serve, ServerConnection
 
 from agent.tool_agent import Tool
-from services.game.minecraft.data import KonekoProtocol, ProtocolTypeEnum, ActionEnum
+from common.eventemitter import emitter, EventEnum
+from services.game.minecraft.data import KonekoProtocol
 from services.game.minecraft.instrcution.input import generate_model_from_args, FieldMetadata
 from services.game.minecraft.instrcution.tool import KonekoInstructionTool
 
@@ -19,7 +20,9 @@ class KonekoMinecraftAIAgent:
         self._port = port
         self._ws: ServerConnection = None
         self._stop_flag = False
+        self._instructions = []
 
+    @emitter.on(EventEnum.KONEKO_CLIENT_PUSH_INSTRUCTIONS)
     def tools_register(self, tools: list[Tool]):
         result = []
         for i, tool in enumerate(tools):
@@ -39,9 +42,15 @@ class KonekoMinecraftAIAgent:
             model = generate_model_from_args(class_name=params_type, args_list=arg_list)
             tool = KonekoInstructionTool(name=tool_name, description=tool_desc, args_schema=Type[model], koneko=self)
             result.append(tool)
-        return result
+        self._instructions = result
 
-    def valid_protocol(self, msg: str) -> KonekoProtocol | None:
+    @emitter.on(EventEnum.KONEKO_CLIENT_HELLO)
+    async def fetch_instructions(self):
+        protocol_obj = KonekoProtocol(event=EventEnum.KONEKO_SERVER_FETCH_INSTRUCTIONS)
+        await self.send_message(protocol_obj)
+
+    @staticmethod
+    def valid_protocol(msg: str) -> KonekoProtocol | None:
         protocol_obj: KonekoProtocol = KonekoProtocol.from_json(msg)
         if protocol_obj.protocol != "Koneko Protocol":
             logger.error(f"Unsupported protocol: {protocol_obj.protocol}")
@@ -51,6 +60,15 @@ class KonekoMinecraftAIAgent:
             return None
         return protocol_obj
 
+    async def event_emitter(self, protocol_obj: KonekoProtocol):
+        if protocol_obj.event == EventEnum.KONEKO_CLIENT_PUSH_INSTRUCTIONS:
+            tools = []
+            for tool in protocol_obj.data:
+                tools.append(Tool.model_validate(tool))
+            emitter.emit(EventEnum.KONEKO_CLIENT_PUSH_INSTRUCTIONS, tools)
+        elif protocol_obj.event == EventEnum.KONEKO_CLIENT_HELLO:
+            emitter.emit(EventEnum.KONEKO_CLIENT_HELLO)
+
     async def _run(self):
         async def handler(websocket: ServerConnection):
             self._ws = websocket
@@ -59,14 +77,8 @@ class KonekoMinecraftAIAgent:
                 # Get instructions register
                 protocol_obj = self.valid_protocol(msg)
                 if protocol_obj:
-                    if protocol_obj.type == ProtocolTypeEnum.Push:
-                        if protocol_obj.action == ActionEnum.GetInstructions:
-                            tools = []
-                            for tool in protocol_obj.data:
-                                tools.append(Tool.model_validate(tool))
-
-                            self.tools_register(tools)
-                    logger.info(msg)
+                    await self.event_emitter(protocol_obj)
+                logger.info(msg)
 
         # set this future to exit the server
         stop = asyncio.get_running_loop().create_future()
