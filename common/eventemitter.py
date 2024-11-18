@@ -1,38 +1,10 @@
 import asyncio
 import inspect
-from enum import Enum
-from typing import Dict, List, Callable, Coroutine, Union
+from typing import Dict, List, Callable, Coroutine
 
 from loguru import logger
 
-
-class EventEnum(str, Enum):
-    ...
-
-
-class Event:
-    class Pipeline(EventEnum):
-        ASR = "pipeline.asr"
-        LLM = "pipeline.llm"
-        TTS = "pipeline.tts"
-
-    class Service:
-        class LiveStream(EventEnum):
-            Disconnected = "service.live_stream.disconnected"
-            Danmaku = "service.live_stream.danmaku"
-            Gift = "service.live_stream.gift"
-            SuperChat = "service.live_stream.super_chat"
-
-        class VAD(EventEnum):
-            SpeechChunk = "service.vad.speech_chunk"
-
-        class Game(EventEnum):
-            Connected = "service.game.connected"
-            Disconnected = "service.game.disconnected"
-
-    class System(EventEnum):
-        Error = "system.error"
-        Crashed = "system.crashed"
+from common.enumerator import EventEnum
 
 
 class EventEmitter:
@@ -58,19 +30,19 @@ class EventEmitter:
         try:
             task(*args, **kwargs)
         except Exception as e:
-            asyncio.gather(self.emit(Event.System.Error, e))
+            asyncio.gather(self.emit(EventEnum.SYSTEM_ERROR, e))
 
     async def _handle_async_task(self, task):
         try:
             await task
         except Exception as e:
-            await self.emit(Event.System.Error, e)
+            await self.emit(EventEnum.SYSTEM_ERROR, e)
 
     async def emit(self, event: EventEnum, *args, **kwargs) -> None:
         listeners = self.listeners.get(event.name, None)
         if listeners is None:
-            if event == Event.System.Error:
-                await emitter.emit(Event.System.Crashed, args)
+            if event == EventEnum.SYSTEM_ERROR:
+                await emitter.emit(EventEnum.SYSTEM_CRASHED, args)
             return
         tasks = []
         for listener in listeners:

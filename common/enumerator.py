@@ -1,3 +1,6 @@
+from enum import Enum
+
+
 class Language:
     ZH = "zh"
     EN = "en"
@@ -44,3 +47,28 @@ class SystemSoundEnum:
     enable_func: str = "microphone-recoding.wav"
     disable_func: str = "microphone-stopped.wav"
 
+
+class EventEnum(str, Enum):
+    """
+    All event names should be registered here.
+    """
+
+    SYSTEM_ERROR = "system.error"
+    SYSTEM_CRASHED = "system.crashed"
+
+    PIPELINE_ASR = "pipeline.asr"
+    PIPELINE_LLM = "pipeline.llm"
+    PIPELINE_TTS = "pipeline.tts"
+
+    SERVICE_LIVE_STREAM_DISCONNECTED = "service.live_stream.disconnected"
+    SERVICE_LIVE_STREAM_DANMAKU = "service.live_stream.danmaku"
+    SERVICE_LIVE_STREAM_GIFT = "service.live_stream.gift"
+    SERVICE_LIVE_STREAM_SUPER_CHAT = "service.live_stream.super_chat"
+
+    SERVICE_VAD_SPEECH_CHUNK = "service.vad.speech_chunk"
+
+    KONEKO_CLIENT_HELLO = "koneko.client.hello"
+    KONEKO_CLIENT_PUSH_INSTRUCTIONS = "koneko.client.push_instructions"
+    KONEKO_SERVER_HELLO = "koneko.server.hello"
+    KONEKO_SERVER_FETCH_INSTRUCTIONS = "koneko.server.fetch_instructions"
+    KONEKO_SERVER_CALL_INSTRUCTION = "koneko.server.call_instruction"

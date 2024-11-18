@@ -8,8 +8,8 @@ from zerolan.data.data.tts import TTSPrediction
 from common.config import get_config
 from common.data import GPT_SoVITS_TTS_Query
 from common.decorator import withsound, start_ui_process, kill_ui_process
-from common.enumerator import SystemSoundEnum
-from common.eventemitter import emitter, Event
+from common.enumerator import SystemSoundEnum, EventEnum
+from common.eventemitter import emitter
 from manager.llm_prompt_manager import LLMPromptManager
 from manager.temp_data_manager import TempDataManager
 from manager.thread_manager import ThreadManager
@@ -52,14 +52,14 @@ class ZerolanLiveRobot:
         self.thread_manager.join_all_threads()
 
     def register_events(self):
-        @emitter.on(Event.Service.VAD.SpeechChunk)
+        @emitter.on(EventEnum.SERVICE_VAD_SPEECH_CHUNK)
         async def detect_voice(speech: bytes, channels: int, sample_rate: int):
             query = ASRModelStreamQuery(is_final=True, audio_data=speech, channels=channels, sample_rate=sample_rate)
             response = self.asr.stream_predict(query)
             logger.debug("asr event emitted")
-            await emitter.emit(Event.Pipeline.ASR, response)
+            await emitter.emit(EventEnum.PIPELINE_ASR, response)
 
-        @emitter.on(Event.Pipeline.ASR)
+        @emitter.on(EventEnum.PIPELINE_ASR)
         async def asr_handler(prediction: ASRModelPrediction):
             logger.info("ASR: " + prediction.transcript)
 
@@ -86,9 +86,9 @@ class ZerolanLiveRobot:
                 prediction = self.llm.predict(query)
                 self.chat_manager.reset_history(prediction.history)
                 logger.info(f"Length of current history: {len(self.chat_manager.current_history)}")
-                await emitter.emit(Event.Pipeline.LLM, prediction)
+                await emitter.emit(EventEnum.PIPELINE_LLM, prediction)
 
-        @emitter.on(Event.Pipeline.LLM)
+        @emitter.on(EventEnum.PIPELINE_LLM)
         async def llm_query_handler(prediction: LLMPrediction):
             logger.info("LLM: " + prediction.response)
             tts_prompt = self.speech_manager.default_tts_prompt
@@ -101,17 +101,17 @@ class ZerolanLiveRobot:
                 cut_punc="，。！",
             )
             for prediction in self.tts.stream_predict(query):
-                await emitter.emit(Event.Pipeline.TTS, prediction)
+                await emitter.emit(EventEnum.PIPELINE_TTS, prediction)
 
-        @emitter.on(Event.Pipeline.LLM)
+        @emitter.on(EventEnum.PIPELINE_LLM)
         async def history_handler(prediction: LLMPrediction):
             self.chat_manager.reset_history(prediction.history)
 
-        @emitter.on(Event.Pipeline.TTS)
+        @emitter.on(EventEnum.PIPELINE_TTS)
         async def tts_handler(prediction: TTSPrediction):
             self.speaker.playsound(prediction.wave_data, block=True)
 
-        @emitter.on(Event.System.Crashed)
+        @emitter.on(EventEnum.SYSTEM_CRASHED)
         @withsound(SystemSoundEnum.error, block=True)
         def crash_handler(e: Exception):
             logger.exception(e)

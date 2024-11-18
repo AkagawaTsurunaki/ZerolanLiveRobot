@@ -4,6 +4,8 @@ from enum import Enum
 from dataclasses_json import dataclass_json
 from pydantic import BaseModel
 
+from common.eventemitter import EventEnum
+
 
 @dataclass_json
 @dataclass
@@ -18,7 +20,7 @@ class BotOption:
 class KonekoProtocol(BaseModel):
     protocol: str = "Koneko Protocol"
     version: str = "0.2"
-    event: str = "Hello"
+    event: EventEnum
     data: any = None
 
 
