@@ -3,7 +3,7 @@ from typing import Type, Optional
 import requests
 from bs4 import BeautifulSoup
 from langchain_core.callbacks import CallbackManagerForToolRun
-from langchain_core.messages import HumanMessage
+from langchain_core.messages import HumanMessage, AIMessage
 from langchain_core.tools import BaseTool, ToolException
 from loguru import logger
 from pydantic import BaseModel, Field
@@ -104,10 +104,10 @@ def search_baike(query: str) -> str:
     model.bind_tools(tools)
 
     messages = [model.system_prompt, HumanMessage(query)]
-    ai_msg = model.invoke(messages)
+    ai_msg: AIMessage = model.invoke(messages)
     messages.append(ai_msg)
     for tool_call in ai_msg.tool_calls:
-        selected_tool = {baidubaike.name: baidubaike}[tool_call["name"].lower()]
+        selected_tool: BaseTool = {baidubaike.name: baidubaike}[tool_call["name"].lower()]
         tool_msg = selected_tool.invoke(tool_call)
         messages.append(tool_msg)
 
