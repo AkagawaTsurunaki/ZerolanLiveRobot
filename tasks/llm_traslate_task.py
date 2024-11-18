@@ -1,4 +1,4 @@
-from common.enum.lang import Language
+from common.enumerator import Language
 from pipeline.llm import LLMPipeline
 from zerolan.data.data.llm import LLMQuery
 from loguru import logger

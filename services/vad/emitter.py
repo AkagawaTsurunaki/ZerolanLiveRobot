@@ -4,7 +4,7 @@ import numpy as np
 from loguru import logger
 
 from common.decorator import withsound
-from common.enum import SystemSoundEnum
+from common.enumerator import SystemSoundEnum
 from common.eventemitter import emitter
 from common.limit_list import LimitList
 from common.utils.audio_util import from_ndarray_to_bytes

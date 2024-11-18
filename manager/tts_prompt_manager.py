@@ -6,7 +6,7 @@ from loguru import logger
 
 from common.config import SpeechConfig
 from common.data import TTSPrompt
-from common.enum import Language
+from common.enumerator import Language
 from common.utils.file_util import spath
 
 

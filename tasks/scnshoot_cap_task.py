@@ -1,4 +1,4 @@
-from common.enum import Language
+from common.enumerator import Language
 from services.device.screen import Screen
 from zerolan.data.data.img_cap import ImgCapQuery
 from pipeline.img_cap import ImgCapPipeline
