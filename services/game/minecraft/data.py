@@ -17,9 +17,22 @@ class BotOption:
 @dataclass
 class KonekoProtocol:
     protocol: str = "Koneko Protocol"
-    version: str = "0.1"
-    type: str = "hello"
+    version: str = "0.2"
+    type: str = "Hello"
+    action: str = ""
     data: any = None
+
+
+class ProtocolTypeEnum:
+    Hello = "Hello"
+    Fetch = "Fetch"
+    Push = "Push"
+
+
+class ActionEnum:
+    DoNothing = "Do Nothing"
+    GetInstructions = "Get Instructions"
+    Quit = "Quit"
 
 
 class Events:
