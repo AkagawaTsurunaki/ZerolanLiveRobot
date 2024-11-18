@@ -1,8 +1,10 @@
 import json
 import typing
 import uuid
+from dataclasses import dataclass
 from typing import Optional, Any, Sequence, Union, Callable
 
+from dataclasses_json import dataclass_json
 from langchain_core.callbacks import CallbackManagerForLLMRun
 from langchain_core.language_models import LanguageModelInput
 from langchain_core.messages import BaseMessage, AIMessage, SystemMessage, ToolCall
@@ -15,6 +17,36 @@ from zerolan.data.data.llm import LLMQuery
 
 from agent.adaptor import LangChainAdaptedLLM, convert
 from common.config import LLMPipelineConfig
+
+
+@dataclass_json
+@dataclass
+class Property:
+    description: str
+    type: str
+
+
+@dataclass_json
+@dataclass
+class Parameters:
+    properties: dict[str, Property]
+    required: list[str]
+    type: str
+
+
+@dataclass_json
+@dataclass
+class Function:
+    name: str
+    description: str
+    parameters: any
+
+
+@dataclass_json
+@dataclass
+class Tool:
+    type: str
+    function: Function
 
 
 class ToolAgent(LangChainAdaptedLLM):
