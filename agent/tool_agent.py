@@ -1,10 +1,10 @@
 import json
+import re
 import typing
 import uuid
-from dataclasses import dataclass
+from json import JSONDecodeError
 from typing import Optional, Any, Sequence, Union, Callable
 
-from dataclasses_json import dataclass_json
 from langchain_core.callbacks import CallbackManagerForLLMRun
 from langchain_core.language_models import LanguageModelInput
 from langchain_core.messages import BaseMessage, AIMessage, SystemMessage, ToolCall
@@ -48,7 +48,13 @@ class ToolAgent(LangChainAdaptedLLM):
 
     def _parse_tool_call_intent(self, content: str) -> list[ToolCall] | None:
         try:
-            tool_call = json.loads(content)
+            content = extract_json_from_markdown(content)
+            try:
+                tool_call = json.loads(content)
+            except JSONDecodeError:
+                content = remove_extra_braces(content)
+                tool_call = json.loads(content)
+
             if isinstance(tool_call, dict):
                 try:
                     if tool_call["name"] in self._tool_names:
@@ -129,4 +135,17 @@ class ToolAgent(LangChainAdaptedLLM):
                                      + "\n你的输出JSON格式类似如下的格式，请注意匹配工具名和参数："
                                      + json.dumps({"name": "ToolName", "args": {"tool_arg1": "value1"}},
                                                   ensure_ascii=False)
-                                     + "现在根据工具和用户输入，返回JSON格式的输出以调用其他工具。你只能输出JSON内容，遵循严格的JSON格式！")
+                                     + "现在根据工具和用户输入，返回JSON格式的输出以调用其他工具。你只能输出JSON内容，不要带Markdown，并检查你的大括号，遵循严格的JSON格式！")
+
+
+def extract_json_from_markdown(markdown_text: str) -> str:
+    cleaned_text = re.sub(r'```.*?\n(.*?)\n```', r'\1', markdown_text, flags=re.DOTALL)
+    return cleaned_text
+
+
+def remove_extra_braces(json_string):
+    for i in range(len(json_string) - 1, 0, -1):
+        print(i)
+        if json_string[i] == '}':
+            json_string = json_string[:i] + json_string[i + 1:]
+            return json_string
