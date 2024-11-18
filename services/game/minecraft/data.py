@@ -1,6 +1,8 @@
 from dataclasses import dataclass
+from enum import Enum
 
 from dataclasses_json import dataclass_json
+from pydantic import BaseModel
 
 
 @dataclass_json
@@ -13,26 +15,16 @@ class BotOption:
     masterName: str
 
 
-@dataclass_json
-@dataclass
-class KonekoProtocol:
+class KonekoProtocol(BaseModel):
     protocol: str = "Koneko Protocol"
     version: str = "0.2"
-    type: str = "Hello"
-    action: str = ""
+    event: str = "Hello"
     data: any = None
 
 
-class ProtocolTypeEnum:
-    Hello = "Hello"
-    Fetch = "Fetch"
-    Push = "Push"
-
-
-class ActionEnum:
-    DoNothing = "Do Nothing"
-    GetInstructions = "Get Instructions"
-    Quit = "Quit"
+class KonekoClientEventEnum(str, Enum):
+    Hello = "koneko.client.hello"
+    PushInstructions = "koneko.client.pushInstructions"
 
 
 class Events:
