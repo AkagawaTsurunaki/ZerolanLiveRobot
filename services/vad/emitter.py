@@ -5,7 +5,7 @@ from loguru import logger
 
 from common.decorator import withsound
 from common.enumerator import SystemSoundEnum
-from common.eventemitter import emitter
+from common.eventemitter import emitter, Event
 from common.limit_list import LimitList
 from common.utils.audio_util import from_ndarray_to_bytes
 from services.device.microphone import Microphone
@@ -41,7 +41,7 @@ class VoiceEventEmitter:
                     combined_speech_bytes = from_ndarray_to_bytes(np.concatenate(self.speech_chunks),
                                                                   sample_rate=self.mp.sample_rate)
                     logger.info("Voice event emitted")
-                    await emitter.emit("service.vad.speech_chunk",
+                    await emitter.emit(Event.Service.VAD.SpeechChunk,
                                        speech=combined_speech_bytes,
                                        channels=self.mp.channels,
                                        sample_rate=self.mp.sample_rate)

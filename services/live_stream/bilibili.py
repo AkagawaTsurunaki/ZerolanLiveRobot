@@ -5,7 +5,7 @@ from zerolan.data.data.danmaku import Danmaku
 
 from common.config import LiveStreamConfig
 from common.decorator import log_init, log_start, log_stop
-from common.eventemitter import emitter
+from common.eventemitter import emitter, Event
 
 
 class BilibiliService:
@@ -44,7 +44,7 @@ class BilibiliService:
             # fans_band_name = event["data"]["info"][3][1]  # 该粉丝牌的名字
             # live_host_name = event["data"]["info"][3][2]  # 该粉丝牌对应的主播名字
             logger.info(f"Danmaku: [{danmaku.username}] {danmaku.msg}")
-            await emitter.emit("service.live_stream.danmaku", danmaku=danmaku)
+            await emitter.emit(Event.Service.LiveStream.Danmaku, danmaku=danmaku)
 
         @self._monitor.on("DISCONNECT")
         async def handle_disconnect():
@@ -56,7 +56,7 @@ class BilibiliService:
                 2. Update the credential information in your config.
                 3. Update the bilibili-api-python package to the latest version.
                 """)
-            emitter.emit("service.live_stream.disconnected")
+            emitter.emit(Event.Service.LiveStream.Disconnected)
             logger.info("Disconnected from Bilibili server.")
 
         @self._monitor.on("SEND_GIFT")
