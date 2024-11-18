@@ -72,3 +72,5 @@ class EventEnum(str, Enum):
     KONEKO_SERVER_HELLO = "koneko.server.hello"
     KONEKO_SERVER_FETCH_INSTRUCTIONS = "koneko.server.fetch_instructions"
     KONEKO_SERVER_CALL_INSTRUCTION = "koneko.server.call_instruction"
+
+    WEBSOCKET_RECV_JSON = "websocket.recv.json"
