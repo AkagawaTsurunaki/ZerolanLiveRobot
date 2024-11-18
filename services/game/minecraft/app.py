@@ -7,7 +7,8 @@ from websockets import ConnectionClosedError
 from websockets.asyncio.server import serve, ServerConnection
 
 from agent.tool_agent import Tool
-from common.eventemitter import emitter, EventEnum, EventEmitter
+from common.enumerator import EventEnum
+from common.eventemitter import emitter, EventEmitter
 from services.game.minecraft.data import KonekoProtocol
 from services.game.minecraft.instrcution.input import generate_model_from_args, FieldMetadata
 from services.game.minecraft.instrcution.tool import KonekoInstructionTool
@@ -59,6 +60,7 @@ class WebSocketServer(EventEmitter):
 
 class KonekoMinecraftAIAgent:
 
+    # @inject
     def __init__(self, ws: WebSocketServer):
         super().__init__()
         self.ws = ws
@@ -82,7 +84,7 @@ class KonekoMinecraftAIAgent:
                 arg_list.append(metadata)
 
             model = generate_model_from_args(class_name=params_type, args_list=arg_list)
-            tool = KonekoInstructionTool(name=tool_name, description=tool_desc, args_schema=Type[model], koneko=self)
+            tool = KonekoInstructionTool(name=tool_name, description=tool_desc, args_schema=Type[model])
             result.append(tool)
         self._instructions = result
 
@@ -112,5 +114,6 @@ class KonekoMinecraftAIAgent:
             elif protocol_obj.event == EventEnum.KONEKO_CLIENT_HELLO:
                 emitter.emit(EventEnum.KONEKO_CLIENT_HELLO)
 
-    async def send_message(self, msg: KonekoProtocol):
-        await self.ws.send_json(msg)
+    @emitter.on(EventEnum.KONEKO_SERVER_CALL_INSTRUCTION)
+    async def send_message(self, protocol_obj: KonekoProtocol):
+        await self.ws.send_json(protocol_obj)
