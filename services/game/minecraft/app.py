@@ -1,4 +1,5 @@
 import asyncio
+import json
 from typing import Type
 
 from loguru import logger
@@ -6,20 +7,61 @@ from websockets import ConnectionClosedError
 from websockets.asyncio.server import serve, ServerConnection
 
 from agent.tool_agent import Tool
-from common.eventemitter import emitter, EventEnum
+from common.eventemitter import emitter, EventEnum, EventEmitter
 from services.game.minecraft.data import KonekoProtocol
 from services.game.minecraft.instrcution.input import generate_model_from_args, FieldMetadata
 from services.game.minecraft.instrcution.tool import KonekoInstructionTool
 
 
-class KonekoMinecraftAIAgent:
+class WebSocketServer(EventEmitter):
 
-    def __init__(self, host: str, port: int):
+    def __init__(self, host: str = "127.0.0.1", port: int = 10098):
         super().__init__()
         self._host = host
         self._port = port
-        self._ws: ServerConnection = None
+        self._ws: ServerConnection
         self._stop_flag = False
+
+    def start(self):
+        asyncio.ensure_future(self._run())
+
+    async def _run(self):
+        stop = asyncio.get_running_loop().create_future()
+
+        async with serve(self._handler, self._host, self._port):
+            await stop
+
+    async def _handler(self, websocket: ServerConnection):
+        self._ws = websocket
+        while not self._stop_flag:
+            msg = await websocket.recv()
+            data = json.loads(msg)
+            await self.emit(EventEnum.WEBSOCKET_RECV_JSON, data)
+            logger.info("Web Socket server received: " + data)
+
+    async def send_json(self, msg: any):
+        msg = json.dumps(msg, ensure_ascii=False, indent=4)
+        if self._ws is None:
+            logger.warning("No client connected to your Websocket server. Send message makes no effort.")
+            return
+        try:
+            await self._ws.send(msg)
+        except ConnectionClosedError as e:
+            logger.exception(e)
+            logger.warning("A client disconnected from Web Socket server.")
+        except Exception as e:
+            logger.exception(e)
+
+    def stop(self):
+        super().stop()
+        self._stop_flag = True
+
+
+class KonekoMinecraftAIAgent:
+
+    def __init__(self, ws: WebSocketServer):
+        super().__init__()
+        self.ws = ws
         self._instructions = []
 
     @emitter.on(EventEnum.KONEKO_CLIENT_PUSH_INSTRUCTIONS)
@@ -50,8 +92,8 @@ class KonekoMinecraftAIAgent:
         await self.send_message(protocol_obj)
 
     @staticmethod
-    def valid_protocol(msg: str) -> KonekoProtocol | None:
-        protocol_obj: KonekoProtocol = KonekoProtocol.from_json(msg)
+    def valid_protocol(data: any) -> KonekoProtocol | None:
+        protocol_obj = KonekoProtocol.model_validate(data)
         if protocol_obj.protocol != "Koneko Protocol":
             logger.error(f"Unsupported protocol: {protocol_obj.protocol}")
             return None
@@ -60,49 +102,15 @@ class KonekoMinecraftAIAgent:
             return None
         return protocol_obj
 
-    async def event_emitter(self, protocol_obj: KonekoProtocol):
-        if protocol_obj.event == EventEnum.KONEKO_CLIENT_PUSH_INSTRUCTIONS:
-            tools = []
-            for tool in protocol_obj.data:
-                tools.append(Tool.model_validate(tool))
-            emitter.emit(EventEnum.KONEKO_CLIENT_PUSH_INSTRUCTIONS, tools)
-        elif protocol_obj.event == EventEnum.KONEKO_CLIENT_HELLO:
-            emitter.emit(EventEnum.KONEKO_CLIENT_HELLO)
-
-    async def _run(self):
-        async def handler(websocket: ServerConnection):
-            self._ws = websocket
-            while not self._stop_flag:
-                msg = await websocket.recv()
-                # Get instructions register
-                protocol_obj = self.valid_protocol(msg)
-                if protocol_obj:
-                    await self.event_emitter(protocol_obj)
-                logger.info(msg)
-
-        # set this future to exit the server
-        stop = asyncio.get_running_loop().create_future()
-
-        async with serve(handler, self._host, self._port):
-            await stop
-
     def start(self):
-        asyncio.run(self._run())
+        @self.ws.on(EventEnum.WEBSOCKET_RECV_JSON)
+        def event_emitter(data: any):
+            protocol_obj = self.valid_protocol(data)
+            if protocol_obj.event == EventEnum.KONEKO_CLIENT_PUSH_INSTRUCTIONS:
+                tools = [Tool.model_validate(tool) for tool in protocol_obj.data]
+                emitter.emit(EventEnum.KONEKO_CLIENT_PUSH_INSTRUCTIONS, tools)
+            elif protocol_obj.event == EventEnum.KONEKO_CLIENT_HELLO:
+                emitter.emit(EventEnum.KONEKO_CLIENT_HELLO)
 
     async def send_message(self, msg: KonekoProtocol):
-        msg = msg.to_json()
-        if self._ws is None:
-            logger.warning("No client connected to your Websocket server. Send message makes no effort.")
-            return
-
-        try:
-            await self._ws.send(msg)
-        except ConnectionClosedError as e:
-            logger.error(e)
-            logger.warning(
-                "KonekoMinecraftBot should send close message to close this connection. Check your bot is still online?")
-        except Exception as e:
-            logger.exception(e)
-
-    def stop(self):
-        self._stop_flag = True
+        await self.ws.send_json(msg)
