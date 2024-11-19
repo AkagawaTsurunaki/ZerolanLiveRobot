@@ -47,11 +47,14 @@ class EventEmitter:
 
     async def _handle_tasks(self, listeners: list[Callable], once: bool, *args, **kwargs):
         tasks = []
+        if listeners is None:
+            return
         for listener in listeners:
             if inspect.iscoroutinefunction(listener):
                 task = asyncio.create_task(self._handle_async_task(listener(*args, **kwargs)))
                 tasks.append(task)
-                listeners.remove(listener)
+                if once:
+                    listeners.remove(listener)
             else:
                 self._handle_sync_task(listener(*args, **kwargs))
         await asyncio.gather(*tasks)
@@ -61,10 +64,10 @@ class EventEmitter:
         once_listeners = self.once_listeners.get(event.name, None)
 
         # If no listeners to handle error, crashed
-        if listeners is None:
-            if event == EventEnum.SYSTEM_ERROR:
-                await emitter.emit(EventEnum.SYSTEM_CRASHED, args)
-            return
+        # if listeners is None:
+        #     if event == EventEnum.SYSTEM_ERROR:
+        #         await emitter.emit(EventEnum.SYSTEM_CRASHED, args)
+        #     return
 
         tasks = [self._handle_tasks(listeners, False, *args, **kwargs),
                  self._handle_tasks(once_listeners, True, *args, **kwargs)]
