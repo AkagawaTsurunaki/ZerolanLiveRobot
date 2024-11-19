@@ -135,6 +135,10 @@ class KonekoMinecraftAIAgent:
         self.ws.start()
 
     def exec_instruction(self, query: str):
+        if len(self._instruction_tools) == 0:
+            logger.warning("No instruction to execute. Are your sure that KonekoMinecraftBot has started?")
+            return
+
         messages = [self._tool_agent.system_prompt, HumanMessage(query)]
         ai_msg = self._tool_agent.invoke(messages)
         messages.append(ai_msg)
