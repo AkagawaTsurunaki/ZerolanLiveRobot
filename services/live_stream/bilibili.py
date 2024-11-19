@@ -33,6 +33,10 @@ class BilibiliService:
         See: https://nemo2011.github.io/bilibili-api/#/modules/live
         :return:
         """
+        @self._monitor.on("VERIFICATION_SUCCESSFUL")
+        async def on_connect():
+            emitter.emit(EventEnum.SERVICE_LIVE_STREAM_CONNECTED)
+            logger.info("Verification successful, connected to Bilibili server.")
 
         @self._monitor.on("DANMU_MSG")
         async def handle_recv(event):
