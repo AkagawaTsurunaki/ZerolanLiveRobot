@@ -34,7 +34,7 @@ class BilibiliService:
         :return:
         """
         @self._monitor.on("VERIFICATION_SUCCESSFUL")
-        async def on_connect():
+        async def on_connect(event):
             emitter.emit(EventEnum.SERVICE_LIVE_STREAM_CONNECTED)
             logger.info("Verification successful, connected to Bilibili server.")
 
