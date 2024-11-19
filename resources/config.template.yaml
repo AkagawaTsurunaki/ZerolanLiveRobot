@@ -40,7 +40,7 @@ service:
   live_stream:
     enable: true
     platform: bilibili
-    room_id: 1
+    room_id: -1
     credential:
       # [See here](https://nemo2011.github.io/bilibili-api/#/get-credential)
       sessdata: ""
@@ -69,6 +69,6 @@ character:
     prompts_dir: "resources/static/prompts/tts"
 external_tool:
   browser:
-    firefox:
-      # Auto find the location of the Firefox profile file in user directory if you set it `null`.
-      profileDir: null
+    driver: firefox
+    # Auto find the location of the Firefox profile file in user directory if you set it `null`.
+    profile_dir: null
