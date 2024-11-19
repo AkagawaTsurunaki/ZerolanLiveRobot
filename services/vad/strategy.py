@@ -1,5 +1,4 @@
 import numpy as np
-from loguru import logger
 
 from common.buffer.asr_res_buf import AudioBuffer
 from common.utils.math_util import clamp
@@ -71,7 +70,7 @@ class EasyEnergyVad:
             如果流被切断，请注意务必调用 reset_stream()。
         """
 
-        logger.debug(self._mute_count)
+        # logger.debug(self._mute_count)
 
         # 将音频块存储进缓存
         self._buf.append(speech_chunk)
@@ -88,11 +87,11 @@ class EasyEnergyVad:
             self._mute_count += 1
             self._end_index = clamp(0, self._buf.pointer, self._buf.pointer - self._max_mute_count + self._pad)
 
-        logger.debug(f"当前音频切片索引为 [{self._start_index}: {self._end_index}]")
+        # logger.debug(f"当前音频切片索引为 [{self._start_index}: {self._end_index}]")
 
         if self._mute_count > self._max_mute_count:
             self.reset_stream()
-            logger.debug(f"因为达到连续最大静息数 {self._max_mute_count}，VAD 音频缓存已清空")
+            # logger.debug(f"因为达到连续最大静息数 {self._max_mute_count}，VAD 音频缓存已清空")
 
         if self._start_index >= 0 and (not self._buf.empty()):
             real_speech = speech[self._start_index * len(speech_chunk):]
