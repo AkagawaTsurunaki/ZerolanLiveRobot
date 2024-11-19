@@ -19,6 +19,7 @@ from pipeline.llm import LLMPipeline
 from pipeline.tts import TTSPipeline
 from services.browser.browser import Browser
 from services.device.speaker import Speaker
+from services.game.minecraft.app import KonekoMinecraftAIAgent, WebSocketServer
 from services.live_stream.bilibili import BilibiliService
 from services.vad.emitter import VoiceEventEmitter
 
@@ -34,17 +35,20 @@ class ZerolanLiveRobot:
 
         self.speaker = Speaker()
         self.live_stream = BilibiliService(config.service.live_stream)
+        self.websocket = WebSocketServer()
+        self.minecraft_agent = KonekoMinecraftAIAgent(self.websocket, config.pipeline.llm)
 
         self.speech_manager = TTSPromptManager(config.character.speech)
         self.chat_manager = LLMPromptManager(config.character.chat)
         self.temp_data_manager = TempDataManager()
         self.thread_manager = ThreadManager()
 
-    @start_ui_process(True)
+    @start_ui_process(False)
     @withsound(SystemSoundEnum.start)
     def start(self):
         self.register_events()
 
+        self.thread_manager.start_thread(threading.Thread(target=self.minecraft_agent.start, name="MinecraftAgent"))
         self.thread_manager.start_thread(threading.Thread(target=self.vad.start, name="VoiceEventEmitter"))
         self.thread_manager.start_thread(
             threading.Thread(target=self.live_stream.start, name="LiveStreamEventEmitter"))
@@ -81,6 +85,8 @@ class ZerolanLiveRobot:
                 self.speaker.play_system_sound(SystemSoundEnum.warn)
             elif "关闭麦克风" in prediction.transcript:
                 self.vad.stop()
+            elif "测试" in prediction.transcript:
+                self.minecraft_agent.exec_instruction(prediction.transcript)
             else:
                 query = LLMQuery(text=prediction.transcript, history=self.chat_manager.current_history)
                 prediction = self.llm.predict(query)
@@ -112,17 +118,18 @@ class ZerolanLiveRobot:
             self.speaker.playsound(prediction.wave_data, block=True)
 
         @emitter.on(EventEnum.SYSTEM_CRASHED)
-        @withsound(SystemSoundEnum.error, block=True)
+        @withsound(SystemSoundEnum.error, block=False)
         def crash_handler(e: Exception):
             logger.exception(e)
             logger.error("Unhandled error, crashed.")
-            exit(1)
+            self._exit()
 
     @kill_ui_process(force=True)
     def _exit(self):
-        emitter.stop()
-        self.vad.stop()
-        self.live_stream.stop()
+        # emitter.stop()
+        # self.vad.stop()
+        # self.live_stream.stop()
+        pass
 
     @withsound(SystemSoundEnum.exit, block=True)
     def exit(self):
