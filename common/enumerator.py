@@ -60,6 +60,7 @@ class EventEnum(str, Enum):
     PIPELINE_LLM = "pipeline.llm"
     PIPELINE_TTS = "pipeline.tts"
 
+    SERVICE_LIVE_STREAM_CONNECTED = "service.live_stream.connected"
     SERVICE_LIVE_STREAM_DISCONNECTED = "service.live_stream.disconnected"
     SERVICE_LIVE_STREAM_DANMAKU = "service.live_stream.danmaku"
     SERVICE_LIVE_STREAM_GIFT = "service.live_stream.gift"
