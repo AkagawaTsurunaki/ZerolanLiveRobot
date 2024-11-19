@@ -1,11 +1,14 @@
 import asyncio
 import json
+from typing import Dict
 
+from langchain_core.messages import HumanMessage, AIMessage
 from loguru import logger
 from websockets import ConnectionClosedError
 from websockets.asyncio.server import serve, ServerConnection
 
-from agent.tool_agent import Tool
+from agent.tool_agent import Tool, ToolAgent
+from common.config import LLMPipelineConfig
 from common.enumerator import EventEnum
 from common.eventemitter import emitter, EventEmitter
 from services.game.minecraft.data import KonekoProtocol
@@ -66,10 +69,11 @@ class WebSocketServer(EventEmitter):
 class KonekoMinecraftAIAgent:
 
     # @inject
-    def __init__(self, ws: WebSocketServer):
+    def __init__(self, ws: WebSocketServer, config: LLMPipelineConfig):
         super().__init__()
         self.ws = ws
-        self._instructions: list[KonekoInstructionTool] = []
+        self._instruction_tools: Dict[str, KonekoInstructionTool] = dict()
+        self._tool_agent = ToolAgent(config)
 
     def _init(self):
         @emitter.on(EventEnum.KONEKO_CLIENT_PUSH_INSTRUCTIONS)
@@ -92,7 +96,10 @@ class KonekoMinecraftAIAgent:
                 model = generate_model_from_args(class_name=params_type, args_list=arg_list)
                 tool = KonekoInstructionTool(name=tool_name, description=tool_desc, args_schema=model)
                 result.append(tool)
-            self._instructions = result
+            self._tool_agent.bind_tools(result)
+            for tool in result:
+                self._instruction_tools[tool.name] = tool
+            logger.info(f"{len(self._instruction_tools)} Instruction tools are bound.")
 
         @emitter.on(EventEnum.KONEKO_SERVER_CALL_INSTRUCTION)
         async def send_message(protocol_obj: KonekoProtocol):
@@ -126,3 +133,15 @@ class KonekoMinecraftAIAgent:
     def start(self):
         self._init()
         self.ws.start()
+
+    def exec_instruction(self, query: str):
+        messages = [self._tool_agent.system_prompt, HumanMessage(query)]
+        ai_msg = self._tool_agent.invoke(messages)
+        messages.append(ai_msg)
+        assert hasattr(ai_msg, "tool_calls")
+        for tool_call in ai_msg.tool_calls:
+            selected_tool = self._instruction_tools[tool_call["name"]]
+            tool_msg = selected_tool.invoke(tool_call)
+            messages.append(tool_msg)
+        print(messages)
+        # tool.invoke(ToolCall(id="asdsad", args={"content": "Ciallo"}, name="chat"))
