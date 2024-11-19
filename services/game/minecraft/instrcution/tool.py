@@ -1,6 +1,7 @@
 import asyncio
 import uuid
 from typing import Type
+from loguru import logger
 
 from langchain_core.messages import ToolCall
 from langchain_core.tools import BaseTool
@@ -24,10 +25,11 @@ class KonekoInstructionTool(BaseTool):
         self.args_schema = args_schema
 
     def _run(self, **kwargs) -> str:
-        return asyncio.run(self._arun(**kwargs))
+        raise NotImplementedError("Call _arun instead")
 
     async def _arun(self, **kwargs) -> str:
         tool_call = ToolCall(id=f"{uuid.uuid4()}", name=self.name, args=kwargs)
         protocol_obj = KonekoProtocol(event=EventEnum.KONEKO_SERVER_CALL_INSTRUCTION, data=tool_call)
         await emitter.emit(EventEnum.KONEKO_SERVER_CALL_INSTRUCTION, protocol_obj=protocol_obj)
+        logger.info(f"Koneko instruction tool {self.name} was called, emitted")
         return f"Instruction {self.name} executed"
