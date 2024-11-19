@@ -37,12 +37,14 @@ class EventEmitter:
         try:
             task(*args, **kwargs)
         except Exception as e:
+            logger.exception(e)
             asyncio.gather(self.emit(EventEnum.SYSTEM_ERROR, e))
 
     async def _handle_async_task(self, task):
         try:
             await task
         except Exception as e:
+            logger.exception(e)
             await self.emit(EventEnum.SYSTEM_ERROR, e)
 
     async def _handle_tasks(self, listeners: list[Callable], once: bool, *args, **kwargs):
@@ -56,18 +58,12 @@ class EventEmitter:
                 if once:
                     listeners.remove(listener)
             else:
-                self._handle_sync_task(listener(*args, **kwargs))
+                self._handle_sync_task(listener, *args, **kwargs)
         await asyncio.gather(*tasks)
 
     async def emit(self, event: EventEnum, *args, **kwargs) -> None:
         listeners = self.listeners.get(event.name, None)
         once_listeners = self.once_listeners.get(event.name, None)
-
-        # If no listeners to handle error, crashed
-        # if listeners is None:
-        #     if event == EventEnum.SYSTEM_ERROR:
-        #         await emitter.emit(EventEnum.SYSTEM_CRASHED, args)
-        #     return
 
         tasks = [self._handle_tasks(listeners, False, *args, **kwargs),
                  self._handle_tasks(once_listeners, True, *args, **kwargs)]
