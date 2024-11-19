@@ -25,24 +25,12 @@ def test_ws():
     #                                required=["content"],
     #                                type="ChatInstruction")))
     # ]
-    # tool = agent._instructions[0]
-    # config = get_config()
-    # model = ToolAgent(config=config.pipeline.llm)
-    # tools = [tool]
-    #
-    # model.bind_tools(tools)
-    # messages = [model.system_prompt, HumanMessage("我要与大家聊天，跟大家说：你好！这里是一则通知")]
-    # ai_msg: AIMessage = model.invoke(messages)
-    # messages.append(ai_msg)
-    # for tool_call in ai_msg.tool_calls:
-    #     selected_tool: BaseTool = tool
-    #     tool_msg = selected_tool.invoke(tool_call)
-    #     messages.append(tool_msg)
-    # print(messages)
-    # tool.invoke(ToolCall(id="asdsad", args={"content": "Ciallo"}, name="chat"))
+
 
 
     ws_thr.join()
 
 
 test_ws()
+
+
