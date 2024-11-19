@@ -2,7 +2,7 @@ import asyncio
 import json
 from typing import Dict
 
-from langchain_core.messages import HumanMessage, AIMessage
+from langchain_core.messages import HumanMessage
 from loguru import logger
 from websockets import ConnectionClosedError
 from websockets.asyncio.server import serve, ServerConnection
