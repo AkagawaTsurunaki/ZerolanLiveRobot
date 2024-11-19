@@ -54,11 +54,19 @@ def pipeline_resolve():
                     2. Maybe you need authentication to your server.
                     3. Just enter the url in your browser and see what happened.
                     """.strip())
+                elif isinstance(e, ConnectionError):
+                    logger.error("""
+                    Pipeline encountered an error when connect to zerolan-core, please try:
+                    1. Check your connection to your zerolan-core server.
+                    2. See your configuration for pipeline.
+                    """)
+                    # if e.
                 raise e
 
         return wrapper
 
     return decorator
+
 
 def log_init(service_name: str):
     def decorator(func):
@@ -67,8 +75,11 @@ def log_init(service_name: str):
             ret = func(*args, **kwargs)
             logger.info(f"{service_name} initialized.")
             return ret
+
         return wrapper
+
     return decorator
+
 
 def log_start(service_name: str):
     def decorator(func):
@@ -78,8 +89,11 @@ def log_start(service_name: str):
             ret = func(*args, **kwargs)
             logger.info(f"{service_name} started.")
             return ret
+
         return wrapper
+
     return decorator
+
 
 def log_stop(service_name: str):
     def decorator(func):
@@ -89,10 +103,14 @@ def log_stop(service_name: str):
             ret = func(*args, **kwargs)
             logger.info(f"{service_name} stopped.")
             return ret
+
         return wrapper
+
     return decorator
 
-_ui_process: Process
+
+_ui_process: Process | None = None
+
 
 def start_ui_process(enable: bool):
     def decorator(func):
@@ -106,24 +124,30 @@ def start_ui_process(enable: bool):
             ret = func(*args, **kwargs)
             # process.join()
             return ret
+
         return wrapper
+
     return decorator
+
 
 def kill_ui_process(force: bool):
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
             global _ui_process
-            if _ui_process is not None:
-                if force:
-                    _ui_process.kill()
-                    _ui_process.terminate()
-                else:
-                    app.shutdown()
-                    _ui_process.terminate()
+            if _ui_process is None:
+                return func(*args, **kwargs)
+
+            if force:
+                _ui_process.kill()
+                _ui_process.terminate()
+            else:
+                app.shutdown()
+                _ui_process.terminate()
             _ui_process.join()
             logger.info("Zerolan UI Process stopped.")
-            ret = func(*args, **kwargs)
-            return ret
+            return func(*args, **kwargs)
+
         return wrapper
+
     return decorator
