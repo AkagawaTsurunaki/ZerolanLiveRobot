@@ -1,8 +1,6 @@
-from typing import List
-
 import numpy as np
 
-from common.buffer.asb_buf import AbstractBuffer, BufferObject
+from services.vad.buffer.asb_buf import AbstractBuffer, BufferObject
 
 
 class AudioBuffer(AbstractBuffer):
@@ -35,18 +33,3 @@ class AudioBuffer(AbstractBuffer):
     def flush(self):
         self._speech_chunk_list = []
         self.pointer = -1
-
-
-class ASRResultBufferObject(BufferObject):
-    def __init__(self, asr_result: str):
-        super().__init__()
-        self.asr_result: str = asr_result
-
-
-class ASRResultBuffer(AbstractBuffer):
-    def __init__(self):
-        super().__init__()
-        self._buffer: List[ASRResultBufferObject] = []
-
-    def get(self, i: int) -> ASRResultBufferObject:
-        return super().get(i)

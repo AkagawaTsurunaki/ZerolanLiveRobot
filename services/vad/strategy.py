@@ -1,7 +1,7 @@
 import numpy as np
 
-from common.buffer.asr_res_buf import AudioBuffer
 from common.utils.math_util import clamp
+from services.vad.buffer.asr_res_buf import AudioBuffer
 
 
 class EasyEnergyVad:
