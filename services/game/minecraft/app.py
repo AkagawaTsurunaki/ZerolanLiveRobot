@@ -9,8 +9,9 @@ from websockets.asyncio.server import serve, ServerConnection
 
 from agent.tool_agent import Tool, ToolAgent
 from common.config import LLMPipelineConfig
-from common.enumerator import EventEnum
+from common.enumerator import EventEnum, SystemSoundEnum
 from common.eventemitter import emitter, EventEmitter
+from services.device.speaker import Speaker
 from services.game.minecraft.data import KonekoProtocol
 from services.game.minecraft.instrcution.input import generate_model_from_args, FieldMetadata
 from services.game.minecraft.instrcution.tool import KonekoInstructionTool
@@ -97,6 +98,7 @@ class KonekoMinecraftAIAgent:
                 tool = KonekoInstructionTool(name=tool_name, description=tool_desc, args_schema=model)
                 result.append(tool)
             self._tool_agent.bind_tools(result)
+            self._instruction_tools = dict()
             for tool in result:
                 self._instruction_tools[tool.name] = tool
             logger.info(f"{len(self._instruction_tools)} Instruction tools are bound.")
@@ -134,8 +136,9 @@ class KonekoMinecraftAIAgent:
         self._init()
         self.ws.start()
 
-    def exec_instruction(self, query: str):
+    async def exec_instruction(self, query: str):
         if len(self._instruction_tools) == 0:
+            Speaker.play_system_sound(SystemSoundEnum.warn)
             logger.warning("No instruction to execute. Are your sure that KonekoMinecraftBot has started?")
             return
 
@@ -145,7 +148,8 @@ class KonekoMinecraftAIAgent:
         assert hasattr(ai_msg, "tool_calls")
         for tool_call in ai_msg.tool_calls:
             selected_tool = self._instruction_tools[tool_call["name"]]
-            tool_msg = selected_tool.invoke(tool_call)
+            logger.info(f"Ready tool call: {tool_call}")
+            tool_msg = await selected_tool.ainvoke(tool_call)
             messages.append(tool_msg)
-        print(messages)
+        logger.debug(messages)
         # tool.invoke(ToolCall(id="asdsad", args={"content": "Ciallo"}, name="chat"))

@@ -79,14 +79,13 @@ class ZerolanLiveRobot:
                 text = prediction.transcript[2:]
                 self.browser.send_keys_and_enter(text)
             elif "错误" in prediction.transcript:
-                raise Exception("Some error")
-                # self.speaker.play_system_sound(SystemSoundEnum.error)
+                self.speaker.play_system_sound(SystemSoundEnum.error)
             elif "警告" in prediction.transcript:
                 self.speaker.play_system_sound(SystemSoundEnum.warn)
             elif "关闭麦克风" in prediction.transcript:
                 self.vad.stop()
             elif "测试" in prediction.transcript:
-                self.minecraft_agent.exec_instruction(prediction.transcript)
+                await self.minecraft_agent.exec_instruction(prediction.transcript)
             else:
                 query = LLMQuery(text=prediction.transcript, history=self.chat_manager.current_history)
                 prediction = self.llm.predict(query)
