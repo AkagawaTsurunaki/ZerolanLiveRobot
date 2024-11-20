@@ -7,6 +7,7 @@ from typing import Callable
 from loguru import logger
 from zerolan.ui import app
 
+from common.enumerator import SystemSoundEnum
 from services.device.speaker import Speaker
 
 
@@ -26,7 +27,7 @@ def log_run_time(log: Callable[[str], str] = None):
     return decorator
 
 
-def withsound(sound: str, block: bool = False):
+def withsound(sound: SystemSoundEnum, block: bool = False):
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):

@@ -19,6 +19,7 @@ from pipeline.llm import LLMPipeline
 from pipeline.tts import TTSPipeline
 from services.browser.browser import Browser
 from services.device.speaker import Speaker
+from services.filter.strategy import FirstMatchedFilter
 from services.game.minecraft.app import KonekoMinecraftAIAgent, WebSocketServer
 from services.live_stream.bilibili import BilibiliService
 from services.vad.emitter import VoiceEventEmitter
@@ -37,6 +38,7 @@ class ZerolanLiveRobot:
         self.live_stream = BilibiliService(config.service.live_stream)
         self.websocket = WebSocketServer()
         self.minecraft_agent = KonekoMinecraftAIAgent(self.websocket, config.pipeline.llm)
+        self.filter = FirstMatchedFilter()
 
         self.speech_manager = TTSPromptManager(config.character.speech)
         self.chat_manager = LLMPromptManager(config.character.chat)
@@ -89,8 +91,15 @@ class ZerolanLiveRobot:
             else:
                 query = LLMQuery(text=prediction.transcript, history=self.chat_manager.current_history)
                 prediction = self.llm.predict(query)
+
+                # Filter applied here
+                is_filtered = self.filter.filter(prediction.response)
+                if is_filtered:
+                    return
+
                 self.chat_manager.reset_history(prediction.history)
                 logger.info(f"Length of current history: {len(self.chat_manager.current_history)}")
+
                 await emitter.emit(EventEnum.PIPELINE_LLM, prediction)
 
         @emitter.on(EventEnum.PIPELINE_LLM)

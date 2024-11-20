@@ -2,6 +2,7 @@ import os
 
 import pygame
 
+from common.enumerator import SystemSoundEnum
 from common.utils.audio_util import check_audio_format
 from common.utils.file_util import create_temp_file, spath
 
@@ -44,5 +45,5 @@ class Speaker:
         return wav_path
 
     @staticmethod
-    def play_system_sound(key: str, block: bool = False):
-        Speaker.playsound(spath(os.path.join("resources/static/sound/system", key)), block=block)
+    def play_system_sound(key: SystemSoundEnum, block: bool = False):
+        Speaker.playsound(spath(os.path.join("resources/static/sound/system", key.name)), block=block)

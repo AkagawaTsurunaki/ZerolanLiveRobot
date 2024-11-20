@@ -1,18 +1,24 @@
 from abc import ABC, abstractmethod
 from loguru import logger
 
+from common.decorator import withsound
+from common.enumerator import SystemSoundEnum
+
+
 class AbstractFilter(ABC):
 
+    @withsound(SystemSoundEnum.filtered)
     @abstractmethod
     def filter(self, content: str):
         pass
+
 
 class FirstMatchedFilter:
     def __init__(self) -> None:
         self.max_len = None
         self.min_len = None
         self.words = None
-    
+
     def set_words(self, words: list[str]):
         self.words = words
         self.words.sort(key=lambda word: len(word))
@@ -30,7 +36,6 @@ class FirstMatchedFilter:
             return True
         for word in self.words:
             if word in content:
-                logger.warning(f"触发敏感词: {word}")
+                logger.warning(f"Filter detected bad word: {word}")
                 return False
         return True
-    

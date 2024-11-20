@@ -39,13 +39,14 @@ class Language:
             raise ValueError("Unknown language")
 
 
-class SystemSoundEnum:
+class SystemSoundEnum(str, Enum):
     warn: str = "warn.wav"
     error: str = "error.wav"
     start: str = "start.wav"
     exit: str = "exit.wav"
     enable_func: str = "microphone-recoding.wav"
     disable_func: str = "microphone-stopped.wav"
+    filtered: str = "filtered.wav"
 
 
 class EventEnum(str, Enum):
