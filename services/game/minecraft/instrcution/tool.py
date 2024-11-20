@@ -8,7 +8,7 @@ from langchain_core.tools import BaseTool
 from pydantic import BaseModel
 
 from common.enumerator import EventEnum
-from common.eventemitter import emitter
+from event.eventemitter import emitter
 from services.game.minecraft.data import KonekoProtocol
 
 

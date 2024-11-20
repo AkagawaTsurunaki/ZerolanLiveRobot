@@ -10,7 +10,7 @@ from websockets.asyncio.server import serve, ServerConnection
 from agent.tool_agent import Tool, ToolAgent
 from common.config import LLMPipelineConfig
 from common.enumerator import EventEnum, SystemSoundEnum
-from common.eventemitter import emitter, EventEmitter
+from event.eventemitter import EventEmitter, emitter
 from services.device.speaker import Speaker
 from services.game.minecraft.data import KonekoProtocol
 from services.game.minecraft.instrcution.input import generate_model_from_args, FieldMetadata

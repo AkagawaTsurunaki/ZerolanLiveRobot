@@ -14,7 +14,7 @@ from zerolan.data.data.danmaku import Danmaku
 
 from common.decorator import log_start
 from common.enumerator import EventEnum
-from common.eventemitter import emitter
+from event.eventemitter import emitter
 
 
 class TwitchService:

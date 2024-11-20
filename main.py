@@ -9,7 +9,7 @@ from common.config import get_config
 from common.data import GPT_SoVITS_TTS_Query
 from common.decorator import withsound, start_ui_process, kill_ui_process
 from common.enumerator import SystemSoundEnum, EventEnum
-from common.eventemitter import emitter
+from event.eventemitter import emitter
 from manager.llm_prompt_manager import LLMPromptManager
 from manager.temp_data_manager import TempDataManager
 from manager.thread_manager import ThreadManager

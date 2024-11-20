@@ -6,7 +6,7 @@ from zerolan.data.data.danmaku import Danmaku
 from common.config import LiveStreamConfig
 from common.decorator import log_init, log_start, log_stop
 from common.enumerator import EventEnum
-from common.eventemitter import emitter
+from event.eventemitter import emitter
 
 
 class BilibiliService:

@@ -5,7 +5,7 @@ from loguru import logger
 
 from common.decorator import withsound
 from common.enumerator import SystemSoundEnum, EventEnum
-from common.eventemitter import emitter
+from event.eventemitter import emitter
 from common.limit_list import LimitList
 from common.utils.audio_util import from_ndarray_to_bytes
 from services.device.microphone import Microphone
