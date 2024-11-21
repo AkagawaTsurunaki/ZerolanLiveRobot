@@ -6,6 +6,16 @@ class Language:
     EN = "en"
     JA = "ja"
 
+    def full_name(self):
+        if self == self.ZH:
+            return "Chinese"
+        elif self == self.EN:
+            return "English"
+        elif self == self.JA:
+            return "Japanese"
+        else:
+            raise ValueError("Unknown language")
+
     def name(self):
         if self == self.ZH:
             return "zh"
@@ -60,6 +70,9 @@ class EventEnum(str, Enum):
     PIPELINE_ASR = "pipeline.asr"
     PIPELINE_LLM = "pipeline.llm"
     PIPELINE_TTS = "pipeline.tts"
+    PIPELINE_IMG_CAP = "pipeline.img_cap"
+
+    DEVICE_SCREEN_CAPTURED = "device.screen_captured"
 
     SERVICE_LIVE_STREAM_CONNECTED = "service.live_stream.connected"
     SERVICE_LIVE_STREAM_DISCONNECTED = "service.live_stream.disconnected"

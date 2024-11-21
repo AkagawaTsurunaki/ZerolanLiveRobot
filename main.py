@@ -1,24 +1,29 @@
 import threading
 
+from PIL.Image import Image
 from loguru import logger
 from zerolan.data.data.asr import ASRModelStreamQuery, ASRModelPrediction
+from zerolan.data.data.img_cap import ImgCapQuery, ImgCapPrediction
 from zerolan.data.data.llm import LLMQuery, LLMPrediction
 from zerolan.data.data.tts import TTSPrediction
 
 from agent.sentiment import SentimentAnalyzerAgent
+from agent.translator import TranslatorAgent
 from common.config import get_config
 from common.data import GPT_SoVITS_TTS_Query
 from common.decorator import withsound, start_ui_process, kill_ui_process
-from common.enumerator import SystemSoundEnum, EventEnum
+from common.enumerator import SystemSoundEnum, EventEnum, Language
 from event.eventemitter import emitter
 from manager.llm_prompt_manager import LLMPromptManager
 from manager.temp_data_manager import TempDataManager
 from manager.thread_manager import ThreadManager
 from manager.tts_prompt_manager import TTSPromptManager
 from pipeline.asr import ASRPipeline
+from pipeline.img_cap import ImgCapPipeline
 from pipeline.llm import LLMPipeline
 from pipeline.tts import TTSPipeline
 from services.browser.browser import Browser
+from services.device.screen import Screen
 from services.device.speaker import Speaker
 from services.filter.strategy import FirstMatchedFilter
 from services.game.minecraft.app import KonekoMinecraftAIAgent, WebSocketServer
@@ -34,21 +39,26 @@ class ZerolanLiveRobot:
         self.asr = ASRPipeline(config.pipeline.asr)
         self.llm = LLMPipeline(config.pipeline.llm)
         self.tts = TTSPipeline(config.pipeline.tts)
+        self.img_cap = ImgCapPipeline(config.pipeline.img_cap)
 
         self.speaker = Speaker()
         self.live_stream = BilibiliService(config.service.live_stream)
-        self.websocket = WebSocketServer()
-        self.minecraft_agent = KonekoMinecraftAIAgent(self.websocket, config.pipeline.llm)
+
         # Set bad words filter
         self.filter = FirstMatchedFilter(config.character.chat.filter.bad_words)
-
         self.speech_manager = TTSPromptManager(config.character.speech)
         self.chat_manager = LLMPromptManager(config.character.chat)
         self.temp_data_manager = TempDataManager()
         self.thread_manager = ThreadManager()
 
+        # Agents
+        self.websocket = WebSocketServer()
+        self.minecraft_agent = KonekoMinecraftAIAgent(self.websocket, config.pipeline.llm)
         self.sentiment_analyzer = SentimentAnalyzerAgent(self.speech_manager,
-                                                config.pipeline.llm)
+                                                         config.pipeline.llm)
+        self.translator = TranslatorAgent(config.pipeline.llm)
+
+        self.cur_lang = Language.ZH
 
     @start_ui_process(False)
     @withsound(SystemSoundEnum.start)
@@ -91,21 +101,29 @@ class ZerolanLiveRobot:
                 self.speaker.play_system_sound(SystemSoundEnum.warn)
             elif "关闭麦克风" in prediction.transcript:
                 self.vad.stop()
-            elif "测试" in prediction.transcript:
+            elif "游戏" in prediction.transcript:
                 await self.minecraft_agent.exec_instruction(prediction.transcript)
+            elif "看见" in prediction.transcript:
+                img, img_save_path = Screen.screen_cap("Minecraft", k=0.9)
+                await emitter.emit(EventEnum.DEVICE_SCREEN_CAPTURED, img=img, img_path=img_save_path)
+            elif "切换语言" in prediction.transcript:
+                self.cur_lang = Language.JA
             else:
-                query = LLMQuery(text=prediction.transcript, history=self.chat_manager.current_history)
-                prediction = self.llm.predict(query)
+                await self.emit_llm_prediction(prediction.transcript)
 
-                # Filter applied here
-                is_filtered = self.filter.filter(prediction.response)
-                if is_filtered:
-                    return
+        @emitter.on(EventEnum.DEVICE_SCREEN_CAPTURED)
+        async def on_deviec_screen_captured(img: Image, img_path: str):
+            prediction = self.img_cap.predict(ImgCapQuery(prompt="There", img_path=img_path))
+            src_lang = Language.value_of(prediction.lang)
+            caption = self.translator.translate(src_lang, self.cur_lang, prediction.caption)
+            prediction.caption = caption
+            logger.info("ImgCap: " + caption)
+            await emitter.emit(EventEnum.PIPELINE_IMG_CAP, prediction=prediction)
 
-                self.chat_manager.reset_history(prediction.history)
-                logger.info(f"Length of current history: {len(self.chat_manager.current_history)}")
-
-                await emitter.emit(EventEnum.PIPELINE_LLM, prediction)
+        @emitter.on(EventEnum.PIPELINE_IMG_CAP)
+        async def on_pipeline_img_cap(prediction: ImgCapPrediction):
+            text = "你看见了" + prediction.caption
+            await self.emit_llm_prediction(text)
 
         @emitter.on(EventEnum.PIPELINE_LLM)
         async def llm_query_handler(prediction: LLMPrediction):
@@ -137,12 +155,25 @@ class ZerolanLiveRobot:
             logger.error("Unhandled error, crashed.")
             self._exit()
 
+    async def emit_llm_prediction(self, text):
+        query = LLMQuery(text=text, history=self.chat_manager.current_history)
+        prediction = self.llm.predict(query)
+
+        # Filter applied here
+        is_filtered = self.filter.filter(prediction.response)
+        if is_filtered:
+            return
+
+        self.chat_manager.reset_history(prediction.history)
+        logger.info(f"Length of current history: {len(self.chat_manager.current_history)}")
+
+        await emitter.emit(EventEnum.PIPELINE_LLM, prediction)
+
     @kill_ui_process(force=True)
     def _exit(self):
         emitter.stop()
         self.vad.stop()
         self.live_stream.stop()
-        pass
 
     @withsound(SystemSoundEnum.exit, block=True)
     def exit(self):
