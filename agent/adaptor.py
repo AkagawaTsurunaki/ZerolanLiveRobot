@@ -3,7 +3,7 @@ from typing import Optional, Any, Mapping, Sequence, Union, Callable
 
 from langchain_core.callbacks import CallbackManagerForLLMRun
 from langchain_core.language_models import BaseChatModel
-from langchain_core.messages import BaseMessage, AIMessage, HumanMessage, SystemMessage
+from langchain_core.messages import BaseMessage, AIMessage, HumanMessage, SystemMessage, ToolMessage
 from langchain_core.outputs import ChatResult, ChatGeneration
 from langchain_core.tools import BaseTool
 from zerolan.data.data.llm import LLMQuery, Conversation, RoleEnum
@@ -26,6 +26,8 @@ def convert_pipeline_query(message: BaseMessage):
         return Conversation(role=RoleEnum.user, content=message.content, metadata=None)
     elif isinstance(message, SystemMessage):
         return Conversation(role=RoleEnum.system, content=message.content, metadata=None)
+    elif isinstance(message, ToolMessage):
+        return Conversation(role=RoleEnum.function, content=message.content, metadata=None)
     else:
         raise NotImplementedError(f"{type(message)} is not supported.")
 
