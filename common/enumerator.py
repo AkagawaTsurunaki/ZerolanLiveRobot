@@ -71,6 +71,7 @@ class EventEnum(str, Enum):
     PIPELINE_LLM = "pipeline.llm"
     PIPELINE_TTS = "pipeline.tts"
     PIPELINE_IMG_CAP = "pipeline.img_cap"
+    PIPELINE_OCR = "pipeline.ocr"
 
     DEVICE_SCREEN_CAPTURED = "device.screen_captured"
 

@@ -5,6 +5,7 @@ from loguru import logger
 from zerolan.data.data.asr import ASRModelStreamQuery, ASRModelPrediction
 from zerolan.data.data.img_cap import ImgCapQuery, ImgCapPrediction
 from zerolan.data.data.llm import LLMQuery, LLMPrediction
+from zerolan.data.data.ocr import OCRQuery, OCRPrediction
 from zerolan.data.data.tts import TTSPrediction
 
 from agent.sentiment import SentimentAnalyzerAgent
@@ -21,6 +22,7 @@ from manager.tts_prompt_manager import TTSPromptManager
 from pipeline.asr import ASRPipeline
 from pipeline.img_cap import ImgCapPipeline
 from pipeline.llm import LLMPipeline
+from pipeline.ocr import OCRPipeline
 from pipeline.tts import TTSPipeline
 from services.browser.browser import Browser
 from services.device.screen import Screen
@@ -40,6 +42,7 @@ class ZerolanLiveRobot:
         self.llm = LLMPipeline(config.pipeline.llm)
         self.tts = TTSPipeline(config.pipeline.tts)
         self.img_cap = ImgCapPipeline(config.pipeline.img_cap)
+        self.ocr = OCRPipeline(config.pipeline.ocr)
 
         self.speaker = Speaker()
         self.live_stream = BilibiliService(config.service.live_stream)
@@ -104,7 +107,7 @@ class ZerolanLiveRobot:
             elif "游戏" in prediction.transcript:
                 await self.minecraft_agent.exec_instruction(prediction.transcript)
             elif "看见" in prediction.transcript:
-                img, img_save_path = Screen.screen_cap("Minecraft", k=0.9)
+                img, img_save_path = Screen.capture("Edge", k=0.9)
                 await emitter.emit(EventEnum.DEVICE_SCREEN_CAPTURED, img=img, img_path=img_save_path)
             elif "切换语言" in prediction.transcript:
                 self.cur_lang = Language.JA
@@ -112,13 +115,24 @@ class ZerolanLiveRobot:
                 await self.emit_llm_prediction(prediction.transcript)
 
         @emitter.on(EventEnum.DEVICE_SCREEN_CAPTURED)
-        async def on_deviec_screen_captured(img: Image, img_path: str):
-            prediction = self.img_cap.predict(ImgCapQuery(prompt="There", img_path=img_path))
-            src_lang = Language.value_of(prediction.lang)
-            caption = self.translator.translate(src_lang, self.cur_lang, prediction.caption)
-            prediction.caption = caption
+        async def on_device_screen_captured(img: Image, img_path: str):
+            # TODO: Discriminator to detect whether it includes text or image
+
+            ocr_prediction = self.ocr.predict(OCRQuery(img_path))
+            logger.info(f"OCR: {ocr_prediction.unfold_as_str()}")
+            await emitter.emit(EventEnum.PIPELINE_OCR, prediction=ocr_prediction)
+
+            img_cap_prediction = self.img_cap.predict(ImgCapQuery(prompt="There", img_path=img_path))
+            src_lang = Language.value_of(img_cap_prediction.lang)
+            caption = self.translator.translate(src_lang, self.cur_lang, img_cap_prediction.caption)
+            img_cap_prediction.caption = caption
             logger.info("ImgCap: " + caption)
-            await emitter.emit(EventEnum.PIPELINE_IMG_CAP, prediction=prediction)
+            await emitter.emit(EventEnum.PIPELINE_IMG_CAP, prediction=img_cap_prediction)
+
+        @emitter.on(EventEnum.PIPELINE_OCR)
+        async def on_pipeline_ocr(prediction: OCRPrediction):
+            text = prediction.unfold_as_str()
+            await self.emit_llm_prediction(text)
 
         @emitter.on(EventEnum.PIPELINE_IMG_CAP)
         async def on_pipeline_img_cap(prediction: ImgCapPrediction):
