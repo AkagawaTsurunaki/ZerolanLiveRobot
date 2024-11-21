@@ -1,5 +1,6 @@
 import threading
 
+import pyautogui
 from PIL.Image import Image
 from loguru import logger
 from zerolan.data.data.asr import ASRModelStreamQuery, ASRModelPrediction
@@ -8,6 +9,7 @@ from zerolan.data.data.llm import LLMQuery, LLMPrediction
 from zerolan.data.data.ocr import OCRQuery, OCRPrediction
 from zerolan.data.data.tts import TTSPrediction
 
+from agent.location_attn import LocationAttentionAgent
 from agent.sentiment import SentimentAnalyzerAgent
 from agent.translator import TranslatorAgent
 from common.config import get_config
@@ -45,6 +47,8 @@ class ZerolanLiveRobot:
         self.ocr = OCRPipeline(config.pipeline.ocr)
 
         self.speaker = Speaker()
+        # [!NOTE]
+        #   Here to change your live stream platform
         self.live_stream = BilibiliService(config.service.live_stream)
 
         # Set bad words filter
@@ -60,6 +64,7 @@ class ZerolanLiveRobot:
         self.sentiment_analyzer = SentimentAnalyzerAgent(self.speech_manager,
                                                          config.pipeline.llm)
         self.translator = TranslatorAgent(config.pipeline.llm)
+        self.location_attn = LocationAttentionAgent(config.pipeline.llm)
 
         self.cur_lang = Language.ZH
 
@@ -122,16 +127,18 @@ class ZerolanLiveRobot:
             logger.info(f"OCR: {ocr_prediction.unfold_as_str()}")
             await emitter.emit(EventEnum.PIPELINE_OCR, prediction=ocr_prediction)
 
-            img_cap_prediction = self.img_cap.predict(ImgCapQuery(prompt="There", img_path=img_path))
-            src_lang = Language.value_of(img_cap_prediction.lang)
-            caption = self.translator.translate(src_lang, self.cur_lang, img_cap_prediction.caption)
-            img_cap_prediction.caption = caption
-            logger.info("ImgCap: " + caption)
-            await emitter.emit(EventEnum.PIPELINE_IMG_CAP, prediction=img_cap_prediction)
+            # img_cap_prediction = self.img_cap.predict(ImgCapQuery(prompt="There", img_path=img_path))
+            # src_lang = Language.value_of(img_cap_prediction.lang)
+            # caption = self.translator.translate(src_lang, self.cur_lang, img_cap_prediction.caption)
+            # img_cap_prediction.caption = caption
+            # logger.info("ImgCap: " + caption)
+            # await emitter.emit(EventEnum.PIPELINE_IMG_CAP, prediction=img_cap_prediction)
 
         @emitter.on(EventEnum.PIPELINE_OCR)
         async def on_pipeline_ocr(prediction: OCRPrediction):
             text = prediction.unfold_as_str()
+            region_result = self.location_attn.find_focus(prediction.region_results)
+            text = region_result.position
             await self.emit_llm_prediction(text)
 
         @emitter.on(EventEnum.PIPELINE_IMG_CAP)
