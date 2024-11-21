@@ -40,8 +40,7 @@ class ZerolanLiveRobot:
         self.websocket = WebSocketServer()
         self.minecraft_agent = KonekoMinecraftAIAgent(self.websocket, config.pipeline.llm)
         # Set bad words filter
-        self.filter = FirstMatchedFilter()
-        self.filter.set_words(config.character.chat.filter.bad_words)
+        self.filter = FirstMatchedFilter(config.character.chat.filter.bad_words)
 
         self.speech_manager = TTSPromptManager(config.character.speech)
         self.chat_manager = LLMPromptManager(config.character.chat)
