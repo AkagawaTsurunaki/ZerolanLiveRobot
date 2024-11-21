@@ -46,4 +46,4 @@ class Speaker:
 
     @staticmethod
     def play_system_sound(key: SystemSoundEnum, block: bool = False):
-        Speaker.playsound(spath(os.path.join("resources/static/sound/system", key.name)), block=block)
+        Speaker.playsound(spath(os.path.join("resources/static/sound/system", key.value)), block=block)
