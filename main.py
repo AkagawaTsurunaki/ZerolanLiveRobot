@@ -117,6 +117,8 @@ class ZerolanLiveRobot:
                 cut_punc="，。！",
             )
             for prediction in self.tts.stream_predict(query):
+
+                # Here apply sentiment analyse
                 await emitter.emit(EventEnum.PIPELINE_TTS, prediction)
 
         @emitter.on(EventEnum.PIPELINE_LLM)
@@ -136,9 +138,9 @@ class ZerolanLiveRobot:
 
     @kill_ui_process(force=True)
     def _exit(self):
-        # emitter.stop()
-        # self.vad.stop()
-        # self.live_stream.stop()
+        emitter.stop()
+        self.vad.stop()
+        self.live_stream.stop()
         pass
 
     @withsound(SystemSoundEnum.exit, block=True)
