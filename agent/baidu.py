@@ -3,7 +3,7 @@ from typing import Type, Optional
 import requests
 from bs4 import BeautifulSoup
 from langchain_core.callbacks import CallbackManagerForToolRun
-from langchain_core.messages import HumanMessage, AIMessage
+from langchain_core.messages import HumanMessage, AIMessage, ToolMessage
 from langchain_core.tools import BaseTool, ToolException
 from loguru import logger
 from pydantic import BaseModel, Field
@@ -48,7 +48,10 @@ class BaiduBaikeTool(BaseTool):
     def _run(self, keyword: str, run_manager: Optional[CallbackManagerForToolRun] = None) -> str:
         if isinstance(keyword, str) and keyword != "":
             html = get_html(f"{self._url}/{keyword}")
-            return html_to_text(html)
+            content = html_to_text(html)
+            if "百度百科错误页" in content:
+                raise ToolException("Error when visit the website.")
+            return content
         else:
             raise ToolException("Keyword should not be empty")
 
