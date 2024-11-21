@@ -5,6 +5,7 @@ from zerolan.data.data.asr import ASRModelStreamQuery, ASRModelPrediction
 from zerolan.data.data.llm import LLMQuery, LLMPrediction
 from zerolan.data.data.tts import TTSPrediction
 
+from agent.sentiment import SentimentAnalyzerAgent
 from common.config import get_config
 from common.data import GPT_SoVITS_TTS_Query
 from common.decorator import withsound, start_ui_process, kill_ui_process
@@ -46,6 +47,9 @@ class ZerolanLiveRobot:
         self.chat_manager = LLMPromptManager(config.character.chat)
         self.temp_data_manager = TempDataManager()
         self.thread_manager = ThreadManager()
+
+        self.sentiment_analyzer = SentimentAnalyzerAgent(self.speech_manager,
+                                                config.pipeline.llm)
 
     @start_ui_process(False)
     @withsound(SystemSoundEnum.start)
@@ -107,7 +111,7 @@ class ZerolanLiveRobot:
         @emitter.on(EventEnum.PIPELINE_LLM)
         async def llm_query_handler(prediction: LLMPrediction):
             logger.info("LLM: " + prediction.response)
-            tts_prompt = self.speech_manager.default_tts_prompt
+            tts_prompt = self.sentiment_analyzer.sentiment_tts_prompt(prediction.response)
             query = GPT_SoVITS_TTS_Query(
                 text=prediction.response,
                 text_language="zh",
@@ -117,8 +121,6 @@ class ZerolanLiveRobot:
                 cut_punc="，。！",
             )
             for prediction in self.tts.stream_predict(query):
-
-                # Here apply sentiment analyse
                 await emitter.emit(EventEnum.PIPELINE_TTS, prediction)
 
         @emitter.on(EventEnum.PIPELINE_LLM)

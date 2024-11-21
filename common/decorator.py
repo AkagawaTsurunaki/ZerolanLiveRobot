@@ -2,7 +2,6 @@ import json
 from functools import wraps
 from multiprocessing import Process
 from time import time
-from typing import Callable
 
 from loguru import logger
 from zerolan.ui import app
@@ -11,7 +10,7 @@ from common.enumerator import SystemSoundEnum
 from services.device.speaker import Speaker
 
 
-def log_run_time(log: Callable[[str], str] = None):
+def log_run_time():
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
@@ -19,7 +18,7 @@ def log_run_time(log: Callable[[str], str] = None):
             ret = func(*args, **kwargs)
             time_end = time()
             time_used = "{:.2f}".format(time_end - time_start)
-            logger.info(log(time_used) if log else f"用时 {time_used} 秒")
+            logger.info(func.__name__ + "time used: " + time_used + " s.")
             return ret
 
         return wrapper
