@@ -1,8 +1,8 @@
 from dataclasses import asdict
 from urllib.parse import urljoin
 
-from zerolan.data.abs_data import AbstractModelQuery
-from zerolan.data.data.img_cap import ImgCapQuery, ImgCapPrediction
+from zerolan.data.pipeline.abs_data import AbstractModelQuery
+from zerolan.data.pipeline.img_cap import (ImgCapQuery, ImgCapPrediction)
 
 from common.config import ImgCapPipelineConfig
 from common.decorator import pipeline_resolve
@@ -29,6 +29,5 @@ class ImgCapPipeline(AbstractImagePipeline):
     def parse_query(self, query: any) -> dict:
         return asdict(query)
 
-    def parse_prediction(self, json_val: any) -> ImgCapPrediction:
-        assert hasattr(ImgCapPrediction, "from_json")
-        return ImgCapPrediction.from_json(json_val)  # type: ignore[attr-defined]
+    def parse_prediction(self, json_val: str) -> ImgCapPrediction:
+        return ImgCapPrediction.model_validate_json(json_val)

@@ -1,7 +1,7 @@
 from urllib.parse import urljoin
 
-from zerolan.data.abs_data import AbstractModelQuery
-from zerolan.data.data.tts import TTSQuery, TTSPrediction
+from zerolan.data.pipeline.abs_data import AbstractModelQuery
+from zerolan.data.pipeline.tts import TTSQuery, TTSPrediction
 
 from common.config import TTSPipelineConfig as TTSPipelineConfig
 from common.decorator import pipeline_resolve
@@ -27,7 +27,6 @@ class TTSPipeline(AbstractPipeline):
         return super().stream_predict(query)
 
     def parse_query(self, query: any) -> dict:
-        assert isinstance(query, AbstractModelQuery)
         return query.model_dump()
 
     def parse_prediction(self, data: bytes) -> TTSPrediction:

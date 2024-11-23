@@ -1,8 +1,8 @@
 from dataclasses import asdict
 from urllib.parse import urljoin
 
-from zerolan.data.abs_data import AbstractModelQuery
-from zerolan.data.data.ocr import OCRQuery, OCRPrediction
+from zerolan.data.pipeline.abs_data import AbstractModelQuery
+from zerolan.data.pipeline.ocr import OCRQuery, OCRPrediction
 
 from common.config import OCRPipelineConfig
 from common.decorator import pipeline_resolve
@@ -30,5 +30,4 @@ class OCRPipeline(AbstractImagePipeline):
         return asdict(query)
 
     def parse_prediction(self, json_val: any) -> OCRPrediction:
-        assert hasattr(OCRPrediction, "from_json")
-        return OCRPrediction.from_json(json_val)  # type: ignore[attr-defined]
+        return OCRPrediction.model_validate(json_val)

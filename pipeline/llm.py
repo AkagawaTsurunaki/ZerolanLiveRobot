@@ -1,12 +1,13 @@
 from dataclasses import asdict
 from urllib.parse import urljoin
 
-from zerolan.data.abs_data import AbstractModelQuery
-from zerolan.data.data.llm import LLMQuery, LLMPrediction
+from zerolan.data.pipeline.abs_data import AbstractModelQuery
+from zerolan.data.pipeline.llm import LLMQuery, LLMPrediction
 
 from common.config import LLMPipelineConfig
 from common.decorator import pipeline_resolve
 from pipeline.abs_pipeline import AbstractPipeline
+
 
 class LLMPipeline(AbstractPipeline):
 
@@ -26,8 +27,7 @@ class LLMPipeline(AbstractPipeline):
         return super().stream_predict(query)
 
     def parse_prediction(self, json_val: any) -> LLMPrediction:
-        assert hasattr(LLMPrediction, "from_json")
-        return LLMPrediction.from_json(json_val)  # type: ignore[attr-defined]
+        return LLMPrediction.model_validate(json_val)
 
     def parse_query(self, query: any) -> dict:
         return asdict(query)

@@ -1,10 +1,9 @@
-import json
 from http import HTTPStatus
 from urllib.parse import urljoin
 
 import requests
 from loguru import logger
-from zerolan.data.data.asr import ASRModelQuery, ASRModelPrediction, ASRModelStreamQuery
+from zerolan.data.pipeline.asr import ASRQuery, ASRPrediction, ASRStreamQuery
 
 from common.config import ASRPipelineConfig
 from common.decorator import pipeline_resolve
@@ -21,8 +20,8 @@ class ASRPipeline(AbstractPipeline):
         self.check_urls()
 
     @pipeline_resolve()
-    def predict(self, query: ASRModelQuery) -> ASRModelPrediction | None:
-        assert isinstance(query, ASRModelQuery)
+    def predict(self, query: ASRQuery) -> ASRPrediction | None:
+        assert isinstance(query, ASRQuery)
         try:
             files, data = self.parse_query(query)
             response = requests.post(url=self.predict_url, files=files, data=data)
@@ -36,7 +35,7 @@ class ASRPipeline(AbstractPipeline):
             return None
 
     @pipeline_resolve()
-    def stream_predict(self, query: ASRModelStreamQuery):
+    def stream_predict(self, query: ASRStreamQuery):
         files, data = self.parse_query(query)
         response = requests.get(url=self.stream_predict_url, files=files, data=data)
 
@@ -45,21 +44,20 @@ class ASRPipeline(AbstractPipeline):
         else:
             response.raise_for_status()
 
-    def parse_query(self, query: ASRModelQuery | ASRModelStreamQuery) -> tuple:
-        if isinstance(query, ASRModelQuery):
+    def parse_query(self, query: ASRQuery | ASRStreamQuery) -> tuple:
+        if isinstance(query, ASRQuery):
             files = {"audio": open(query.audio_path, 'rb')}
-            data = {"json": query.to_json()}  # type: ignore
+            data = {"json": query.model_dump_json()}
 
             return files, data
-        elif isinstance(query, ASRModelStreamQuery):
+        elif isinstance(query, ASRStreamQuery):
             files = {"audio": query.audio_data}
             query.audio_data = ""
-            data = {"json": query.to_json()}  # type: ignore
+            data = {"json": query.model_dump_json()}
 
             return files, data
         else:
-            raise ValueError("无法转换")
+            raise ValueError("Can not convert query.")
 
-    def parse_prediction(self, json_val: any) -> ASRModelPrediction:
-        assert hasattr(ASRModelPrediction, "from_json")
-        return ASRModelPrediction.from_dict(json.loads(json_val))  # type: ignore[attr-defined]
+    def parse_prediction(self, json_val: any) -> ASRPrediction:
+        return ASRPrediction.model_validate(json_val)

@@ -4,8 +4,8 @@ from http import HTTPStatus
 
 import requests
 from loguru import logger
-from zerolan.data.abs_data import AbsractImageModelQuery, AbstractModelQuery, AbstractModelPrediction
 from zerolan.data.data.state import AppStatusEnum, ServiceState
+from zerolan.data.pipeline.abs_data import AbsractImageModelQuery, AbstractModelQuery, AbstractModelPrediction
 
 from common.utils.web_util import is_valid_url
 
@@ -92,7 +92,7 @@ class AbstractImagePipeline(AbstractPipeline):
 
             response = requests.post(url=self.predict_url, files=files, data=data)
         else:
-            response = requests.post(url=self.predict_url, json=query.to_dict())  # type: ignore
+            response = requests.post(url=self.predict_url, json=query.model_dump())
         if response.status_code == HTTPStatus.OK:
             prediction = self.parse_prediction(response.content)
             return prediction

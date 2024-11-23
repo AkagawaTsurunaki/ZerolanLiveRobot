@@ -2,8 +2,8 @@ import os
 from dataclasses import asdict
 from urllib.parse import urljoin
 
-from zerolan.data.abs_data import AbstractModelQuery
-from zerolan.data.data.vid_cap import VidCapQuery, VidCapPrediction
+from zerolan.data.pipeline.abs_data import AbstractModelQuery
+from zerolan.data.pipeline.vid_cap import VidCapQuery, VidCapPrediction
 
 from common.config import VidCapPipelineConfig
 from common.decorator import pipeline_resolve
@@ -32,5 +32,4 @@ class VidCapPipeline(AbstractPipeline):
         return asdict(query)
 
     def parse_prediction(self, json_val: any) -> VidCapPrediction:
-        assert hasattr(VidCapPrediction, "from_json")
-        return VidCapPrediction.from_json(json_val)  # type: ignore[attr-defined]
+        return VidCapPrediction.model_validate(json_val)
