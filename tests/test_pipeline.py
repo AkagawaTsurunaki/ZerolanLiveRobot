@@ -1,4 +1,3 @@
-from loguru import logger
 from zerolan.data.data.llm import LLMQuery
 from zerolan.data.data.tts import TTSQuery
 
@@ -22,7 +21,6 @@ def test_llm():
     query = LLMQuery(text="Hello world!", history=[])
     prediction = llm.predict(query)
     assert prediction, f"No prediction from LLM pipeline."
-    logger.info("LLM response: " + prediction.response)
 
 
 def test_tts():
