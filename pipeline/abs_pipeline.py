@@ -87,6 +87,7 @@ class AbstractImagePipeline(AbstractPipeline):
     def predict(self, query: AbsractImageModelQuery) -> AbstractModelPrediction | None:
         # If the path is native then it is read, otherwise it is considered to exist in the remote host's file system
         if os.path.exists(query.img_path):
+            query.img_path = os.path.abspath(query.img_path)
             files = {'image': open(query.img_path, 'rb')}
 
             # Convert AbsractImageModelQuery to a JSON string and set it as a form object
