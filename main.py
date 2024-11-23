@@ -2,11 +2,11 @@ import threading
 
 from PIL.Image import Image
 from loguru import logger
-from zerolan.data.data.asr import ASRModelStreamQuery, ASRModelPrediction
-from zerolan.data.data.img_cap import ImgCapPrediction
-from zerolan.data.data.llm import LLMQuery, LLMPrediction
-from zerolan.data.data.ocr import OCRQuery, OCRPrediction
-from zerolan.data.data.tts import TTSPrediction, TTSQuery
+from zerolan.data.pipeline.asr import ASRStreamQuery, ASRPrediction
+from zerolan.data.pipeline.img_cap import ImgCapPrediction
+from zerolan.data.pipeline.llm import LLMQuery, LLMPrediction
+from zerolan.data.pipeline.ocr import OCRQuery, OCRPrediction
+from zerolan.data.pipeline.tts import TTSPrediction, TTSQuery
 
 from agent.location_attn import LocationAttentionAgent
 from agent.sentiment import SentimentAnalyzerAgent
@@ -81,13 +81,13 @@ class ZerolanLiveRobot:
     def register_events(self):
         @emitter.on(EventEnum.SERVICE_VAD_SPEECH_CHUNK)
         async def detect_voice(speech: bytes, channels: int, sample_rate: int):
-            query = ASRModelStreamQuery(is_final=True, audio_data=speech, channels=channels, sample_rate=sample_rate)
+            query = ASRStreamQuery(is_final=True, audio_data=speech, channels=channels, sample_rate=sample_rate)
             response = self.asr.stream_predict(query)
             logger.debug("asr event emitted")
             await emitter.emit(EventEnum.PIPELINE_ASR, response)
 
         @emitter.on(EventEnum.PIPELINE_ASR)
-        async def asr_handler(prediction: ASRModelPrediction):
+        async def asr_handler(prediction: ASRPrediction):
             logger.info("ASR: " + prediction.transcript)
 
             if "关机" in prediction.transcript:
@@ -121,7 +121,7 @@ class ZerolanLiveRobot:
         async def on_device_screen_captured(img: Image, img_path: str):
             # TODO: Discriminator to detect whether it includes text or image
 
-            ocr_prediction = self.ocr.predict(OCRQuery(img_path))
+            ocr_prediction = self.ocr.predict(OCRQuery(img_path=img_path))
             logger.info(f"OCR: {ocr_prediction.unfold_as_str()}")
             await emitter.emit(EventEnum.PIPELINE_OCR, prediction=ocr_prediction)
 
