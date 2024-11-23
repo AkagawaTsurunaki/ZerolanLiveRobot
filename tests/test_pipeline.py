@@ -5,7 +5,7 @@ from zerolan.data.pipeline.ocr import OCRQuery
 from zerolan.data.pipeline.tts import TTSQuery
 
 from common.config import get_config
-from manager.tts_prompt_manager import TTSPromptManager
+from common.enumerator import Language
 from pipeline.asr import ASRPipeline
 from pipeline.img_cap import ImgCapPipeline
 from pipeline.llm import LLMPipeline
@@ -21,10 +21,6 @@ asr = ASRPipeline(config.pipeline.asr)
 imgcap = ImgCapPipeline(config.pipeline.img_cap)
 ocr = OCRPipeline(config.pipeline.ocr)
 
-manager = TTSPromptManager(config=config.character.speech)
-assert len(manager.tts_prompts) > 0, f"{manager.tts_prompts} should not be empty."
-prompt = manager.tts_prompts[0]
-
 
 def test_llm():
     query = LLMQuery(text="Hello world!", history=[])
@@ -34,10 +30,10 @@ def test_llm():
 
 def test_tts():
     query = TTSQuery(text="你好！能听见我说话吗？",
-                     text_language="zh",
-                     refer_wav_path=prompt.audio_path,
-                     prompt_text=prompt.prompt_text,
-                     prompt_language=prompt.lang)
+                     text_language=Language.ZH,
+                     refer_wav_path="resources/tts-test.wav",
+                     prompt_text="我是赤川鹤鸣",
+                     prompt_language=Language.ZH)
     prediction = tts.predict(query)
     assert prediction, f"No prediction from TTS pipeline."
     assert prediction.wave_data is not None and len(
@@ -47,7 +43,7 @@ def test_tts():
 def test_asr():
     microphone = Microphone()
     microphone.open()
-    query = ASRQuery(audio_path=prompt.audio_path)
+    query = ASRQuery(audio_path="resources/tts-test.wav")
     prediction = asr.predict(query)
     assert prediction, f"No prediction from ASR pipeline."
     print(prediction.transcript)
@@ -59,6 +55,7 @@ def test_imgcap():
     prediction = imgcap.predict(query)
     assert prediction, f"No prediction from ImgCap pipeline."
     print(prediction.caption)
+
 
 def test_ocr():
     query = OCRQuery(img_path="resources/ocr-test.png")

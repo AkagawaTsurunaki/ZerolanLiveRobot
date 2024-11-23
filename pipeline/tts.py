@@ -1,3 +1,4 @@
+import os.path
 from urllib.parse import urljoin
 
 from zerolan.data.pipeline.abs_data import AbstractModelQuery
@@ -20,6 +21,8 @@ class TTSPipeline(AbstractPipeline):
 
     @pipeline_resolve()
     def predict(self, query: TTSQuery) -> TTSPrediction | None:
+        if os.path.exists(query.refer_wav_path):
+            query.refer_wav_path = os.path.abspath(query.refer_wav_path)
         return super().predict(query)
 
     @pipeline_resolve()
