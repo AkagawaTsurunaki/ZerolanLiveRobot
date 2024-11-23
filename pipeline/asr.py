@@ -59,5 +59,5 @@ class ASRPipeline(AbstractPipeline):
         else:
             raise ValueError("Can not convert query.")
 
-    def parse_prediction(self, json_val: any) -> ASRPrediction:
-        return ASRPrediction.model_validate(json_val)
+    def parse_prediction(self, json_val: str) -> ASRPrediction:
+        return ASRPrediction.model_validate_json(json_val)

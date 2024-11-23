@@ -4,6 +4,7 @@ from http import HTTPStatus
 
 import requests
 from loguru import logger
+from pydantic import BaseModel
 from zerolan.data.data.state import AppStatusEnum, ServiceState
 from zerolan.data.pipeline.abs_data import AbsractImageModelQuery, AbstractModelQuery, AbstractModelPrediction
 
@@ -56,9 +57,11 @@ class AbstractPipeline(ABC):
         else:
             response.raise_for_status()
 
-    @abstractmethod
     def parse_query(self, query: any) -> dict:
-        raise NotImplementedError()
+        if isinstance(query, BaseModel):
+            return query.model_dump()
+        else:
+            raise ValueError("Query must be an instance of BaseModel.")
 
     @abstractmethod
     def parse_prediction(self, json_val: any) -> AbstractModelPrediction:
@@ -68,7 +71,7 @@ class AbstractPipeline(ABC):
         try:
             response = requests.get(url=self.state_url, stream=True)
             if response.status_code == HTTPStatus.OK:
-                state = ServiceState.from_json(response.content)
+                state = ServiceState.model_validate_json(response.content)
                 return state
         except Exception as e:
             logger.error(e)
@@ -87,8 +90,7 @@ class AbstractImagePipeline(AbstractPipeline):
             files = {'image': open(query.img_path, 'rb')}
 
             # Convert AbsractImageModelQuery to a JSON string and set it as a form object
-            assert hasattr(query, "to_json")
-            data = {'json': query.to_json()}  # type: ignore
+            data = {'json': query.model_dump_json()}
 
             response = requests.post(url=self.predict_url, files=files, data=data)
         else:
@@ -103,7 +105,6 @@ class AbstractImagePipeline(AbstractPipeline):
     def stream_predict(self, query: AbstractModelQuery):
         raise NotImplementedError()
 
-    @abstractmethod
     def parse_query(self, query: any) -> dict:
         raise NotImplementedError()
 

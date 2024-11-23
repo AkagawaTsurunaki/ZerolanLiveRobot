@@ -1,4 +1,3 @@
-from dataclasses import asdict
 from urllib.parse import urljoin
 
 from zerolan.data.pipeline.abs_data import AbstractModelQuery
@@ -26,8 +25,5 @@ class OCRPipeline(AbstractImagePipeline):
     def stream_predict(self, query: AbstractModelQuery):
         raise NotImplementedError()
 
-    def parse_query(self, query: any) -> dict:
-        return asdict(query)
-
-    def parse_prediction(self, json_val: any) -> OCRPrediction:
-        return OCRPrediction.model_validate(json_val)
+    def parse_prediction(self, json_val: str) -> OCRPrediction:
+        return OCRPrediction.model_validate_json(json_val)

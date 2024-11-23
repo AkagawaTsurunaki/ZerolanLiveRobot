@@ -1,5 +1,4 @@
 import os
-from dataclasses import asdict
 from urllib.parse import urljoin
 
 from zerolan.data.pipeline.abs_data import AbstractModelQuery
@@ -27,9 +26,6 @@ class VidCapPipeline(AbstractPipeline):
     @pipeline_resolve()
     def stream_predict(self, query: AbstractModelQuery):
         raise NotImplementedError()
-
-    def parse_query(self, query: any) -> dict:
-        return asdict(query)
 
     def parse_prediction(self, json_val: any) -> VidCapPrediction:
         return VidCapPrediction.model_validate(json_val)

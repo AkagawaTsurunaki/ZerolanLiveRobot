@@ -26,9 +26,6 @@ class TTSPipeline(AbstractPipeline):
     def stream_predict(self, query: TTSQuery):
         return super().stream_predict(query)
 
-    def parse_query(self, query: any) -> dict:
-        return query.model_dump()
-
     def parse_prediction(self, data: bytes) -> TTSPrediction:
         audio_type = check_audio_format(data)
         return TTSPrediction(wave_data=data, audio_type=audio_type)
