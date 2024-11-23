@@ -10,26 +10,32 @@ from twitchAPI.chat import Chat, EventData, ChatMessage
 from twitchAPI.oauth import UserAuthenticator
 from twitchAPI.twitch import Twitch
 from twitchAPI.type import AuthScope, ChatEvent
-from zerolan.data.data.danmaku import Danmaku
+from zerolan.data.data.danmaku import Danmaku, SuperChat
 
-from common.decorator import log_start
+from common.config import TwitchServiceConfig
+from common.decorator import log_start, log_stop
 from common.enumerator import EventEnum
 from event.eventemitter import emitter
 
 
 class TwitchService:
-    def __init__(self):
+    def __init__(self, config: TwitchServiceConfig):
         """
-        TODO: This class is not under testing yet
+        TODO: Need test!
         """
-        self._app_id: str = ""
-        self._app_secret: str = ""
+        assert config.channel_id, f"No channel_id provided."
+        self._target_channel: str = config.channel_id
+        self._app_id: str = config.app_id
+        self._app_secret: str = config.app_secret
         self._user_scope = [AuthScope.CHAT_READ, AuthScope.CHAT_EDIT]
-        self._target_channel: str = ""
 
     @log_start("TwitchService")
     def start(self):
         asyncio.run(self.init())
+
+    @log_stop("TwitchService")
+    def stop(self):
+        self.stop()
 
     async def init(self):
         twitch = await Twitch(self._app_id, self._app_secret)
@@ -42,11 +48,13 @@ class TwitchService:
 
         async def on_message(msg: ChatMessage):
             logger.info(f"Danmaku: [{msg.user.name}] {msg.text}")
-            danmaku = Danmaku(uid=msg.user.id, username=msg.user.name, msg=msg.text, ts=msg.sent_timestamp)
+
             if msg.bits is not None and msg.bits > 0:
-                # TODO: add bits amount into instance of Danmaku
-                emitter.emit(EventEnum.SERVICE_LIVE_STREAM_SUPER_CHAT, danmaku)
+                sc = SuperChat(uid=msg.user.id, username=msg.user.name, content=msg.text, ts=msg.sent_timestamp,
+                               money=f'{msg.bits}')
+                emitter.emit(EventEnum.SERVICE_LIVE_STREAM_SUPER_CHAT, sc)
             else:
+                danmaku = Danmaku(uid=msg.user.id, username=msg.user.name, content=msg.text, ts=msg.sent_timestamp)
                 emitter.emit(EventEnum.SERVICE_LIVE_STREAM_DANMAKU, danmaku)
 
         async def on_ready(ready_event: EventData):

@@ -39,13 +39,23 @@ service:
 
   live_stream:
     enable: true
-    platform: bilibili
-    room_id: -1
-    credential:
-      # [See here](https://nemo2011.github.io/bilibili-api/#/get-credential)
-      sessdata: ""
-      bili_jct: ""
-      buvid3: ""
+    bilibili:
+      # Your target Bilibili live-streaming room id. Should be an integer.
+      room_id: -1
+      # How to get credential? See: https://nemo2011.github.io/bilibili-api/#/get-credential
+      credential:
+        sessdata: ""
+        bili_jct: ""
+        buvid3: ""
+    twitch:
+      channel_id: ""
+      # Your Twitch app id.
+      app_id: ""
+      # Your Twitch app secret, leave as `null` if you only want to use User Authentication.
+      app_secret: null
+    youtube:
+      token: ""
+
 
 character:
   chat:

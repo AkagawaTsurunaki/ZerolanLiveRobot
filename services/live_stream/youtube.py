@@ -1,21 +1,12 @@
 import asyncio
 
 import requests
-from pydantic import BaseModel
-from zerolan.data.data.danmaku import Danmaku
+from zerolan.data.data.danmaku import Danmaku, SuperChat
 
 from common.config import YoutubeServiceConfig
 from common.decorator import log_start, log_stop
 from common.enumerator import EventEnum
 from event.eventemitter import emitter
-
-
-class SuperChat(BaseModel):
-    uid: str
-    username: str
-    ts: float
-    content: str
-    money: str
 
 
 def get(url, token: str):
@@ -36,7 +27,7 @@ def convert_danmakus(live_chat_messages: list[dict]):
             content = live_chat_message["snippet"]["textMessageDetails"]["messageText"]
             uid = live_chat_message["snippet"]["authorDetails"]["channelId"]
             username = live_chat_message["snippet"]["authorDetails"]["displayName"]
-            danmaku = Danmaku(uid=uid, username=username, msg=content, ts=ts)
+            danmaku = Danmaku(uid=uid, username=username, content=content, ts=ts)
             result.append(danmaku)
     return result
 
@@ -56,6 +47,7 @@ def convert_superchats(super_chat_events: list[dict]):
 
 class YouTubeService:
     def __init__(self, config: YoutubeServiceConfig):
+        # TODO: Need test!
         assert config.token is not None or config.token == "", f"No token provided."
         self._token = config.token
         self._danmakus = set()

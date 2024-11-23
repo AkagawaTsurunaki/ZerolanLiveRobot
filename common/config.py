@@ -60,27 +60,40 @@ class ControllerConfig:
 
 @dataclass_json
 @dataclass
-class BiliCredential:
-    sessdata: str = None
-    bili_jct: str = None
-    buvid3: str = None
+class BilibiliServiceConfig:
+    @dataclass_json
+    @dataclass
+    class Credential:
+        sessdata: str = None
+        bili_jct: str = None
+        buvid3: str = None
+
+    room_id: int = -1
+    credential: Credential = None
+
+
+@dataclass_json
+@dataclass
+class TwitchServiceConfig:
+    channel_id: str = None
+    app_id: str = None
+    app_secret: str = None
 
 
 @dataclass_json
 @dataclass
 class YoutubeServiceConfig:
     # GCloud auth print access token
-    token: str
+    token: str = None
 
 
 @dataclass_json
 @dataclass
 class LiveStreamConfig:
     enable: bool = True
-    platform: Literal["bilibili", "twitch", "youtube"] = "bilibili"
-    room_id: int = None  # Or say channel_id in twitch and YouTube
-    credential: BiliCredential = None
-    config: YoutubeServiceConfig = None
+    bilibili: BilibiliServiceConfig = None
+    twitch: TwitchServiceConfig = None
+    youtube: YoutubeServiceConfig = None
 
 
 @dataclass_json

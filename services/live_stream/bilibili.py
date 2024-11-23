@@ -3,7 +3,7 @@ from bilibili_api.live import LiveDanmaku
 from loguru import logger
 from zerolan.data.data.danmaku import Danmaku
 
-from common.config import LiveStreamConfig
+from common.config import BilibiliServiceConfig
 from common.decorator import log_init, log_start, log_stop
 from common.enumerator import EventEnum
 from event.eventemitter import emitter
@@ -12,8 +12,8 @@ from event.eventemitter import emitter
 class BilibiliService:
 
     @log_init("BilibiliService")
-    def __init__(self, config: LiveStreamConfig):
-        assert config.room_id > 0, "Room id must be greater than 0"
+    def __init__(self, config: BilibiliServiceConfig):
+        assert config.room_id and config.room_id > 0, "Room id must be greater than 0"
         self._room_id: int = config.room_id
         self._retry_count = 0
         self._max_retry = 5
@@ -33,6 +33,7 @@ class BilibiliService:
         See: https://nemo2011.github.io/bilibili-api/#/modules/live
         :return:
         """
+
         @self._monitor.on("VERIFICATION_SUCCESSFUL")
         async def on_connect(event):
             emitter.emit(EventEnum.SERVICE_LIVE_STREAM_CONNECTED)
@@ -42,7 +43,7 @@ class BilibiliService:
         async def handle_recv(event):
             danmaku = Danmaku(uid=event["data"]["info"][2][0],
                               username=event["data"]["info"][2][1],
-                              msg=event["data"]["info"][1],
+                              content=event["data"]["info"][1],
                               ts=event["data"]["info"][9]['ts'])
             # 注意没带粉丝牌的会导致越界
             # fans_band_level = event["data"]["info"][3][0]  # 粉丝牌的级别
@@ -58,8 +59,8 @@ class BilibiliService:
                 logger.warning("""
                 An error occurred during the connection to the Bilibili server, you can try:
                 1. Check your Internet connection.
-                2. Update the credential information in your config.
-                3. Update the bilibili-api-python package to the latest version.
+                2. Check your credential information in `config.yaml`.
+                3. Update the `bilibili-api-python` package to the latest version.
                 """)
             emitter.emit(EventEnum.SERVICE_LIVE_STREAM_DISCONNECTED)
             logger.info("Disconnected from Bilibili server.")
@@ -68,12 +69,14 @@ class BilibiliService:
         async def handle_send_gift(event):
             # TODO: Need to parse event
             # emitter.emit("service.live_stream.gift")
+            logger.debug(event)
             pass
 
         @self._monitor.on("SUPER_CHAT_MESSAGE")
         async def handle_super_chat_message(event):
             # TODO: Need to parse event
             # emitter.emit("service.live_stream.super_chat")
+            logger.debug(event)
             pass
 
     @log_stop("BilibiliService")
