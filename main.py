@@ -1,19 +1,17 @@
 import threading
 
-import pyautogui
 from PIL.Image import Image
 from loguru import logger
 from zerolan.data.data.asr import ASRModelStreamQuery, ASRModelPrediction
-from zerolan.data.data.img_cap import ImgCapQuery, ImgCapPrediction
+from zerolan.data.data.img_cap import ImgCapPrediction
 from zerolan.data.data.llm import LLMQuery, LLMPrediction
 from zerolan.data.data.ocr import OCRQuery, OCRPrediction
-from zerolan.data.data.tts import TTSPrediction
+from zerolan.data.data.tts import TTSPrediction, TTSQuery
 
 from agent.location_attn import LocationAttentionAgent
 from agent.sentiment import SentimentAnalyzerAgent
 from agent.translator import TranslatorAgent
 from common.config import get_config
-from common.data import GPT_SoVITS_TTS_Query
 from common.decorator import withsound, start_ui_process, kill_ui_process
 from common.enumerator import SystemSoundEnum, EventEnum, Language
 from event.eventemitter import emitter
@@ -150,7 +148,7 @@ class ZerolanLiveRobot:
         async def llm_query_handler(prediction: LLMPrediction):
             logger.info("LLM: " + prediction.response)
             tts_prompt = self.sentiment_analyzer.sentiment_tts_prompt(prediction.response)
-            query = GPT_SoVITS_TTS_Query(
+            query = TTSQuery(
                 text=prediction.response,
                 text_language="zh",
                 refer_wav_path=tts_prompt.audio_path,
