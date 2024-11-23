@@ -35,6 +35,7 @@ from services.vad.emitter import VoiceEventEmitter
 config = get_config()
 
 
+
 class ZerolanLiveRobot:
     def __init__(self):
         self.vad = VoiceEventEmitter()
@@ -47,7 +48,7 @@ class ZerolanLiveRobot:
         self.speaker = Speaker()
         # [!NOTE]
         #   Here to change your live stream platform
-        self.live_stream = BilibiliService(config.service.live_stream)
+        self.live_stream = BilibiliService(config.service.live_stream.bilibili)
 
         # Set bad words filter
         self.filter = FirstMatchedFilter(config.character.chat.filter.bad_words)
@@ -101,10 +102,6 @@ class ZerolanLiveRobot:
                 self.browser.move_to_search_box()
                 text = prediction.transcript[2:]
                 self.browser.send_keys_and_enter(text)
-            elif "错误" in prediction.transcript:
-                self.speaker.play_system_sound(SystemSoundEnum.error)
-            elif "警告" in prediction.transcript:
-                self.speaker.play_system_sound(SystemSoundEnum.warn)
             elif "关闭麦克风" in prediction.transcript:
                 self.vad.stop()
             elif "游戏" in prediction.transcript:
