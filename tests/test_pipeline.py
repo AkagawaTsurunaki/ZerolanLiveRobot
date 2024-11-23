@@ -3,6 +3,7 @@ from zerolan.data.data.llm import LLMQuery
 from zerolan.data.data.tts import TTSQuery
 
 from common.config import get_config
+from manager.tts_prompt_manager import TTSPromptManager
 from pipeline.llm import LLMPipeline
 from pipeline.tts import TTSPipeline
 
@@ -10,6 +11,11 @@ config = get_config()
 
 llm = LLMPipeline(config.pipeline.llm)
 tts = TTSPipeline(config.pipeline.tts)
+
+
+def test_tts_prompt_manager():
+    manager = TTSPromptManager(config=config.character.speech)
+    assert len(manager.tts_prompts) > 0, f"{manager.tts_prompts} should not be empty."
 
 
 def test_llm():
