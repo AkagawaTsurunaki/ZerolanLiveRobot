@@ -121,6 +121,12 @@ pip install git+https://github.com/AkagawaTsurunaki/zerolan-data.git@dev
 
 `character.speech.prompts_dir` 指明了你的 TTS 音频文件的存放位置，你的文件名的格式应为 `[语言][情感标签]文本内容.wav`。例如`[zh][开心]哇！今天真是一个好天气.wav`，其中“语言”仅支持`zh`、`en`、`ja`；“情感标签”任意，只要能让大语言模型判别即可；“文本内容”为这段音频中人声所代表的文本内容。
 
+#### External Tool
+
+> [!CAUTION]
+>
+> Microsoft Edge 浏览器可能存在内存泄露，因此此项目不支持。
+
 `external_tool.browser.driver` 可选的值有 `firefox`。
 
 `external_tool.browser.profile_dir` 是为了保证在 Selenium 的控制下，您的账号登录等信息不会丢失，留空程序会自动检测位置（但不代表一定能找到）。
