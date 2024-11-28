@@ -14,7 +14,7 @@ from langchain_core.tools import BaseTool
 from langchain_core.utils.function_calling import convert_to_openai_tool
 from loguru import logger
 from pydantic import BaseModel
-from zerolan.data.data.llm import LLMQuery
+from zerolan.data.pipeline.llm import LLMQuery
 
 from agent.adaptor import LangChainAdaptedLLM, convert
 from common.config import LLMPipelineConfig
