@@ -25,23 +25,27 @@ class TTSPromptManager:
         return self.default_tts_prompt
 
     def load_tts_prompts(self, prompts_dir):
-        for dirpath, dirnames, filenames in os.walk(spath(prompts_dir)):
-            for filename in filenames:
-                try:
-                    lang, sentiment, transcript = self.parse_tts_prompt_filename(filename)
-                except ValueError:
-                    logger.warning(f"No suitable filename parsing strategy, the audio file will skip: {filename}")
-                    continue
-                audio_path = str(os.path.join(dirpath, filename))
-                audio_path = os.path.abspath(audio_path)
-                tts_prompt = TTSPrompt(audio_path=audio_path, lang=lang, sentiment=sentiment, prompt_text=transcript)
-                self.tts_prompts.append(tts_prompt)
-                self.sentiments.append(sentiment)
-                if tts_prompt.sentiment == "Default":
-                    self.default_tts_prompt = tts_prompt
-        sentiments = [tts_prompt.sentiment for tts_prompt in self.tts_prompts]
+        try:
+            for dirpath, dirnames, filenames in os.walk(spath(prompts_dir)):
+                for filename in filenames:
+                    try:
+                        lang, sentiment, transcript = self.parse_tts_prompt_filename(filename)
+                    except ValueError:
+                        logger.warning(f"No suitable filename parsing strategy, the audio file will skip: {filename}")
+                        continue
+                    audio_path = str(os.path.join(dirpath, filename))
+                    audio_path = os.path.abspath(audio_path)
+                    tts_prompt = TTSPrompt(audio_path=audio_path, lang=lang, sentiment=sentiment, prompt_text=transcript)
+                    self.tts_prompts.append(tts_prompt)
+                    self.sentiments.append(sentiment)
+                    if tts_prompt.sentiment == "Default":
+                        self.default_tts_prompt = tts_prompt
+            sentiments = [tts_prompt.sentiment for tts_prompt in self.tts_prompts]
 
-        logger.info(f"{len(self.tts_prompts)} TTS prompts loaded: {sentiments}")
+            logger.info(f"{len(self.tts_prompts)} TTS prompts loaded: {sentiments}")
+        except FileNotFoundError as e:
+            logger.error("Are you sure that you have configurated your TTS prompts directory?")
+            raise e
 
     @staticmethod
     def parse_tts_prompt_filename(s: str) -> Tuple[str, str, str]:
