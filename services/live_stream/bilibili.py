@@ -36,7 +36,7 @@ class BilibiliService:
 
         @self._monitor.on("VERIFICATION_SUCCESSFUL")
         async def on_connect(event):
-            emitter.emit(EventEnum.SERVICE_LIVE_STREAM_CONNECTED)
+            await emitter.emit(EventEnum.SERVICE_LIVE_STREAM_CONNECTED)
             logger.info("Verification successful, connected to Bilibili server.")
 
         @self._monitor.on("DANMU_MSG")
