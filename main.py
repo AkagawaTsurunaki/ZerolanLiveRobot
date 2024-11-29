@@ -10,6 +10,7 @@ from zerolan.data.pipeline.tts import TTSPrediction, TTSQuery
 
 from agent.location_attn import LocationAttentionAgent
 from agent.sentiment import SentimentAnalyzerAgent
+from agent.tool_agent import ToolAgent
 from agent.translator import TranslatorAgent
 from common.config import get_config
 from common.decorator import withsound, start_ui_process, kill_ui_process
@@ -29,11 +30,11 @@ from services.device.screen import Screen
 from services.device.speaker import Speaker
 from services.filter.strategy import FirstMatchedFilter
 from services.game.minecraft.app import KonekoMinecraftAIAgent, WebSocketServer
+from services.live2d.app import Live2dApplication
 from services.live_stream.bilibili import BilibiliService
 from services.vad.emitter import VoiceEventEmitter
 
 config = get_config()
-
 
 
 class ZerolanLiveRobot:
@@ -58,12 +59,13 @@ class ZerolanLiveRobot:
         self.thread_manager = ThreadManager()
 
         # Agents
-        self.websocket = WebSocketServer()
-        self.minecraft_agent = KonekoMinecraftAIAgent(self.websocket, config.pipeline.llm)
+        tool_agent = ToolAgent(config.pipeline.llm)
+        self.minecraft_agent = KonekoMinecraftAIAgent(config.service.game, tool_agent)
         self.sentiment_analyzer = SentimentAnalyzerAgent(self.speech_manager,
                                                          config.pipeline.llm)
         self.translator = TranslatorAgent(config.pipeline.llm)
         self.location_attn = LocationAttentionAgent(config.pipeline.llm)
+        self.live2d = Live2dApplication(config.service.live2d)
 
         self.cur_lang = Language.ZH
 
@@ -76,6 +78,7 @@ class ZerolanLiveRobot:
         self.thread_manager.start_thread(threading.Thread(target=self.vad.start, name="VoiceEventEmitter"))
         self.thread_manager.start_thread(
             threading.Thread(target=self.live_stream.start, name="LiveStreamEventEmitter"))
+        self.thread_manager.start_thread(threading.Thread(target=self.live2d.start, name="Live2dApplication"))
 
         self.thread_manager.join_all_threads()
 

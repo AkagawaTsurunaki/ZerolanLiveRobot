@@ -9,7 +9,7 @@ from websockets import ConnectionClosedError
 from websockets.asyncio.server import serve, ServerConnection
 
 from agent.tool_agent import Tool, ToolAgent
-from common.config import LLMPipelineConfig
+from common.config import GameBridgeConfig
 from common.enumerator import EventEnum, SystemSoundEnum
 from event.eventemitter import EventEmitter, emitter
 from services.device.speaker import Speaker
@@ -20,7 +20,7 @@ from services.game.minecraft.instrcution.tool import KonekoInstructionTool
 
 class WebSocketServer(EventEmitter):
 
-    def __init__(self, host: str = "127.0.0.1", port: int = 10098):
+    def __init__(self, host: str, port: int):
         super().__init__()
         self._host = host
         self._port = port
@@ -80,12 +80,11 @@ class WebSocketServer(EventEmitter):
 
 class KonekoMinecraftAIAgent:
 
-    # @inject
-    def __init__(self, ws: WebSocketServer, config: LLMPipelineConfig):
+    def __init__(self, config: GameBridgeConfig, tool_agent: ToolAgent):
         super().__init__()
-        self.ws = ws
+        self.ws = WebSocketServer(host=config.host, port=config.port)
         self._instruction_tools: Dict[str, KonekoInstructionTool] = dict()
-        self._tool_agent = ToolAgent(config)
+        self._tool_agent = tool_agent
 
     def _init(self):
         @emitter.on(EventEnum.KONEKO_CLIENT_PUSH_INSTRUCTIONS)
