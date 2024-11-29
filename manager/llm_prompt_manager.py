@@ -1,6 +1,6 @@
 from copy import deepcopy
 
-from zerolan.data.data.llm import Conversation, RoleEnum
+from zerolan.data.pipeline.llm import Conversation, RoleEnum
 
 from common.config import ChatConfig
 
