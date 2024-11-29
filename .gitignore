@@ -4,5 +4,6 @@ __pycache__
 /.vscode
 /assets
 resources/config.yaml
+/resources
 /data
 /.temp
