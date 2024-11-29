@@ -3,7 +3,7 @@ import threading
 from PIL.Image import Image
 from loguru import logger
 from zerolan.data.pipeline.asr import ASRStreamQuery, ASRPrediction
-from zerolan.data.pipeline.img_cap import ImgCapPrediction
+from zerolan.data.pipeline.img_cap import ImgCapPrediction, ImgCapQuery
 from zerolan.data.pipeline.llm import LLMQuery, LLMPrediction
 from zerolan.data.pipeline.ocr import OCRQuery, OCRPrediction
 from zerolan.data.pipeline.tts import TTSPrediction, TTSQuery
@@ -23,13 +23,13 @@ from manager.tts_prompt_manager import TTSPromptManager
 from pipeline.asr import ASRPipeline
 from pipeline.img_cap import ImgCapPipeline
 from pipeline.llm import LLMPipeline
-from pipeline.ocr import OCRPipeline
+from pipeline.ocr import OCRPipeline, avg_confidence, stringify
 from pipeline.tts import TTSPipeline
 from services.browser.browser import Browser
-from services.device.screen import Screen
+from services.device.screen import Screen, is_image_uniform
 from services.device.speaker import Speaker
 from services.filter.strategy import FirstMatchedFilter
-from services.game.minecraft.app import KonekoMinecraftAIAgent, WebSocketServer
+from services.game.minecraft.app import KonekoMinecraftAIAgent
 from services.live2d.app import Live2dApplication
 from services.live_stream.bilibili import BilibiliService
 from services.vad.emitter import VoiceEventEmitter
@@ -57,6 +57,7 @@ class ZerolanLiveRobot:
         self.chat_manager = LLMPromptManager(config.character.chat)
         self.temp_data_manager = TempDataManager()
         self.thread_manager = ThreadManager()
+        self.screen = Screen()
 
         # Agents
         tool_agent = ToolAgent(config.pipeline.llm)
@@ -110,8 +111,9 @@ class ZerolanLiveRobot:
             elif "游戏" in prediction.transcript:
                 await self.minecraft_agent.exec_instruction(prediction.transcript)
             elif "看见" in prediction.transcript:
-                img, img_save_path = Screen.capture("Edge", k=0.9)
-                await emitter.emit(EventEnum.DEVICE_SCREEN_CAPTURED, img=img, img_path=img_save_path)
+                img, img_save_path = self.screen.safe_capture(k=0.99)
+                if img and img_save_path:
+                    await emitter.emit(EventEnum.DEVICE_SCREEN_CAPTURED, img=img, img_path=img_save_path)
             elif "切换语言" in prediction.transcript:
                 self.cur_lang = Language.JA
             else:
@@ -119,24 +121,28 @@ class ZerolanLiveRobot:
 
         @emitter.on(EventEnum.DEVICE_SCREEN_CAPTURED)
         async def on_device_screen_captured(img: Image, img_path: str):
-            # TODO: Discriminator to detect whether it includes text or image
+            if is_image_uniform(img):
+                logger.warning("Are you sure you capture the screen properly? The screen is black!")
+                await self.emit_llm_prediction("你忽然什么都看不见了！请向你的开发者求助！")
+                return
 
             ocr_prediction = self.ocr.predict(OCRQuery(img_path=img_path))
-            logger.info(f"OCR: {ocr_prediction.unfold_as_str()}")
-            await emitter.emit(EventEnum.PIPELINE_OCR, prediction=ocr_prediction)
-
-            # img_cap_prediction = self.img_cap.predict(ImgCapQuery(prompt="There", img_path=img_path))
-            # src_lang = Language.value_of(img_cap_prediction.lang)
-            # caption = self.translator.translate(src_lang, self.cur_lang, img_cap_prediction.caption)
-            # img_cap_prediction.caption = caption
-            # logger.info("ImgCap: " + caption)
-            # await emitter.emit(EventEnum.PIPELINE_IMG_CAP, prediction=img_cap_prediction)
+            # TODO: 0.6 is a hyperparameter that indicates the average confidence of the text contained in the image.
+            if avg_confidence(ocr_prediction) > 0.6:
+                logger.info("OCR: " + stringify(ocr_prediction.region_results))
+                await emitter.emit(EventEnum.PIPELINE_OCR, prediction=ocr_prediction)
+            else:
+                img_cap_prediction = self.img_cap.predict(ImgCapQuery(prompt="There", img_path=img_path))
+                src_lang = Language.value_of(img_cap_prediction.lang)
+                caption = self.translator.translate(src_lang, self.cur_lang, img_cap_prediction.caption)
+                img_cap_prediction.caption = caption
+                logger.info("ImgCap: " + caption)
+                await emitter.emit(EventEnum.PIPELINE_IMG_CAP, prediction=img_cap_prediction)
 
         @emitter.on(EventEnum.PIPELINE_OCR)
         async def on_pipeline_ocr(prediction: OCRPrediction):
-            text = prediction.unfold_as_str()
             region_result = self.location_attn.find_focus(prediction.region_results)
-            text = region_result.position
+            text = "你看见了" + stringify(prediction.region_results) + "\n其中你最感兴趣的是\n" + region_result.content
             await self.emit_llm_prediction(text)
 
         @emitter.on(EventEnum.PIPELINE_IMG_CAP)
