@@ -56,6 +56,12 @@ service:
     youtube:
       token: ""
 
+  live2d:
+    enable: true
+    host: "127.0.0.1"
+    port: 11008
+    model_dir: ""
+
 
 character:
   chat:

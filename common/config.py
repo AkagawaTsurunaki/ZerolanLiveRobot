@@ -98,6 +98,15 @@ class LiveStreamConfig:
 
 @dataclass_json
 @dataclass
+class Live2DConfig:
+    enable: bool = True
+    host: str = "127.0.0.1"
+    port: int = 11008
+    model_dir: str = "resources/static/models/live2d/"
+
+
+@dataclass_json
+@dataclass
 class GameBridgeConfig:
     enable: bool = True
     host: str = '127.0.0.1'
@@ -111,6 +120,7 @@ class ServiceConfig:
     controller: ControllerConfig
     live_stream: LiveStreamConfig
     game: GameBridgeConfig
+    live2d: Live2DConfig
 
 
 @dataclass_json
