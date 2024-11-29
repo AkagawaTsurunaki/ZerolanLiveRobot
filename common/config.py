@@ -1,3 +1,4 @@
+import logging
 from dataclasses import dataclass
 from typing import Literal
 
@@ -186,7 +187,12 @@ class ZerolanLiveRobotConfig:
 
 
 def get_config() -> ZerolanLiveRobotConfig:
-    cfg_dict = read_yaml(spath("resources/config.yaml"))
+    try:
+        cfg_dict = read_yaml(spath("resources/config.yaml"))
+    except Exception as e:
+        logging.error("Are you sure that you have copied `config.yaml` from `config.template.yaml` in `resources`?`")
+        raise e
+
     assert hasattr(ZerolanLiveRobotConfig, "from_dict")
     config: ZerolanLiveRobotConfig = ZerolanLiveRobotConfig.from_dict(cfg_dict)  # noqa
     return config
