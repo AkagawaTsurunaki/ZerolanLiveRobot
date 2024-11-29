@@ -1,4 +1,4 @@
-import logging
+from loguru import logger
 from dataclasses import dataclass
 from typing import Literal
 
@@ -190,7 +190,7 @@ def get_config() -> ZerolanLiveRobotConfig:
     try:
         cfg_dict = read_yaml(spath("resources/config.yaml"))
     except Exception as e:
-        logging.error("Are you sure that you have copied `config.yaml` from `config.template.yaml` in `resources`?`")
+        logger.error("Are you sure that you have copied `config.yaml` from `config.template.yaml` in `resources`?`")
         raise e
 
     assert hasattr(ZerolanLiveRobotConfig, "from_dict")

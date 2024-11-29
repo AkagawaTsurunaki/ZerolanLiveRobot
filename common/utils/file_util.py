@@ -45,7 +45,7 @@ def spath(path: str) -> str:
         for filename in filenames:
             if filename == path:
                 return os.path.abspath(os.path.join(dirpath, filename))
-    raise FileNotFoundError(f'智能路径已尝试在项目中匹配和搜索，但是仍然找不到 {path}')
+    raise FileNotFoundError(f'spath has tried to match and search in the project, but still can not find: {path}')
 
 
 def locate_path_upwards(relative_path, upper_path: str = project_dir) -> str:
