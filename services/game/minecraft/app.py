@@ -31,9 +31,13 @@ class WebSocketServer(EventEmitter):
 
     async def _run(self):
         stop = asyncio.get_running_loop().create_future()
-
-        async with serve(self._handler, self._host, self._port):
-            await stop
+        try:
+            async with serve(self._handler, self._host, self._port):
+                await stop
+        except OSError as e:
+            if e.errno == 10048:
+                logger.error("Typically, each socket address (protocol/network address/port) is only allowed to be used once.")
+                raise e
 
     async def _handler(self, websocket: ServerConnection):
         self._ws = websocket
