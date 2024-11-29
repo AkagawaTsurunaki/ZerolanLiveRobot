@@ -34,7 +34,7 @@ class Live2dApplication:
         @self._ws.on(EventEnum.WEBSOCKET_RECV_JSON)
         async def on(data: any):
             recv_obj = ZerolanLive2DProtocol.model_validate(data)
-            print(recv_obj)
+            logger.debug(recv_obj)
             if recv_obj is None:
                 return
             if recv_obj.Event == "client_hello":

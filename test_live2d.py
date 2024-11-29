@@ -7,3 +7,6 @@ config = get_config()
 def test_live2d():
     serv = Live2dApplication(config.service.live2d)
     serv.start()
+
+
+test_live2d()
