@@ -41,17 +41,26 @@
 }
 ```
 
+### Server Hello
+
+由服务端发起，用于通知客户端，服务端已经正确识别客户端。
+
+```json
+{
+    "Event": "server_hello",
+    "Data": null
+}
+```
+
 ### Load Live2D Model
 
-由服务端发起，用于告知客户端加载模型，以及将模型调整到多大的缩放尺寸。
+由服务端发起，用于告知客户端加载模型。
 
 ```json
 {
     "Event": "load_live2d_model",
     "Data": {
-        "ModelPath": "xxx.model3.json", // Live2D 模型路径
-        "ModelScale": 7, // Live2 的缩放尺寸，为 float
-        "ModelMotionsDirectory": "xxx/motions" // Live2D motions 存放的文件夹
+        "ModelDirectory": "live2d/model_name" // Live2D 模型文件夹所在路径
     }
 }
 ```
