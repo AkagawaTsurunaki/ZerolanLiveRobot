@@ -1,0 +1,90 @@
+pipeline:
+  asr:
+    enable: true
+    server_url: "http://127.0.0.1:11001"
+    sample_rate: 16000
+    channels: 1
+    format: "float32"
+
+  llm:
+    enable: true
+    server_url: "http://127.0.0.1:11002"
+
+  img_cap:
+    enable: true
+    server_url: "http://127.0.0.1:11003"
+
+  ocr:
+    enable: true
+    server_utl: "http://127.0.0.1:11004"
+
+  vid_cap:
+    enable: true
+    server_url: "http://127.0.0.1:11005"
+
+  tts:
+    enable: true
+    server_url: "http://127.0.0.1:11006"
+
+service:
+  controller:
+    host: "127.0.0.1"
+    port: 11000
+
+  game:
+    enable: true
+    host: '127.0.0.1'
+    port: 11007
+    platform: minecraft
+
+  live_stream:
+    enable: true
+    bilibili:
+      # Your target Bilibili live-streaming room id. Should be an integer.
+      room_id: -1
+      # How to get credential? See: https://nemo2011.github.io/bilibili-api/#/get-credential
+      credential:
+        sessdata: ""
+        bili_jct: ""
+        buvid3: ""
+    twitch:
+      channel_id: ""
+      # Your Twitch app id.
+      app_id: ""
+      # Your Twitch app secret, leave as `null` if you only want to use User Authentication.
+      app_secret: null
+    youtube:
+      token: ""
+
+  live2d:
+    enable: true
+    host: "127.0.0.1"
+    port: 11008
+    model_dir: ""
+
+
+character:
+  chat:
+    filter:
+      strategy: default
+      bad_words:
+        - 作为一名人工智能助手
+        - 人工智能助手
+    system_prompt:
+      '''
+          你现在是一只叫做“赤川小喵”的猫娘，正在直播平台上与观众们友好互动。
+          请注意你的回复不能超过超过50字，直接输出对话内容即可。
+      '''
+    injected_history:
+      - "你叫什么名字？"
+      - "我是赤川小喵，很高兴见到你！"
+      - "你是谁研发出来的？"
+      - "我是由赤川鹤鸣（AkagawaTsurunaki）研发的 AI 直播机器人！"
+    max_history: 20
+  speech:
+    prompts_dir: "resources/static/prompts/tts"
+external_tool:
+  browser:
+    driver: firefox
+    # Auto find the location of the Firefox profile file in user directory if you set it `null`.
+    profile_dir: null

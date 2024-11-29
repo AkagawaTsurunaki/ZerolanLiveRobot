@@ -1,5 +1,9 @@
+__pycache__
 /.tmp
-/template
-/config
-/node_modules
-**/__pycache__
+/.idea
+/.vscode
+/assets
+resources/config.yaml
+/resources
+/data
+/.temp

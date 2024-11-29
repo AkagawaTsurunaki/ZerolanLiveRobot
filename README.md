@@ -1,394 +1,233 @@
-# Zerolan Live Robot
+# Zerolan Live Robot 2.0
 
-![Static Badge](https://img.shields.io/badge/Python%20-%203.10%20-%20blue) ![Static Badge](https://img.shields.io/badge/Node%20-%2020.9.0%20-%20violet) ![Static Badge](https://img.shields.io/badge/CUDA%20-%202.1.1%2Bcu118%20-%20green) ![Static Badge](https://img.shields.io/badge/License%20-%20GPLv3%20-%20orange) 
+![Static Badge](https://img.shields.io/badge/Python%20-%203.10%20-%20blue) ![Static Badge](https://img.shields.io/badge/License-MIT-orange) ![Static Badge](https://img.shields.io/badge/AI%20VTuber-blue) ![Static Badge](https://img.shields.io/badge/Bilibli-fb7299) ![Static Badge](https://img.shields.io/badge/Youtube-ff0000) ![Static Badge](https://img.shields.io/badge/Twitch-9044fe) ![Static Badge](https://img.shields.io/badge/ASR-purple) ![Static Badge](https://img.shields.io/badge/LLM-purple) ![Static Badge](https://img.shields.io/badge/TTS-purple) ![Static Badge](https://img.shields.io/badge/OCR-purple) ![Static Badge](https://img.shields.io/badge/ImageCaptioning-purple) ![Static Badge](https://img.shields.io/badge/VideoCaptioning-purple) ![Static Badge](https://img.shields.io/badge/MinecraftAIAgent-purple) ![Static Badge](https://img.shields.io/badge/ver-2.0-green)
 
-![Static Badge](https://img.shields.io/badge/AI%20VTuber%20-%20green) ![Static Badge](https://img.shields.io/badge/Bilibli%20Live%20-%20green) ![Static Badge](https://img.shields.io/badge/Large%20Language%20Model%20-%20green) ![Static Badge](https://img.shields.io/badge/Text%20to%20Speech%20-%20green) ![Static Badge](https://img.shields.io/badge/Image%20to%20Text%20-%20green) ![Static Badge](https://img.shields.io/badge/Minecraft%20AI%20Agent%20-%20green) ![Static Badge](https://img.shields.io/badge/Automatic%20Speech%20Recognition%20(coming%20soon)%20-%20blue)
+你或许已经听说过著名的 [Neurosama](https://virtualyoutuber.fandom.com/wiki/Neuro-sama)，或者是来自中国的[木几萌](https://mobile.moegirl.org.cn/%E6%9C%A8%E5%87%A0%E8%90%8C)。你是否也想要拥有一个自己的 AI 虚拟形象陪你直播、聊天、打游戏？开源的 Zerolan Live Robot 正致力于实现您的梦想！而这仅仅需要一张消费级显卡！
 
-*Docs Languages: [简体中文](https://github.com/AkagawaTsurunaki/ZerolanLiveRobot/blob/main/README.md) | [English](https://github.com/AkagawaTsurunaki/ZerolanLiveRobot/blob/main/docs/en/README.md) | [日本語](https://github.com/AkagawaTsurunaki/ZerolanLiveRobot/blob/main/docs/ja/README.md)*
+Zerolan Live Robot 是一款多功能的直播机器人（AI VTuber），它可以自动在 Bilibili 直播间中读取弹幕，观察电脑屏幕的指定窗口，理解其画面内容，操纵
+Minecraft 中的游戏角色，做出带情感的语音聊天回应。
 
-你或许已经听说过著名的 [Neurosama](https://virtualyoutuber.fandom.com/wiki/Neuro-sama)，或者是来自中国的[木几萌](https://mobile.moegirl.org.cn/%E6%9C%A8%E5%87%A0%E8%90%8C)。 
-你是否也想要拥有一个自己的 AI 虚拟形象陪你直播聊天、打游戏？
-开源的 Zerolan Live Robot 正致力于实现您的梦想！而这仅仅需要一张消费级显卡！
+与其关联的项目 [KonekoMinecraftBot](https://github.com/AkagawaTsurunaki/KonekoMinecraftBot)、[zerolan-core](https://github.com/AkagawaTsurunaki/zerolan-core)、[zerolan-data](https://github.com/AkagawaTsurunaki/zerolan-data)、[zerolan-ui](https://github.com/AkagawaTsurunaki/zerolan-ui)。
 
-Zerolan Live Robot 是一款多功能的直播机器人（AI VTuber），它可以自动在 Bilibili 直播间中读取弹幕，观察电脑屏幕的指定窗口，理解其画面内容，操纵 Minecraft 中的游戏角色，做出带情感的语音聊天回应。
+> [!Note]
+>
+> 本项目持续开发中，当前的版本为 `2.0`，您可以关注开发者的 Bilibili 账号[赤川鹤鸣_Channel](https://space.bilibili.com/1076299680)，正在根据此项目调教 AI 猫娘，不定时直播展示最新进展。
 
-本项目持续开发中，当前的版本为 `1.0`，您可以关注开发者的Bilibili账号[赤川鶴鳴_Channel](https://space.bilibili.com/1076299680)，正在根据此项目调教 AI 猫娘，不定时直播展示最新进展。
+## 特点与功能
 
-> 希望每个人都能拥有自己的 AI 猫娘喵！
+- [x] 💭 基于大语言模型的自然语言对话
+- [x] 🍻 根据直播间弹幕挑选并回复
+- [x] 🎙️ 识别用户麦克风语音输入内容，理解并回复
+- [x] 📣 根据回复文本的带情感的语音合成
+- [x] 📄 识别指定窗口中的文字内容
+- [x] 🖼️ 识别指定窗口中的图像（或视频），并理解其中的含义
+- [x] 🛠️ 根据上下文语境采取行动或挑选工具（百度百科、萌娘百科等）
+- [x] 🕹 根据语音指令控制 Minecraft AI 智能体
+- [ ] Live2D 形象的控制
+- [ ] 智能体的记忆功能
 
-## 目前的基本功能
+以下简要列出了本项目支持的内容：
 
-1. 实时读取 Bilibili 直播间弹幕。
-2. 识别并理解指定窗口的内容，例如 Minecraft。
-3. 基于大语言模型 ChatGLM 3 的游戏实况聊天对话。
-4. 基于 GPT-SoVITS 的语音合成，且带有语气切换功能。
-4. 基于 mineflayer 的 Minecraft 智能体陪玩。
 
-## 模型组合选择
+| 支持项           | 支持内容                                                     |
+| ---------------- | ------------------------------------------------------------ |
+| 直播平台         | [Bilibili](https://www.bilibili.com) \| [Twitch](https://www.twitch.tv) |
+| 大语言模型       | [THUDM/GLM-4](https://github.com/THUDM/GLM-4) \| [THUDM/ChatGLM3](https://github.com/THUDM/ChatGLM3) \| [Qwen/Qwen-7B-Chat](https://huggingface.co/Qwen/Qwen-7B-Chat) \| [01ai/Yi-6B-Chat](https://www.modelscope.cn/models/01ai/Yi-6B-Chat) \| [augmxnt/shisa-7b-v1](https://huggingface.co/augmxnt/shisa-7b-v1) |
+| 自动语音识别模型 | [iic/speech_paraformer_asr](https://www.modelscope.cn/models/iic/speech_paraformer_asr_nat-zh-cn-16k-common-vocab8358-tensorflow1) |
+| 语音合成模型     | [RVC-Boss/GPT-SoVITS](https://github.com/RVC-Boss/GPT-SoVITS) |
+| 图像字幕模型     | [Salesforce/blip-image-captioning-large](https://huggingface.co/Salesforce/blip-image-captioning-large) |
+| 光学字符识别模型 | [paddlepaddle/PaddleOCR](https://gitee.com/paddlepaddle/PaddleOCR) |
+| 视频字幕模型     | [iic/multi-modal_hitea_video-captioning_base_en](https://www.modelscope.cn/models/iic/multi-modal_hitea_video-captioning_base_en) |
+| 外部可调用工具   | 火狐浏览器、百度百科、萌娘百科                               |
+| 游戏插件         | Minecraft                                                    |
 
-运行本项目，您需要有支持 CUDA 的显卡。下表为您展示了一些可能的组合，请根据您的显卡的显存大小，决定使用什么模型组合。以下数据已经过开发者的直播测试（测试时还有直播姬、Minecraft Server 等程序在后台运行），仅供参考。
+## 安装并运行
 
-| 组合 | Large Language Model       | Text to Speech | Image-Text Captioning       | OBS              | Minecraft                | 显存占用 |
-| ---- | -------------------------- | -------------- | --------------------------- | ---------------- | ------------------------ | -------- |
-| 1    | ChatGLM3 (4-bit Quantized) | GPT-SoVTIS     | blip-image-captioning-large | 应用高质量编码器 | 1.20.4 无光影 默认材质包 | 10.9 GB  |
-| 2    | ChatGLM3 (4-bit Quantized) | GPT-SoVTIS     | blip-image-captioning-large | 应用高质量编码器 | -                        | 9.3 GB   |
-| 3    | ChatGLM3 (4-bit Quantized) | GPT-SoVTIS     | blip-image-captioning-large | -                | -                        | 8.8 GB   |
-| 4    | ChatGLM3 (4-bit Quantized) | GPT-SoVTIS     | -                           | -                | -                        | 7.7 GB   |
-| 5    | ChatGLM3 (4-bit Quantized) | -              | -                           | -                | -                        | 5.4 GB   |
+> [!CAUTION]
+>
+> Zerolan Live Robot 2.0 版本与旧版本 1.0 不兼容，因此您可能需要重新配置环境、安装依赖。
 
-*注：这里的 ChatGLM3 是指参数量为 6B 的模型。*
+Zerolan 框架由 Zerolan Live Robot、Zerolan Core、Zerolan Data、Zerolan UI 共同组成。下表简要地介绍了各个项目的用途：
 
-开发者测试时的电脑配置如下，仅供参考。
+| 项目名                                                       | 用途                                                         |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| [Zerolan Live Robot](https://github.com/AkagawaTsurunaki/ZerolanLiveRobot) | 直播机器人的控制框架，通过采集环境数据，并综合分析做出动作响应。 |
+| [Zerolan Core](https://github.com/AkagawaTsurunaki/zerolan-core) | 为直播机器人提供 AI 推理服务的核心模块，例如大语言模型的 Web API 服务化。 |
+| [Zerolan Data](https://github.com/AkagawaTsurunaki/zerolan-data) | 定义各个服务之间利用网络请求交换的数据格式。                 |
+| [Zerolan UI](https://github.com/AkagawaTsurunaki/zerolan-ui) | 基于 PyQT6 的 GUI 界面，包括顶部弹窗和提示音等。             |
 
-| 设别名称 | 设备型号                       | 补充说明   |
-| -------- | ------------------------------ | ---------- |
-| Windows  | Windows 11                     | -          |
-| CPU      | i9-13900HX                     | 24 内核    |
-| GPU      | NVIDIA GeForce RTX 4080 Laptop | 12 GB 显存 |
-| 内存     | -                              | 32 GB 内存 |
+### 部署核心服务
 
-此外您还需注意：
+> [!IMPORTANT]
+>
+> 此步骤是**必须**的！
 
-1. 多个程序同时抢占 GPU 资源可能导致服务响应中断。例如，OBS 在进行解码时对 GPU 的占用显著提高，从而导致 LLM 或 TTS 服务被操作系统挂起。
-2. 项目运行时可能会持续消耗显卡资源，请注意散热，避免引发火灾风险。
-3. 上述数据在不同系统和硬件上可能存在差异，请注意留足冗余量。
-4. 本项目尚不支持多卡运行，如果有需要您可以自行更改代码。
+请移步至[此处](https://github.com/AkagawaTsurunaki/zerolan-core)进完成 Zerolan Core 的相关部署工作，Zerolan Live Robot 强依赖于此核心服务。
 
-## 准备工作
+### 安装本项目依赖
 
-我们假定您已经正确地安装了 Anaconda 和 Python。
-
-### 克隆仓库
-
-确保您已经正确安装了 Git，然后执行以下指令，它将克隆本仓库到您的本机。
-
-```shell
-git clone https://github.com/AkagawaTsurunaki/ZerolanLiveRobot.git
-```
-
-### 安装依赖
-
-首先，让我们使用 Anaconda 创建一个虚拟环境。
+运行指令，这会创建一个虚拟环境并激活，然后自动安装本项目需要的依赖包：
 
 ```shell
-conda create --name zerolanliverobot python=3.10 -y # 创建虚拟环境
+conda create --name ZerolanLiveRobot python=3.10
+conda activate ZerolanLiveRobot
+pip install -r requirements.txt
 ```
 
-这将命令 Anaconda 创建一个名为`zerolanliverobot`的虚拟环境，且指定了 Python 版本为 3.10。
+如果您在 `dev` 开发分支，您可能需要手动安装：
 
 ```shell
-cd YourDirectory/ZerolanLiveRobot # 切换目录至本仓库的目录
-conda activate zerolanliverobot # 激活刚刚创建的虚拟环境
-pip install -r requirements.txt # 安装依赖
+pip install git+https://github.com/AkagawaTsurunaki/zerolan-ui.git@dev
+pip install git+https://github.com/AkagawaTsurunaki/zerolan-data.git@dev
 ```
-
-在这里注意的是，本项目中的依赖 `torch~=2.1.1+cu118` 可能因为您的 CUDA 设备具有不同的驱动版本而在安装时报错，如果报错请切换至对应的版本。
-
-要运行 Minecraft AI Agent，您还需要安装 Node.js 20.9.0，并执行以下指令。
-
-```shell
-cd YourDirectory/ZerolanLiveRobot # 切换目录至本仓库的目录
-npm install # 安装必要依赖
-```
-
-这会下载必要的依赖。
-
-### 下载必要模型
-
-| 模型名称                                                     | 下载与安装方式                                               | 用途       |
-| ------------------------------------------------------------ | ------------------------------------------------------------ | ---------- |
-| [ChatGLM3](https://github.com/THUDM/ChatGLM3)                | `git clone https://huggingface.co/THUDM/chatglm3-6b`         | 大语言模型 |
-| [GPT-SoVITS](https://github.com/RVC-Boss/GPT-SoVITS)         | 请仔细阅读[这里](https://github.com/RVC-Boss/GPT-SoVITS)。   | 文字转语音 |
-| [blip-image-captioning-large](https://huggingface.co/Salesforce/blip-image-captioning-large) | `git clone https://huggingface.co/Salesforce/blip-image-captioning-large` | 图片转文字 |
-
-您需要自行下载模型，并且放置在一个合适的位置。在某些国家或地区，访问 Hugging Face 可能存在困难，请自行搜寻解决方案，通常您可以选择一个值得信赖的镜像网站或代理来解决。
 
 ### 修改配置
 
-您需要找到并修改本项目中的配置文件`config/template_config.yaml`，并将`template_config.yaml`更名为`global_config.yaml`。
+找到 `resources/config.template.yaml` 配置文件，更名为 `config.yaml` ，然后根据配置文件中的注释修改为您需要的配置。
 
-接下来，我们将会详细介绍配置文件中的每块内容。
+#### Pipeline
 
-#### Bilibli 直播服务
+`pipeline` 配置项中，您需要注意的是，`server_url` 应该包含协议、IP以及端口号，例如 `http://127.0.0.1:11001`、`https://myserver.com:11451` 等，这是您部署 Zerolan Core 的网络地址，每一类模型可能有不同的端口。
 
-这项配置用于连接至 Bilibili 服务器，并登录您的账号，获取指定直播间的内容。
+> [!TIP]
+> 
+> 服务器只能开启一个端口？那么请尝试使用 Nginx 转发你的请求。
 
-```yaml
-# Bilibili 直播配置
-bilibili_live_config:
-  # 获取方式[详见](https://nemo2011.github.io/bilibili-api/#/get-credential)
-  sessdata:
-  bili_jct:
-  buvid3:
-  # 直播间 ID （应为数字）
-  room_id:
-```
+#### Service
 
-其中，
-1. `sessdata`、`bili_jct`、`buvid3` 这三项用于向 Bilibili 服务器校验您的身份，如果不登录将无法获取直播间的弹幕信息。具体如何填写这三个值，详见[此处](https://nemo2011.github.io/bilibili-api/#/get-credential)。请注意，不要将这三项泄露给他人，尤其在直播的时候，这将会有盗号风险。
-2. `room_id` 是您要连接的直播间的ID，通常为直播间URL中的从左到右第一次出现的数字。当然，您可以设置为他人直播间的ID，这样会接受他人直播间的弹幕信息。
+`service` 配置项中，您需要注意的是，`host` 应仅包含 IP 地址，`port` 应仅包含端口号。
 
-#### 截屏服务
+`game.platform` 字段支持的有 `minecraft`，`live_stream` 字段支持的有 `bilibili`、`twitch`、`youtube`。
 
-这一部分是为了让 ZEROLAN LIVE ROBOT 可以识别当前画面中的的实时内容，你可以指定ta可以看到的窗口，例如游戏画面。
+> [!TIP]
+> 
+> 获取直播平台 API Key 可能使用到的文档：
+> 
+> Bilibili：[获取 Credential 类所需信息](https://nemo2011.github.io/bilibili-api/#/get-credential?id=获取-credential-类所需信息)
+> 
+> Twitch：[Twitch Developers - Authentication](https://dev.twitch.tv/docs/authentication/)
+> 
+> Youtube：[Obtaining authorization credentials](https://developers.google.cn/youtube/registering_an_application?hl=en)
 
-```yaml
-# 截屏配置
-screenshot_config:
-  # 窗口标题（会自动查找符合该标题的第一个窗口）
-  win_title:
-  # 缩放因子（为了防止屏幕被截取窗口）
-  k: 0.9
-  # 截取的图片存放位置
-  save_dir: .tmp/screenshots
-```
+#### Character
 
-其中，
-1. `win_title` 代表要识别的窗口标题，您也可以不填全，这样会在自动匹配的窗口列表中选择第一个窗口进行观测。
-2. `k` 缩放因子，它的作用是防止窗口的边框和标题栏被识别到，从而使 AI 失去沉浸感。取值越小，AI 可识别的范围越小，取值 0 ~ 1 之间。
-3. `save_dir` 截取的图片存放目录，会保存为若干个`时间戳.png`这样的图片。程序停止不会自动清除这里的图片。
+`character.chat.filter.strategy` 的值可以为 `default`。
 
-#### 视觉识别服务
+`character.chat.filter.bad_words` 可以填写一系列的过滤词。
 
-我们使用 [blip-image-captioning-large]([Salesforce/blip-image-captioning-large · Hugging Face](https://huggingface.co/Salesforce/blip-image-captioning-large)) 这一模型以完成 Image-to-Text 任务，这里要注意的是，这个模型输出的是**英文**。
+`character.chat.injected_history` 这个数组必须为偶数个，即必须为 AI 回复的消息结尾。
 
-关于配置文件，
+`character.chat.max_history` 指明了最多保留多少条消息，即消息窗口的大小。
 
-```yaml
-# 模型 blip-image-captioning-large 的配置
-blip_image_captioning_large_config:
-  # 模型地址
-  model_path: Salesforce/blip-image-captioning-large
-  # 模型默认文本提示词（只能是英文）
-  text_prompt: There
-```
+`character.speech.prompts_dir` 指明了你的 TTS 音频文件的存放位置，你的文件名的格式应为 `[语言][情感标签]文本内容.wav`。例如`[zh][开心]哇！今天真是一个好天气.wav`，其中“语言”仅支持`zh`、`en`、`ja`；“情感标签”任意，只要能让大语言模型判别即可；“文本内容”为这段音频中人声所代表的文本内容。
 
-其中，
+#### External Tool
 
-1. `model_path` 表示模型的存放位置。
-2. `text_prompt` 表示模型的文本提示词（必须是英文），例如当你使用`There `时，模型的输出就会以`There`开头。
+> [!CAUTION]
+>
+> Microsoft Edge 浏览器可能存在内存泄露，因此此项目不支持。
 
-#### 配置并启动 GPT-SoVITS 服务
+`external_tool.browser.driver` 可选的值有 `firefox`。
 
-关于本项目采用的 TTS 模型[GPT-SoVITS](https://github.com/RVC-Boss/GPT-SoVITS)，这是一个可以支持仅需3到10秒的音频克隆的模型。请移步至官方仓库，了解如何下载并使用该模型。
+`external_tool.browser.profile_dir` 是为了保证在 Selenium 的控制下，您的账号登录等信息不会丢失，留空程序会自动检测位置（但不代表一定能找到）。
 
-关于 GPT-SoVITS 官方的 API 如何支持中英、日英混读，请参考如下的[教程](https://github.com/jianchang512/gptsovits-api)修改。
+### 启动本项目
 
-请按照上述仓库中文档中的操作步骤配置 GPT-SoVITS 服务，并启动 API 服务，也请记住您的 API 服务的相关配置。
+> [!TIP]
+> 
+> 建议启动前利用 Postman 等 API 测试工具测试运行本项目的计算机与 Zerolan Core 的连接是否正常。Zerolan Live Robot 会在管线连接出错时提供一些建议，仍需要您手动排查。
 
-```yaml
-GPTSoVITSServiceConfig:
-  # 是否以调试模式运行
-  debug: False
-  # GPT-SoVITS 服务地址
-  host: 127.0.0.1
-  # GPT-SoVITS 服务端口
-  port: 9880
-  # 音频临时文件夹
-  tmp_dir: .tmp/wav_output
-```
-
-其中，
-
-1. `debug`：是否以调试模式启动Flask服务，默认为`False`。
-
-2. `host`：GPT-SoVITS 服务地址，如果您在本机上启动，那么默认地址为`127.0.0.1`。
-
-3. `prot`：GPT-SoVITS 服务端口，如果您未进行改动，那么默认端口为`9880`。
-
-4. `tmp_dir`用于临时存放生成的音频文件，您可以选择一个合适的位置，默认为`.tmp/wav_output`。
-
-#### 语气分析服务配置
-
-为了能让虚拟形象以不同的语气说话，您需要在 `template/tone_list.yaml` 配置中修改自定义的Prompt。以下是一个示例。
-
-```yaml
-EMOTION_ID:
-  refer_wav_path: 1.wav
-  prompt_text: 你好，请多关照。
-  prompt_language: zh
-```
-
-其中，
-
-1. `EMOTION_ID` 表示此 Prompt 所包含的语气，例如“`开心`”、“`生气`”。请注意，根据您使用的大语言模型所支持的语言，来设定`EMOTION_ID`的效果可能会更好。
-2. `refer_wav_path`：此 Prompt 音频文件的路径。注意音频的**长度必须大于 3 秒但小于 10 秒**。
-3. `prompt_text`：此 Prompt 音频文件中表述的内容。
-4. `prompt_language`：此此 Prompt 音频所用的语言。GPT-SoVITS 目前仅支持`zh`（中文）、`en`（英语）、`ja`（日语）这三国语言。
-
-#### ChatGLM3 服务配置
-
-[ChatGLM3](https://github.com/THUDM/ChatGLM3)是本项目的核心，如果您无法正确启动此服务，那么将无法启动本项目。以下是配置文件：
-
-```yaml
-# ChatGLM3 服务配置
-chatglm3_service_config:
-  # 是否以调试模式运行
-  debug: False
-  # ChatGLM3 服务地址
-  host: 127.0.0.1
-  # ChatGLM3 服务端口
-  port: 8085
-  # Tokenizer 路径
-  tokenizer_path: THUDM/chatglm3-6b
-  # 模型路径
-  model_path: THUDM/chatglm3-6b
-  # 量化
-  quantize: 4
-```
-
-其中，
-
-1. `debug`：参数用来指定 Flask 是否以 debug 模式启动，默认为 `Flase`。
-2. `host`：ChatGLM 服务地址，如果您在本机上启动，那么默认地址为`127.0.0.1`。
-3. `port`：ChatGLM 服务端口，如果您未进行改动，那么默认端口为`8085`。
-4. `tokenizer_path`：ChatGLM 模型目录。
-5. `model_path`：ChatGLM 分词器目录，通常和 `tokenizer_path` 一样。
-6. `quantize`：ChatGLM 的量化等级，通常为 4，如果您的显存足够支持更大的量化等级，可以使用 8。
-
-#### OBS 服务配置
-
-[OBS](https://obsproject.com/download) 是一款免费且开源的视频录制和直播软件。以下的配置文件主要是为了您能够显示相关字幕。当然，如果不需要直播等功能，您也可以不使用此配置文件。
-
-```yaml
-# OBS 服务配置
-obs_config:
-  # 弹幕输出字幕文件
-  danmaku_output_path: .tmp/danmaku_output/output.txt
-  # 语气输出字幕文件
-  tone_output_path: .tmp/tone_output/output.txt
-  # 大语言模型输出字幕文件
-  llm_output_path: .tmp/llm_output/output.txt
-```
-
-其中，
-
-1. `danmaku_output_path`：被选择读取到的弹幕会被输出到这个路径的文件中。
-2. `tone_output_path`：模型输出的语气会被输出到这个路径的文件中。
-3. `llm_output_path`：模型输出的文字会被输出到这个路径的文件中。
-
-#### Zerolan 配置
-
-这是针对本项目的配置文件。
-
-```yaml
-# 本项目配置
-zerolan_live_robot_config:
-  # 提示词模板
-  custom_prompt_path: template/custom_prompt.json
-```
-
-提示词模板 `custom_prompt.json` 中的内容举例如下：
-
-```json
-{
-  "query": "",
-  "history": [
-    {
-      "content": "你现在是一只猫娘，无论说什么都要带喵字。记住了的话，只需要回复：好的主人喵！",
-      "metadata": "",
-      "role": "user"
-    },
-    {
-      "content": "好的主人喵！",
-      "metadata": "",
-      "role": "assistant"
-    },
-    {
-      "content": "现在你是什么？",
-      "metadata": "",
-      "role": "user"
-    },
-    {
-      "content": "主人，我是一只猫娘喵！",
-      "metadata": "",
-      "role": "assistant"
-    }
-  ],
-  "temperature": 1,
-  "top_p": 1
-}
-```
-
-其中，`history` 列表中可以填入若干轮对话，可以按照您自己的需求进行修改和扩充。这里的 `role` 属性中，`user` 代表用户的输入，而 `assistant` 表示模型输出。
-
-## 开始运行
-
-首先，启动 ChatGLM3 服务。
+使用以下命令运行 Zerolan Live Robot 的主程序：
 
 ```shell
-cd YourDirectory/ZerolanLiveRobot # 切换目录至本仓库的目录
-conda activate zerolanliverobot # 激活刚刚创建的虚拟环境
-python api_run.py # 启动大语言模型 ChatGLM3
+python main.py
 ```
 
-大语言模型需要一段时间去加载，请耐心等待。
+### * Minecraft 支持
 
-接着，启动 GPT-SoVTIS 服务。启动脚本请遵循 GPT-SoVTIS 原项目的文档要求进行设置。
+> [!NOTE]
+> 
+> 此步骤是**可选**的。
 
-确保 ChatGLM3 和 GPT-SoVTIS 均被正确启动后，您可以运行以下代码来运行本项目。
+本项目与 [KonekoMinecraftBot](https://github.com/AkagawaTsurunaki/KonekoMinecraftBot) 共同实现了一套接口，可以从本项目控制在 Minecraft 游戏中的机器人。如有需要请移步至[此处](https://github.com/AkagawaTsurunaki/KonekoMinecraftBot)查看详细。
 
-```shell
-cd YourDirectory/ZerolanLiveRobot # 切换目录至本仓库的目录
-conda activate zerolanliverobot # 激活刚刚创建的虚拟环境
-python main.py # 启动主程序
+
+## 自定义设计机器人
+
+Zerolan Live Robot 1.0 旧版本使用的是简单的按秒轮询，从各个服务模块中的缓存列表中读取环境信息。而在 Zerolan Live Robot 2.0 旧版本，转而使用**事件驱动**的设计模式。
+
+### EventEmitter
+
+在本项目中，机器人是在一系列事件的发送和处理过程中运行的。换句话说，没有事件发生，机器人就不会有任何回应。
+
+每一个事件 `Event` 包含一个事件名，本质上是一个字符串。本项目中使用的所有事件名都定义在 `common.enumerator.EventEnum` 中，您也可以拓展添加自己的事件名。我们以处理用户输入语音这个事件为例，它的事件名为 `EventEnum.SERVICE_VAD_SPEECH_CHUNK`。
+
+`emitter` 是一个全局对象，用以处理事件发送和监听器的执行，`emitter` 始终拥有主线程，然而整个系统的运行过程中会有多个线程同时运行，因为每个线程可能都有属于自己的 EventEmitter 的实例。
+
+使用装饰器 `@emitter.on(EventEnum.某个事件)` 可以快捷地注册某个监听器。监听器既可以是同步函数，也可以是异步函数。当我们需要发送事件时，可以使用异步方法 `emitter.emit(EventEnum.某个事件, *args, **kwargs)`。
+
+例如，当系统检测到一段人声音频时，将会发送 `SERVICE_VAD_SPEECH_CHUNK` 事件，并调用所有注册这个事件的监听器，进行某种处理：
+
+```python
+@emitter.on(EventEnum.SERVICE_VAD_SPEECH_CHUNK)
+async def on_service_vad_speech_chunk(speech: bytes, channels: int, sample_rate: int):
+    response = ... # 假设这里获得了语音识别的结果
+    await emitter.emit(EventEnum.PIPELINE_ASR, response) # 发送自动语音识别事件
 ```
 
-如果一切正常，稍后就能听到合成的语音被自动播放了（注意系统音量，不要损伤您的听力）。
+这里的监听器即 `on_service_vad_speech_chunk`，本质上是一个函数，它会在 `SERVICE_VAD_SPEECH_CHUNK` 发生时被调用，并接受几个参数，这里的参数完全由事件发送方规定。
 
-如果您需要开启 Minecraft AI Agent 与您一同在服务器中游玩，可以使用以下命令。
+### Pipeline
 
-```shell
-node minecraft/service.js host port username password
+管线（Pipeline）是沟通 Zerolan Core 的重要实现。管线的使用非常简单，只需要传入一个配置对象，就可以得到一个可用的管线对象。然后调用管线对象中的 `predict` 或 `stream_predict` 方法即可使用 Zerolan Core 中的 AI 模型。
+
+以大语言模型为例，指定目标服务器的地址（你的 Zerolan Core 开放端口的地址），传入 `LLMPipelineConfig` 对象到 `LLMPipeline`，即可建立管线。
+
+```python
+config = LLMPipelineConfig(server_url="...")
+llm = LLMPipeline(config)
+query = LLMQuery(text="你好，你叫什么名字？", history=[])
+prediction = llm.predict(query)
+print(prediction.response)
 ```
 
-其中，
+这样就应该可以得到模型的回复。
 
-1. `host`：Minecraft 服务器的地址，如果您在本机开启了服务器，请使用 `127.0.0.1`。
-2. `port`：Minecraft 服务器的端口，如果您没有修改默认的端口号，那么通常为 `25565`。
-3. `username`：Minecraft AI Agent 将要登入的服务器的玩家名称，在游戏中将以此名称显示。
-4. `password`：Minecraft AI Agent 将要登入的服务器的密码，如果没有设置密码，请忽略这个字段。
+如果你想知道更多实现细节，可以查看 Zerolan Data 中的数据定义，可能也需要结合管线的实现和 Zerolan Core 中 `app.py` 文件中的内容进行理解。简单来说，它们都是基于 HTTP 的。
+
+### Services
+
+| 模块        | 作用                       | 支持内容                                                     |
+| ----------- | -------------------------- | ------------------------------------------------------------ |
+| browser     | 基于 Selenium 的浏览器控制 | Firefox 的打开浏览器、搜索和关闭浏览器                       |
+| device      | 麦克风、截屏、扬声器控制   | 仅在 Windows 测试过                                          |
+| filter      | 对话屏蔽器                 | 简单的匹配过滤器                                             |
+| game        | 游戏控制插件               | 详见 [KonekoMinecraftBot](https://github.com/AkagawaTsurunaki/KonekoMinecraftBot) |
+| live_stream | 直播平台的弹幕读取         | Bilibili、Twitch、Youtube                                    |
+| vad         | 人声音频检测               | 基于能量阈值的音频检测机制                                   |
 
 ## 常见问题
 
-#### GPT-SoVTIS 服务无法连接
+### 模型服务启动失败
 
-```
-CRITICAL | gptsovits.service:init:26 - ❌️ GPT-SoVTIS 服务无法连接至 http://127.0.0.1:9880
-```
+启动后日志显示“在其上下文中，该请求的地址无效。”。
 
-出现这种情况，是因为程序无法访问这个地址 `http://127.0.0.1:9880`（根据您的配置不同可能略有差异），请检查您在 GPT-SoVITS 项目中是否正确启动了 api 服务。注意您应该启动的是 `api.py` 或者 `api2.py` 而不是启动  `webui.py`。
+解决方案，检查配置文件中，`host` 的配置是否正确。如果想要仅本机访问，请指定为 `'127.0.0.1'`。
 
-#### 无法找到窗口
+## License
 
-```
-WARNING  | scrnshot.service:screen_cap:32 - 无法找到窗口 xxx
-```
+本项目使用 MIT License，请勿将本软件用于非法用途。
 
-如字面意思，程序无法找到您在配置文件中设置的 `screenshot_config.win_title` 所指定的窗口。请检查您对应的窗口确实开启了，或者是否存在拼写错误。
+Feel free to enjoy open-souce!
 
-## 开源许可证
+MIT License
 
-本项目使用“GNU通用公共许可证”（GNU GENERAL PUBLIC LICENSE，GPLv3），我们希望以自由的方式使用户从本项目中受益。
+Copyright (c) 2024 AkagawaTsurunaki
 
-## 特别鸣谢
+## Contact with Me
 
-本项目用到了以下开源项目的部分或全部的技术，再此特别感谢开源社区为人类社会的贡献。
+**Email**: AkagawaTsurunaki@outlook.com
 
-[THUDM/ChatGLM3: ChatGLM3 series: Open Bilingual Chat LLMs | 开源双语对话语言模型 (github.com)](https://github.com/THUDM/ChatGLM3)
+**Github**: AkagawaTsurunaki
 
-[RVC-Boss/GPT-SoVITS: 1 min voice data can also be used to train a good TTS model! (few shot voice cloning) (github.com)](https://github.com/RVC-Boss/GPT-SoVITS)
-
-[Salesforce/blip-image-captioning-large · Hugging Face](https://huggingface.co/Salesforce/blip-image-captioning-large)
-
-[Nemo2011/bilibili-api: 哔哩哔哩常用API调用。支持视频、番剧、用户、频道、音频等功能。原仓库地址：https://github.com/MoyuScript/bilibili-api](https://github.com/Nemo2011/bilibili-api)
-
-[PrismarineJS/mineflayer: Create Minecraft bots with a powerful, stable, and high level JavaScript API. (github.com)](https://github.com/PrismarineJS/mineflayer)
-
-此处可能未能详尽展示，如有疏漏，可以联系开发者。
-
-## 联系方式
-
-如果您对本项目有何建议或问题等，可以通过以下联系方式与开发者交流。
-
-邮箱：AkagawaTsurunaki@outlook.com
+**Bilibili**: [赤川鹤鸣_Channel](https://space.bilibili.com/1076299680)
