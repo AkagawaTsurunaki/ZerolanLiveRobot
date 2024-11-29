@@ -49,7 +49,8 @@ class ZerolanLiveRobot:
         self.speaker = Speaker()
         # [!NOTE]
         #   Here to change your live stream platform
-        self.live_stream = BilibiliService(config.service.live_stream.bilibili)
+        if config.service.live_stream.enable:
+            self.live_stream = BilibiliService(config.service.live_stream.bilibili)
 
         # Set bad words filter
         self.filter = FirstMatchedFilter(config.character.chat.filter.bad_words)
@@ -77,8 +78,9 @@ class ZerolanLiveRobot:
 
         self.thread_manager.start_thread(threading.Thread(target=self.minecraft_agent.start, name="MinecraftAgent"))
         self.thread_manager.start_thread(threading.Thread(target=self.vad.start, name="VoiceEventEmitter"))
-        self.thread_manager.start_thread(
-            threading.Thread(target=self.live_stream.start, name="LiveStreamEventEmitter"))
+        if config.service.live_stream.enable:
+            self.thread_manager.start_thread(
+                threading.Thread(target=self.live_stream.start, name="LiveStreamEventEmitter"))
         self.thread_manager.start_thread(threading.Thread(target=self.live2d.start, name="Live2dApplication"))
 
         self.thread_manager.join_all_threads()
