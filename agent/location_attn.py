@@ -4,18 +4,11 @@ from typing import List
 
 from langchain_core.prompts import ChatPromptTemplate
 from loguru import logger
-from zerolan.data.data.ocr import RegionResult
+from zerolan.data.pipeline.ocr import RegionResult
 
 from agent.adaptor import LangChainAdaptedLLM
 from common.config import LLMPipelineConfig
-
-
-def stringify(region_results: List[RegionResult]):
-    result = ""
-    for i, region_result in enumerate(region_results):
-        line = f"[{i}] {region_result.content} \n"
-        result += line
-    return result
+from pipeline.ocr import stringify
 
 
 class LocationAttentionAgent:
