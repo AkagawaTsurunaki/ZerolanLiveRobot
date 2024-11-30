@@ -12,9 +12,10 @@ from agent.location_attn import LocationAttentionAgent
 from agent.sentiment import SentimentAnalyzerAgent
 from agent.tool_agent import ToolAgent
 from agent.translator import TranslatorAgent
-from common.config import get_config
+from common.config import LiveStreamConfig, get_config
 from common.decorator import withsound, start_ui_process, kill_ui_process
 from common.enumerator import SystemSoundEnum, EventEnum, Language
+from common.utils.str_util import is_blank
 from event.eventemitter import emitter
 from manager.llm_prompt_manager import LLMPromptManager
 from manager.temp_data_manager import TempDataManager
@@ -32,9 +33,48 @@ from services.filter.strategy import FirstMatchedFilter
 from services.game.minecraft.app import KonekoMinecraftAIAgent
 from services.live2d.app import Live2dApplication
 from services.live_stream.bilibili import BilibiliService
+from services.live_stream.twitch import TwitchService
+from services.live_stream.youtube import YouTubeService
 from services.vad.emitter import VoiceEventEmitter
 
 config = get_config()
+
+class LiveStreamService:
+
+    def __init__(self, config: LiveStreamConfig):
+        self._enable: bool = config.enable
+        errs = []
+        if self._enable:
+            self._thread_manager = ThreadManager()
+            try:
+                self.bilibili = BilibiliService(config.bilibili)
+            except Exception as e:
+                errs.append(e)
+            try:
+                self.twitch = TwitchService(config.twitch)
+            except Exception as e:
+                errs.append(e)
+            try:
+                self.youtube = YouTubeService(config.youtube)
+            except Exception as e:
+                errs.append(e)
+        
+            if len(errs) == 3:
+                logger.error("You have enabled `live_stream`, but none of the platforms have been successfully connected.")
+                raise RuntimeError("Failed to connect any live streaming platform.")
+        
+    def start(self):
+        if self._enable:
+            self._thread_manager.start_thread(threading.Thread(self.bilibili.start, name="BilibiliService"))
+            self._thread_manager.start_thread(threading.Thread(self.twitch.start, name="BilibiliService"))
+            self._thread_manager.start_thread(threading.Thread(self.youtube.start, name="BilibiliService"))
+        self._thread_manager.join_all_threads()
+
+    def stop(self):
+        if self._enable:
+            self.bilibili.stop()
+            self.twitch.stop()
+            self.youtube.stop()
 
 
 class ZerolanLiveRobot:
@@ -50,7 +90,7 @@ class ZerolanLiveRobot:
         # [!NOTE]
         #   Here to change your live stream platform
         if config.service.live_stream.enable:
-            self.live_stream = BilibiliService(config.service.live_stream.bilibili)
+            self.live_stream = LiveStreamService(config.service.live_stream)
 
         # Set bad words filter
         self.filter = FirstMatchedFilter(config.character.chat.filter.bad_words)
