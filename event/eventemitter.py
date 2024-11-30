@@ -4,8 +4,8 @@ import threading
 from asyncio import Task
 from typing import Callable, List, Dict, TypeVar, Coroutine, Any, Tuple
 from uuid import uuid4
-from warnings import deprecated
 
+from deprecated.sphinx import deprecated
 from loguru import logger
 
 from common.abs_runnable import AbstractRunnable
@@ -157,6 +157,7 @@ class TypedEventEmitter(AbstractRunnable):
 
     def emit(self, event: Event):
         self.activate_check()
+        assert isinstance(event, BaseEvent)
         listeners = self._listeners.get(event.type.value, None)
         if listeners is None:
             return
@@ -168,17 +169,23 @@ class TypedEventEmitter(AbstractRunnable):
             else:
                 self._add_sync_task(listener, event)
 
-    def on(self, event: EventType, func: Callable[[Event], None] | Callable[[Event], Coroutine[Any, Any, None]]):
-        self.activate_check()
+    def on(self, event: EventType):
         assert isinstance(event, EventType)
-        assert isinstance(func, Callable)
-        self._add_listener(event, Listener(func, False))
 
-    def once(self, event: EventType, func: Callable[[Event], None] | Callable[[Event], Coroutine[Any, Any, None]]):
-        self.activate_check()
+        def decorator(func: Callable[[Event], None] | Callable[[Event], Coroutine[Any, Any, None]]):
+            assert isinstance(func, Callable)
+            self._add_listener(event, Listener(func, False))
+
+        return decorator
+
+    def once(self, event: EventType):
         assert isinstance(event, EventType)
-        assert isinstance(func, Callable)
-        self._add_listener(event, Listener(func, True))
+
+        def decorator(func: Callable[[Event], None] | Callable[[Event], Coroutine[Any, Any, None]]):
+            assert isinstance(func, Callable)
+            self._add_listener(event, Listener(func, True))
+
+        return decorator
 
     async def stop(self):
         await super().stop()
@@ -214,7 +221,7 @@ class TypedEventEmitter(AbstractRunnable):
 
 from common.const import version
 
-emitter: EventEmitter | TypedEventEmitter
+emitter: TypedEventEmitter
 if version == "2.0":
     emitter = EventEmitter()
 elif version == "2.1":
