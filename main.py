@@ -12,10 +12,9 @@ from agent.location_attn import LocationAttentionAgent
 from agent.sentiment import SentimentAnalyzerAgent
 from agent.tool_agent import ToolAgent
 from agent.translator import TranslatorAgent
-from common.config import LiveStreamConfig, get_config
+from common.config import get_config
 from common.decorator import withsound, start_ui_process, kill_ui_process
 from common.enumerator import SystemSoundEnum, EventEnum, Language
-from common.utils.str_util import is_blank
 from event.eventemitter import emitter
 from manager.llm_prompt_manager import LLMPromptManager
 from manager.temp_data_manager import TempDataManager
@@ -32,55 +31,10 @@ from services.device.speaker import Speaker
 from services.filter.strategy import FirstMatchedFilter
 from services.game.minecraft.app import KonekoMinecraftAIAgent
 from services.live2d.app import Live2dApplication
-from services.live_stream.bilibili import BilibiliService
-from services.live_stream.twitch import TwitchService
-from services.live_stream.youtube import YouTubeService
+from services.live_stream.service import LiveStreamService
 from services.vad.emitter import VoiceEventEmitter
 
 config = get_config()
-
-class LiveStreamService:
-
-    def __init__(self, config: LiveStreamConfig):
-        self._enable: bool = config.enable
-        self._platforms = []
-        errs = []
-        if self._enable:
-            self._thread_manager = ThreadManager()
-            try:
-                bilibili = BilibiliService(config.bilibili)
-                self._platforms.append(bilibili)
-                self._thread_manager.add_thread(threading.Thread(target=bilibili.start, name="BilibiliService"))
-            except Exception as e:
-                errs.append(e)
-            try:
-                twitch = TwitchService(config.twitch)
-                self._platforms.append(twitch)
-                self._thread_manager.add_thread(threading.Thread(target=twitch.start, name="TwitchService"))
-            except Exception as e:
-                errs.append(e)
-            try:
-                youtube = YouTubeService(config.youtube)
-                self._platforms.append(youtube)
-                self._thread_manager.add_thread(threading.Thread(target=youtube.start, name="YoutubeService"))
-            except Exception as e:
-                errs.append(e)
-        
-            if len(errs) == 3:
-                logger.error("You have enabled `live_stream`, but none of the platforms have been successfully connected.")
-                raise RuntimeError("Failed to connect any live streaming platform.")
-        
-    def start(self):
-        if self._enable:
-            self._thread_manager.start_all()
-        self._thread_manager.join_all_threads()
-
-    def stop(self):
-        if self._enable:
-            for serv in self._platforms:
-                if hasattr(serv, "stop"):
-                    serv.stop()
-        
 
 
 class ZerolanLiveRobot:
