@@ -163,3 +163,6 @@ class KonekoMinecraftAIAgent:
             messages.append(tool_msg)
         logger.debug(messages)
         # tool.invoke(ToolCall(id="asdsad", args={"content": "Ciallo"}, name="chat"))
+
+    def stop(self):
+        self.ws.stop()
