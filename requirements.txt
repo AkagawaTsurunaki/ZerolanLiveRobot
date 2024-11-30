@@ -18,3 +18,4 @@ langgraph
 injector
 twitchAPI
 pytest
+Deprecated
