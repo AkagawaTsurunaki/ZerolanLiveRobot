@@ -44,7 +44,7 @@ class TTSPromptManager:
 
             logger.info(f"{len(self.tts_prompts)} TTS prompts loaded: {sentiments}")
 
-            if len(self.tts_prompts) > 0:
+            if len(self.tts_prompts) <= 0:
                 raise RuntimeError("There are no eligible TTS prompts in the directory you provided.")
 
         except FileNotFoundError as e:
