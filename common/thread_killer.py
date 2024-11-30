@@ -38,7 +38,9 @@ class KillableThread(threading.Thread):
     def kill(self):
         """
         Kill the thread unsafely.
-        Throws: ThreadCanNotBeKilledError
+        Notes: This is an unsafe method the thread execution may be corrupted.
+        Throws: ThreadCanNotBeKilledError if the thread is not killed successfully.
+                ThreadKilledError if the thread is killed successfully.
 
         """
         thread_id = self.get_id()
