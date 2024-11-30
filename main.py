@@ -245,8 +245,10 @@ class ZerolanLiveRobot:
     @kill_ui_process(force=True)
     def _exit(self):
         emitter.stop()
+        self.minecraft_agent.stop()
         self.vad.stop()
         self.live_stream.stop()
+        self.live2d.stop()
 
     @withsound(SystemSoundEnum.exit, block=True)
     def exit(self):

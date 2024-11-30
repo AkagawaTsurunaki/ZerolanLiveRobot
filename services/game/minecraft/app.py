@@ -31,15 +31,19 @@ class WebSocketServer(EventEmitter):
         asyncio.run(self._run())
 
     async def _run(self):
-        stop = asyncio.get_running_loop().create_future()
         try:
-            async with serve(self._handler, self._host, self._port):
-                await stop
+            server = await serve(self._handler, self._host, self._port)
+            serve_coro = server.serve_forever()
+            loop = asyncio.get_event_loop()
+            self._task = loop.create_task(serve_coro)
+            await asyncio.gather(self._task)
         except OSError as e:
             if e.errno == 10048:
                 logger.error(
                     "Typically, each socket address (protocol/network address/port) is only allowed to be used once.")
                 raise e
+        except asyncio.exceptions.CancelledError:
+            logger.debug("WebSocket exited from the running loop.")
 
     async def _handler(self, websocket: ServerConnection):
         self._ws = websocket
@@ -76,6 +80,10 @@ class WebSocketServer(EventEmitter):
     def stop(self):
         super().stop()
         self._stop_flag = True
+        # loop = asyncio.get_event_loop()
+        self._task.cancel()
+        
+        logger.info("WebSocket server stopped.")
 
 
 class KonekoMinecraftAIAgent:
