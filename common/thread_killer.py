@@ -7,12 +7,12 @@ import ctypes
 import threading
 
 
-class ThreadKilledError(BaseException):
+class ThreadKilledError(RuntimeError):
     def __init__(self, *args):
         super().__init__(*args)
 
 
-class ThreadCanNotBeKilledError(BaseException):
+class ThreadCanNotBeKilledError(RuntimeError):
     def __init__(self, *args):
         super().__init__(*args)
 
@@ -21,6 +21,7 @@ class KillableThread(threading.Thread):
     def __init__(self, group=None, target=None, name=None,
                  args=(), kwargs=None, *, daemon=None):
         super().__init__(group, target, name, args, kwargs, daemon=daemon)
+        self._killed = False
 
     def get_id(self):
         """
@@ -49,3 +50,18 @@ class KillableThread(threading.Thread):
         if res > 1:
             ctypes.pythonapi.PyThreadState_SetAsyncExc(thread_id, 0)
             raise ThreadCanNotBeKilledError('Exception raise failure')
+        self._killed = True
+
+    def join(self, timeout=None):
+        """
+        Notes: If the thread is killed successfully will not join.
+        Args:
+            timeout:
+
+        Returns:
+
+        """
+        if self._killed:
+            return
+        else:
+            super().join(timeout)
