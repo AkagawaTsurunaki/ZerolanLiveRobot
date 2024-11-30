@@ -7,7 +7,7 @@ from pydantic import BaseModel, Field
 
 from common.config import Live2DConfig
 from common.enumerator import EventEnum
-from services.game.minecraft.app import WebSocketServer
+from event.websocket import WebSocketServer
 
 
 class ZerolanLive2DProtocol(BaseModel):
