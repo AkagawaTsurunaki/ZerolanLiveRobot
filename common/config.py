@@ -65,27 +65,27 @@ class BilibiliServiceConfig:
     @dataclass_json
     @dataclass
     class Credential:
-        sessdata: str = None
-        bili_jct: str = None
-        buvid3: str = None
+        sessdata: str = ""
+        bili_jct: str = ""
+        buvid3: str = ""
 
     room_id: int = -1
-    credential: Credential = None
+    credential: Credential = ""
 
 
 @dataclass_json
 @dataclass
 class TwitchServiceConfig:
-    channel_id: str = None
-    app_id: str = None
-    app_secret: str = None
+    channel_id: str = ""
+    app_id: str = ""
+    app_secret: str | None = None
 
 
 @dataclass_json
 @dataclass
 class YoutubeServiceConfig:
     # GCloud auth print access token
-    token: str = None
+    token: str = ""
 
 
 @dataclass_json
@@ -167,7 +167,7 @@ class PipelineConfig:
 @dataclass_json
 @dataclass
 class BrowserConfig:
-    profile_dir: str
+    profile_dir: str | None = None
     driver: Literal["chrome", "firefox"] = "firefox"
 
 
