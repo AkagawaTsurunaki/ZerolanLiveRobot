@@ -81,4 +81,7 @@ class BilibiliService:
 
     @log_stop("BilibiliService")
     def stop(self):
-        sync(self._monitor.disconnect())
+        try:
+            sync(self._monitor.disconnect())
+        except Exception as e:
+            pass
