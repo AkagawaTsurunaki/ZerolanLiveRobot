@@ -15,6 +15,7 @@ from zerolan.data.data.danmaku import Danmaku, SuperChat
 from common.config import TwitchServiceConfig
 from common.decorator import log_start, log_stop
 from common.enumerator import EventEnum
+from common.utils.str_util import is_blank
 from event.eventemitter import emitter
 
 
@@ -23,7 +24,9 @@ class TwitchService:
         """
         TODO: Need test!
         """
-        assert config.channel_id, f"No channel_id provided."
+        assert not is_blank(config.channel_id), f"No channel_id provided."
+        assert not is_blank(config.app_id), f"No app_id provided."
+        assert not is_blank(config.app_secret), f"No app_secret provided."
         self._target_channel: str = config.channel_id
         self._app_id: str = config.app_id
         self._app_secret: str = config.app_secret
@@ -35,16 +38,17 @@ class TwitchService:
 
     @log_stop("TwitchService")
     def stop(self):
-        self.stop()
+        close_task = asyncio.create_task(self.twitch.close())
+        asyncio.gather(close_task)
 
     async def init(self):
-        twitch = await Twitch(self._app_id, self._app_secret)
-        auth = UserAuthenticator(twitch, self._user_scope)
+        self.twitch = await Twitch(self._app_id, self._app_secret)
+        auth = UserAuthenticator(self.twitch, self._user_scope)
         token, refresh_token = await auth.authenticate()
-        await twitch.set_user_authentication(token, self._user_scope, refresh_token)
+        await self.twitch.set_user_authentication(token, self._user_scope, refresh_token)
 
         # create chat instance
-        chat = await Chat(twitch)
+        chat = await Chat(self.twitch)
 
         async def on_message(msg: ChatMessage):
             logger.info(f"Danmaku: [{msg.user.name}] {msg.text}")
