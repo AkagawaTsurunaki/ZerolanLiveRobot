@@ -30,9 +30,9 @@ class ZerolanLiveRobotContext:
 
         self.tool_agent: ToolAgent = None
         self.screen: Screen | None = None
-        self.init()
+        self._init()
 
-    def init(self):
+    def _init(self):
         assert config.pipeline.llm.enable, f"At least LLMPipeline must be enabled in your config."
         self.llm = LLMPipeline(config.pipeline.llm)
         self.filter = FirstMatchedFilter(config.character.chat.filter.bad_words)
