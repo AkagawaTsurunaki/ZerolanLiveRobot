@@ -1,17 +1,23 @@
 from dataclasses import dataclass
-from enum import Enum
 
+from zerolan.data.pipeline.asr import ASRPrediction
 
-class EventType(str, Enum):
-    EXIT = "exit"
-    START = "start"
+from common.enumerator import EventEnum
 
 
 class BaseEvent:
-    type: EventType
+    type: EventEnum
 
 
 @dataclass
-class SleepEvent(BaseEvent):
-    sleep_time: float
-    type: EventType = EventType.EXIT
+class ASREvent(BaseEvent):
+    prediction: ASRPrediction
+    type: EventEnum = EventEnum.PIPELINE_ASR
+
+
+@dataclass
+class SpeechEvent(BaseEvent):
+    speech: bytes
+    channels: int
+    sample_rate: int
+    type: EventEnum = EventEnum.SERVICE_VAD_SPEECH_CHUNK
