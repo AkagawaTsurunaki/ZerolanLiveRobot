@@ -1,68 +1,69 @@
-# Zerolan Live Robot 2.0
+# Zerolan Live Robot
 
 ![Static Badge](https://img.shields.io/badge/Python%20-%203.10%20-%20blue) ![Static Badge](https://img.shields.io/badge/License-MIT-orange) ![Static Badge](https://img.shields.io/badge/AI%20VTuber-blue) ![Static Badge](https://img.shields.io/badge/Bilibli-fb7299) ![Static Badge](https://img.shields.io/badge/Youtube-ff0000) ![Static Badge](https://img.shields.io/badge/Twitch-9044fe) ![Static Badge](https://img.shields.io/badge/ASR-purple) ![Static Badge](https://img.shields.io/badge/LLM-purple) ![Static Badge](https://img.shields.io/badge/TTS-purple) ![Static Badge](https://img.shields.io/badge/OCR-purple) ![Static Badge](https://img.shields.io/badge/ImageCaptioning-purple) ![Static Badge](https://img.shields.io/badge/VideoCaptioning-purple) ![Static Badge](https://img.shields.io/badge/MinecraftAIAgent-purple) ![Static Badge](https://img.shields.io/badge/ver-2.0-green)
 
 你或许已经听说过著名的 [Neurosama](https://virtualyoutuber.fandom.com/wiki/Neuro-sama)，或者是来自中国的[木几萌](https://mobile.moegirl.org.cn/%E6%9C%A8%E5%87%A0%E8%90%8C)。你是否也想要拥有一个自己的 AI 虚拟形象陪你直播、聊天、打游戏？开源的 Zerolan Live Robot 正致力于实现您的梦想！而这仅仅需要一张消费级显卡！
 
-Zerolan Live Robot 是一款多功能的直播机器人（AI VTuber），它可以自动在 Bilibili 直播间中读取弹幕，观察电脑屏幕的指定窗口，理解其画面内容，操纵
+Zerolan Live Robot 是一款多功能的直播机器人（AI VTuber），它可以听懂你所说的话，也可以自动在直播间中读取弹幕，观察电脑屏幕的指定窗口，理解其画面内容和文字信息，操纵
 Minecraft 中的游戏角色，做出带情感的语音聊天回应。
 
-与其关联的项目 [KonekoMinecraftBot](https://github.com/AkagawaTsurunaki/KonekoMinecraftBot)、[zerolan-core](https://github.com/AkagawaTsurunaki/zerolan-core)、[zerolan-data](https://github.com/AkagawaTsurunaki/zerolan-data)、[zerolan-ui](https://github.com/AkagawaTsurunaki/zerolan-ui)。
+相关项目：[KonekoMinecraftBot](https://github.com/AkagawaTsurunaki/KonekoMinecraftBot)、[ZerolanCore](https://github.com/AkagawaTsurunaki/zerolan-core)、[ZerolanData](https://github.com/AkagawaTsurunaki/zerolan-data)、[ZerolanUI](https://github.com/AkagawaTsurunaki/zerolan-ui)。
 
 > [!Note]
 >
-> 本项目持续开发中，当前的版本为 `2.0`，您可以关注开发者的 Bilibili 账号[赤川鹤鸣_Channel](https://space.bilibili.com/1076299680)，正在根据此项目调教 AI 猫娘，不定时直播展示最新进展。
+> 本项目持续开发中，当前的版本为 `2.x`，您可以关注开发者的 Bilibili 账号[赤川鹤鸣_Channel](https://space.bilibili.com/1076299680)，正在根据此项目调教 AI 猫娘，不定时直播展示最新进展。
 
 ## 特点与功能
 
 - [x] 💭 基于大语言模型的自然语言对话
 - [x] 🍻 根据直播间弹幕挑选并回复
-- [x] 🎙️ 识别用户麦克风语音输入内容，理解并回复
+- [x] 🎙️ 识别用户麦克风语音输入内容，理解并回复（例如：`你叫什么名字？`、`请关闭麦克风！`）
 - [x] 📣 根据回复文本的带情感的语音合成
-- [x] 📄 识别指定窗口中的文字内容
-- [x] 🖼️ 识别指定窗口中的图像（或视频），并理解其中的含义
-- [x] 🛠️ 根据上下文语境采取行动或挑选工具（百度百科、萌娘百科等）
-- [x] 🕹 根据语音指令控制 Minecraft AI 智能体
-- [ ] Live2D 形象的控制
-- [ ] 智能体的记忆功能
+- [x] 📄 识别指定窗口中的文字内容，并分析其中的文字（例如：`能看见这里写了什么吗？`）
+- [x] 🖼️ 识别指定窗口中的图像内容，并理解其中的含义（例如：`你看见了什么东西？`）
+- [x] 🔍️ 打开、控制浏览器并执行百科搜索（例如：`搜索一下什么是二次元。`）
+- [x] 🛠️ 根据上下文语境采取行动或挑选工具（例如：`好了，你可以关机了！`、`请关闭浏览器`）
+- [x] 🎮️ 根据语音指令控制 Minecraft AI 智能体（例如：`在游戏中跟大家说你好！`）
+- [x] 📓 基于最大记录条数的简单的运行时上下文记忆
+- [ ] Live2D 形象的控制（正在开发和测试阶段，将会使用另一个项目进行管理） 
 
 以下简要列出了本项目支持的内容：
 
 
-| 支持项           | 支持内容                                                     |
-| ---------------- | ------------------------------------------------------------ |
-| 直播平台         | [Bilibili](https://www.bilibili.com) \| [Twitch](https://www.twitch.tv) |
-| 大语言模型       | [THUDM/GLM-4](https://github.com/THUDM/GLM-4) \| [THUDM/ChatGLM3](https://github.com/THUDM/ChatGLM3) \| [Qwen/Qwen-7B-Chat](https://huggingface.co/Qwen/Qwen-7B-Chat) \| [01ai/Yi-6B-Chat](https://www.modelscope.cn/models/01ai/Yi-6B-Chat) \| [augmxnt/shisa-7b-v1](https://huggingface.co/augmxnt/shisa-7b-v1) |
+| 支持项      | 支持内容                                                     |
+|----------| ------------------------------------------------------------ |
+| 直播平台     | [Bilibili](https://www.bilibili.com) \| [Twitch](https://www.twitch.tv) |
+| 大语言模型    | [THUDM/GLM-4](https://github.com/THUDM/GLM-4) \| [THUDM/ChatGLM3](https://github.com/THUDM/ChatGLM3) \| [Qwen/Qwen-7B-Chat](https://huggingface.co/Qwen/Qwen-7B-Chat) \| [01ai/Yi-6B-Chat](https://www.modelscope.cn/models/01ai/Yi-6B-Chat) \| [augmxnt/shisa-7b-v1](https://huggingface.co/augmxnt/shisa-7b-v1) |
 | 自动语音识别模型 | [iic/speech_paraformer_asr](https://www.modelscope.cn/models/iic/speech_paraformer_asr_nat-zh-cn-16k-common-vocab8358-tensorflow1) |
-| 语音合成模型     | [RVC-Boss/GPT-SoVITS](https://github.com/RVC-Boss/GPT-SoVITS) |
-| 图像字幕模型     | [Salesforce/blip-image-captioning-large](https://huggingface.co/Salesforce/blip-image-captioning-large) |
+| 语音合成模型   | [RVC-Boss/GPT-SoVITS](https://github.com/RVC-Boss/GPT-SoVITS) |
+| 图像字幕模型   | [Salesforce/blip-image-captioning-large](https://huggingface.co/Salesforce/blip-image-captioning-large) |
 | 光学字符识别模型 | [paddlepaddle/PaddleOCR](https://gitee.com/paddlepaddle/PaddleOCR) |
-| 视频字幕模型     | [iic/multi-modal_hitea_video-captioning_base_en](https://www.modelscope.cn/models/iic/multi-modal_hitea_video-captioning_base_en) |
-| 外部可调用工具   | 火狐浏览器、百度百科、萌娘百科                               |
-| 游戏插件         | Minecraft                                                    |
+| 视频字幕模型   | [iic/multi-modal_hitea_video-captioning_base_en](https://www.modelscope.cn/models/iic/multi-modal_hitea_video-captioning_base_en) |
+| 外部可调用工具  | 火狐浏览器、百度百科、萌娘百科                               |
+| 游戏插件     | Minecraft                                                    |
 
 ## 安装并运行
 
 > [!CAUTION]
 >
-> Zerolan Live Robot 2.0 版本与旧版本 1.0 不兼容，因此您可能需要重新配置环境、安装依赖。
+> Zerolan Live Robot 2.x 版本与旧版本 1.x 不兼容，因此您可能需要重新配置环境、安装依赖。
 
-Zerolan 框架由 Zerolan Live Robot、Zerolan Core、Zerolan Data、Zerolan UI 共同组成。下表简要地介绍了各个项目的用途：
+Zerolan 框架由 [ZerolanLiveRobot](https://github.com/AkagawaTsurunaki/ZerolanLiveRobot)、[ZerolanCore](https://github.com/AkagawaTsurunaki/zerolan-core)、[ZerolanData](https://github.com/AkagawaTsurunaki/zerolan-data)、[ZerolanUI](https://github.com/AkagawaTsurunaki/zerolan-ui)。 共同组成。下表简要地介绍了各个项目的用途：
 
 | 项目名                                                       | 用途                                                         |
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| [Zerolan Live Robot](https://github.com/AkagawaTsurunaki/ZerolanLiveRobot) | 直播机器人的控制框架，通过采集环境数据，并综合分析做出动作响应。 |
-| [Zerolan Core](https://github.com/AkagawaTsurunaki/zerolan-core) | 为直播机器人提供 AI 推理服务的核心模块，例如大语言模型的 Web API 服务化。 |
-| [Zerolan Data](https://github.com/AkagawaTsurunaki/zerolan-data) | 定义各个服务之间利用网络请求交换的数据格式。                 |
-| [Zerolan UI](https://github.com/AkagawaTsurunaki/zerolan-ui) | 基于 PyQT6 的 GUI 界面，包括顶部弹窗和提示音等。             |
+| [ZerolanLiveRobot](https://github.com/AkagawaTsurunaki/ZerolanLiveRobot) | 直播机器人的控制框架，通过采集环境数据，并综合分析做出动作响应。 |
+| [ZerolanCore](https://github.com/AkagawaTsurunaki/zerolan-core) | 为直播机器人提供 AI 推理服务的核心模块，例如大语言模型的 Web API 服务化。 |
+| [ZerolanData](https://github.com/AkagawaTsurunaki/zerolan-data) | 定义各个服务之间利用网络请求交换的数据格式。                 |
+| [ZerolanUI](https://github.com/AkagawaTsurunaki/zerolan-ui)  | 基于 PyQT6 的 GUI 界面，包括顶部弹窗和提示音等。             |
 
 ### 部署核心服务
 
 > [!IMPORTANT]
 >
-> 此步骤是**必须**的！
+> 此步骤是**必须**的！你必须至少配置大语言模型才能驱动整个项目。
 
-请移步至[此处](https://github.com/AkagawaTsurunaki/zerolan-core)进完成 Zerolan Core 的相关部署工作，Zerolan Live Robot 强依赖于此核心服务。
+请移步至[此处](https://github.com/AkagawaTsurunaki/zerolan-core)进完成 ZerolanCore 的相关部署工作，ZerolanLiveRobot 强依赖于此核心服务。
 
 ### 安装本项目依赖
 
@@ -74,7 +75,9 @@ conda activate ZerolanLiveRobot
 pip install -r requirements.txt
 ```
 
-如果您在 `dev` 开发分支，您可能需要手动安装：
+如果您在 `main` 主分支，那么依赖 [ZerolanData](https://github.com/AkagawaTsurunaki/zerolan-data)、[ZerolanUI](https://github.com/AkagawaTsurunaki/zerolan-ui) 可以从 pypi 自动安装。
+
+而如果您在 `dev` 开发分支，您可能需要手动安装：
 
 ```shell
 pip install git+https://github.com/AkagawaTsurunaki/zerolan-ui.git@dev
@@ -83,21 +86,39 @@ pip install git+https://github.com/AkagawaTsurunaki/zerolan-data.git@dev
 
 ### 修改配置
 
-找到 `resources/config.template.yaml` 配置文件，更名为 `config.yaml` ，然后根据配置文件中的注释修改为您需要的配置。
+找到 `resources/config.template.yaml` 配置文件，直接在当前目录复制一份，并更名为 `config.yaml` ，然后根据配置文件中的注释修改为您需要的配置。
 
-#### Pipeline
+#### 管线配置
 
-`pipeline` 配置项中，您需要注意的是，`server_url` 应该包含协议、IP以及端口号，例如 `http://127.0.0.1:11001`、`https://myserver.com:11451` 等，这是您部署 Zerolan Core 的网络地址，每一类模型可能有不同的端口。
+管线是连接到 ZerolanCore 的关键，它通常通过 HTTP 或 HTTPS 请求来访问模型，并得到来自模型的响应。
 
-> [!TIP]
-> 
-> 服务器只能开启一个端口？那么请尝试使用 Nginx 转发你的请求。
+`pipeline` 配置项中：
 
-#### Service
+1. `enable`：该管线是否被启用。`true` 表示启用，`false` 表示禁用。
+2. `server_url`：一个包含协议、IP 以及端口号的 URL，这是您部署 ZerolanCore 的网络地址，每一类模型可能拥有不同的端口。例如 `http://127.0.0.1:11001`、`https://myserver.com:11451` 等。
 
-`service` 配置项中，您需要注意的是，`host` 应仅包含 IP 地址，`port` 应仅包含端口号。
+> [!NOTE]
+>
+> 1. 如果你的服务器只能开启一个端口，那么请尝试使用 [Nginx](https://nginx.org/en/) 转发你的网络请求。
+> 2. ZerolanCore 是分布式的，你可以将不同的模型部署到不同的服务器上。
+> 3. 您至少需要启用大语言模型管线，即确保 `pipeline.llm.enable` 为 `true`。
 
-`game.platform` 字段支持的有 `minecraft`，`live_stream` 字段支持的有 `bilibili`、`twitch`、`youtube`。
+#### 服务配置
+
+服务通常在本机开启，由其他项目的实例与本服务建立 WebSocket 或 HTTP 连接，并由该服务控制其子项目实例的行为。
+
+> [!WARNING]
+>
+> 由于服务的建立之间没有加密层，所以最好建议将它们都运行在本地。
+
+`service` 配置项中：
+
+1. `enable`：该服务是否被启用。`true` 表示启用，`false` 表示禁用。
+2. `host`：开启本服务的地址，通常在本地 `127.0.0.1` 开启。
+3. `port`：开启本服务的端口。
+4. `game.platform`：连接到哪个游戏平台，目前仅支持 `minecraft`。
+5. `live_stream`：连接到哪个直播平台，目前支持 `bilibili`、`twitch`、`youtube`。具体配置方法请参考配置文件。
+6. `live2d.model_dir`：Live2D 控制器服务将会使用的 Live2D 模型所在的文件夹。
 
 > [!TIP]
 > 
@@ -109,39 +130,41 @@ pip install git+https://github.com/AkagawaTsurunaki/zerolan-data.git@dev
 > 
 > Youtube：[Obtaining authorization credentials](https://developers.google.cn/youtube/registering_an_application?hl=en)
 
-#### Character
+#### 角色配置
 
-`character.chat.filter.strategy` 的值可以为 `default`。
+`character` 配置项中：
 
-`character.chat.filter.bad_words` 可以填写一系列的过滤词。
+1. `chat.filter.strategy`：过滤器策略。值可以为 `default`，这意味着只要匹配到您过滤词列表中的词就算触发了过滤器。
+2. `chat.filter.bad_words`：过滤词列表。可以包含一系列您认为不应该被处理的词语。
+3. `chat.system_prompt`：系统提示词，通常设置角色的设定、背景、行为、性格等。
+4. `chat.injected_history`：注入历史记录，用于引导对话风格。这个数组必须为偶数个，即必须为 AI 回复的消息结尾。
+5. `chat.max_history` 最多保留多少条消息，即上下文消息窗口的大小（不是 Token 的大小）。
+6. `speech.prompts_dir` 指明了你的 TTS 音频文件的存放目录。目录内的所有文件都必须遵从文件格式 `[语言][情感标签]文本内容.wav`。例如`[zh][开心]哇！今天真是一个好天气.wav`。其中，`语言` 仅支持`zh`、`en`、`ja`；`情感标签` 任意，只要能让大语言模型判别即可；`文本内容` 为这段音频中人声所代表的文本内容。
 
-`character.chat.injected_history` 这个数组必须为偶数个，即必须为 AI 回复的消息结尾。
+#### 外部工具
 
-`character.chat.max_history` 指明了最多保留多少条消息，即消息窗口的大小。
-
-`character.speech.prompts_dir` 指明了你的 TTS 音频文件的存放位置，你的文件名的格式应为 `[语言][情感标签]文本内容.wav`。例如`[zh][开心]哇！今天真是一个好天气.wav`，其中“语言”仅支持`zh`、`en`、`ja`；“情感标签”任意，只要能让大语言模型判别即可；“文本内容”为这段音频中人声所代表的文本内容。
-
-#### External Tool
-
-> [!CAUTION]
+> [!NOTE]
 >
-> Microsoft Edge 浏览器可能存在内存泄露，因此此项目不支持。
+> 如果您不希望使用浏览器，那么部分依赖于浏览器搜索的功能可能不再可用。
 
-`external_tool.browser.driver` 可选的值有 `firefox`。
+`external_tool` 配置项中：
 
-`external_tool.browser.profile_dir` 是为了保证在 Selenium 的控制下，您的账号登录等信息不会丢失，留空程序会自动检测位置（但不代表一定能找到）。
+1. `browser.driver`：浏览器的驱动，用于 Selenium。可选的值有 `firefox`。
+2. `browser.profile_dir`：浏览器的 Profile 文件夹。这是为了保证在 Selenium 的控制下，您的账号登录等信息不会丢失。如果值为 `null` 程序会自动检测位置（仅 Windows），但不代表一定能找到。
 
 ### 启动本项目
 
 > [!TIP]
 > 
-> 建议启动前利用 Postman 等 API 测试工具测试运行本项目的计算机与 Zerolan Core 的连接是否正常。Zerolan Live Robot 会在管线连接出错时提供一些建议，仍需要您手动排查。
+> 建议启动前测试各个管线是否可以正常运行。测试文件位于 `test_pipeline.py`。
 
 使用以下命令运行 Zerolan Live Robot 的主程序：
 
 ```shell
 python main.py
 ```
+
+若出现任何警告或者报错，请先查看文档底部的常见问题，如果这不能为您提供足够的帮助，可以新建 Issue。
 
 ### * Minecraft 支持
 
@@ -208,11 +231,75 @@ print(prediction.response)
 
 ## 常见问题
 
-### 模型服务启动失败
+### 启动时报错
 
-启动后日志显示“在其上下文中，该请求的地址无效。”。
+**Q：**启动时报错：
 
-解决方案，检查配置文件中，`host` 的配置是否正确。如果想要仅本机访问，请指定为 `'127.0.0.1'`。
+```
+Are you sure that you have copied `config.yaml` from `config.template.yaml` in `resources`?`
+```
+
+**A：**原因是您没有将配置文件放在正确的位置。假如你的项目文件夹放在了 `C:/ZerolanLiveRobot/`，那么你应该检查 `C:/ZerolanLiveRobot/resources/config.yaml` 是否存在，然后按照先前的文档进行配置即可。
+
+---
+
+**Q：**启动时报错
+
+```
+Room id must be greater than 0
+```
+
+**A：**默认的配置文件中 Bilibili 的直播间号设置了一个非法值，您需要配置您指定的目标直播间号。
+
+---
+
+**Q：**启动项目时报错：
+
+```
+You have enabled `live_stream`, but none of the platforms have been successfully connected.
+```
+
+**A：**您启动了直播间服务后，会尝试连接所有的平台，并自动选出其中可以成功连接的那些平台。出现这个错误代表着任何一个平台的连接都失败了，可能原因是您的配置文件有问题，也可能是网络连接不良，还有可能是因为官方的 API 接口发生了变更。
+
+另外注意的是，在配置文件中，只需要修改对应的您想使用的直播平台的配置项，您不需要的直播平台配置项请保留空字符串，不要尝试删除它们。
+
+---
+
+**Q：**启动时报错：
+
+```
+Are you sure that you have configurated your TTS prompts directory?
+```
+
+**A：**这是因为您没有指定 TTS 提示音频的存放目录，或者你指定的目录不存在，请到配置文件中检查并修改，请使用**绝对路径**。
+
+---
+
+**Q：**启动时报错：
+
+```
+There are no eligible TTS prompts in the directory you provided.
+```
+
+**A：**出现这种情况，证明项目中的 TTS 提示音频的存放目录已经可达，但是里面没有音频文件，或者所有的音频文件都不符合命名规则，详细见上文配置一节。
+
+**Q：**启动时报警告：
+
+```
+No suitable filename parsing strategy, the audio file will skip: ...
+```
+
+**A：**这是因为该文件的命名格式不正确，会被跳过，警告不影响项目的运行。针对命名规则，请在文档配置一节找到详细的 TTS prompt 命名规则。
+
+### 运行时报错
+
+**Q：**运行时报错
+
+```
+由于目标计算机积极拒绝，无法连接。
+```
+
+**A：**检查你的配置文件中目标服务器的地址是否正确，端口是否正确，以及是否有防火墙阻止了连接，或者使用了服务器的访问权限控制。如果你的目标服务器就是本机，那么很有可能是因为你的服务根本没有开启。
 
 ## License
 
