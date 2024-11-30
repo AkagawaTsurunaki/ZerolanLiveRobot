@@ -43,19 +43,26 @@ class LiveStreamService:
 
     def __init__(self, config: LiveStreamConfig):
         self._enable: bool = config.enable
+        self._platforms = []
         errs = []
         if self._enable:
             self._thread_manager = ThreadManager()
             try:
-                self.bilibili = BilibiliService(config.bilibili)
+                bilibili = BilibiliService(config.bilibili)
+                self._platforms.append(bilibili)
+                self._thread_manager.add_thread(threading.Thread(target=bilibili.start, name="BilibiliService"))
             except Exception as e:
                 errs.append(e)
             try:
-                self.twitch = TwitchService(config.twitch)
+                twitch = TwitchService(config.twitch)
+                self._platforms.append(twitch)
+                self._thread_manager.add_thread(threading.Thread(target=twitch.start, name="TwitchService"))
             except Exception as e:
                 errs.append(e)
             try:
-                self.youtube = YouTubeService(config.youtube)
+                youtube = YouTubeService(config.youtube)
+                self._platforms.append(youtube)
+                self._thread_manager.add_thread(threading.Thread(target=youtube.start, name="YoutubeService"))
             except Exception as e:
                 errs.append(e)
         
@@ -65,16 +72,15 @@ class LiveStreamService:
         
     def start(self):
         if self._enable:
-            self._thread_manager.start_thread(threading.Thread(self.bilibili.start, name="BilibiliService"))
-            self._thread_manager.start_thread(threading.Thread(self.twitch.start, name="BilibiliService"))
-            self._thread_manager.start_thread(threading.Thread(self.youtube.start, name="BilibiliService"))
+            self._thread_manager.start_all()
         self._thread_manager.join_all_threads()
 
     def stop(self):
         if self._enable:
-            self.bilibili.stop()
-            self.twitch.stop()
-            self.youtube.stop()
+            for serv in self._platforms:
+                if hasattr(serv, "stop"):
+                    serv.stop()
+        
 
 
 class ZerolanLiveRobot:
