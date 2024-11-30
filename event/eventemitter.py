@@ -2,6 +2,7 @@ import asyncio
 import inspect
 import threading
 from asyncio import Task
+from enum import Enum
 from typing import Callable, List, Dict, TypeVar, Coroutine, Any, Tuple
 from uuid import uuid4
 
@@ -11,7 +12,7 @@ from loguru import logger
 from common.abs_runnable import AbstractRunnable
 from common.enumerator import EventEnum
 from common.thread_killer import KillableThread
-from event.event_data import BaseEvent, EventType
+from event.event_data import BaseEvent
 
 
 @deprecated(version='2.1',
@@ -169,8 +170,8 @@ class TypedEventEmitter(AbstractRunnable):
             else:
                 self._add_sync_task(listener, event)
 
-    def on(self, event: EventType):
-        assert isinstance(event, EventType)
+    def on(self, event: EventEnum):
+        assert isinstance(event, Enum)
 
         def decorator(func: Callable[[Event], None] | Callable[[Event], Coroutine[Any, Any, None]]):
             assert isinstance(func, Callable)
@@ -178,8 +179,8 @@ class TypedEventEmitter(AbstractRunnable):
 
         return decorator
 
-    def once(self, event: EventType):
-        assert isinstance(event, EventType)
+    def once(self, event: EventEnum):
+        assert isinstance(event, Enum)
 
         def decorator(func: Callable[[Event], None] | Callable[[Event], Coroutine[Any, Any, None]]):
             assert isinstance(func, Callable)
@@ -207,7 +208,7 @@ class TypedEventEmitter(AbstractRunnable):
         self._event_pending.set()
         logger.debug(f"Added async task to event loop: {task.get_name()}")
 
-    def _add_listener(self, event: EventType, listener: Listener):
+    def _add_listener(self, event: EventEnum, listener: Listener):
         listeners = self._listeners.get(event.value, None)
         if listeners is None:
             self._listeners[event.value] = []
