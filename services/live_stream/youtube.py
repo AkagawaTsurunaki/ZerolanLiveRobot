@@ -6,6 +6,7 @@ from zerolan.data.data.danmaku import Danmaku, SuperChat
 from common.config import YoutubeServiceConfig
 from common.decorator import log_start, log_stop
 from common.enumerator import EventEnum
+from common.utils.str_util import is_blank
 from event.eventemitter import emitter
 
 
@@ -48,7 +49,7 @@ def convert_superchats(super_chat_events: list[dict]):
 class YouTubeService:
     def __init__(self, config: YoutubeServiceConfig):
         # TODO: Need test!
-        assert config.token is not None or config.token == "", f"No token provided."
+        assert not is_blank(config.token), f"No token provided."
         self._token = config.token
         self._danmakus = set()
         self._superchats = set()
