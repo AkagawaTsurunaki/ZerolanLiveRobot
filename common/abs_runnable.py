@@ -10,11 +10,7 @@ class AbstractRunnable:
         self._id: str = str(uuid.uuid4())
 
     @abstractmethod
-    async def astart(self):
-        self.start()
-
-    @abstractmethod
-    def start(self):
+    async def start(self):
         _all[self._id] = self
         self._activate = True
 
@@ -23,11 +19,7 @@ class AbstractRunnable:
             raise RuntimeError("This runnable object is not activated. Call `start()` first.")
 
     @abstractmethod
-    async def astop(self):
-        self.stop()
-
-    @abstractmethod
-    def stop(self):
+    async def stop(self):
         assert _all.pop(self._id, None) is not None, f"Some runnable object is ignored? This should not happen!"
         self._activate = False
 
@@ -37,11 +29,11 @@ class AbstractRunnable:
 _all: Dict[str, AbstractRunnable] = {}
 
 
-async def stop_all():
+async def stop_all_runnable():
     """
     强制停止所有可运行组件的运行
     Force stop the operation of all runnable components
     """
     global _all
     for id, run in _all.items():
-        await run.astop()
+        await run.stop()
