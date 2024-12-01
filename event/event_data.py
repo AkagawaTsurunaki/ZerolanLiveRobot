@@ -3,7 +3,10 @@ from typing import List
 
 from PIL.Image import Image
 from zerolan.data.pipeline.asr import ASRPrediction
+from zerolan.data.pipeline.img_cap import ImgCapPrediction
 from zerolan.data.pipeline.llm import LLMPrediction
+from zerolan.data.pipeline.ocr import OCRPrediction
+from zerolan.data.pipeline.tts import TTSPrediction
 
 from agent.tool_agent import Tool
 from common.enumerator import EventEnum
@@ -19,10 +22,29 @@ class ASREvent(BaseEvent):
     prediction: ASRPrediction
     type: EventEnum = EventEnum.PIPELINE_ASR
 
+
 @dataclass
 class LLMEvent(BaseEvent):
     prediction: LLMPrediction
     type: EventEnum = EventEnum.PIPELINE_LLM
+
+
+@dataclass
+class OCREvent(BaseEvent):
+    prediction: OCRPrediction
+    type: EventEnum = EventEnum.PIPELINE_OCR
+
+
+@dataclass
+class TTSEvent(BaseEvent):
+    prediction: TTSPrediction
+    type: EventEnum = EventEnum.PIPELINE_TTS
+
+
+@dataclass
+class ImgCapEvent(BaseEvent):
+    prediction: ImgCapPrediction
+    type: EventEnum = EventEnum.PIPELINE_IMG_CAP
 
 
 @dataclass

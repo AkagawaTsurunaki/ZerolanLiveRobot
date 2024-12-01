@@ -1,6 +1,7 @@
 import threading
 
 from PIL.Image import Image
+from deprecated.sphinx import deprecated
 from loguru import logger
 from zerolan.data.pipeline.asr import ASRStreamQuery, ASRPrediction
 from zerolan.data.pipeline.img_cap import ImgCapPrediction, ImgCapQuery
@@ -37,7 +38,8 @@ from services.vad.emitter import OldVoiceEventEmitter as VoiceEventEmitter
 config = get_config()
 
 
-class ZerolanLiveRobot:
+@deprecated(version="2.1", reason="Bad thread and coroutine management. It is refactored as `ZerolanLiveRobot`.")
+class OldZerolanLiveRobot:
     def __init__(self):
         self.vad = VoiceEventEmitter()
         self.asr = ASRPipeline(config.pipeline.asr)
@@ -211,6 +213,6 @@ class ZerolanLiveRobot:
 
 
 if __name__ == '__main__':
-    bot = ZerolanLiveRobot()
+    bot = OldZerolanLiveRobot()
     bot.start()
     bot.exit()

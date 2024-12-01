@@ -1,4 +1,7 @@
+from agent.location_attn import LocationAttentionAgent
+from agent.sentiment import SentimentAnalyzerAgent
 from agent.tool_agent import ToolAgent
+from agent.translator import TranslatorAgent
 from common.config import get_config
 from manager.llm_prompt_manager import LLMPromptManager
 from manager.tts_prompt_manager import TTSPromptManager
@@ -10,6 +13,7 @@ from pipeline.tts import TTSPipeline
 from pipeline.vid_cap import VidCapPipeline
 from services.browser.browser import Browser
 from services.device.screen import Screen
+from services.device.speaker import Speaker
 from services.filter.strategy import FirstMatchedFilter
 from services.game.minecraft.app import KonekoMinecraftAIAgent
 
@@ -39,6 +43,7 @@ class ZerolanLiveRobotContext:
         self.tool_agent: ToolAgent = None
         self.screen: Screen | None = None
         self.browser: Browser | None = None
+        self.speaker: Speaker = None
         self._init()
 
     def _init(self):
@@ -46,7 +51,7 @@ class ZerolanLiveRobotContext:
         self.llm = LLMPipeline(config.pipeline.llm)
         self.filter = FirstMatchedFilter(config.character.chat.filter.bad_words)
         self.llm_prompt_manager = LLMPromptManager(config.character.chat)
-        self.tool_agent = ToolAgent(config.pipeline.llm)
+        self.speaker = Speaker()
 
         if config.pipeline.asr.enable:
             self.asr = ASRPipeline(config.pipeline.asr)
@@ -66,3 +71,10 @@ class ZerolanLiveRobotContext:
         if config.service.game.enable:
             if config.service.game.platform == "minecraft":
                 self.game_agent = KonekoMinecraftAIAgent(config.service.game, self.tool_agent)
+
+        # Agents
+        self.tool_agent = ToolAgent(config.pipeline.llm)
+        self.translator_agent = TranslatorAgent(config.pipeline.llm)
+        self.location_attention_agent = LocationAttentionAgent(config.pipeline.llm)
+        if self.tts_prompt_manager is not None:
+            self.sentiment_analyzer_agent = SentimentAnalyzerAgent(self.tts_prompt_manager, config.pipeline.llm)
