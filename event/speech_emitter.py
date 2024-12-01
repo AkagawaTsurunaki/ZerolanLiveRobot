@@ -3,16 +3,21 @@ import asyncio
 import numpy as np
 from loguru import logger
 
+from common.abs_runnable import AbstractRunnable
 from common.decorator import withsound
-from common.enumerator import SystemSoundEnum, EventEnum
+from common.enumerator import SystemSoundEnum
 from common.limit_list import LimitList
 from common.utils.audio_util import from_ndarray_to_bytes
+from event.event_data import SpeechEvent
 from event.eventemitter import emitter
 from services.device.microphone import Microphone
 from services.vad.strategy import EasyEnergyVad
 
 
-class OldVoiceEventEmitter:
+class SpeechEmitter(AbstractRunnable):
+    def name(self):
+        return "VoiceEventEmitter"
+
     def __init__(self):
         super().__init__()
         self.mp = Microphone()
@@ -21,12 +26,14 @@ class OldVoiceEventEmitter:
         self._stop_flag = False
 
     @withsound(SystemSoundEnum.enable_func)
-    def start(self):
+    async def start(self):
+        await super().start()
         self.mp.open()
-        asyncio.run(self.handler())
+        await self.handler()
 
     @withsound(SystemSoundEnum.disable_func)
-    def stop(self):
+    async def stop(self):
+        await super().stop()
         self._stop_flag = True
         self.mp.close()
 
@@ -43,13 +50,10 @@ class OldVoiceEventEmitter:
                     combined_speech_bytes = from_ndarray_to_bytes(np.concatenate(self.speech_chunks),
                                                                   sample_rate=self.mp.sample_rate)
                     logger.info("Voice event emitted")
-                    await emitter.emit(EventEnum.SERVICE_VAD_SPEECH_CHUNK,
-                                       speech=combined_speech_bytes,
-                                       channels=self.mp.channels,
-                                       sample_rate=self.mp.sample_rate)
+                    emitter.emit(SpeechEvent(speech=combined_speech_bytes,
+                                             channels=self.mp.channels,
+                                             sample_rate=self.mp.sample_rate))
 
                     self.speech_chunks.clear()
             else:
                 self.speech_chunks.append(speech_chunk)
-
-

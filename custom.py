@@ -16,13 +16,13 @@ from event.event_data import ASREvent, SpeechEvent, ScreenCapturedEvent, LLMEven
 from event.eventemitter import emitter
 from pipeline.ocr import avg_confidence, stringify
 from services.device.screen import is_image_uniform
-from services.vad.emitter import VoiceEventEmitter
+from event.speech_emitter import SpeechEmitter
 
 
 class ZerolanLiveRobot(ZerolanLiveRobotContext):
     def __init__(self):
         super().__init__()
-        self.vad = VoiceEventEmitter()
+        self.vad = SpeechEmitter()
         self.cur_lang = Language.ZH
 
     @withsound(SystemSoundEnum.start)
