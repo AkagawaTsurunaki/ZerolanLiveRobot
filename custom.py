@@ -1,5 +1,4 @@
 import asyncio
-from xmlrpc.client import Fault
 
 from loguru import logger
 from zerolan.data.pipeline.asr import ASRStreamQuery
@@ -11,6 +10,7 @@ from zerolan.data.pipeline.tts import TTSQuery
 from common.abs_runnable import stop_all_runnable
 from common.decorator import withsound
 from common.enumerator import EventEnum, Language, SystemSoundEnum
+from common.thread import kill_all_threads
 from context import ZerolanLiveRobotContext
 from event.event_data import ASREvent, SpeechEvent, ScreenCapturedEvent, LLMEvent, OCREvent, ImgCapEvent, TTSEvent
 from event.eventemitter import emitter
@@ -84,14 +84,14 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
             # TODO: 0.6 is a hyperparameter that indicates the average confidence of the text contained in the image.
             if avg_confidence(ocr_prediction) > 0.6:
                 logger.info("OCR: " + stringify(ocr_prediction.region_results))
-                await emitter.emit(OCREvent(prediction=ocr_prediction))
+                emitter.emit(OCREvent(prediction=ocr_prediction))
             else:
                 img_cap_prediction = self.img_cap.predict(ImgCapQuery(prompt="There", img_path=img_path))
                 src_lang = Language.value_of(img_cap_prediction.lang)
                 caption = self.translator_agent.translate(src_lang, self.cur_lang, img_cap_prediction.caption)
                 img_cap_prediction.caption = caption
                 logger.info("ImgCap: " + caption)
-                await emitter.emit(ImgCapEvent(prediction=img_cap_prediction))
+                emitter.emit(ImgCapEvent(prediction=img_cap_prediction))
 
         @emitter.on(EventEnum.PIPELINE_OCR)
         async def on_pipeline_ocr(event: OCREvent):
@@ -120,7 +120,7 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
                 cut_punc="，。！",
             )
             for prediction in self.tts.stream_predict(query):
-                await emitter.emit(TTSEvent(prediction=prediction))
+                emitter.emit(TTSEvent(prediction=prediction))
 
         @emitter.on(EventEnum.PIPELINE_LLM)
         async def history_handler(event: LLMEvent):
@@ -155,7 +155,12 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
 
     async def _exit(self):
         await stop_all_runnable()
-        logger.info("All runnable exited.")
+        logger.info("Sent exit signal.")
+
+    async def _force_exit(self):
+        await stop_all_runnable()
+        kill_all_threads()
+        logger.info("Sent force-exit signal.")
 
     @withsound(SystemSoundEnum.exit, block=False)
     def exit(self):
