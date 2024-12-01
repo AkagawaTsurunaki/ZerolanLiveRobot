@@ -63,6 +63,7 @@ class EventEnum(str, Enum):
     """
     All event names should be registered here.
     """
+    TEST = "test"
 
     SYSTEM_ERROR = "system.error"
     SYSTEM_CRASHED = "system.crashed"
