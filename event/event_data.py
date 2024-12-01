@@ -1,7 +1,8 @@
 from dataclasses import dataclass
-from typing import List
+from typing import List, Literal
 
 from PIL.Image import Image
+from zerolan.data.data.danmaku import Danmaku
 from zerolan.data.pipeline.asr import ASRPrediction
 from zerolan.data.pipeline.img_cap import ImgCapPrediction
 from zerolan.data.pipeline.llm import LLMPrediction
@@ -59,6 +60,26 @@ class SpeechEvent(BaseEvent):
 class WebSocketJsonReceivedEvent(BaseEvent):
     data: any
     type: EventEnum = EventEnum.WEBSOCKET_RECV_JSON
+
+
+@dataclass
+class LiveStreamConnectedEvent(BaseEvent):
+    platform: Literal["bilibili", "twitch", "youtube"]
+    type: EventEnum = EventEnum.SERVICE_LIVE_STREAM_CONNECTED
+
+
+@dataclass
+class LiveStreamDisconnectedEvent(BaseEvent):
+    platform: Literal["bilibili", "twitch", "youtube"]
+    reason: str
+    type: EventEnum = EventEnum.SERVICE_LIVE_STREAM_DISCONNECTED
+
+
+@dataclass
+class DanmakuEvent(BaseEvent):
+    platform: Literal["bilibili", "twitch", "youtube"]
+    danmaku: Danmaku
+    type: EventEnum = EventEnum.SERVICE_LIVE_STREAM_DANMAKU
 
 
 @dataclass

@@ -1,18 +1,23 @@
-from bilibili_api import Credential, sync
+from bilibili_api import Credential
 from bilibili_api.live import LiveDanmaku
 from loguru import logger
 from zerolan.data.data.danmaku import Danmaku
 
+from common.abs_runnable import AbstractRunnable
 from common.config import BilibiliServiceConfig
-from common.decorator import log_init, log_start, log_stop
-from common.enumerator import EventEnum
+from common.decorator import log_init, log_stop, log_start
+from event.event_data import LiveStreamConnectedEvent, DanmakuEvent, LiveStreamDisconnectedEvent
 from event.eventemitter import emitter
 
 
-class BilibiliService:
+class BilibiliService(AbstractRunnable):
+
+    def name(self):
+        return "BilibiliService"
 
     @log_init("BilibiliService")
     def __init__(self, config: BilibiliServiceConfig):
+        super().__init__()
         assert config.room_id and config.room_id > 0, "Room id must be greater than 0"
         self._room_id: int = config.room_id
         self._retry_count = 0
@@ -22,13 +27,16 @@ class BilibiliService:
                                 bili_jct=config.credential.bili_jct,
                                 buvid3=config.credential.buvid3)
         self._monitor = LiveDanmaku(self._room_id, credential=credential, retry_after=3, max_retry=self._max_retry)
-        self.register_listeners()
+        self._init()
 
     @log_start("BilibiliService")
-    def start(self):
-        sync(self._monitor.connect())
+    async def start(self):
+        logger.info(f"{self.name()} start.")
+        await super().start()
+        await self._monitor.connect()
+        logger.info(f"{self.name()} exited.")
 
-    def register_listeners(self):
+    def _init(self):
         """
         See: https://nemo2011.github.io/bilibili-api/#/modules/live
         :return:
@@ -36,8 +44,8 @@ class BilibiliService:
 
         @self._monitor.on("VERIFICATION_SUCCESSFUL")
         async def on_connect(event):
-            await emitter.emit(EventEnum.SERVICE_LIVE_STREAM_CONNECTED)
             logger.info("Verification successful, connected to Bilibili server.")
+            emitter.emit(LiveStreamConnectedEvent(platform="bilibili"))
 
         @self._monitor.on("DANMU_MSG")
         async def handle_recv(event):
@@ -50,7 +58,7 @@ class BilibiliService:
             # fans_band_name = event["data"]["info"][3][1]  # 该粉丝牌的名字
             # live_host_name = event["data"]["info"][3][2]  # 该粉丝牌对应的主播名字
             logger.info(f"Danmaku: [{danmaku.username}] {danmaku.msg}")
-            await emitter.emit(EventEnum.SERVICE_LIVE_STREAM_DANMAKU, danmaku=danmaku)
+            emitter.emit(DanmakuEvent(platform="bilibili", danmaku=danmaku))
 
         @self._monitor.on("DISCONNECT")
         async def handle_disconnect():
@@ -62,7 +70,7 @@ class BilibiliService:
                 2. Check your credential information in `config.yaml`.
                 3. Update the `bilibili-api-python` package to the latest version.
                 """)
-            emitter.emit(EventEnum.SERVICE_LIVE_STREAM_DISCONNECTED)
+            emitter.emit(LiveStreamDisconnectedEvent(platform="bilibili", reason="Disconnected from Bilibili server."))
             logger.info("Disconnected from Bilibili server.")
 
         @self._monitor.on("SEND_GIFT")
@@ -80,8 +88,6 @@ class BilibiliService:
             pass
 
     @log_stop("BilibiliService")
-    def stop(self):
-        try:
-            sync(self._monitor.disconnect())
-        except Exception as e:
-            pass
+    async def stop(self):
+        await super().stop()
+        await self._monitor.disconnect()

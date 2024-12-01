@@ -87,6 +87,7 @@ def log_start(service_name: str):
         def wrapper(*args, **kwargs):
             logger.info(f"{service_name} starting...")
             ret = func(*args, **kwargs)
+            logger.info(f"{service_name} exited.")
             return ret
 
         return wrapper
