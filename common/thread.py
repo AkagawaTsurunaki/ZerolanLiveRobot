@@ -2,9 +2,19 @@
 Modify from:
     http://www.s1nh.org/post/python-different-ways-to-kill-a-thread/
 """
-
+import asyncio
 import ctypes
 import threading
+from typing import List
+
+from loguru import logger
+
+
+def sync_thread_wrapper(func):
+    def wrapper():
+        asyncio.run(func())
+
+    return wrapper
 
 
 class ThreadKilledError(RuntimeError):
@@ -22,6 +32,7 @@ class KillableThread(threading.Thread):
                  args=(), kwargs=None, *, daemon=None):
         super().__init__(group, target, name, args, kwargs, daemon=daemon)
         self._killed = False
+        add_thread(self)
 
     def get_id(self):
         """
@@ -65,3 +76,21 @@ class KillableThread(threading.Thread):
             return
         else:
             super().join(timeout)
+
+
+_all: List[KillableThread] = []
+
+
+def add_thread(t: KillableThread):
+    assert isinstance(t, KillableThread)
+    _all.append(t)
+
+
+def kill_all_threads():
+    for thread in _all:
+        try:
+            thread.kill()
+            logger.debug(f"Thread {thread.get_id()}: killed")
+        except ThreadCanNotBeKilledError:
+            logger.error(f"Failed to kill thread: {thread.get_id()}")
+    logger.debug("All threads killed.")
