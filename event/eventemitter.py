@@ -105,6 +105,9 @@ class Listener:
 
 class TypedEventEmitter(AbstractRunnable):
 
+    def name(self):
+        return "TypedEventEmitter"
+
     def __init__(self):
         super().__init__()
         self._max_listeners: int = 100
