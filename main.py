@@ -32,7 +32,7 @@ from services.filter.strategy import FirstMatchedFilter
 from services.game.minecraft.app import KonekoMinecraftAIAgent
 from services.live2d.app import Live2dApplication
 from services.live_stream.service import LiveStreamService
-from services.vad.emitter import VoiceEventEmitter
+from services.vad.emitter import OldVoiceEventEmitter as VoiceEventEmitter
 
 config = get_config()
 
