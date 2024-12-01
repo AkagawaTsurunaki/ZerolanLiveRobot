@@ -118,8 +118,8 @@ class TypedEventEmitter(AbstractRunnable):
                                                 name="TypedEventEmitterSyncEventLoop")
         self._sync_tasks: List[Tuple[Listener, Event]] = []
 
-    async def start(self):
-        await super().start()
+    async def astart(self):
+        await super().astart()
         logger.info("Starting...")
         self._stop_flag = False
 
@@ -188,8 +188,8 @@ class TypedEventEmitter(AbstractRunnable):
 
         return decorator
 
-    async def stop(self):
-        await super().stop()
+    async def astop(self):
+        await super().astop()
         self._stop_flag = True
         self._event_pending.set()
         for task in self._tasks:

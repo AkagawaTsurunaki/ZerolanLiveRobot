@@ -23,7 +23,7 @@ async def aexit(event: SleepEvent):
 
 
 async def main():
-    task = asyncio.create_task(emitter.start())
+    task = asyncio.create_task(emitter.astart())
 
     await asyncio.sleep(1)
 
@@ -31,7 +31,7 @@ async def main():
 
     await asyncio.sleep(3)
     logger.info("Emitter stop!")
-    await emitter.stop()
+    await emitter.astop()
 
     await task
     # await emitter.stop()
