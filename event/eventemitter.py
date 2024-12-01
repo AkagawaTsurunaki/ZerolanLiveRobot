@@ -139,7 +139,6 @@ class TypedEventEmitter(AbstractRunnable):
                     await task
                 except asyncio.CancelledError:
                     logger.warning(f"Task cancelled: {task.get_name()}")
-                    pass
                 self._tasks.remove(task)
             self._event_pending.clear()
             if self._stop_flag:
