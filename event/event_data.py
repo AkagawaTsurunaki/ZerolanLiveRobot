@@ -56,6 +56,12 @@ class SpeechEvent(BaseEvent):
 
 
 @dataclass
+class WebSocketJsonReceivedEvent(BaseEvent):
+    data: any
+    type: EventEnum = EventEnum.WEBSOCKET_RECV_JSON
+
+
+@dataclass
 class KonekoClientPushInstructionsEvent(BaseEvent):
     tools: List[Tool]
     type: EventEnum = EventEnum.KONEKO_CLIENT_PUSH_INSTRUCTIONS
