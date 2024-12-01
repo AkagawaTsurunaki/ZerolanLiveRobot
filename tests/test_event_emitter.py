@@ -1,25 +1,32 @@
 import asyncio
 import time
-from random import random
+from dataclasses import dataclass
 
 from loguru import logger
 
-from event.event_data import SleepEvent, EventType
+from common.enumerator import EventEnum
+from event.event_data import BaseEvent
 from event.eventemitter import emitter
 
 
-@emitter.on(EventType.EXIT)
-def exit__(event: SleepEvent):
+@dataclass
+class TestEvent(BaseEvent):
+    content: str
+    type = EventEnum.TEST
+
+
+@emitter.on(EventEnum.TEST)
+def exit__(event: TestEvent):
     print("To sleep!")
     time.sleep(2)
-    print(f"time: {event.sleep_time}")
+    print(f"time: {event.content}")
 
 
-@emitter.on(EventType.EXIT)
-async def aexit(event: SleepEvent):
+@emitter.on(EventEnum.TEST)
+async def aexit(event: TestEvent):
     print("To sleep!")
-    await asyncio.sleep(event.sleep_time)
-    print(f"time: {event.sleep_time}")
+    await asyncio.sleep(2)
+    print(f"time: {event.content}")
 
 
 async def main():
@@ -27,7 +34,7 @@ async def main():
 
     await asyncio.sleep(1)
 
-    emitter.emit(SleepEvent(sleep_time=random() * 100))
+    emitter.emit(TestEvent(content="Hello!"))
 
     await asyncio.sleep(3)
     logger.info("Emitter stop!")
