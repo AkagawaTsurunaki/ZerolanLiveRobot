@@ -1,18 +1,24 @@
 import uuid
 from abc import abstractmethod
-from typing import Dict
+from typing import Dict, List
+
+from loguru import logger
 
 
 class AbstractRunnable:
 
     def __init__(self):
         self._activate: bool = False
-        self._id: str = str(uuid.uuid4())
+        self.id: str = str(uuid.uuid4())
+
+    @abstractmethod
+    def name(self):
+        return self.id
 
     @abstractmethod
     async def start(self):
-        _all[self._id] = self
         self._activate = True
+        add_runnable(self)
 
     def activate_check(self):
         if not self._activate:
@@ -20,13 +26,19 @@ class AbstractRunnable:
 
     @abstractmethod
     async def stop(self):
-        assert _all.pop(self._id, None) is not None, f"Some runnable object is ignored? This should not happen!"
         self._activate = False
 
 
 # 所有的可运行组件都应该在调用 `start` 方法的时候被注册在这里
 # All runnable components should be registered here when the `start` method is called
 _all: Dict[str, AbstractRunnable] = {}
+_ids: List[str] = []
+
+
+def add_runnable(run: AbstractRunnable):
+    _all[run.id] = run
+    _ids.append(run.id)
+    logger.debug(f"Runnable {run.name()}: {run.id}")
 
 
 async def stop_all_runnable():
@@ -35,5 +47,13 @@ async def stop_all_runnable():
     Force stop the operation of all runnable components
     """
     global _all
-    for id, run in _all.items():
+    ids = _ids.copy()
+    ids.reverse()
+
+    for id in ids:
+        run = _all.pop(id, None)
+        if run is None:
+            logger.warning(f"Runnable dose not exist: {id}")
+            return
         await run.stop()
+        logger.debug(f"Runnable {run.name()}({id}): killed.")
