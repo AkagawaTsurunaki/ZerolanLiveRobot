@@ -9,7 +9,14 @@ from services.browser.driver import DriverInitializer
 
 class Browser:
     def __init__(self, config: BrowserConfig):
-        self.driver: Firefox | Chrome = DriverInitializer(config).get_driver()
+        self._initzr = DriverInitializer(config)
+        self._driver: Firefox | Chrome | None = None
+
+    @property
+    def driver(self):
+        if self.driver is None:
+            self._driver = self._initzr.get_driver()
+        return self._driver
 
     def open(self, url: str):
         self.driver.get(url)
