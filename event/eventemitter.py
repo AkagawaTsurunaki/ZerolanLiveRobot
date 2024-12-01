@@ -11,7 +11,7 @@ from loguru import logger
 
 from common.abs_runnable import AbstractRunnable
 from common.enumerator import EventEnum
-from common.thread_killer import KillableThread
+from common.thread import KillableThread
 from event.event_data import BaseEvent
 
 
