@@ -9,7 +9,7 @@ from common.enumerator import SystemSoundEnum, EventEnum
 from common.limit_list import LimitList
 from common.utils.audio_util import from_ndarray_to_bytes
 from event.event_data import SpeechEvent
-from event.eventemitter import emitter, EventEmitter, TypedEventEmitter
+from event.eventemitter import emitter
 from services.device.microphone import Microphone
 from services.vad.strategy import EasyEnergyVad
 
@@ -56,6 +56,9 @@ class OldVoiceEventEmitter:
 
 
 class VoiceEventEmitter(AbstractRunnable):
+    def name(self):
+        return "VoiceEventEmitter"
+
     def __init__(self):
         super().__init__()
         self.mp = Microphone()
@@ -65,11 +68,13 @@ class VoiceEventEmitter(AbstractRunnable):
 
     @withsound(SystemSoundEnum.enable_func)
     async def start(self):
+        await super().start()
         self.mp.open()
         await self.handler()
 
     @withsound(SystemSoundEnum.disable_func)
-    def stop(self):
+    async def stop(self):
+        await super().stop()
         self._stop_flag = True
         self.mp.close()
 
