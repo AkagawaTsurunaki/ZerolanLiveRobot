@@ -167,6 +167,7 @@ class PipelineConfig:
 @dataclass_json
 @dataclass
 class BrowserConfig:
+    enable: bool = True
     profile_dir: str | None = None
     driver: Literal["chrome", "firefox"] = "firefox"
 

@@ -85,6 +85,7 @@ character:
     prompts_dir: "resources/static/prompts/tts"
 external_tool:
   browser:
+    enable: True
     driver: firefox
     # Auto find the location of the Firefox profile file in user directory if you set it `null`.
     profile_dir: null

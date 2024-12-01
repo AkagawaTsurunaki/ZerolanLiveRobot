@@ -8,13 +8,21 @@ from pipeline.llm import LLMPipeline
 from pipeline.ocr import OCRPipeline
 from pipeline.tts import TTSPipeline
 from pipeline.vid_cap import VidCapPipeline
+from services.browser.browser import Browser
 from services.device.screen import Screen
 from services.filter.strategy import FirstMatchedFilter
+from services.game.minecraft.app import KonekoMinecraftAIAgent
 
 config = get_config()
 
 
 class ZerolanLiveRobotContext:
+    """
+    ZerolanLiveRobotContext 应只包括初始化上下文资源的工作，
+    事件监听器注册和各类事件的发送逻辑不应该体现在这里。
+    ZerolanLiveRobotContext here should only include initializing the context resource,
+    The logic for registering listeners and sending events shouldn't be reflected here.
+    """
 
     def __init__(self):
         self.llm: LLMPipeline | None = None
@@ -30,6 +38,7 @@ class ZerolanLiveRobotContext:
 
         self.tool_agent: ToolAgent = None
         self.screen: Screen | None = None
+        self.browser: Browser | None = None
         self._init()
 
     def _init(self):
@@ -52,3 +61,8 @@ class ZerolanLiveRobotContext:
             self.screen = Screen()
         if config.pipeline.vid_cap.enable:
             self.vid_cap = VidCapPipeline(config.pipeline.vid_cap)
+        if config.external_tool.browser.enable:
+            self.browser = Browser(config.external_tool.browser)
+        if config.service.game.enable:
+            if config.service.game.platform == "minecraft":
+                self.game_agent = KonekoMinecraftAIAgent(config.service.game, self.tool_agent)
