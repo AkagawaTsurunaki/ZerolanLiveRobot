@@ -31,6 +31,7 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
         async with asyncio.TaskGroup() as tg:
             tg.create_task(emitter.start())
             tg.create_task(self.vad.start())
+            tg.create_task(self.live_stream.start())
 
     def init(self):
         @emitter.on(EventEnum.SERVICE_VAD_SPEECH_CHUNK)

@@ -16,6 +16,7 @@ from services.device.screen import Screen
 from services.device.speaker import Speaker
 from services.filter.strategy import FirstMatchedFilter
 from services.game.minecraft.app import KonekoMinecraftAIAgent
+from services.live_stream.service import LiveStreamService
 
 config = get_config()
 
@@ -71,6 +72,8 @@ class ZerolanLiveRobotContext:
         if config.service.game.enable:
             if config.service.game.platform == "minecraft":
                 self.game_agent = KonekoMinecraftAIAgent(config.service.game, self.tool_agent)
+        if config.service.live_stream.enable:
+            self.live_stream = LiveStreamService(config.service.live_stream)
 
         # Agents
         self.tool_agent = ToolAgent(config.pipeline.llm)

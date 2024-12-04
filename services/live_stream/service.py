@@ -1,19 +1,28 @@
 import threading
+from typing import List, TypeVar
 
 from loguru import logger
 
+from common.abs_runnable import AbstractRunnable
 from common.config import LiveStreamConfig
+from common.decorator import log_start, log_stop
 from manager.thread_manager import ThreadManager
 from services.live_stream.bilibili import BilibiliService
 from services.live_stream.twitch import TwitchService
 from services.live_stream.youtube import YouTubeService
 
+T = TypeVar(name='T', bound=AbstractRunnable)
 
-class LiveStreamService:
+
+class LiveStreamService(AbstractRunnable):
+
+    def name(self):
+        return "LiveStreamService"
 
     def __init__(self, config: LiveStreamConfig):
+        super().__init__()
         self._enable: bool = config.enable
-        self._platforms = []
+        self._platforms: List[T] = []
         errs = []
         if self._enable:
             self._thread_manager = ThreadManager()
@@ -37,16 +46,19 @@ class LiveStreamService:
                 errs.append(e)
 
             if len(errs) == 3:
-                logger.error("You have enabled `live_stream`, but none of the platforms have been successfully connected.")
+                logger.error(
+                    "You have enabled `live_stream`, but none of the platforms have been successfully connected.")
                 raise RuntimeError("Failed to connect any live streaming platform.")
 
-    def start(self):
+    @log_start("LiveStreamService")
+    async def start(self):
         if self._enable:
             self._thread_manager.start_all()
         self._thread_manager.join_all_threads()
 
-    def stop(self):
+    @log_stop("LiveStreamService")
+    async def stop(self):
         if self._enable:
             for serv in self._platforms:
                 if hasattr(serv, "stop"):
-                    serv.stop()
+                    await serv.stop()
