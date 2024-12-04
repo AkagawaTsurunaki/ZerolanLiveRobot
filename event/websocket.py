@@ -9,12 +9,11 @@ from websockets import serve, ConnectionClosedError
 from websockets.asyncio.server import ServerConnection
 from websockets.protocol import State
 
-from common.abs_runnable import AbstractRunnable
 from event.event_data import WebSocketJsonReceivedEvent
-from event.eventemitter import emitter
+from event.eventemitter import TypedEventEmitter
 
 
-class WebSocketServer(AbstractRunnable):
+class WebSocketServer(TypedEventEmitter):
 
     def name(self):
         return "WebSocketServer"
@@ -32,9 +31,10 @@ class WebSocketServer(AbstractRunnable):
         异步启动 WebSocket 服务器
         Start the WebSocket server asynchronously
         """
-        await super().start()
         try:
-            self._server_task = asyncio.create_task(self._run())
+            async with TaskGroup() as tg:
+                tg.create_task(super().start())
+                tg.create_task(self._run())
         except asyncio.exceptions.CancelledError:
             logger.debug("WebSocket server stopped.")
 
@@ -57,10 +57,16 @@ class WebSocketServer(AbstractRunnable):
         self._add_connection(websocket)
         try:
             while not self._stop_flag:
-                msg = await websocket.recv()
-                data = json.loads(msg)
-                logger.info(f"Web Socket server received: {data}")
-                emitter.emit(WebSocketJsonReceivedEvent(data=data))
+                try:
+                    msg = await websocket.recv()
+                    data = json.loads(msg)
+                    logger.info(f"Web Socket server received: {data}")
+                    self.emit(WebSocketJsonReceivedEvent(data=data))
+                except websockets.exceptions.ConnectionClosedError as e:
+                    self._connections.remove(websocket)
+                    logger.warning("A client disconnected abnormally from the server.")
+                    return
+
         except websockets.exceptions.ConnectionClosedOK:
             logger.info("WebSocket client disconnected.")
 
