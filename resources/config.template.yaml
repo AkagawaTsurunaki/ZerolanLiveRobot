@@ -26,6 +26,12 @@ pipeline:
     enable: true
     server_url: "http://127.0.0.1:11006"
 
+  vla:
+    enable: true
+    showui:
+      server_url: "http://127.0.0.1:11009"
+
+
 service:
   controller:
     host: "127.0.0.1"

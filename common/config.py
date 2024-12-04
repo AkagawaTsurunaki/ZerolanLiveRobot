@@ -55,6 +55,7 @@ class TTSPipelineConfig:
 @dataclass_json
 @dataclass
 class ShowUIConfig:
+    enable: bool = True
     server_url: str = "http://127.0.0.1:11009"
 
 

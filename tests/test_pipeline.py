@@ -3,7 +3,7 @@ from zerolan.data.pipeline.img_cap import ImgCapQuery
 from zerolan.data.pipeline.llm import LLMQuery
 from zerolan.data.pipeline.ocr import OCRQuery
 from zerolan.data.pipeline.tts import TTSQuery
-from zerolan.data.pipeline.vla import ShowUiQuery
+from zerolan.data.pipeline.vla import ShowUiQuery, WebAction
 
 from common.config import get_config
 from common.enumerator import Language
@@ -68,7 +68,15 @@ def test_ocr():
 
 
 def test_showui():
-    query = ShowUiQuery(img_path="resources/showui-test.png")
+    query = ShowUiQuery(img_path="resources/imgcap-test.png", query="Click the Ciallo")
     prediction = showui.predict(query)
-    assert prediction.click_xy
-    print(prediction.click_xy[0], prediction.click_xy[1])
+    assert prediction.actions
+    for action in prediction.actions:
+        print(action.model_dump_json())
+
+    query = ShowUiQuery(img_path="resources/imgcap-test.png", query="Click the Ciallo",
+                        action=WebAction(action="CLICK"))
+    prediction = showui.predict(query)
+    assert prediction.actions
+    for action in prediction.actions:
+        print(action.model_dump_json())
