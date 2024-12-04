@@ -1,11 +1,13 @@
 import asyncio
 
+import pyautogui
 from loguru import logger
 from zerolan.data.pipeline.asr import ASRStreamQuery
 from zerolan.data.pipeline.img_cap import ImgCapQuery
 from zerolan.data.pipeline.llm import LLMQuery
 from zerolan.data.pipeline.ocr import OCRQuery
 from zerolan.data.pipeline.tts import TTSQuery
+from zerolan.data.pipeline.vla import ShowUiQuery
 
 from common.abs_runnable import stop_all_runnable
 from common.decorator import withsound
@@ -32,9 +34,10 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
             async with asyncio.TaskGroup() as tg:
                 tg.create_task(emitter.start())
                 tg.create_task(self.vad.start())
-                tg.create_task(self.live_stream.start())
+                if self.live_stream is not None:
+                    tg.create_task(self.live_stream.start())
         except ExceptionGroup as e:
-            self.speaker.play_system_sound(SystemSoundEnum.error, block=True)
+            self.speaker.play_system_sound(SystemSoundEnum.error, block=False)
             logger.exception(e)
             logger.error("Unhandled exception, crashed!")
             await self._force_exit()
@@ -54,7 +57,8 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
             logger.debug("ASREvent received.")
             prediction = event.prediction
             if "关机" in prediction.transcript:
-                await self._exit()
+                # await self._exit()
+                ...
             elif "打开浏览器" in prediction.transcript:
                 if self.browser is not None:
                     self.browser.open("https://www.bing.com")
@@ -72,8 +76,23 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
                 await self.game_agent.exec_instruction(prediction.transcript)
             elif "看见" in prediction.transcript:
                 img, img_save_path = self.screen.safe_capture(k=0.99)
-                if img and img_save_path:
-                    emitter.emit(ScreenCapturedEvent(img=img, img_path=img_save_path))
+                if not await self.check_img(img):
+                    return
+                emitter.emit(ScreenCapturedEvent(img=img, img_path=img_save_path))
+            elif "点击" in prediction.transcript:
+                img, img_save_path = self.screen.safe_capture(k=0.99)
+                if not await self.check_img(img):
+                    return
+
+                query = ShowUiQuery(query=prediction.transcript, env="web", img_path=img_save_path)
+                prediction = self.showui.predict(query)
+                logger.debug("ShowUI: " + prediction.model_dump_json())
+                action = prediction.actions[0]
+                if action.action == "CLICK":
+                    logger.info("Click action triggered.")
+                    x, y = action.position[0] * img.width, action.position[1] * img.height
+                    pyautogui.moveTo(x, y)
+                    pyautogui.click()
             elif "切换语言" in prediction.transcript:
                 self.cur_lang = Language.JA
             else:
@@ -82,10 +101,6 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
         @emitter.on(EventEnum.DEVICE_SCREEN_CAPTURED)
         async def on_device_screen_captured(event: ScreenCapturedEvent):
             img, img_path = event.img, event.img_path
-            if is_image_uniform(img):
-                logger.warning("Are you sure you capture the screen properly? The screen is black!")
-                await self.emit_llm_prediction("你忽然什么都看不见了！请向你的开发者求助！")
-                return
 
             ocr_prediction = self.ocr.predict(OCRQuery(img_path=img_path))
             # TODO: 0.6 is a hyperparameter that indicates the average confidence of the text contained in the image.
@@ -161,6 +176,13 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
         await stop_all_runnable()
         kill_all_threads()
         logger.info("Sent force-exit signal.")
+
+    async def check_img(self, img) -> bool:
+        if is_image_uniform(img):
+            logger.warning("Are you sure you capture the screen properly? The screen is black!")
+            await self.emit_llm_prediction("你忽然什么都看不见了！请向你的开发者求助！")
+            return False
+        return True
 
     @withsound(SystemSoundEnum.exit, block=False)
     def exit(self):

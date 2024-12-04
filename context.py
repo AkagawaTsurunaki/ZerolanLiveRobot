@@ -11,6 +11,7 @@ from pipeline.llm import LLMPipeline
 from pipeline.ocr import OCRPipeline
 from pipeline.tts import TTSPipeline
 from pipeline.vid_cap import VidCapPipeline
+from pipeline.vla import ShowUIPipeline
 from services.browser.browser import Browser
 from services.device.screen import Screen
 from services.device.speaker import Speaker
@@ -36,10 +37,12 @@ class ZerolanLiveRobotContext:
         self.tts: TTSPipeline | None = None
         self.img_cap: ImgCapPipeline | None = None
         self.vid_cap: VidCapPipeline | None = None
+        self.showui: ShowUIPipeline | None = None
 
         self.filter: FirstMatchedFilter | None = None
         self.llm_prompt_manager: LLMPromptManager = None
         self.tts_prompt_manager: TTSPromptManager | None = None
+        self.live_stream: LiveStreamService | None = None
 
         self.tool_agent: ToolAgent = None
         self.screen: Screen | None = None
@@ -67,6 +70,9 @@ class ZerolanLiveRobotContext:
             self.screen = Screen()
         if config.pipeline.vid_cap.enable:
             self.vid_cap = VidCapPipeline(config.pipeline.vid_cap)
+        if config.pipeline.vla.enable:
+            if config.pipeline.vla.showui.enable:
+                self.showui = ShowUIPipeline(config.pipeline.vla.showui)
         if config.external_tool.browser.enable:
             self.browser = Browser(config.external_tool.browser)
         if config.service.game.enable:
