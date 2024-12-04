@@ -47,6 +47,7 @@ class LiveStreamService(AbstractRunnable):
         if self._enable:
             async with TaskGroup() as tg:
                 tasks = []
+                logger.info(f"Start live stream platform: {len(self._platforms)}")
                 for platform in self._platforms:
                     task = tg.create_task(platform.start())
                     tasks.append(task)
