@@ -36,6 +36,8 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
                 tg.create_task(self.vad.start())
                 if self.live_stream is not None:
                     tg.create_task(self.live_stream.start())
+                if self.live2d is not None:
+                    tg.create_task(self.live2d.start())
         except ExceptionGroup as e:
             self.speaker.play_system_sound(SystemSoundEnum.error, block=False)
             logger.exception(e)
