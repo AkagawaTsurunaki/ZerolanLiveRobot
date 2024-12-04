@@ -1,4 +1,4 @@
-import threading
+from asyncio import TaskGroup
 from typing import List, TypeVar
 
 from loguru import logger
@@ -6,7 +6,6 @@ from loguru import logger
 from common.abs_runnable import AbstractRunnable
 from common.config import LiveStreamConfig
 from common.decorator import log_start, log_stop
-from manager.thread_manager import ThreadManager
 from services.live_stream.bilibili import BilibiliService
 from services.live_stream.twitch import TwitchService
 from services.live_stream.youtube import YouTubeService
@@ -25,27 +24,20 @@ class LiveStreamService(AbstractRunnable):
         self._platforms: List[T] = []
         errs = []
         if self._enable:
-            self._thread_manager = ThreadManager()
-            try:
-                bilibili = BilibiliService(config.bilibili)
-                self._platforms.append(bilibili)
-                self._thread_manager.add_thread(threading.Thread(target=bilibili.start, name="BilibiliService"))
-            except Exception as e:
-                errs.append(e)
-            try:
-                twitch = TwitchService(config.twitch)
-                self._platforms.append(twitch)
-                self._thread_manager.add_thread(threading.Thread(target=twitch.start, name="TwitchService"))
-            except Exception as e:
-                errs.append(e)
-            try:
-                youtube = YouTubeService(config.youtube)
-                self._platforms.append(youtube)
-                self._thread_manager.add_thread(threading.Thread(target=youtube.start, name="YoutubeService"))
-            except Exception as e:
-                errs.append(e)
+            platforms = {
+                BilibiliService: config.bilibili,
+                TwitchService: config.twitch,
+                YouTubeService: config.youtube,
+            }
 
-            if len(errs) == 3:
+            for service, cfg in platforms.items():
+                try:
+                    platform = service(cfg)
+                    self._platforms.append(platform)
+                except Exception as e:
+                    errs.append(e)
+
+            if len(errs) == len(platforms):
                 logger.error(
                     "You have enabled `live_stream`, but none of the platforms have been successfully connected.")
                 raise RuntimeError("Failed to connect any live streaming platform.")
@@ -53,12 +45,14 @@ class LiveStreamService(AbstractRunnable):
     @log_start("LiveStreamService")
     async def start(self):
         if self._enable:
-            self._thread_manager.start_all()
-        self._thread_manager.join_all_threads()
+            async with TaskGroup() as tg:
+                tasks = []
+                for platform in self._platforms:
+                    task = tg.create_task(platform.start())
+                    tasks.append(task)
 
     @log_stop("LiveStreamService")
     async def stop(self):
         if self._enable:
-            for serv in self._platforms:
-                if hasattr(serv, "stop"):
-                    await serv.stop()
+            for platform in self._platforms:
+                await platform.stop()

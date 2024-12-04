@@ -3,10 +3,12 @@ import asyncio
 import requests
 from zerolan.data.data.danmaku import Danmaku, SuperChat
 
+from common.abs_runnable import AbstractRunnable
 from common.config import YoutubeServiceConfig
 from common.decorator import log_start, log_stop
 from common.enumerator import EventEnum
 from common.utils.str_util import is_blank
+from event.event_data import DanmakuEvent, SuperChatEvent
 from event.eventemitter import emitter
 
 
@@ -46,9 +48,13 @@ def convert_superchats(super_chat_events: list[dict]):
     return result
 
 
-class YouTubeService:
+class YouTubeService(AbstractRunnable):
+    def name(self):
+        return "YouTubeService"
+
     def __init__(self, config: YoutubeServiceConfig):
         # TODO: Need test!
+        super().__init__()
         assert not is_blank(config.token), f"No token provided."
         self._token = config.token
         self._danmakus = set()
@@ -68,7 +74,7 @@ class YouTubeService:
         updated_danmakus = self._danmakus.difference(danmakus)
         self._danmakus.update(updated_danmakus)
         for danmaku in updated_danmakus:
-            emitter.emit(EventEnum.SERVICE_LIVE_STREAM_DANMAKU, danmaku)
+            emitter.emit(DanmakuEvent(danmaku=danmaku, platform="youtube"))
 
     def emit_super_chat_event(self):
         # https://developers.google.com/youtube/v3/live/docs/superChatEvents
@@ -77,12 +83,12 @@ class YouTubeService:
         updated_superchats = self._superchats.difference(super_chats)
         self._superchats.update(updated_superchats)
         for superchat in updated_superchats:
-            emitter.emit(EventEnum.SERVICE_LIVE_STREAM_SUPER_CHAT, superchat)
+            emitter.emit(SuperChatEvent(superchat=superchat, platform="youtube"))
 
     @log_start("YouTubeService")
-    def start(self):
-        asyncio.run(self._run())
+    async def start(self):
+        await self._run()
 
     @log_stop("YouTubeService")
-    def stop(self):
+    async def stop(self):
         self._stop_flag = True
