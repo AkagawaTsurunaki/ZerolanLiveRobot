@@ -14,7 +14,7 @@ class Browser:
 
     @property
     def driver(self):
-        if self.driver is None:
+        if self._driver is None:
             self._driver = self._initzr.get_driver()
         return self._driver
 

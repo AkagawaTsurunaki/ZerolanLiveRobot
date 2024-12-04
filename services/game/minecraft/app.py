@@ -7,7 +7,7 @@ from agent.tool_agent import Tool, ToolAgent
 from common.config import GameBridgeConfig
 from common.enumerator import EventEnum, SystemSoundEnum
 from event.eventemitter import emitter
-from event.websocket import OldWebSocketServer
+from event.websocket import WebSocketServer
 from services.device.speaker import Speaker
 from services.game.minecraft.data import KonekoProtocol
 from services.game.minecraft.instrcution.input import generate_model_from_args, FieldMetadata
@@ -18,7 +18,7 @@ class KonekoMinecraftAIAgent:
 
     def __init__(self, config: GameBridgeConfig, tool_agent: ToolAgent):
         super().__init__()
-        self.ws = OldWebSocketServer(host=config.host, port=config.port)
+        self.ws = WebSocketServer(host=config.host, port=config.port)
         self._instruction_tools: Dict[str, KonekoInstructionTool] = dict()
         self._tool_agent = tool_agent
 
