@@ -54,6 +54,19 @@ class TTSPipelineConfig:
 
 @dataclass_json
 @dataclass
+class ShowUIConfig:
+    server_url: str = "http://127.0.0.1:11009"
+
+
+@dataclass_json
+@dataclass
+class VLAPipelineConfig:
+    showui: ShowUIConfig
+    enable: bool = True
+
+
+@dataclass_json
+@dataclass
 class ControllerConfig:
     host: str = "127.0.0.1"
     port: int = 11000
@@ -162,6 +175,7 @@ class PipelineConfig:
     ocr: OCRPipelineConfig
     vid_cap: VidCapPipelineConfig
     tts: TTSPipelineConfig
+    vla: VLAPipelineConfig
 
 
 @dataclass_json

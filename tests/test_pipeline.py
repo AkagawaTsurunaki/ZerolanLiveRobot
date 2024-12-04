@@ -3,6 +3,7 @@ from zerolan.data.pipeline.img_cap import ImgCapQuery
 from zerolan.data.pipeline.llm import LLMQuery
 from zerolan.data.pipeline.ocr import OCRQuery
 from zerolan.data.pipeline.tts import TTSQuery
+from zerolan.data.pipeline.vla import ShowUiQuery
 
 from common.config import get_config
 from common.enumerator import Language
@@ -11,6 +12,7 @@ from pipeline.img_cap import ImgCapPipeline
 from pipeline.llm import LLMPipeline
 from pipeline.ocr import OCRPipeline
 from pipeline.tts import TTSPipeline
+from pipeline.vla import ShowUIPipeline
 from services.device.microphone import Microphone
 
 config = get_config()
@@ -20,6 +22,7 @@ tts = TTSPipeline(config.pipeline.tts)
 asr = ASRPipeline(config.pipeline.asr)
 imgcap = ImgCapPipeline(config.pipeline.img_cap)
 ocr = OCRPipeline(config.pipeline.ocr)
+showui = ShowUIPipeline(config.pipeline.vla.showui)
 
 
 def test_llm():
@@ -62,3 +65,10 @@ def test_ocr():
     prediction = ocr.predict(query)
     assert prediction, f"No prediction from OCR pipeline."
     print(prediction.model_dump_json())
+
+
+def test_showui():
+    query = ShowUiQuery(img_path="resources/showui-test.png")
+    prediction = showui.predict(query)
+    assert prediction.click_xy
+    print(prediction.click_xy[0], prediction.click_xy[1])
