@@ -42,10 +42,12 @@ class TwitchService(AbstractRunnable):
 
     @log_start("TwitchService")
     async def start(self):
+        await super().start()
         await self.init()
 
     @log_stop("TwitchService")
     async def stop(self):
+        await super().stop()
         await self._twitch.close()
 
     async def init(self):

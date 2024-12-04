@@ -6,7 +6,6 @@ from zerolan.data.data.danmaku import Danmaku, SuperChat
 from common.abs_runnable import AbstractRunnable
 from common.config import YoutubeServiceConfig
 from common.decorator import log_start, log_stop
-from common.enumerator import EventEnum
 from common.utils.str_util import is_blank
 from event.event_data import DanmakuEvent, SuperChatEvent
 from event.eventemitter import emitter
@@ -87,8 +86,10 @@ class YouTubeService(AbstractRunnable):
 
     @log_start("YouTubeService")
     async def start(self):
+        await super().start()
         await self._run()
 
     @log_stop("YouTubeService")
     async def stop(self):
+        await super().stop()
         self._stop_flag = True
