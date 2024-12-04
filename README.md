@@ -4,8 +4,7 @@
 
 你或许已经听说过著名的 [Neurosama](https://virtualyoutuber.fandom.com/wiki/Neuro-sama)，或者是来自中国的[木几萌](https://mobile.moegirl.org.cn/%E6%9C%A8%E5%87%A0%E8%90%8C)。你是否也想要拥有一个自己的 AI 虚拟形象陪你直播、聊天、打游戏？开源的 Zerolan Live Robot 正致力于实现您的梦想！而这仅仅需要一张消费级显卡！
 
-Zerolan Live Robot 是一款多功能的直播机器人（AI VTuber），它可以听懂你所说的话，也可以自动在直播间中读取弹幕，观察电脑屏幕的指定窗口，理解其画面内容和文字信息，操纵
-Minecraft 中的游戏角色，做出带情感的语音聊天回应。
+Zerolan Live Robot 是一款多功能的直播机器人（AI VTuber），它可以听懂你所说的话，也可以自动在直播间中读取弹幕，观察电脑屏幕的指定窗口，理解其画面内容和文字信息，操纵 Minecraft 中的游戏角色，做出带情感的语音聊天回应。
 
 相关项目：[KonekoMinecraftBot](https://github.com/AkagawaTsurunaki/KonekoMinecraftBot)、[ZerolanCore](https://github.com/AkagawaTsurunaki/zerolan-core)、[ZerolanData](https://github.com/AkagawaTsurunaki/zerolan-data)、[ZerolanUI](https://github.com/AkagawaTsurunaki/zerolan-ui)。
 
@@ -25,22 +24,23 @@ Minecraft 中的游戏角色，做出带情感的语音聊天回应。
 - [x] 🛠️ 根据上下文语境采取行动或挑选工具（例如：`好了，你可以关机了！`、`请关闭浏览器`）
 - [x] 🎮️ 根据语音指令控制 Minecraft AI 智能体（例如：`在游戏中跟大家说你好！`）
 - [x] 📓 基于最大记录条数的简单的运行时上下文记忆
-- [ ] Live2D 形象的控制（正在开发和测试阶段，将会使用另一个项目进行管理） 
+- [ ] Live2D 形象的控制（正在开发和测试阶段，将会使用另一个项目） 
 
 以下简要列出了本项目支持的内容：
 
 
-| 支持项      | 支持内容                                                     |
-|----------| ------------------------------------------------------------ |
-| 直播平台     | [Bilibili](https://www.bilibili.com) \| [Twitch](https://www.twitch.tv) |
-| 大语言模型    | [THUDM/GLM-4](https://github.com/THUDM/GLM-4) \| [THUDM/ChatGLM3](https://github.com/THUDM/ChatGLM3) \| [Qwen/Qwen-7B-Chat](https://huggingface.co/Qwen/Qwen-7B-Chat) \| [01ai/Yi-6B-Chat](https://www.modelscope.cn/models/01ai/Yi-6B-Chat) \| [augmxnt/shisa-7b-v1](https://huggingface.co/augmxnt/shisa-7b-v1) |
+| 支持项           | 支持内容                                                     |
+| ---------------- | ------------------------------------------------------------ |
+| 直播平台         | [Bilibili](https://www.bilibili.com) \| [Twitch](https://www.twitch.tv) |
+| 大语言模型       | [THUDM/GLM-4](https://github.com/THUDM/GLM-4) \| [THUDM/ChatGLM3](https://github.com/THUDM/ChatGLM3) \| [Qwen/Qwen-7B-Chat](https://huggingface.co/Qwen/Qwen-7B-Chat) \| [01ai/Yi-6B-Chat](https://www.modelscope.cn/models/01ai/Yi-6B-Chat) \| [augmxnt/shisa-7b-v1](https://huggingface.co/augmxnt/shisa-7b-v1) |
 | 自动语音识别模型 | [iic/speech_paraformer_asr](https://www.modelscope.cn/models/iic/speech_paraformer_asr_nat-zh-cn-16k-common-vocab8358-tensorflow1) |
-| 语音合成模型   | [RVC-Boss/GPT-SoVITS](https://github.com/RVC-Boss/GPT-SoVITS) |
-| 图像字幕模型   | [Salesforce/blip-image-captioning-large](https://huggingface.co/Salesforce/blip-image-captioning-large) |
+| 语音合成模型     | [RVC-Boss/GPT-SoVITS](https://github.com/RVC-Boss/GPT-SoVITS) |
+| 图像字幕模型     | [Salesforce/blip-image-captioning-large](https://huggingface.co/Salesforce/blip-image-captioning-large) |
 | 光学字符识别模型 | [paddlepaddle/PaddleOCR](https://gitee.com/paddlepaddle/PaddleOCR) |
-| 视频字幕模型   | [iic/multi-modal_hitea_video-captioning_base_en](https://www.modelscope.cn/models/iic/multi-modal_hitea_video-captioning_base_en) |
-| 外部可调用工具  | 火狐浏览器、百度百科、萌娘百科                               |
-| 游戏插件     | Minecraft                                                    |
+| 视频字幕模型     | [iic/multi-modal_hitea_video-captioning_base_en](https://www.modelscope.cn/models/iic/multi-modal_hitea_video-captioning_base_en) |
+| 视觉语言模型代理 | [showlab/ShowUI](https://github.com/showlab/ShowUI)          |
+| 外部可调用工具   | 火狐浏览器、百度百科、萌娘百科                               |
+| 游戏插件         | Minecraft                                                    |
 
 ## 安装并运行
 
@@ -183,26 +183,29 @@ Zerolan Live Robot 1.0 旧版本使用的是简单的按秒轮询，从各个服
 
 在本项目中，机器人是在一系列事件的发送和处理过程中运行的。换句话说，没有事件发生，机器人就不会有任何回应。
 
-每一个事件 `Event` 包含一个事件名，本质上是一个字符串。本项目中使用的所有事件名都定义在 `common.enumerator.EventEnum` 中，您也可以拓展添加自己的事件名。我们以处理用户输入语音这个事件为例，它的事件名为 `EventEnum.SERVICE_VAD_SPEECH_CHUNK`。
+每一个事件 `Event` 都继承自 `BaseEvent`，并含有一个 `type` 字段（字符串类型）用以标记这个事件的类型。本项目中使用的所有事件类型的都定义在 `common.enumerator.EventEnum` 中，您也可以拓展添加自己的事件名，并实现一个继承自 `BaseEvent` 的自定义事件 。
 
-`emitter` 是一个全局对象，用以处理事件发送和监听器的执行，`emitter` 始终拥有主线程，然而整个系统的运行过程中会有多个线程同时运行，因为每个线程可能都有属于自己的 EventEmitter 的实例。
+`emitter` 是一个全局对象，用以处理事件发送和监听器的执行，`emitter` 始终拥有主线程，然而整个系统的运行过程中会有多个协程任务被创建和销毁。
 
-使用装饰器 `@emitter.on(EventEnum.某个事件)` 可以快捷地注册某个监听器。监听器既可以是同步函数，也可以是异步函数。当我们需要发送事件时，可以使用异步方法 `emitter.emit(EventEnum.某个事件, *args, **kwargs)`。
+使用装饰器 `@emitter.on(EventEnum.某个事件)` 可以快捷地注册某个监听器。当监听器是异步函数时，会在触发事件时以协程任务的形式执行；当监听器是同步函数时，会在额外的线程中按注册的先后同步顺序执行（这不会阻塞主线程）。
+
+当我们需要发送事件时，可以使用 `emitter.emit(EventEnum.某个事件, event)`，其中 `event` 就是一个事件对象。
 
 例如，当系统检测到一段人声音频时，将会发送 `SERVICE_VAD_SPEECH_CHUNK` 事件，并调用所有注册这个事件的监听器，进行某种处理：
 
 ```python
 @emitter.on(EventEnum.SERVICE_VAD_SPEECH_CHUNK)
-async def on_service_vad_speech_chunk(speech: bytes, channels: int, sample_rate: int):
-    response = ... # 假设这里获得了语音识别的结果
-    await emitter.emit(EventEnum.PIPELINE_ASR, response) # 发送自动语音识别事件
+async def on_service_vad_speech_chunk(event: SpeechEvent):
+    speech, channels, sample_rate = event.speech, event.channels, event.sample_rate
+    prediction = ... # 假如调用了某个函数获得了 ASR 的结果
+    emitter.emit(EventEnum.PIPELINE_ASR, ASREvent(prediction=prediction)) # 发送自动语音识别事件
 ```
 
-这里的监听器即 `on_service_vad_speech_chunk`，本质上是一个函数，它会在 `SERVICE_VAD_SPEECH_CHUNK` 发生时被调用，并接受几个参数，这里的参数完全由事件发送方规定。
+这里的监听器即 `on_service_vad_speech_chunk`，本质上是一个函数，它会在 `SERVICE_VAD_SPEECH_CHUNK` 发生时被调用。
 
 ### Pipeline
 
-管线（Pipeline）是沟通 Zerolan Core 的重要实现。管线的使用非常简单，只需要传入一个配置对象，就可以得到一个可用的管线对象。然后调用管线对象中的 `predict` 或 `stream_predict` 方法即可使用 Zerolan Core 中的 AI 模型。
+管线（Pipeline）是沟通 Zerolan Core 的重要实现，它是基于 HTTP 开发的。管线的使用非常简单，只需要传入一个配置对象，就可以得到一个可用的管线对象。然后调用管线对象中的 `predict` 或 `stream_predict` 方法即可使用 Zerolan Core 中的 AI 模型。
 
 以大语言模型为例，指定目标服务器的地址（你的 Zerolan Core 开放端口的地址），传入 `LLMPipelineConfig` 对象到 `LLMPipeline`，即可建立管线。
 
@@ -212,11 +215,10 @@ llm = LLMPipeline(config)
 query = LLMQuery(text="你好，你叫什么名字？", history=[])
 prediction = llm.predict(query)
 print(prediction.response)
+# 这样就应该可以得到模型的回复
 ```
 
-这样就应该可以得到模型的回复。
-
-如果你想知道更多实现细节，可以查看 Zerolan Data 中的数据定义，可能也需要结合管线的实现和 Zerolan Core 中 `app.py` 文件中的内容进行理解。简单来说，它们都是基于 HTTP 的。
+如果你想知道更多实现细节，可以查看 Zerolan Data 中的数据定义，可能也需要结合管线的实现和 Zerolan Core 中 `app.py` 文件中的内容进行理解。
 
 ### Services
 
