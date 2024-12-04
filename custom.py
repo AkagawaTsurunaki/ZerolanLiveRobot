@@ -14,9 +14,9 @@ from common.thread import kill_all_threads
 from context import ZerolanLiveRobotContext
 from event.event_data import ASREvent, SpeechEvent, ScreenCapturedEvent, LLMEvent, OCREvent, ImgCapEvent, TTSEvent
 from event.eventemitter import emitter
+from event.speech_emitter import SpeechEmitter
 from pipeline.ocr import avg_confidence, stringify
 from services.device.screen import is_image_uniform
-from event.speech_emitter import SpeechEmitter
 
 
 class ZerolanLiveRobot(ZerolanLiveRobotContext):
@@ -28,10 +28,16 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
     @withsound(SystemSoundEnum.start)
     async def start(self):
         self.init()
-        async with asyncio.TaskGroup() as tg:
-            tg.create_task(emitter.start())
-            tg.create_task(self.vad.start())
-            tg.create_task(self.live_stream.start())
+        try:
+            async with asyncio.TaskGroup() as tg:
+                tg.create_task(emitter.start())
+                tg.create_task(self.vad.start())
+                tg.create_task(self.live_stream.start())
+        except ExceptionGroup as e:
+            self.speaker.play_system_sound(SystemSoundEnum.error, block=True)
+            logger.exception(e)
+            logger.error("Unhandled exception, crashed!")
+            await self._force_exit()
 
     def init(self):
         @emitter.on(EventEnum.SERVICE_VAD_SPEECH_CHUNK)
@@ -132,13 +138,6 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
         async def tts_handler(event: TTSEvent):
             prediction = event.prediction
             self.speaker.playsound(prediction.wave_data, block=True)
-
-        @emitter.on(EventEnum.SYSTEM_CRASHED)
-        @withsound(SystemSoundEnum.error, block=False)
-        def crash_handler(e: Exception):
-            logger.exception(e)
-            logger.error("Unhandled error, crashed.")
-            self._exit()
 
     async def emit_llm_prediction(self, text):
         query = LLMQuery(text=text, history=self.llm_prompt_manager.current_history)
