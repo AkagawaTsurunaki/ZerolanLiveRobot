@@ -80,3 +80,8 @@ def test_showui():
     assert prediction.actions
     for action in prediction.actions:
         print(action.model_dump_json())
+    history = [WebAction(action="INPUT", value="Hello", position=None),
+               WebAction(action="SELECT_TEXT", value=None, position=[0.2, 0.3])]
+    query = ShowUiQuery(img_path="resources/imgcap-test.png", query="Click the Ciallo", env="web", history=history)
+    prediction = showui.predict(query)
+    assert prediction.actions
