@@ -113,3 +113,7 @@ class WebSocketServer(TypedEventEmitter):
         if self._server_task is not None:
             self._server_task.cancel()
         logger.info("WebSocket server stopped.")
+
+    @property
+    def connections(self) -> int:
+        return len(self._connections)

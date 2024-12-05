@@ -43,6 +43,12 @@ class Live2dApplication(AbstractRunnable):
         await super().stop()
         await self._ws.stop()
 
+    @property
+    def is_connected(self):
+        if self._ws.connections > 0:
+            return True
+        return False
+
     def validate_protocol(self, data: any) -> ZerolanLive2DProtocol | None:
         try:
             recv_obj = ZerolanLive2DProtocol.model_validate(data)
@@ -69,3 +75,14 @@ class Live2dApplication(AbstractRunnable):
                     "ModelDirectory": self._model_dir
                 }
                 await self._ws.send_json(obj.model_dump())
+
+    async def playsound(self, filepath: str, text: str = ""):
+        obj = ZerolanLive2DProtocol()
+        obj.Event = "play_sound"
+
+        obj.Data = {
+            "SoundPath": filepath,
+            "Text": text
+        }
+        await self._ws.send_json(obj.model_dump())
+        logger.info("Sent play_sound event.")
