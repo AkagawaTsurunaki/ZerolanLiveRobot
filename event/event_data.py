@@ -39,6 +39,7 @@ class OCREvent(BaseEvent):
 @dataclass
 class TTSEvent(BaseEvent):
     prediction: TTSPrediction
+    transcript: str
     type: EventEnum = EventEnum.PIPELINE_TTS
 
 

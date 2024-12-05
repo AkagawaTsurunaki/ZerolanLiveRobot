@@ -1,4 +1,5 @@
 import asyncio
+import re
 
 import pyautogui
 from loguru import logger
@@ -13,6 +14,7 @@ from common.abs_runnable import stop_all_runnable
 from common.decorator import withsound
 from common.enumerator import EventEnum, Language, SystemSoundEnum
 from common.thread import kill_all_threads
+from common.utils.audio_util import save_tmp_audio
 from context import ZerolanLiveRobotContext
 from event.event_data import ASREvent, SpeechEvent, ScreenCapturedEvent, LLMEvent, OCREvent, ImgCapEvent, TTSEvent
 from event.eventemitter import emitter
@@ -59,8 +61,7 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
             logger.debug("ASREvent received.")
             prediction = event.prediction
             if "关机" in prediction.transcript:
-                # await self._exit()
-                ...
+                await self._exit()
             elif "打开浏览器" in prediction.transcript:
                 if self.browser is not None:
                     self.browser.open("https://www.bing.com")
@@ -120,8 +121,7 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
         @emitter.on(EventEnum.PIPELINE_OCR)
         async def on_pipeline_ocr(event: OCREvent):
             prediction = event.prediction
-            region_result = self.location_attention_agent.find_focus(prediction.region_results)
-            text = "你看见了" + stringify(prediction.region_results) + "\n其中你最感兴趣的是\n" + region_result.content
+            text = "你看见了" + stringify(prediction.region_results) + "\n请总结一下"
             await self.emit_llm_prediction(text)
 
         @emitter.on(EventEnum.PIPELINE_IMG_CAP)
@@ -133,18 +133,24 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
         @emitter.on(EventEnum.PIPELINE_LLM)
         async def llm_query_handler(event: LLMEvent):
             prediction = event.prediction
-            logger.info("LLM: " + prediction.response)
-            tts_prompt = self.sentiment_analyzer_agent.sentiment_tts_prompt(prediction.response)
+            text = prediction.response
+            logger.info("LLM: " + text)
+            tts_prompt = self.sentiment_analyzer_agent.sentiment_tts_prompt(text)
+            cut_punc = "，。！？"
             query = TTSQuery(
-                text=prediction.response,
+                text=text,
                 text_language="zh",
                 refer_wav_path=tts_prompt.audio_path,
                 prompt_text=tts_prompt.prompt_text,
                 prompt_language=tts_prompt.lang,
-                cut_punc="，。！",
+                cut_punc=cut_punc,
             )
+            split_text = re.split(f"[{cut_punc}]", text)
+            logger.debug(split_text)
+            i = 0
             for prediction in self.tts.stream_predict(query):
-                emitter.emit(TTSEvent(prediction=prediction))
+                emitter.emit(TTSEvent(prediction=prediction, transcript=split_text[i]))
+                i += 1
 
         @emitter.on(EventEnum.PIPELINE_LLM)
         async def history_handler(event: LLMEvent):
@@ -154,7 +160,12 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
         @emitter.on(EventEnum.PIPELINE_TTS)
         async def tts_handler(event: TTSEvent):
             prediction = event.prediction
-            self.speaker.playsound(prediction.wave_data, block=True)
+            logger.debug(f"Clip transcript: {event.transcript}")
+            if self.live2d.is_connected:
+                audio_path = save_tmp_audio(prediction.wave_data)
+                await self.live2d.playsound(audio_path, event.transcript)
+            else:
+                self.speaker.playsound(prediction.wave_data, block=True)
 
     async def emit_llm_prediction(self, text):
         query = LLMQuery(text=text, history=self.llm_prompt_manager.current_history)
