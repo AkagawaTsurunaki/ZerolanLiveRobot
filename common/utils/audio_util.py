@@ -1,5 +1,7 @@
 import io
 
+from common.utils.file_util import create_temp_file
+
 
 def from_ndarray_to_bytes(speech_chunk, sample_rate):
     from scipy.io import wavfile as wavfile
@@ -31,3 +33,11 @@ def check_audio_format(audio_bytes) -> str:
         return 'ogg'
     else:
         raise NotImplementedError()
+
+
+def save_tmp_audio(wave_data: bytes):
+    format = check_audio_format(wave_data)
+    wav_path = create_temp_file(prefix="tts", suffix=f".{format}", tmpdir="audio")
+    with open(wav_path, "wb") as f:
+        f.write(wave_data)
+    return wav_path
