@@ -1,5 +1,4 @@
 import asyncio
-import re
 
 import pyautogui
 from loguru import logger
@@ -36,6 +35,7 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
             async with asyncio.TaskGroup() as tg:
                 tg.create_task(emitter.start())
                 tg.create_task(self.vad.start())
+                tg.create_task(self.speaker.start())
                 if self.live_stream is not None:
                     tg.create_task(self.live_stream.start())
                 if self.live2d is not None:
@@ -145,27 +145,21 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
                 prompt_language=tts_prompt.lang,
                 cut_punc=cut_punc,
             )
-            split_text = re.split(f"[{cut_punc}]", text)
-            logger.debug(split_text)
-            i = 0
             for prediction in self.tts.stream_predict(query):
-                emitter.emit(TTSEvent(prediction=prediction, transcript=split_text[i]))
-                i += 1
+                await self.emit_tts_handler(TTSEvent(prediction=prediction, transcript=text))
 
         @emitter.on(EventEnum.PIPELINE_LLM)
         async def history_handler(event: LLMEvent):
             prediction = event.prediction
             self.llm_prompt_manager.reset_history(prediction.history)
 
-        @emitter.on(EventEnum.PIPELINE_TTS)
-        async def tts_handler(event: TTSEvent):
-            prediction = event.prediction
-            logger.debug(f"Clip transcript: {event.transcript}")
-            if self.live2d.is_connected:
-                audio_path = save_tmp_audio(prediction.wave_data)
-                await self.live2d.playsound(audio_path, event.transcript)
-            else:
-                self.speaker.playsound(prediction.wave_data, block=True)
+    async def emit_tts_handler(self, event: TTSEvent):
+        prediction = event.prediction
+        if self.live2d.is_connected:
+            audio_path = save_tmp_audio(prediction.wave_data)
+            await self.live2d.playsound(audio_path, event.transcript)
+        else:
+            self.speaker.enqueue_sound(prediction.wave_data)
 
     async def emit_llm_prediction(self, text):
         query = LLMQuery(text=text, history=self.llm_prompt_manager.current_history)
