@@ -202,6 +202,12 @@ class ZerolanLiveRobotConfig:
     external_tool: ExternalToolConfig
 
 
+@dataclass_json
+@dataclass
+class MilvusDatabaseConfig:
+    server_url: str = "http://127.0.0.1:11010"
+
+
 def get_config() -> ZerolanLiveRobotConfig:
     try:
         cfg_dict = read_yaml(spath("resources/config.yaml"))
