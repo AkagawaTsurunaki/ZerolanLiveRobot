@@ -1,5 +1,8 @@
+from typing import List
+
 from langchain_core.messages import AIMessage
 from langchain_core.prompts import ChatPromptTemplate
+from zerolan.data.pipeline.llm import Conversation
 
 from agent.adaptor import LangChainAdaptedLLM
 from common.config import LLMPipelineConfig
@@ -27,6 +30,20 @@ class TextSummaryAgent:
         )
 
         result = prompt_template.invoke({"text": text, "max_len": max_len})
+        result.to_messages()
+        response = self._model.invoke(result)
+
+        return response
+
+    def summary_history(self, history: List[Conversation]) -> AIMessage:
+        system_template = "将这段用户与你的对话总结成一段话，需要包含重要细节。"
+        text = ""
+        for conversation in history:
+            text += f"[{conversation.role}]\n{conversation.content}"
+        prompt_template = ChatPromptTemplate.from_messages(
+            [("system", system_template), ("user", "{text}")]
+        )
+        result = prompt_template.invoke({"text": text})
         result.to_messages()
         response = self._model.invoke(result)
 
