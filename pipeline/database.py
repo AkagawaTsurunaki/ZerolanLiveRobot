@@ -38,5 +38,5 @@ class MilvusPipeline:
     def insert(self, insert: MilvusInsert) -> MilvusInsertResult:
         return _post(url=self._insert_url, obj=insert, return_type=MilvusInsertResult)
 
-    def search(self, query: MilvusQuery):
+    def search(self, query: MilvusQuery) -> MilvusQueryResult:
         return _post(url=self._search_url, obj=query, return_type=MilvusQueryResult)
