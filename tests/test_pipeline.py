@@ -15,14 +15,14 @@ from pipeline.tts import TTSPipeline
 from pipeline.vla import ShowUIPipeline
 from services.device.microphone import Microphone
 
-config = get_config()
+_config = get_config()
 
-llm = LLMPipeline(config.pipeline.llm)
-tts = TTSPipeline(config.pipeline.tts)
-asr = ASRPipeline(config.pipeline.asr)
-imgcap = ImgCapPipeline(config.pipeline.img_cap)
-ocr = OCRPipeline(config.pipeline.ocr)
-showui = ShowUIPipeline(config.pipeline.vla.showui)
+llm = LLMPipeline(_config.pipeline.llm)
+tts = TTSPipeline(_config.pipeline.tts)
+asr = ASRPipeline(_config.pipeline.asr)
+imgcap = ImgCapPipeline(_config.pipeline.img_cap)
+ocr = OCRPipeline(_config.pipeline.ocr)
+showui = ShowUIPipeline(_config.pipeline.vla.showui)
 
 
 def test_llm():
