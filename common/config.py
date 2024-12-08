@@ -68,6 +68,12 @@ class VLAPipelineConfig:
 
 @dataclass_json
 @dataclass
+class MilvusDatabaseConfig:
+    server_url: str = "http://127.0.0.1:11010"
+
+
+@dataclass_json
+@dataclass
 class ControllerConfig:
     host: str = "127.0.0.1"
     port: int = 11000
@@ -169,6 +175,13 @@ class CharacterConfig:
 
 @dataclass_json
 @dataclass
+class VectorDBConfig:
+    enable: bool = True
+    milvus: MilvusDatabaseConfig | None = None
+
+
+@dataclass_json
+@dataclass
 class PipelineConfig:
     asr: ASRPipelineConfig
     llm: LLMPipelineConfig
@@ -177,6 +190,7 @@ class PipelineConfig:
     vid_cap: VidCapPipelineConfig
     tts: TTSPipelineConfig
     vla: VLAPipelineConfig
+    vec_db: VectorDBConfig
 
 
 @dataclass_json
@@ -200,12 +214,6 @@ class ZerolanLiveRobotConfig:
     service: ServiceConfig
     character: CharacterConfig
     external_tool: ExternalToolConfig
-
-
-@dataclass_json
-@dataclass
-class MilvusDatabaseConfig:
-    server_url: str = "http://127.0.0.1:11010"
 
 
 def get_config() -> ZerolanLiveRobotConfig:

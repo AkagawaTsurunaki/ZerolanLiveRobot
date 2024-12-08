@@ -31,6 +31,10 @@ pipeline:
     showui:
       server_url: "http://127.0.0.1:11009"
 
+  vec_db:
+    enable: true
+    milvus:
+      server_url: "http://127.0.0.1:10010"
 
 service:
   controller:
