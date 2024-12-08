@@ -5,7 +5,7 @@ from loguru import logger
 from zerolan.data.pipeline.asr import ASRStreamQuery
 from zerolan.data.pipeline.img_cap import ImgCapQuery
 from zerolan.data.pipeline.llm import LLMQuery
-from zerolan.data.pipeline.milvus import MilvusInsert, InsertRow
+from zerolan.data.pipeline.milvus import MilvusInsert, InsertRow, MilvusQuery
 from zerolan.data.pipeline.ocr import OCRQuery
 from zerolan.data.pipeline.tts import TTSQuery
 from zerolan.data.pipeline.vla import ShowUiQuery
@@ -99,6 +99,15 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
                     pyautogui.click()
             elif "切换语言" in prediction.transcript:
                 self.cur_lang = Language.JA
+            elif "记得" in prediction.transcript:
+                query = MilvusQuery(collection_name="history_collection", limit=2, output_fields=['history', 'text'],
+                                    query=prediction.transcript)
+                result = self.vec_db.search(query)
+                memory = result.result[0][0]
+                memory = memory.entity["text"]
+                logger.debug(f"Memory found: {memory}")
+                await self.emit_llm_prediction(f"{memory}\n\n请根据上文回答：{prediction.transcript} \n")
+
             else:
                 await self.emit_llm_prediction(prediction.transcript)
 
