@@ -5,6 +5,7 @@ from loguru import logger
 from zerolan.data.pipeline.asr import ASRStreamQuery
 from zerolan.data.pipeline.img_cap import ImgCapQuery
 from zerolan.data.pipeline.llm import LLMQuery
+from zerolan.data.pipeline.milvus import MilvusInsert, InsertRow
 from zerolan.data.pipeline.ocr import OCRQuery
 from zerolan.data.pipeline.tts import TTSQuery
 from zerolan.data.pipeline.vla import ShowUiQuery
@@ -151,7 +152,8 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
         @emitter.on(EventEnum.PIPELINE_LLM)
         async def history_handler(event: LLMEvent):
             prediction = event.prediction
-            self.llm_prompt_manager.reset_history(prediction.history)
+            logger.info(f"Length of current history: {len(self.llm_prompt_manager.current_history)}")
+            self.llm_prompt_manager.reset_history(prediction.history, self.save_memory)
 
     async def emit_tts_handler(self, event: TTSEvent):
         prediction = event.prediction
@@ -169,10 +171,6 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
         is_filtered = self.filter.filter(prediction.response)
         if is_filtered:
             return
-
-        self.llm_prompt_manager.reset_history(prediction.history)
-        logger.info(f"Length of current history: {len(self.llm_prompt_manager.current_history)}")
-
         emitter.emit(LLMEvent(prediction=prediction))
 
     async def _exit(self):
@@ -194,6 +192,18 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
     @withsound(SystemSoundEnum.exit, block=False)
     def exit(self):
         logger.info("Good bye!")
+
+    def save_memory(self):
+        start = len(self.llm_prompt_manager.injected_history)
+        history = self.llm_prompt_manager.current_history[start:]
+        ai_msg = self.text_summary_agent.summary_history(history)
+        row = InsertRow(id=1, text=ai_msg.content, subject="history")
+        insert = MilvusInsert(collection_name="history_collection", texts=[row])
+        insert_res = self.vec_db.insert(insert)
+        if insert_res.insert_count == 1:
+            logger.info(f"Add a history memory: {row.text}")
+        else:
+            logger.warning(f"Failed to add a history memory.")
 
 
 async def main():

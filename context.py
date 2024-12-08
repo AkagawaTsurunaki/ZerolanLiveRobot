@@ -1,5 +1,6 @@
 from agent.location_attn import LocationAttentionAgent
 from agent.sentiment import SentimentAnalyzerAgent
+from agent.summary import TextSummaryAgent
 from agent.tool_agent import ToolAgent
 from agent.translator import TranslatorAgent
 from common.config import get_config
@@ -7,6 +8,7 @@ from manager.llm_prompt_manager import LLMPromptManager
 from manager.temp_data_manager import TempDataManager
 from manager.tts_prompt_manager import TTSPromptManager
 from pipeline.asr import ASRPipeline
+from pipeline.database import MilvusPipeline
 from pipeline.img_cap import ImgCapPipeline
 from pipeline.llm import LLMPipeline
 from pipeline.ocr import OCRPipeline
@@ -40,6 +42,7 @@ class ZerolanLiveRobotContext:
         self.img_cap: ImgCapPipeline | None = None
         self.vid_cap: VidCapPipeline | None = None
         self.showui: ShowUIPipeline | None = None
+        self.vec_db: MilvusPipeline | None = None
 
         self.filter: FirstMatchedFilter | None = None
         self.llm_prompt_manager: LLMPromptManager = None
@@ -87,10 +90,13 @@ class ZerolanLiveRobotContext:
             self.live_stream = LiveStreamService(config.service.live_stream)
         if config.service.live2d.enable:
             self.live2d = Live2dApplication(config.service.live2d)
+        if config.pipeline.vec_db.enable:
+            self.vec_db = MilvusPipeline(config.pipeline.vec_db.milvus)
 
         # Agents
         self.tool_agent = ToolAgent(config.pipeline.llm)
         self.translator_agent = TranslatorAgent(config.pipeline.llm)
         self.location_attention_agent = LocationAttentionAgent(config.pipeline.llm)
+        self.text_summary_agent = TextSummaryAgent(config.pipeline.llm)
         if self.tts_prompt_manager is not None:
             self.sentiment_analyzer_agent = SentimentAnalyzerAgent(self.tts_prompt_manager, config.pipeline.llm)
