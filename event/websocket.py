@@ -1,14 +1,19 @@
 import asyncio
 import json
+from abc import abstractmethod
 from asyncio import Task, TaskGroup
 from typing import List
 
 import websockets
 from loguru import logger
+from pydantic import ValidationError
 from websockets import serve, ConnectionClosedError
 from websockets.asyncio.server import ServerConnection
 from websockets.protocol import State
+from zerolan.data.protocol.protocol import ZerolanProtocol
 
+from common.abs_runnable import AbstractRunnable
+from common.enumerator import EventEnum
 from event.event_data import WebSocketJsonReceivedEvent
 from event.eventemitter import TypedEventEmitter
 
@@ -117,3 +122,50 @@ class WebSocketServer(TypedEventEmitter):
     @property
     def connections(self) -> int:
         return len(self._connections)
+
+
+class ZerolanProtocolWebsocket(AbstractRunnable):
+
+    async def start(self):
+        await super().start()
+        async with TaskGroup() as tg:
+            self.init()
+            tg.create_task(self._ws.start())
+
+    async def stop(self):
+        await super().stop()
+        await self._ws.stop()
+
+    def __init__(self, host: str, port: int, protocol: str, version: str):
+        super().__init__()
+        self._ws = WebSocketServer(host, port)
+        self._protocol = protocol
+        self._version = version
+
+    @property
+    def is_connected(self):
+        if self._ws.connections > 0:
+            return True
+        return False
+
+    def validate_protocol(self, data: any) -> ZerolanProtocol | None:
+        try:
+            recv_obj = ZerolanProtocol.model_validate(data)
+            if recv_obj.protocol == self._protocol and recv_obj.version == self._version:
+                return recv_obj
+        except ValidationError as e:
+            logger.warning(e)
+            pass
+        return None
+
+    def init(self):
+        @self._ws.on(EventEnum.WEBSOCKET_RECV_JSON)
+        async def on(event: WebSocketJsonReceivedEvent):
+            protocol = self.validate_protocol(event.data)
+            if protocol is None:
+                return
+            self.on_protocol(protocol)
+
+    @abstractmethod
+    def on_protocol(self, protocol: ZerolanProtocol):
+        pass
