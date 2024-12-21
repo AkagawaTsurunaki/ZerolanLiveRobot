@@ -153,6 +153,8 @@ class ZerolanProtocolWebsocket(AbstractRunnable):
             recv_obj = ZerolanProtocol.model_validate(data)
             if recv_obj.protocol == self._protocol and recv_obj.version == self._version:
                 return recv_obj
+            else:
+                logger.warning("Validation failed.")
         except ValidationError as e:
             logger.warning(e)
             pass
@@ -164,8 +166,8 @@ class ZerolanProtocolWebsocket(AbstractRunnable):
             protocol = self.validate_protocol(event.data)
             if protocol is None:
                 return
-            self.on_protocol(protocol)
+            await self.on_protocol(protocol)
 
     @abstractmethod
-    def on_protocol(self, protocol: ZerolanProtocol):
-        pass
+    async def on_protocol(self, protocol: ZerolanProtocol):
+        raise NotImplementedError()
