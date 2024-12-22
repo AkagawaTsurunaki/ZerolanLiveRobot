@@ -22,6 +22,7 @@ from services.filter.strategy import FirstMatchedFilter
 from services.game.minecraft.app import KonekoMinecraftAIAgent
 from services.live2d.app import Live2dApplication
 from services.live_stream.service import LiveStreamService
+from services.viewer.app import ZerolanViewerServer
 
 config = get_config()
 
@@ -54,6 +55,8 @@ class ZerolanLiveRobotContext:
         self.browser: Browser | None = None
         self.speaker: Speaker = None
         self.live2d: Live2dApplication | None = None
+        self.viewer: ZerolanViewerServer | None = None
+
         self.temp_data_manager: TempDataManager = TempDataManager()
         self._init()
 
@@ -92,6 +95,8 @@ class ZerolanLiveRobotContext:
             self.live2d = Live2dApplication(config.service.live2d)
         if config.pipeline.vec_db.enable:
             self.vec_db = MilvusPipeline(config.pipeline.vec_db.milvus)
+        # TODO: TEST
+        self.viewer = ZerolanViewerServer(host="0.0.0.0", port=11013, protocol="ZerolanViewerProtocol", version="1.0")
 
         # Agents
         self.tool_agent = ToolAgent(config.pipeline.llm)

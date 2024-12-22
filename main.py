@@ -41,6 +41,8 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
                     tg.create_task(self.live_stream.start())
                 if self.live2d is not None:
                     tg.create_task(self.live2d.start())
+                if self.viewer is not None:
+                    tg.create_task(self.viewer.start())
         except ExceptionGroup as e:
             self.speaker.play_system_sound(SystemSoundEnum.error, block=False)
             logger.exception(e)
@@ -147,16 +149,45 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
             logger.info("LLM: " + text)
             tts_prompt = self.sentiment_analyzer_agent.sentiment_tts_prompt(text)
             cut_punc = "，。！？"
-            query = TTSQuery(
-                text=text,
-                text_language="zh",
-                refer_wav_path=tts_prompt.audio_path,
-                prompt_text=tts_prompt.prompt_text,
-                prompt_language=tts_prompt.lang,
-                cut_punc=cut_punc,
-            )
-            for prediction in self.tts.stream_predict(query):
-                await self.emit_tts_handler(TTSEvent(prediction=prediction, transcript=text))
+            # query = TTSQuery(
+            #     text=text,
+            #     text_language="zh",
+            #     refer_wav_path=tts_prompt.audio_path,
+            #     prompt_text=tts_prompt.prompt_text,
+            #     prompt_language=tts_prompt.lang,
+            #     cut_punc=cut_punc,
+            # )
+
+            def punc_cut(text: str, punc: str):
+                texts = []
+                last = -1
+                for i in range(len(text)):
+                    if text[i] in punc:
+                        try:
+                            texts.append(text[last + 1: i])
+                        except IndexError:
+                            continue
+                        last = i
+                return texts
+
+            transcripts = punc_cut(text, cut_punc)
+            for transcript in transcripts:
+                query = TTSQuery(
+                        text=transcript,
+                        text_language="zh",
+                        refer_wav_path=tts_prompt.audio_path,
+                        prompt_text=tts_prompt.prompt_text,
+                        prompt_language=tts_prompt.lang,
+                    )
+                prediction = self.tts.predict(query=query)
+                await self.emit_tts_handler(TTSEvent(prediction=prediction, transcript=transcript))
+
+
+            # i = 0
+            #
+            # for prediction in self.tts.stream_predict(query):
+            #     await self.emit_tts_handler(TTSEvent(prediction=prediction, transcript=text))
+            #     i += 1
 
         @emitter.on(EventEnum.PIPELINE_LLM)
         async def history_handler(event: LLMEvent):
@@ -169,6 +200,10 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
         if self.live2d.is_connected:
             audio_path = save_tmp_audio(prediction.wave_data)
             await self.live2d.playsound(audio_path, event.transcript)
+        elif self.viewer.is_connected:
+            bot_id = "UnityChan"
+            audio_path = save_tmp_audio(prediction.wave_data)
+            await self.viewer.play_speech(bot_id, audio_path, event.transcript)
         else:
             self.speaker.enqueue_sound(prediction.wave_data)
 
