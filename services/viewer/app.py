@@ -3,7 +3,7 @@ import asyncio
 from loguru import logger
 from zerolan.data.protocol.protocol import ZerolanProtocol
 
-from common.data import PlaySpeechDTO
+from common.data import PlaySpeechDTO, FileInfo
 from common.utils.audio_util import check_audio_format, check_audio_info
 from common.utils.file_util import path_to_uri
 from event.websocket import ZerolanProtocolWebsocket
@@ -37,6 +37,12 @@ class ZerolanViewerServer(ZerolanProtocolWebsocket):
                              action="play_speech", data=ana)
         await self._ws.send_json(zp.model_dump())
         logger.debug("Sent")
+
+    async def load_model(self, file_info: FileInfo):
+        zp = ZerolanProtocol(protocol="ZerolanViewerProtocol", version="1.0",
+                             message="Load model from the specific file", code=0,
+                             action="load_model", data=file_info)
+        await self._ws.send_json(zp.model_dump())
 
 
 async def run():

@@ -10,6 +10,7 @@ from zerolan.data.pipeline.ocr import OCRQuery
 from zerolan.data.pipeline.tts import TTSQuery
 from zerolan.data.pipeline.vla import ShowUiQuery
 
+from agent.file_finder import find_file
 from common.abs_runnable import stop_all_runnable
 from common.decorator import withsound
 from common.enumerator import EventEnum, Language, SystemSoundEnum
@@ -43,6 +44,8 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
                     tg.create_task(self.live2d.start())
                 if self.viewer is not None:
                     tg.create_task(self.viewer.start())
+                if self.model_manager is not None:
+                    tg.create_task(self.model_manager.scan())
         except ExceptionGroup as e:
             self.speaker.play_system_sound(SystemSoundEnum.error, block=False)
             logger.exception(e)
@@ -109,7 +112,10 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
                 memory = memory.entity["text"]
                 logger.debug(f"Memory found: {memory}")
                 await self.emit_llm_prediction(f"{memory}\n\n请根据上文回答：{prediction.transcript} \n")
-
+            elif "加载模型" in prediction.transcript:
+                file_id = find_file(self.model_manager.get_files(), prediction.transcript)
+                file_info = self.model_manager.get_file_by_id(file_id)
+                await self.viewer.load_model(file_info)
             else:
                 await self.emit_llm_prediction(prediction.transcript)
 
@@ -149,6 +155,7 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
             logger.info("LLM: " + text)
             tts_prompt = self.sentiment_analyzer_agent.sentiment_tts_prompt(text)
             cut_punc = "，。！？"
+
             # query = TTSQuery(
             #     text=text,
             #     text_language="zh",
@@ -173,15 +180,14 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
             transcripts = punc_cut(text, cut_punc)
             for transcript in transcripts:
                 query = TTSQuery(
-                        text=transcript,
-                        text_language="zh",
-                        refer_wav_path=tts_prompt.audio_path,
-                        prompt_text=tts_prompt.prompt_text,
-                        prompt_language=tts_prompt.lang,
-                    )
+                    text=transcript,
+                    text_language="zh",
+                    refer_wav_path=tts_prompt.audio_path,
+                    prompt_text=tts_prompt.prompt_text,
+                    prompt_language=tts_prompt.lang,
+                )
                 prediction = self.tts.predict(query=query)
                 await self.emit_tts_handler(TTSEvent(prediction=prediction, transcript=transcript))
-
 
             # i = 0
             #

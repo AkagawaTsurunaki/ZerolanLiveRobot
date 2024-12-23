@@ -5,6 +5,7 @@ from agent.tool_agent import ToolAgent
 from agent.translator import TranslatorAgent
 from common.config import get_config
 from manager.llm_prompt_manager import LLMPromptManager
+from manager.model_manager import ModelManager
 from manager.temp_data_manager import TempDataManager
 from manager.tts_prompt_manager import TTSPromptManager
 from pipeline.asr import ASRPipeline
@@ -97,6 +98,7 @@ class ZerolanLiveRobotContext:
             self.vec_db = MilvusPipeline(config.pipeline.vec_db.milvus)
         # TODO: TEST
         self.viewer = ZerolanViewerServer(host="0.0.0.0", port=11013, protocol="ZerolanViewerProtocol", version="1.0")
+        self.model_manager = ModelManager()
 
         # Agents
         self.tool_agent = ToolAgent(config.pipeline.llm)
