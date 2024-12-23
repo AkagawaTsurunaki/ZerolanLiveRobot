@@ -2,21 +2,11 @@ import asyncio
 import os.path
 
 from loguru import logger
-from pydantic import BaseModel
 from zerolan.data.protocol.protocol import ZerolanProtocol
 
+from common.data import PlaySpeechDTO
 from common.utils.audio_util import check_audio_format, check_audio_info
 from event.websocket import ZerolanProtocolWebsocket
-
-
-class PlaySpeechDTO(BaseModel):
-    bot_id: str
-    audio_uri: str
-    transcript: str
-    audio_type: str
-    sample_rate: int
-    channels: int
-    duration: float
 
 
 def path_to_uri(path):
