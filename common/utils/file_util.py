@@ -1,9 +1,16 @@
+import hashlib
 import os
+import os.path
 import uuid
+from pathlib import Path
 from time import time
 from typing import Literal
+from uuid import uuid4
 
+import aiofiles
 import yaml
+
+from common.data import FileInfo
 
 project_dir = os.getcwd()
 temp_data_dir = os.path.join(project_dir, ".temp/")
@@ -72,3 +79,26 @@ def try_create_dir(dir_path: str):
     if not os.path.exists(dir_path):
         os.mkdir(dir_path)
     assert os.path.isdir(dir_path)
+
+
+async def encrypt(fpath: str, algorithm: str = "sha256") -> str:
+    async with aiofiles.open(fpath, 'rb') as f:
+        return hashlib.new(algorithm, await f.read()).hexdigest()
+
+
+async def get_file_info(path: str) -> FileInfo:
+    assert os.path.exists(path)
+    file_extension = Path(path).suffix
+    file_name = Path(path).name
+    # file_name = file_name[:len(file_name) - len(file_extension)]
+    if file_extension is not None and len(file_extension) > 1:
+        file_extension = file_extension[1:]
+    file_size = os.path.getsize(path)
+    return FileInfo(
+        file_id=f"{uuid4()}",
+        file_type=file_extension,
+        origin_file_name=file_name,
+        file_name=file_name,
+        file_size=file_size,
+        sha256=await encrypt(path)
+    )
