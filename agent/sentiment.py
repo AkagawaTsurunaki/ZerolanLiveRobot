@@ -17,7 +17,7 @@ class SentimentAnalyzerAgent:
     def sentiment_analyse(self, text: str) -> str:
 
         if len(self._manager.tts_prompts) == 1:
-            return self._manager.default_tts_prompt
+            return self._manager.default_tts_prompt.sentiment
 
         system_template = "你的任务：你现在是一个情感分析助手，你将要对所给的文句进行情感分析，你必须从以下情感标签中挑选一个作为答案 {sentiments}。\n输出格式：必须仅返回情感标签内容，不要输出多余内容。"
 
