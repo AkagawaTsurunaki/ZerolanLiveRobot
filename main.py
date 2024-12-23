@@ -14,7 +14,7 @@ from agent.file_finder import find_file
 from common.abs_runnable import stop_all_runnable
 from common.decorator import withsound
 from common.enumerator import EventEnum, Language, SystemSoundEnum
-from common.killable_thread import kill_all_threads
+from common.killable_thread import kill_all_threads, KillableThread
 from common.utils.audio_util import save_tmp_audio
 from context import ZerolanLiveRobotContext
 from event.event_data import ASREvent, SpeechEvent, ScreenCapturedEvent, LLMEvent, OCREvent, ImgCapEvent, TTSEvent
@@ -33,10 +33,15 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
     @withsound(SystemSoundEnum.start)
     async def start(self):
         self.init()
+
+        def run_vad():
+            asyncio.run(self.vad.start())
+
+        vad_thread = KillableThread(target=run_vad, daemon=True)
+        vad_thread.start()
         try:
             async with asyncio.TaskGroup() as tg:
                 tg.create_task(emitter.start())
-                tg.create_task(self.vad.start())
                 tg.create_task(self.speaker.start())
                 if self.live_stream is not None:
                     tg.create_task(self.live_stream.start())
@@ -46,11 +51,13 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
                     tg.create_task(self.viewer.start())
                 if self.model_manager is not None:
                     tg.create_task(self.model_manager.scan())
+
         except ExceptionGroup as e:
             self.speaker.play_system_sound(SystemSoundEnum.error, block=False)
             logger.exception(e)
             logger.error("Unhandled exception, crashed!")
             await self._force_exit()
+        vad_thread.join()
 
     def init(self):
         @emitter.on(EventEnum.SERVICE_VAD_SPEECH_CHUNK)
