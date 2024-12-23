@@ -96,9 +96,17 @@ async def get_file_info(path: str) -> FileInfo:
     file_size = os.path.getsize(path)
     return FileInfo(
         file_id=f"{uuid4()}",
+        uri=path_to_uri(path),
         file_type=file_extension,
         origin_file_name=file_name,
         file_name=file_name,
         file_size=file_size,
         sha256=await encrypt(path)
     )
+
+
+def path_to_uri(path):
+    path = os.path.abspath(path)
+    path = path.replace('\\', '/')
+    uri = f'file:///{path}'
+    return uri

@@ -1,19 +1,12 @@
 import asyncio
-import os.path
 
 from loguru import logger
 from zerolan.data.protocol.protocol import ZerolanProtocol
 
 from common.data import PlaySpeechDTO
 from common.utils.audio_util import check_audio_format, check_audio_info
+from common.utils.file_util import path_to_uri
 from event.websocket import ZerolanProtocolWebsocket
-
-
-def path_to_uri(path):
-    path = os.path.abspath(path)
-    path = path.replace('\\', '/')
-    uri = f'file:///{path}'
-    return uri
 
 
 class ZerolanViewerServer(ZerolanProtocolWebsocket):

@@ -23,6 +23,7 @@ class FileType(str, Enum):
 
 class FileInfo(BaseModel):
     file_id: str
+    uri: str
     file_type: FileType
     origin_file_name: str
     file_name: str
