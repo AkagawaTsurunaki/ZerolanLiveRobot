@@ -6,7 +6,7 @@ import pygame
 
 from common.abs_runnable import AbstractRunnable
 from common.enumerator import SystemSoundEnum
-from common.thread import KillableThread
+from common.killable_thread import KillableThread
 from common.utils.audio_util import save_tmp_audio
 from common.utils.file_util import spath
 

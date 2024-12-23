@@ -13,7 +13,7 @@ from zerolan.data.pipeline.vla import ShowUiQuery
 from common.abs_runnable import stop_all_runnable
 from common.decorator import withsound
 from common.enumerator import EventEnum, Language, SystemSoundEnum
-from common.thread import kill_all_threads
+from common.killable_thread import kill_all_threads
 from common.utils.audio_util import save_tmp_audio
 from context import ZerolanLiveRobotContext
 from event.event_data import ASREvent, SpeechEvent, ScreenCapturedEvent, LLMEvent, OCREvent, ImgCapEvent, TTSEvent
