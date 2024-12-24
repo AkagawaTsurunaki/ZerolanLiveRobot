@@ -11,6 +11,7 @@ from zerolan.data.pipeline.tts import TTSQuery
 from zerolan.data.pipeline.vla import ShowUiQuery
 
 from agent.file_finder import find_file
+from agent.model_modifier import model_scale
 from common.abs_runnable import stop_all_runnable
 from common.decorator import withsound
 from common.enumerator import EventEnum, Language, SystemSoundEnum
@@ -123,6 +124,13 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
                 file_id = find_file(self.model_manager.get_files(), prediction.transcript)
                 file_info = self.model_manager.get_file_by_id(file_id)
                 await self.viewer.load_model(file_info)
+            elif "调整模型" in prediction.transcript:
+                info = self.viewer.get_gameobjects_info()
+                if not info:
+                    logger.warning("No gameobjects info")
+                    return
+                so = model_scale(info, prediction.transcript)
+                await self.viewer.modify_game_object_scale(so)
             else:
                 await self.emit_llm_prediction(prediction.transcript)
 
