@@ -4,7 +4,7 @@ from typing import List
 from loguru import logger
 from zerolan.data.protocol.protocol import ZerolanProtocol
 
-from common.data import PlaySpeechDTO, FileInfo, ScaleOperation, GameObjectInfo
+from common.data import PlaySpeechDTO, FileInfo, ScaleOperation, GameObjectInfo, ViewerAction
 from common.utils.audio_util import check_audio_format, check_audio_info
 from common.utils.file_util import path_to_uri
 from event.websocket import ZerolanProtocolWebsocket
@@ -19,15 +19,20 @@ class ZerolanViewerServer(ZerolanProtocolWebsocket):
     def name(self):
         return "ZerolanViewerServer"
 
+    @staticmethod
+    def _create_protocol(message: str, action: ViewerAction, data: any, code: int = 0):
+        zp = ZerolanProtocol(protocol="ZerolanViewerProtocol", version="1.0",
+                             message=message, code=code,
+                             action=action.value, data=data)
+        return zp
+
     async def on_protocol(self, protocol: ZerolanProtocol):
-        logger.debug(protocol)
-        if protocol.action == "client_hello":
-            logger.debug("Client Hello")
+        logger.info(f"{protocol.action}: {protocol.message}")
+        if protocol.action == ViewerAction.CLIENT_HELLO:
             zp = ZerolanProtocol(protocol="ZerolanViewerProtocol", version="1.0", message="Server hello!", code=0,
                                  action="server_hello", data=None)
             await self._ws.send_json(zp.model_dump())
-        elif protocol.action == "update_gameobjects_info":
-            logger.debug("Update GameObjects Info")
+        elif protocol.action == ViewerAction.UPDATE_GAMEOBJECTS_INFO:
             assert isinstance(protocol.data, list)
             for info in protocol.data:
                 go_info = GameObjectInfo.model_validate(info)
@@ -42,18 +47,17 @@ class ZerolanViewerServer(ZerolanProtocolWebsocket):
                             audio_type=audio_type,
                             sample_rate=sample_rate,
                             channels=num_channels,
-                            duration=duration
-                            )
-        zp = ZerolanProtocol(protocol="ZerolanViewerProtocol", version="1.0",
-                             message="Add the speech into a queue and waiting for playing", code=0,
-                             action="play_speech", data=ana)
+                            duration=duration)
+        zp = self._create_protocol(message="Add the speech into a queue and waiting for playing",
+                                   action=ViewerAction.PLAY_SPEECH,
+                                   data=ana)
         await self._ws.send_json(zp.model_dump())
         logger.debug("Sent")
 
     async def load_model(self, file_info: FileInfo):
-        zp = ZerolanProtocol(protocol="ZerolanViewerProtocol", version="1.0",
-                             message="Load model from the specific file", code=0,
-                             action="load_model", data=file_info)
+        zp = self._create_protocol(message="Load model from the specific file",
+                                   action=ViewerAction.LOAD_MODEL,
+                                   data=file_info)
         await self._ws.send_json(zp.model_dump())
 
     def get_gameobjects_info(self) -> List[GameObjectInfo]:
@@ -63,9 +67,9 @@ class ZerolanViewerServer(ZerolanProtocolWebsocket):
         return result
 
     async def modify_game_object_scale(self, operation: ScaleOperation):
-        zp = ZerolanProtocol(protocol="ZerolanViewerProtocol", version="1.0",
-                             message="Load model from the specific file", code=0,
-                             action="modify_game_object_scale", data=operation)
+        zp = self._create_protocol(message="Modify the game object scale",
+                                   action=ViewerAction.MODIFY_GAME_OBJECT_SCALE,
+                                   data=operation)
         await self._ws.send_json(zp.model_dump())
 
 

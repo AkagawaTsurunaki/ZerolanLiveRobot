@@ -21,6 +21,15 @@ class FileType(str, Enum):
     NONE = "none"
 
 
+class ViewerAction(str, Enum):
+    CLIENT_HELLO = "client_hello"
+    SERVER_HELLO = "server_hello"
+    PLAY_SPEECH = "play_speech"
+    LOAD_MODEL = "load_model"
+    UPDATE_GAMEOBJECTS_INFO = "update_gameobjects_info"
+    MODIFY_GAME_OBJECT_SCALE = "modify_gameobject_scale"
+
+
 class FileInfo(BaseModel):
     file_id: str
     uri: str
