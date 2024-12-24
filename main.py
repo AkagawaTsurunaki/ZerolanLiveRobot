@@ -29,7 +29,8 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
     def __init__(self):
         super().__init__()
         self.vad = SpeechEmitter()
-        self.cur_lang = Language.ZH
+        self.cur_lang = Language.JA
+        self.tts_prompt_manager.set_lang(self.cur_lang)
 
     @withsound(SystemSoundEnum.start)
     async def start(self):
@@ -112,6 +113,7 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
                     pyautogui.click()
             elif "切换语言" in prediction.transcript:
                 self.cur_lang = Language.JA
+                self.tts_prompt_manager.set_lang(self.cur_lang)
             elif "记得" in prediction.transcript:
                 query = MilvusQuery(collection_name="history_collection", limit=2, output_fields=['history', 'text'],
                                     query=prediction.transcript)
@@ -169,7 +171,12 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
             text = prediction.response
             logger.info("LLM: " + text)
             tts_prompt = self.sentiment_analyzer_agent.sentiment_tts_prompt(text)
-            cut_punc = "，。！？"
+            if self.cur_lang == Language.ZH:
+                cut_punc = "，。！？"
+            elif self.cur_lang == Language.JA:
+                cut_punc = "、。！？"
+            else:
+                cut_punc = ",.!?"
 
             # query = TTSQuery(
             #     text=text,
@@ -196,7 +203,7 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
             for transcript in transcripts:
                 query = TTSQuery(
                     text=transcript,
-                    text_language="zh",
+                    text_language=self.cur_lang,
                     refer_wav_path=tts_prompt.audio_path,
                     prompt_text=tts_prompt.prompt_text,
                     prompt_language=tts_prompt.lang,
