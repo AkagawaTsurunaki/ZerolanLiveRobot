@@ -1,6 +1,8 @@
 from enum import Enum
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+
+from common.utils.enum_util import enum_members_to_list
 
 
 class PlaySpeechDTO(BaseModel):
@@ -27,7 +29,8 @@ class ViewerAction(str, Enum):
     PLAY_SPEECH = "play_speech"
     LOAD_MODEL = "load_model"
     UPDATE_GAMEOBJECTS_INFO = "update_gameobjects_info"
-    MODIFY_GAME_OBJECT_SCALE = "modify_gameobject_scale"
+    MODIFY_GAMEOBJECT_SCALE = "modify_gameobject_scale"
+    CREATE_GAMEOBJECT = "create_gameobject"
 
 
 class FileInfo(BaseModel):
@@ -41,14 +44,14 @@ class FileInfo(BaseModel):
 
 
 class Position(BaseModel):
-    x: float
-    y: float
-    z: float
+    x: float = Field(description="x position")
+    y: float = Field(description="y position")
+    z: float = Field(description="z position")
 
 
 class Transform(BaseModel):
-    scale: float
-    position: Position
+    scale: float = Field(description="The scale of the gameobject")
+    position: Position = Field(description="The position of the gameobject")
 
 
 class GameObjectInfo(BaseModel):
@@ -60,3 +63,17 @@ class GameObjectInfo(BaseModel):
 class ScaleOperation(BaseModel):
     instance_id: int
     target_scale: float
+
+
+class GameObjectType(str, Enum):
+    CUBE = "cube"
+    SPHERE = "sphere"
+
+
+class CreateGameObjectDTO(BaseModel):
+    instance_id: int = Field(description="The id of the gameobject instance")
+    gameobject_name: str = Field(description="The name of the gameobject")
+    object_type: GameObjectType = Field(
+        description=f"The type of the gameobject, can be only in {enum_members_to_list(GameObjectType)}")
+    color: str = Field(description='The color of the gameobject, hex format: "#000000"')
+    transform: Transform = Field(description="The transform of the gameobject")

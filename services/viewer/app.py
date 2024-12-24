@@ -4,7 +4,7 @@ from typing import List
 from loguru import logger
 from zerolan.data.protocol.protocol import ZerolanProtocol
 
-from common.data import PlaySpeechDTO, FileInfo, ScaleOperation, GameObjectInfo, ViewerAction
+from common.data import PlaySpeechDTO, FileInfo, ScaleOperation, GameObjectInfo, ViewerAction, CreateGameObjectDTO
 from common.utils.audio_util import check_audio_format, check_audio_info
 from common.utils.file_util import path_to_uri
 from event.websocket import ZerolanProtocolWebsocket
@@ -68,8 +68,12 @@ class ZerolanViewerServer(ZerolanProtocolWebsocket):
 
     async def modify_game_object_scale(self, operation: ScaleOperation):
         zp = self._create_protocol(message="Modify the game object scale",
-                                   action=ViewerAction.MODIFY_GAME_OBJECT_SCALE,
+                                   action=ViewerAction.MODIFY_GAMEOBJECT_SCALE,
                                    data=operation)
+        await self._ws.send_json(zp.model_dump())
+
+    async def create_gameobject(self, dto: CreateGameObjectDTO):
+        zp = self._create_protocol(message="Create a game object", action=ViewerAction.CREATE_GAMEOBJECT, data=dto)
         await self._ws.send_json(zp.model_dump())
 
 
