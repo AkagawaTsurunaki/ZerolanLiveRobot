@@ -29,3 +29,25 @@ class FileInfo(BaseModel):
     file_name: str
     file_size: int  # Bytes
     sha256: str
+
+
+class Position(BaseModel):
+    x: float
+    y: float
+    z: float
+
+
+class Transform(BaseModel):
+    scale: float
+    position: Position
+
+
+class GameObjectInfo(BaseModel):
+    instance_id: int
+    game_object_name: str
+    transform: Transform
+
+
+class ScaleOperation(BaseModel):
+    instance_id: int
+    target_scale: float
