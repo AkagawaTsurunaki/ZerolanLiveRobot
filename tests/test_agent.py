@@ -1,9 +1,14 @@
+import asyncio
+from asyncio import TaskGroup
+
 from zerolan.data.pipeline.llm import Conversation, RoleEnum
 
+from agent.custom_agent import CustomAgent
 from agent.model_modifier import model_scale
 from agent.summary import TextSummaryAgent
 from common.config import get_config
 from common.data import GameObjectInfo
+from services.viewer.app import ZerolanViewerServer
 
 _config = get_config()
 _agent = TextSummaryAgent(_config.pipeline.llm)
@@ -60,3 +65,16 @@ def test_model_scale():
 
     result = model_scale(go_info, "帮我放大一下优香")
     print(f"{result.instance_id}: {result.target_scale}")
+
+
+async def atest_custom_agent():
+    viewer = ZerolanViewerServer(host="0.0.0.0", port=11013, protocol="ZerolanViewerProtocol", version="1.0")
+    async with TaskGroup() as tg:
+        tg.create_task(viewer.start())
+        await asyncio.sleep(5)
+        agent = CustomAgent(_config.pipeline.llm, viewer)
+        agent.run("创建一个绿色的立方体")
+
+
+def test_custom_agent():
+    asyncio.run(atest_custom_agent())

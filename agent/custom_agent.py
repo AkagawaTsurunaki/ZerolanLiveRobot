@@ -3,10 +3,11 @@
 from injector import inject
 from langchain_core.messages import HumanMessage, AIMessage
 from langchain_core.tools import BaseTool
+from loguru import logger
 from selenium.webdriver import Firefox, Chrome
 
-from agent.tool.web_search import BaiduBaikeTool, MoeGirlTool
 from agent.tool.go_creator import GameObjectCreator
+from agent.tool.web_search import BaiduBaikeTool, MoeGirlTool
 from agent.tool_agent import ToolAgent
 from common.config import LLMPipelineConfig
 from services.viewer.app import ZerolanViewerServer
@@ -15,10 +16,12 @@ from services.viewer.app import ZerolanViewerServer
 class CustomAgent:
 
     @inject
-    def __init__(self, config: LLMPipelineConfig, driver: Firefox | Chrome, viewer: ZerolanViewerServer):
+    def __init__(self, config: LLMPipelineConfig, viewer: ZerolanViewerServer, driver: Firefox | Chrome = None):
         self._model = ToolAgent(config=config)
         # Here to register more tools
-        tools = [BaiduBaikeTool(), MoeGirlTool(driver), GameObjectCreator(viewer)]
+        tools = [BaiduBaikeTool(), GameObjectCreator(viewer)]
+        if driver is not None:
+            tools.append(MoeGirlTool(driver))
         self._tools = {}
         self._model.bind_tools(tools)
         for tool in tools:
@@ -28,6 +31,9 @@ class CustomAgent:
         messages = [self._model.system_prompt, HumanMessage(query)]
         ai_msg: AIMessage = self._model.invoke(messages)
         messages.append(ai_msg)
+        if len(ai_msg.tool_calls) == 0:
+            logger.debug("No tool to call in this conversation")
+            return
         for tool_call in ai_msg.tool_calls:
             tool_name = tool_call["name"].lower()
             selected_tool: BaseTool = self._tools.get(tool_name, None)
