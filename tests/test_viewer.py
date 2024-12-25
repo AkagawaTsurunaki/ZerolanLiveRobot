@@ -1,7 +1,7 @@
 import asyncio
 from asyncio import TaskGroup
 
-from agent.model_modifier import model_scale
+from agent.api import model_scale
 from services.viewer.app import ZerolanViewerServer
 
 viewer = ZerolanViewerServer(host="0.0.0.0", port=11013, protocol="ZerolanViewerProtocol", version="1.0")

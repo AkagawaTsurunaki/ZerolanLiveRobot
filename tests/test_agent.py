@@ -3,9 +3,8 @@ from asyncio import TaskGroup
 
 from zerolan.data.pipeline.llm import Conversation, RoleEnum
 
-from agent.api import summary, summary_history
+from agent.api import summary, summary_history, model_scale
 from agent.custom_agent import CustomAgent
-from agent.model_modifier import model_scale
 from common.config import get_config
 from common.data import GameObjectInfo
 from services.viewer.app import ZerolanViewerServer

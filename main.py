@@ -10,8 +10,7 @@ from zerolan.data.pipeline.ocr import OCRQuery
 from zerolan.data.pipeline.tts import TTSQuery
 from zerolan.data.pipeline.vla import ShowUiQuery
 
-from agent.api import find_file, sentiment_analyse, translate, summary_history
-from agent.model_modifier import model_scale
+from agent.api import find_file, sentiment_analyse, translate, summary_history, model_scale
 from common.abs_runnable import stop_all_runnable
 from common.decorator import withsound
 from common.enumerator import EventEnum, Language, SystemSoundEnum
