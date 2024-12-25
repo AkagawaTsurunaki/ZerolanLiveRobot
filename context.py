@@ -1,4 +1,3 @@
-from agent.location_attn import LocationAttentionAgent
 from agent.sentiment import SentimentAnalyzerAgent
 from agent.summary import TextSummaryAgent
 from agent.tool_agent import ToolAgent
@@ -103,7 +102,6 @@ class ZerolanLiveRobotContext:
         # Agents
         self.tool_agent = ToolAgent(config.pipeline.llm)
         self.translator_agent = TranslatorAgent(config.pipeline.llm)
-        self.location_attention_agent = LocationAttentionAgent(config.pipeline.llm)
         self.text_summary_agent = TextSummaryAgent(config.pipeline.llm)
         if self.tts_prompt_manager is not None:
             self.sentiment_analyzer_agent = SentimentAnalyzerAgent(self.tts_prompt_manager, config.pipeline.llm)
