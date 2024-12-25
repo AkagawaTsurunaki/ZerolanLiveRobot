@@ -92,9 +92,10 @@ class ZerolanLiveRobotContext:
             self.live2d = Live2dApplication(config.service.live2d)
         if config.pipeline.vec_db.enable:
             self.vec_db = MilvusPipeline(config.pipeline.vec_db.milvus)
-        # TODO: TEST
-        self.viewer = ZerolanViewerServer(host="0.0.0.0", port=11013, protocol="ZerolanViewerProtocol", version="1.0")
-        self.model_manager = ModelManager()
+        if config.service.viewer.enable:
+            self.viewer = ZerolanViewerServer(host=config.service.viewer.host, port=config.service.viewer.port,
+                                              protocol="ZerolanViewerProtocol", version="1.0")
+            self.model_manager = ModelManager()
 
         # Agents
         self.tool_agent = ToolAgent(config.pipeline.llm)

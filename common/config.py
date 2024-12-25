@@ -137,11 +137,20 @@ class GameBridgeConfig:
 
 @dataclass_json
 @dataclass
+class ZerolanViewerConfig:
+    enable: bool = True
+    host: str = '0.0.0.0'
+    port: int = 11013
+
+
+@dataclass_json
+@dataclass
 class ServiceConfig:
     controller: ControllerConfig
     live_stream: LiveStreamConfig
     game: GameBridgeConfig
     live2d: Live2DConfig
+    viewer: ZerolanViewerConfig
 
 
 @dataclass_json
