@@ -1,7 +1,4 @@
-from agent.sentiment import SentimentAnalyzerAgent
-from agent.summary import TextSummaryAgent
 from agent.tool_agent import ToolAgent
-from agent.translator import TranslatorAgent
 from common.config import get_config
 from manager.llm_prompt_manager import LLMPromptManager
 from manager.model_manager import ModelManager
@@ -101,7 +98,3 @@ class ZerolanLiveRobotContext:
 
         # Agents
         self.tool_agent = ToolAgent(config.pipeline.llm)
-        self.translator_agent = TranslatorAgent(config.pipeline.llm)
-        self.text_summary_agent = TextSummaryAgent(config.pipeline.llm)
-        if self.tts_prompt_manager is not None:
-            self.sentiment_analyzer_agent = SentimentAnalyzerAgent(self.tts_prompt_manager, config.pipeline.llm)

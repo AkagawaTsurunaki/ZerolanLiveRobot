@@ -3,15 +3,14 @@ from asyncio import TaskGroup
 
 from zerolan.data.pipeline.llm import Conversation, RoleEnum
 
+from agent.api import summary, summary_history
 from agent.custom_agent import CustomAgent
 from agent.model_modifier import model_scale
-from agent.summary import TextSummaryAgent
 from common.config import get_config
 from common.data import GameObjectInfo
 from services.viewer.app import ZerolanViewerServer
 
 _config = get_config()
-_agent = TextSummaryAgent(_config.pipeline.llm)
 
 
 def test_summary():
@@ -19,7 +18,7 @@ def test_summary():
         text = f.read()
     print(text)
 
-    summary_text = _agent.summary(text, 100)
+    summary_text = summary(text, 100)
     print(summary_text.content)
 
 
@@ -30,8 +29,8 @@ def test_summary_history():
         Conversation(role=RoleEnum.user, content="差不多吧。它是一种用糯米制作的东西，可好吃了。"),
         Conversation(role=RoleEnum.assistant, content="真的吗？那我下次也要尝尝阿米糯司！")
     ]
-    summary_history = _agent.summary_history(history)
-    print(summary_history.content)
+    summaried_history = summary_history(history)
+    print(summaried_history.content)
 
 
 def test_model_scale():

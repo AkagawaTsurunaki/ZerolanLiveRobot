@@ -10,7 +10,7 @@ from zerolan.data.pipeline.ocr import OCRQuery
 from zerolan.data.pipeline.tts import TTSQuery
 from zerolan.data.pipeline.vla import ShowUiQuery
 
-from agent.file_finder import find_file
+from agent.api import find_file, sentiment_analyse, translate, summary_history
 from agent.model_modifier import model_scale
 from common.abs_runnable import stop_all_runnable
 from common.decorator import withsound
@@ -148,7 +148,7 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
             else:
                 img_cap_prediction = self.img_cap.predict(ImgCapQuery(prompt="There", img_path=img_path))
                 src_lang = Language.value_of(img_cap_prediction.lang)
-                caption = self.translator_agent.translate(src_lang, self.cur_lang, img_cap_prediction.caption)
+                caption = translate(src_lang, self.cur_lang, img_cap_prediction.caption)
                 img_cap_prediction.caption = caption
                 logger.info("ImgCap: " + caption)
                 emitter.emit(ImgCapEvent(prediction=img_cap_prediction))
@@ -170,7 +170,9 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
             prediction = event.prediction
             text = prediction.response
             logger.info("LLM: " + text)
-            tts_prompt = self.sentiment_analyzer_agent.sentiment_tts_prompt(text)
+            sentiment = sentiment_analyse(sentiments=self.tts_prompt_manager.sentiments, text=text)
+            tts_prompt = self.tts_prompt_manager.get_tts_prompt(sentiment)
+            # tts_prompt = self.sentiment_analyzer_agent.sentiment_tts_prompt(text)
             if self.cur_lang == Language.ZH:
                 cut_punc = "，。！？"
             elif self.cur_lang == Language.JA:
@@ -268,7 +270,7 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
     def save_memory(self):
         start = len(self.llm_prompt_manager.injected_history)
         history = self.llm_prompt_manager.current_history[start:]
-        ai_msg = self.text_summary_agent.summary_history(history)
+        ai_msg = summary_history(history)
         row = InsertRow(id=1, text=ai_msg.content, subject="history")
         insert = MilvusInsert(collection_name="history_collection", texts=[row])
         insert_res = self.vec_db.insert(insert)
