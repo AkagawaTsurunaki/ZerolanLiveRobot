@@ -27,16 +27,22 @@ class CustomAgent:
         for tool in tools:
             self._tools[tool.name] = tool
 
-    def run(self, query: str):
+    def run(self, query: str) -> bool:
         messages = [self._model.system_prompt, HumanMessage(query)]
         ai_msg: AIMessage = self._model.invoke(messages)
         messages.append(ai_msg)
         if len(ai_msg.tool_calls) == 0:
             logger.debug("No tool to call in this conversation")
-            return
+            return False
         for tool_call in ai_msg.tool_calls:
             tool_name = tool_call["name"].lower()
             selected_tool: BaseTool = self._tools.get(tool_name, None)
             if selected_tool is not None:
-                tool_msg = selected_tool.invoke(tool_call)
-                messages.append(tool_msg)
+                try:
+                    tool_msg = selected_tool.invoke(tool_call)
+                    messages.append(tool_msg)
+                except Exception as e:
+                    logger.warning(e)
+                    pass
+
+        return True

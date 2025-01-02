@@ -38,11 +38,11 @@ class ZerolanViewerServer(ZerolanProtocolWebsocket):
                 go_info = GameObjectInfo.model_validate(info)
                 self.gameobjects_info[go_info.instance_id] = go_info
 
-    async def play_speech(self, bot_id: str, audio_path: str, transcript: str):
+    async def play_speech(self, bot_id: str, bot_display_name: str, audio_path: str, transcript: str):
         audio_type = check_audio_format(audio_path)
         sample_rate, num_channels, duration = check_audio_info(audio_path)
         audio_uri = path_to_uri(audio_path)
-        ana = PlaySpeechDTO(bot_id=bot_id, audio_uri=audio_uri,
+        ana = PlaySpeechDTO(bot_id=bot_id, bot_display_name=bot_display_name, audio_uri=audio_uri,
                             transcript=transcript,
                             audio_type=audio_type,
                             sample_rate=sample_rate,

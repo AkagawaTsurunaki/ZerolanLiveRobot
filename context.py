@@ -1,3 +1,4 @@
+from agent.custom_agent import CustomAgent
 from agent.tool_agent import ToolAgent
 from common.config import get_config
 from manager.llm_prompt_manager import LLMPromptManager
@@ -96,6 +97,7 @@ class ZerolanLiveRobotContext:
             self.viewer = ZerolanViewerServer(host=config.service.viewer.host, port=config.service.viewer.port,
                                               protocol="ZerolanViewerProtocol", version="1.0")
             self.model_manager = ModelManager()
+            self.custom_agent = CustomAgent(config=config.pipeline.llm, viewer=self.viewer)
 
         # Agents
         self.tool_agent = ToolAgent(config.pipeline.llm)

@@ -7,6 +7,7 @@ from common.utils.enum_util import enum_members_to_list
 
 class PlaySpeechDTO(BaseModel):
     bot_id: str
+    bot_display_name: str
     audio_uri: str
     transcript: str
     audio_type: str

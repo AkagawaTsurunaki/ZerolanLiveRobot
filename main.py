@@ -28,7 +28,7 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
     def __init__(self):
         super().__init__()
         self.vad = SpeechEmitter()
-        self.cur_lang = Language.JA
+        self.cur_lang = Language.ZH
         self.tts_prompt_manager.set_lang(self.cur_lang)
 
     @withsound(SystemSoundEnum.start)
@@ -133,7 +133,9 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
                 so = model_scale(info, prediction.transcript)
                 await self.viewer.modify_game_object_scale(so)
             else:
-                await self.emit_llm_prediction(prediction.transcript)
+                tool_called = self.custom_agent.run(prediction.transcript)
+                if not tool_called:
+                    await self.emit_llm_prediction(prediction.transcript)
 
         @emitter.on(EventEnum.DEVICE_SCREEN_CAPTURED)
         async def on_device_screen_captured(event: ScreenCapturedEvent):
@@ -230,9 +232,10 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
             audio_path = save_tmp_audio(prediction.wave_data)
             await self.live2d.playsound(audio_path, event.transcript)
         elif self.viewer.is_connected:
-            bot_id = "UnityChan"
+            bot_id = "0001"
+            bot_display_name = "UnityChan"
             audio_path = save_tmp_audio(prediction.wave_data)
-            await self.viewer.play_speech(bot_id, audio_path, event.transcript)
+            await self.viewer.play_speech(bot_id, bot_display_name, audio_path, event.transcript)
         else:
             self.speaker.enqueue_sound(prediction.wave_data)
 
