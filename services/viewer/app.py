@@ -34,6 +34,7 @@ class ZerolanViewerServer(ZerolanProtocolWebsocket):
             await self._ws.send_json(zp.model_dump())
         elif protocol.action == ViewerAction.UPDATE_GAMEOBJECTS_INFO:
             assert isinstance(protocol.data, list)
+            self.gameobjects_info = {}
             for info in protocol.data:
                 go_info = GameObjectInfo.model_validate(info)
                 self.gameobjects_info[go_info.instance_id] = go_info
