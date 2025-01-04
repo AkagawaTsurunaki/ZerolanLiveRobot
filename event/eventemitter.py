@@ -70,6 +70,10 @@ class TypedEventEmitter(AbstractRunnable):
                     await task
                 except asyncio.CancelledError:
                     logger.warning(f"Task cancelled: {task.get_name()}")
+                except RuntimeError as e:
+                    # TODO: Here we need to fix it...
+                    if "attached to a different loop" in f"{e}":
+                        logger.warning(f"Task({task.get_name()}) is attached to a different loop?! Why?!")
                 self._tasks.remove(task)
             self._event_pending.clear()
             if self._stop_flag:
