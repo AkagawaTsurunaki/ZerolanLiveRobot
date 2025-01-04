@@ -25,8 +25,8 @@ class GameObjectCreator(BaseTool):
         self._viewer = viewer
 
     def _run(self, dto: CreateGameObjectDTO) -> Any:
-        task = asyncio.create_task(self._arun(dto))
-        asyncio.wait([task])
+        task = [asyncio.create_task(self._arun(dto))]
+        asyncio.gather(*task)
 
     async def _arun(self, dto: CreateGameObjectDTO) -> None:
         await self._viewer.create_gameobject(dto)
