@@ -1,90 +1,31 @@
-from loguru import logger
-from dataclasses import dataclass
 from typing import Literal
 
-from dataclasses_json import dataclass_json
+from loguru import logger
+from pydantic import BaseModel
+from zerolan.ump.pipeline.asr import ASRPipelineConfig
+from zerolan.ump.pipeline.database import MilvusDatabaseConfig
+from zerolan.ump.pipeline.img_cap import ImgCapPipelineConfig
+from zerolan.ump.pipeline.llm import LLMPipelineConfig
+from zerolan.ump.pipeline.ocr import OCRPipelineConfig
+from zerolan.ump.pipeline.tts import TTSPipelineConfig
+from zerolan.ump.pipeline.vid_cap import VidCapPipelineConfig
+from zerolan.ump.pipeline.vla import ShowUIConfig
 
 from common.utils.file_util import read_yaml, spath
 
 
-@dataclass_json
-@dataclass
-class ASRPipelineConfig:
-    enable: bool = True
-    server_url: str = "http://127.0.0.1:11001"
-    sample_rate: int = 16000
-    channels: int = 1
-    format: Literal["float32"] = "float32"
-
-
-@dataclass_json
-@dataclass
-class LLMPipelineConfig:
-    enable: bool = True
-    server_url: str = "http://127.0.0.1:11002"
-
-
-@dataclass_json
-@dataclass
-class ImgCapPipelineConfig:
-    enable: bool = True
-    server_url: str = "http://127.0.0.1:11003"
-
-
-@dataclass_json
-@dataclass
-class OCRPipelineConfig:
-    enable: bool = True
-    server_url: str = "http://127.0.0.1:11004"
-
-
-@dataclass_json
-@dataclass
-class VidCapPipelineConfig:
-    enable: bool = True
-    server_url: str = "http://127.0.0.1:11005"
-
-
-@dataclass_json
-@dataclass
-class TTSPipelineConfig:
-    enable: bool = True
-    server_url: str = "http://127.0.0.1:11006"
-
-
-@dataclass_json
-@dataclass
-class ShowUIConfig:
-    enable: bool = True
-    server_url: str = "http://127.0.0.1:11009"
-
-
-@dataclass_json
-@dataclass
-class VLAPipelineConfig:
+class VLAPipelineConfig(BaseModel):
     showui: ShowUIConfig
     enable: bool = True
 
 
-@dataclass_json
-@dataclass
-class MilvusDatabaseConfig:
-    server_url: str = "http://127.0.0.1:11010"
-
-
-@dataclass_json
-@dataclass
-class ControllerConfig:
+class ControllerConfig(BaseModel):
     host: str = "127.0.0.1"
     port: int = 11000
 
 
-@dataclass_json
-@dataclass
-class BilibiliServiceConfig:
-    @dataclass_json
-    @dataclass
-    class Credential:
+class BilibiliServiceConfig(BaseModel):
+    class Credential(BaseModel):
         sessdata: str = ""
         bili_jct: str = ""
         buvid3: str = ""
@@ -93,59 +34,45 @@ class BilibiliServiceConfig:
     credential: Credential = ""
 
 
-@dataclass_json
-@dataclass
-class TwitchServiceConfig:
+class TwitchServiceConfig(BaseModel):
     channel_id: str = ""
     app_id: str = ""
     app_secret: str | None = None
 
 
-@dataclass_json
-@dataclass
-class YoutubeServiceConfig:
+class YoutubeServiceConfig(BaseModel):
     # GCloud auth print access token
     token: str = ""
 
 
-@dataclass_json
-@dataclass
-class LiveStreamConfig:
+class LiveStreamConfig(BaseModel):
     enable: bool = True
     bilibili: BilibiliServiceConfig = None
     twitch: TwitchServiceConfig = None
     youtube: YoutubeServiceConfig = None
 
 
-@dataclass_json
-@dataclass
-class Live2DConfig:
+class Live2DConfig(BaseModel):
     enable: bool = True
     host: str = "127.0.0.1"
     port: int = 11008
     model_dir: str = "resources/static/models/live2d/"
 
 
-@dataclass_json
-@dataclass
-class GameBridgeConfig:
+class GameBridgeConfig(BaseModel):
     enable: bool = True
     host: str = '127.0.0.1'
     port: int = 11007
     platform: Literal["minecraft"] = "minecraft"
 
 
-@dataclass_json
-@dataclass
-class ZerolanViewerConfig:
+class ZerolanViewerConfig(BaseModel):
     enable: bool = True
     host: str = '0.0.0.0'
     port: int = 11013
 
 
-@dataclass_json
-@dataclass
-class ServiceConfig:
+class ServiceConfig(BaseModel):
     controller: ControllerConfig
     live_stream: LiveStreamConfig
     game: GameBridgeConfig
@@ -153,45 +80,33 @@ class ServiceConfig:
     viewer: ZerolanViewerConfig
 
 
-@dataclass_json
-@dataclass
-class FilterConfig:
+class FilterConfig(BaseModel):
     bad_words: list[str]
     strategy: Literal["default"] = "default"
 
 
-@dataclass_json
-@dataclass
-class ChatConfig:
+class ChatConfig(BaseModel):
     filter: FilterConfig
     system_prompt: str
     injected_history: list[str]
     max_history: int = 20
 
 
-@dataclass_json
-@dataclass
-class SpeechConfig:
+class SpeechConfig(BaseModel):
     prompts_dir: str = "resources/static/prompts/tts"
 
 
-@dataclass_json
-@dataclass
-class CharacterConfig:
+class CharacterConfig(BaseModel):
     chat: ChatConfig
     speech: SpeechConfig
 
 
-@dataclass_json
-@dataclass
-class VectorDBConfig:
+class VectorDBConfig(BaseModel):
     enable: bool = True
     milvus: MilvusDatabaseConfig | None = None
 
 
-@dataclass_json
-@dataclass
-class PipelineConfig:
+class PipelineConfig(BaseModel):
     asr: ASRPipelineConfig
     llm: LLMPipelineConfig
     img_cap: ImgCapPipelineConfig
@@ -202,23 +117,17 @@ class PipelineConfig:
     vec_db: VectorDBConfig
 
 
-@dataclass_json
-@dataclass
-class BrowserConfig:
+class BrowserConfig(BaseModel):
     enable: bool = True
     profile_dir: str | None = None
     driver: Literal["chrome", "firefox"] = "firefox"
 
 
-@dataclass_json
-@dataclass
-class ExternalToolConfig:
+class ExternalToolConfig(BaseModel):
     browser: BrowserConfig
 
 
-@dataclass_json
-@dataclass
-class ZerolanLiveRobotConfig:
+class ZerolanLiveRobotConfig(BaseModel):
     pipeline: PipelineConfig
     service: ServiceConfig
     character: CharacterConfig
@@ -231,7 +140,5 @@ def get_config() -> ZerolanLiveRobotConfig:
     except Exception as e:
         logger.error("Are you sure that you have copied `config.yaml` from `config.template.yaml` in `resources`?`")
         raise e
-
-    assert hasattr(ZerolanLiveRobotConfig, "from_dict")
-    config: ZerolanLiveRobotConfig = ZerolanLiveRobotConfig.from_dict(cfg_dict)  # noqa
+    config = ZerolanLiveRobotConfig.model_validate(cfg_dict)
     return config
