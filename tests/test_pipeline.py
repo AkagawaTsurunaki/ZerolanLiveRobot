@@ -7,12 +7,12 @@ from zerolan.data.pipeline.vla import ShowUiQuery, WebAction
 
 from common.config import get_config
 from common.enumerator import Language
-from pipeline.asr import ASRPipeline
-from pipeline.img_cap import ImgCapPipeline
-from pipeline.llm import LLMPipeline
-from pipeline.ocr import OCRPipeline
-from pipeline.tts import TTSPipeline
-from pipeline.vla import ShowUIPipeline
+from zerolan.ump.pipeline.asr import ASRPipeline
+from zerolan.ump.pipeline.img_cap import ImgCapPipeline
+from zerolan.ump.pipeline.llm import LLMPipeline
+from zerolan.ump.pipeline.ocr import OCRPipeline
+from zerolan.ump.pipeline.tts import TTSPipeline
+from zerolan.ump.pipeline.vla import ShowUIPipeline
 from services.device.microphone import Microphone
 
 _config = get_config()

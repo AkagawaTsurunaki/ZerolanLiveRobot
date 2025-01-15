@@ -20,7 +20,7 @@ from context import ZerolanLiveRobotContext
 from event.event_data import ASREvent, SpeechEvent, ScreenCapturedEvent, LLMEvent, OCREvent, ImgCapEvent, TTSEvent
 from event.eventemitter import emitter
 from event.speech_emitter import SpeechEmitter
-from pipeline.ocr import avg_confidence, stringify
+from zerolan.ump.pipeline.ocr import avg_confidence, stringify
 from services.device.screen import is_image_uniform
 
 
