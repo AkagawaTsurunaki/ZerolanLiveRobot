@@ -16,7 +16,7 @@ pipeline:
 
   ocr:
     enable: true
-    server_utl: "http://127.0.0.1:11004"
+    server_url: "http://127.0.0.1:11004"
 
   vid_cap:
     enable: true
