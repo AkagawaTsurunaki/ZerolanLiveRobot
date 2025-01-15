@@ -74,7 +74,7 @@ class MoeGirlTool(BaseTool):
                 self._driver.execute_script("window.scrollBy(0,3000)")
                 logger.debug(f"Scroll by 3000 * {i}")
             self._driver.implicitly_wait(1)
-        except Exception as e:
+        except Exception as _:
             pass
         plain_text = html_to_text(self._driver.page_source)
         return plain_text

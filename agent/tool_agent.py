@@ -53,7 +53,7 @@ class ToolAgent(LangChainAdaptedLLM):
                 try:
                     if tool_call["name"] in self._tool_names:
                         return [ToolCall(name=tool_call["name"], args=tool_call["args"], id=f'{uuid.uuid4()}')]
-                except Exception as e:
+                except Exception as _:
                     return None
             elif isinstance(tool_call, list):
                 result = []

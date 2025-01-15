@@ -87,5 +87,5 @@ class Speaker(AbstractRunnable):
     def play_system_sound(key: SystemSoundEnum, block: bool = False):
         try:
             Speaker.playsound(spath(os.path.join("resources/static/sound/system", key.value)), block=block)
-        except Exception:
+        except Exception as _:
             pass

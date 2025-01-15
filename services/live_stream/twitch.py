@@ -76,7 +76,7 @@ class TwitchService(AbstractRunnable):
                 emitter.emit(LiveStreamConnectedEvent(platform="twitch"))
                 logger.info(f"Joined channel: {self._target_channel}")
             else:
-                emitter.emit(LiveStreamDisconnectedEvent(platform="twitch"))
+                emitter.emit(LiveStreamDisconnectedEvent(platform="twitch", reason="未成功连接"))
                 logger.error(f"Failed to join channel: {self._target_channel}")
 
         chat.register_event(ChatEvent.READY, on_ready)
