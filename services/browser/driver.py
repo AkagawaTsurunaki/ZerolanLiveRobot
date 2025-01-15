@@ -12,7 +12,7 @@ from common.utils import file_util
 
 class DriverInitializer:
 
-    def __init__(self, config: BrowserConfig = BrowserConfig(None)) -> None:
+    def __init__(self, config: BrowserConfig = BrowserConfig()) -> None:
         self._browser = config.driver
         self._profile_dir = config.profile_dir
         self._driver = None
