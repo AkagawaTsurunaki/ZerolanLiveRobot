@@ -10,42 +10,43 @@ from zerolan.data.pipeline.ocr import OCRPrediction
 from zerolan.data.pipeline.tts import TTSPrediction
 
 from agent.tool_agent import Tool
+from common.enumerator import EventEnum
 from services.game.minecraft.data import KonekoProtocol
 
 
 class BaseEvent:
-    type: str
+    type: EventEnum
 
 
 @dataclass
 class ASREvent(BaseEvent):
     prediction: ASRPrediction
-    type: str = "pipeline/asr"
+    type: EventEnum = EventEnum.PIPELINE_ASR
 
 
 @dataclass
 class LLMEvent(BaseEvent):
     prediction: LLMPrediction
-    type: str = "pipeline/llm"
+    type: EventEnum = EventEnum.PIPELINE_LLM
 
 
 @dataclass
 class OCREvent(BaseEvent):
     prediction: OCRPrediction
-    type: str = "pipeline/ocr"
+    type: EventEnum = EventEnum.PIPELINE_OCR
 
 
 @dataclass
 class TTSEvent(BaseEvent):
     prediction: TTSPrediction
     transcript: str
-    type: str = "pipeline/tts"
+    type: EventEnum = EventEnum.PIPELINE_TTS
 
 
 @dataclass
 class ImgCapEvent(BaseEvent):
     prediction: ImgCapPrediction
-    type: str = "pipeline/img_cap"
+    type: EventEnum = EventEnum.PIPELINE_IMG_CAP
 
 
 @dataclass
@@ -53,61 +54,61 @@ class SpeechEvent(BaseEvent):
     speech: bytes
     channels: int
     sample_rate: int
-    type: str = "service/vad/emit-speech-chunk"
+    type: EventEnum = EventEnum.SERVICE_VAD_SPEECH_CHUNK
 
 
 @dataclass
 class WebSocketJsonReceivedEvent(BaseEvent):
     data: any
-    type: str = "websocket/json-received"
+    type: EventEnum = EventEnum.WEBSOCKET_RECV_JSON
 
 
 @dataclass
 class LiveStreamConnectedEvent(BaseEvent):
     platform: Literal["bilibili", "twitch", "youtube"]
-    type: str = "service/live-stream/connected"
+    type: EventEnum = EventEnum.SERVICE_LIVE_STREAM_CONNECTED
 
 
 @dataclass
 class LiveStreamDisconnectedEvent(BaseEvent):
     platform: Literal["bilibili", "twitch", "youtube"]
     reason: str
-    type: str = "service/live-stream/disconnected"
+    type: EventEnum = EventEnum.SERVICE_LIVE_STREAM_DISCONNECTED
 
 
 @dataclass
 class DanmakuEvent(BaseEvent):
     platform: Literal["bilibili", "twitch", "youtube"]
     danmaku: Danmaku
-    type: str = "service/live-stream/danmaku"
+    type: EventEnum = EventEnum.SERVICE_LIVE_STREAM_DANMAKU
 
 
 @dataclass
 class SuperChatEvent(BaseEvent):
     platform: Literal["bilibili", "twitch", "youtube"]
     superchat: SuperChat
-    type: str = "service/live-stream/super-chat"
+    type: EventEnum = EventEnum.SERVICE_LIVE_STREAM_SUPER_CHAT
 
 
 @dataclass
 class KonekoClientPushInstructionsEvent(BaseEvent):
     tools: List[Tool]
-    type: str = "koneko/client/push-instructions"
+    type: EventEnum = EventEnum.KONEKO_CLIENT_PUSH_INSTRUCTIONS
 
 
 @dataclass
 class KonekoClientHelloEvent(BaseEvent):
-    type: str = "koneko/client/hello"
+    type = EventEnum.KONEKO_CLIENT_HELLO
 
 
 @dataclass
 class KonekoServerCallInstruction(BaseEvent):
     protocol_obj: KonekoProtocol
-    type: str = "koneko/server/hello"
+    type = EventEnum.KONEKO_SERVER_CALL_INSTRUCTION
 
 
 @dataclass
 class ScreenCapturedEvent(BaseEvent):
     img: Image
     img_path: str
-    type: str = "device/screen-captured"
+    type: EventEnum = EventEnum.DEVICE_SCREEN_CAPTURED

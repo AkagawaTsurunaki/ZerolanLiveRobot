@@ -1,6 +1,7 @@
 import asyncio
 
 from common.config import get_config
+from common.enumerator import EventEnum
 from event.event_data import DanmakuEvent
 from event.eventemitter import emitter
 from services.live_stream.bilibili import BilibiliService
@@ -10,7 +11,7 @@ from services.live_stream.youtube import YouTubeService
 _config = get_config()
 
 
-@emitter.on("service/live-stream/danmaku")
+@emitter.on(EventEnum.SERVICE_LIVE_STREAM_DANMAKU)
 async def handle(event: DanmakuEvent):
     print(event.danmaku.content)
 

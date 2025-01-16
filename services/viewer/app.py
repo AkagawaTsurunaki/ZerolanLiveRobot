@@ -12,8 +12,8 @@ from event.websocket import ZerolanProtocolWebsocket
 
 class ZerolanViewerServer(ZerolanProtocolWebsocket):
 
-    def __init__(self, host: str, port: int):
-        super().__init__(host, port)
+    def __init__(self, host: str, port: int, protocol: str, version: str):
+        super().__init__(host, port, protocol, version)
         self.gameobjects_info = {}
 
     def name(self):
@@ -21,14 +21,15 @@ class ZerolanViewerServer(ZerolanProtocolWebsocket):
 
     @staticmethod
     def _create_protocol(message: str, action: ViewerAction, data: any, code: int = 0):
-        zp = ZerolanProtocol(message=message, code=code,
+        zp = ZerolanProtocol(protocol="ZerolanViewerProtocol", version="1.0",
+                             message=message, code=code,
                              action=action.value, data=data)
         return zp
 
     async def on_protocol(self, protocol: ZerolanProtocol):
         logger.info(f"{protocol.action}: {protocol.message}")
         if protocol.action == ViewerAction.CLIENT_HELLO:
-            zp = ZerolanProtocol(message="Server hello!", code=0,
+            zp = ZerolanProtocol(protocol="ZerolanViewerProtocol", version="1.0", message="Server hello!", code=0,
                                  action="server_hello", data=None)
             await self._ws.send_json(zp.model_dump())
         elif protocol.action == ViewerAction.UPDATE_GAMEOBJECTS_INFO:
@@ -78,7 +79,7 @@ class ZerolanViewerServer(ZerolanProtocolWebsocket):
 
 
 async def run():
-    server = ZerolanViewerServer(host="0.0.0.0", port=11013)
+    server = ZerolanViewerServer(host="0.0.0.0", port=11013, protocol="ZerolanViewerProtocol", version="1.0")
     await server.start()
 
 

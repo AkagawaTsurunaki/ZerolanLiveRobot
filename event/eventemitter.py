@@ -9,6 +9,7 @@ from uuid import uuid4
 from loguru import logger
 
 from common.abs_runnable import AbstractRunnable
+from common.enumerator import EventEnum
 from common.killable_thread import KillableThread
 from event.event_data import BaseEvent
 
@@ -103,7 +104,7 @@ class TypedEventEmitter(AbstractRunnable):
             else:
                 self._add_sync_task(listener, event)
 
-    def on(self, event: str):
+    def on(self, event: EventEnum):
         assert isinstance(event, Enum)
 
         def decorator(func: Callable[[Event], None] | Callable[[Event], Coroutine[Any, Any, None]]):
@@ -112,7 +113,7 @@ class TypedEventEmitter(AbstractRunnable):
 
         return decorator
 
-    def once(self, event: str):
+    def once(self, event: EventEnum):
         assert isinstance(event, Enum)
 
         def decorator(func: Callable[[Event], None] | Callable[[Event], Coroutine[Any, Any, None]]):
@@ -141,13 +142,13 @@ class TypedEventEmitter(AbstractRunnable):
         self._event_pending.set()
         logger.debug(f"Added async task to event loop: {task.get_name()}")
 
-    def _add_listener(self, event: str, listener: Listener):
-        listeners = self._listeners.get(event, None)
+    def _add_listener(self, event: EventEnum, listener: Listener):
+        listeners = self._listeners.get(event.value, None)
         if listeners is None:
-            self._listeners[event] = []
-        self._listeners[event].append(listener)
+            self._listeners[event.value] = []
+        self._listeners[event.value].append(listener)
         self._cur_listeners += 1
-        logger.debug(f"{event} listener added: {listener.func.__name__}")
+        logger.debug(f"{event.value} listener added: {listener.func.__name__}")
         logger.debug(f"Current listeners: {self._cur_listeners}")
         if self._cur_listeners >= self._max_listeners:
             logger.warning("Too many listeners, maybe memory leak!")

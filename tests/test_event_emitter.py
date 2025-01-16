@@ -4,6 +4,7 @@ from dataclasses import dataclass
 
 from loguru import logger
 
+from common.enumerator import EventEnum
 from event.event_data import BaseEvent
 from event.eventemitter import emitter
 
@@ -11,17 +12,17 @@ from event.eventemitter import emitter
 @dataclass
 class TestEvent(BaseEvent):
     content: str
-    type = "test"
+    type = EventEnum.TEST
 
 
-@emitter.on("test")
+@emitter.on(EventEnum.TEST)
 def exit__(event: TestEvent):
     print("To sleep!")
     time.sleep(2)
     print(f"time: {event.content}")
 
 
-@emitter.on("test")
+@emitter.on(EventEnum.TEST)
 async def aexit(event: TestEvent):
     print("To sleep!")
     await asyncio.sleep(2)
