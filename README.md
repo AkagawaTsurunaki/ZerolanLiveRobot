@@ -196,7 +196,7 @@ Zerolan Live Robot 1.0 旧版本使用的是简单的按秒轮询，从各个服
 例如，当系统检测到一段人声音频时，将会发送 `SERVICE_VAD_SPEECH_CHUNK` 事件，并调用所有注册这个事件的监听器，进行某种处理：
 
 ```python
-@emitter.on(EventEnum.SERVICE_VAD_SPEECH_CHUNK)
+@emitter.on("service/vad/emit-speech-chunk")
 async def on_service_vad_speech_chunk(event: SpeechEvent):
     speech, channels, sample_rate = event.speech, event.channels, event.sample_rate
     prediction = ... # 假如调用了某个函数获得了 ASR 的结果

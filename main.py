@@ -13,7 +13,7 @@ from zerolan.data.pipeline.vla import ShowUiQuery
 from agent.api import find_file, sentiment_analyse, translate, summary_history, model_scale
 from common.abs_runnable import stop_all_runnable
 from common.decorator import withsound
-from common.enumerator import EventEnum, Language, SystemSoundEnum
+from common.enumerator import Language, SystemSoundEnum
 from common.killable_thread import kill_all_threads, KillableThread
 from common.utils.audio_util import save_tmp_audio
 from context import ZerolanLiveRobotContext
@@ -61,7 +61,7 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
         vad_thread.join()
 
     def init(self):
-        @emitter.on(EventEnum.SERVICE_VAD_SPEECH_CHUNK)
+        @emitter.on("service/vad/emit-speech-chunk")
         async def on_service_vad_speech_chunk(event: SpeechEvent):
             speech, channels, sample_rate = event.speech, event.channels, event.sample_rate
             query = ASRStreamQuery(is_final=True, audio_data=speech, channels=channels, sample_rate=sample_rate)
@@ -70,7 +70,7 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
             logger.debug("ASREvent emitted.")
             emitter.emit(ASREvent(prediction=prediction))
 
-        @emitter.on(EventEnum.PIPELINE_ASR)
+        @emitter.on("pipeline/asr")
         async def asr_handler(event: ASREvent):
             logger.debug("ASREvent received.")
             prediction = event.prediction
@@ -137,7 +137,7 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
                 if not tool_called:
                     await self.emit_llm_prediction(prediction.transcript)
 
-        @emitter.on(EventEnum.DEVICE_SCREEN_CAPTURED)
+        @emitter.on("device/screen-captured")
         async def on_device_screen_captured(event: ScreenCapturedEvent):
             img, img_path = event.img, event.img_path
 
@@ -154,19 +154,19 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
                 logger.info("ImgCap: " + caption)
                 emitter.emit(ImgCapEvent(prediction=img_cap_prediction))
 
-        @emitter.on(EventEnum.PIPELINE_OCR)
+        @emitter.on("pipeline/ocr")
         async def on_pipeline_ocr(event: OCREvent):
             prediction = event.prediction
             text = "你看见了" + stringify(prediction.region_results) + "\n请总结一下"
             await self.emit_llm_prediction(text)
 
-        @emitter.on(EventEnum.PIPELINE_IMG_CAP)
+        @emitter.on("pipeline/img_cap")
         async def on_pipeline_img_cap(event: ImgCapEvent):
             prediction = event.prediction
             text = "你看见了" + prediction.caption
             await self.emit_llm_prediction(text)
 
-        @emitter.on(EventEnum.PIPELINE_LLM)
+        @emitter.on("pipeline/llm")
         async def llm_query_handler(event: LLMEvent):
             prediction = event.prediction
             text = prediction.response
@@ -220,7 +220,7 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
             #     await self.emit_tts_handler(TTSEvent(prediction=prediction, transcript=text))
             #     i += 1
 
-        @emitter.on(EventEnum.PIPELINE_LLM)
+        @emitter.on("pipeline/llm")
         async def history_handler(event: LLMEvent):
             prediction = event.prediction
             logger.info(f"Length of current history: {len(self.llm_prompt_manager.current_history)}")

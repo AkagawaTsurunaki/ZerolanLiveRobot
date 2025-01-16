@@ -7,8 +7,9 @@ pyyaml
 flask
 selenium
 numpy==1.26.4
-zerolan-ui
-zerolan-data
+git+https://github.com/AkagawaTsurunaki/zerolan-ui.git
+git+https://github.com/AkagawaTsurunaki/zerolan-data.git
+git+https://github.com/AkagawaTsurunaki/ZerolanUMP.git
 retry
 requests
 loguru

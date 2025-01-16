@@ -13,7 +13,6 @@ from websockets.protocol import State
 from zerolan.data.protocol.protocol import ZerolanProtocol
 
 from common.abs_runnable import AbstractRunnable
-from common.enumerator import EventEnum
 from event.event_data import WebSocketJsonReceivedEvent
 from event.eventemitter import TypedEventEmitter
 
@@ -136,11 +135,11 @@ class ZerolanProtocolWebsocket(AbstractRunnable):
         await super().stop()
         await self._ws.stop()
 
-    def __init__(self, host: str, port: int, protocol: str, version: str):
+    def __init__(self, host: str, port: int):
         super().__init__()
         self._ws = WebSocketServer(host, port)
-        self._protocol = protocol
-        self._version = version
+        self._protocol = "ZerolanProtocol"
+        self._version = "1.0"
 
     @property
     def is_connected(self):
@@ -161,7 +160,7 @@ class ZerolanProtocolWebsocket(AbstractRunnable):
         return None
 
     def init(self):
-        @self._ws.on(EventEnum.WEBSOCKET_RECV_JSON)
+        @self._ws.on("websocket/json-received")
         async def on(event: WebSocketJsonReceivedEvent):
             protocol = self.validate_protocol(event.data)
             if protocol is None:

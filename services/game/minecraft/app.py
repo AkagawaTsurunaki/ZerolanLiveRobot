@@ -5,7 +5,7 @@ from loguru import logger
 
 from agent.tool_agent import Tool, ToolAgent
 from common.config import GameBridgeConfig
-from common.enumerator import EventEnum, SystemSoundEnum
+from common.enumerator import SystemSoundEnum
 from event.eventemitter import emitter
 from event.websocket import WebSocketServer
 from services.device.speaker import Speaker
@@ -23,7 +23,7 @@ class KonekoMinecraftAIAgent:
         self._tool_agent = tool_agent
 
     def _init(self):
-        @emitter.on(EventEnum.KONEKO_CLIENT_PUSH_INSTRUCTIONS)
+        @emitter.on("koneko/client/hello")
         def tools_register(tools: list[Tool]):
             result = []
             for i, tool in enumerate(tools):
@@ -49,23 +49,23 @@ class KonekoMinecraftAIAgent:
                 self._instruction_tools[tool.name] = tool
             logger.info(f"{len(self._instruction_tools)} Instruction tools are bound.")
 
-        @emitter.on(EventEnum.KONEKO_SERVER_CALL_INSTRUCTION)
+        @emitter.on("koneko/client/push-instructions")
         async def send_message(protocol_obj: KonekoProtocol):
             await self.ws.send_json(protocol_obj.model_dump())
 
-        @emitter.on(EventEnum.KONEKO_CLIENT_HELLO)
+        @emitter.on("koneko/client/hello")
         async def fetch_instructions():
-            protocol_obj = KonekoProtocol(event=EventEnum.KONEKO_SERVER_FETCH_INSTRUCTIONS)
+            protocol_obj = KonekoProtocol(event="koneko/server/fetch-instructions")
             await self.ws.send_json(protocol_obj.model_dump())
 
-        @self.ws.on(EventEnum.WEBSOCKET_RECV_JSON)
+        @self.ws.on("websocket/json-received")
         async def event_emitter(data: any):
             protocol_obj = self.valid_protocol(data)
-            if protocol_obj.event == EventEnum.KONEKO_CLIENT_PUSH_INSTRUCTIONS:
+            if protocol_obj.event == "koneko/client/push-instructions":
                 tools = [Tool.model_validate(tool) for tool in protocol_obj.data]
-                await emitter.emit(EventEnum.KONEKO_CLIENT_PUSH_INSTRUCTIONS, tools)
-            elif protocol_obj.event == EventEnum.KONEKO_CLIENT_HELLO:
-                await emitter.emit(EventEnum.KONEKO_CLIENT_HELLO)
+                await emitter.emit("koneko/client/push-instructions", tools)
+            elif protocol_obj.event == "koneko/client/hello":
+                await emitter.emit("koneko/client/hello")
 
     @staticmethod
     def valid_protocol(data: any) -> KonekoProtocol | None:
@@ -98,7 +98,6 @@ class KonekoMinecraftAIAgent:
             tool_msg = await selected_tool.ainvoke(tool_call)
             messages.append(tool_msg)
         logger.debug(messages)
-        # tool.invoke(ToolCall(id="asdsad", args={"content": "Ciallo"}, name="chat"))
 
     def stop(self):
         self.ws.stop()
