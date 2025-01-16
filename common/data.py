@@ -16,6 +16,12 @@ class PlaySpeechDTO(BaseModel):
     duration: float
 
 
+class LoadLive2DModelDTO(BaseModel):
+    bot_id: str
+    bot_display_name: str
+    model_dir: str
+
+
 class FileType(str, Enum):
     ZIP = "zip"
     GLB = "glb"
@@ -61,7 +67,7 @@ class GameObjectInfo(BaseModel):
     transform: Transform
 
 
-class ScaleOperation(BaseModel):
+class ScaleOperationDTO(BaseModel):
     instance_id: int
     target_scale: float
 

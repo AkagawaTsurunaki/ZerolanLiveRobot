@@ -1,10 +1,3 @@
-from agent.custom_agent import CustomAgent
-from agent.tool_agent import ToolAgent
-from common.config import get_config
-from manager.llm_prompt_manager import LLMPromptManager
-from manager.model_manager import ModelManager
-from manager.temp_data_manager import TempDataManager
-from manager.tts_prompt_manager import TTSPromptManager
 from zerolan.ump.pipeline.asr import ASRPipeline
 from zerolan.ump.pipeline.database import MilvusPipeline
 from zerolan.ump.pipeline.img_cap import ImgCapPipeline
@@ -13,6 +6,14 @@ from zerolan.ump.pipeline.ocr import OCRPipeline
 from zerolan.ump.pipeline.tts import TTSPipeline
 from zerolan.ump.pipeline.vid_cap import VidCapPipeline
 from zerolan.ump.pipeline.vla import ShowUIPipeline
+
+from agent.custom_agent import CustomAgent
+from agent.tool_agent import ToolAgent
+from common.config import get_config
+from manager.llm_prompt_manager import LLMPromptManager
+from manager.model_manager import ModelManager
+from manager.temp_data_manager import TempDataManager
+from manager.tts_prompt_manager import TTSPromptManager
 from services.browser.browser import Browser
 from services.device.screen import Screen
 from services.device.speaker import Speaker
@@ -20,7 +21,6 @@ from services.filter.strategy import FirstMatchedFilter
 from services.game.minecraft.app import KonekoMinecraftAIAgent
 from services.live2d.app import Live2dApplication
 from services.live_stream.service import LiveStreamService
-from services.viewer.app import ZerolanViewerServer
 
 config = get_config()
 
@@ -53,7 +53,6 @@ class ZerolanLiveRobotContext:
         self.browser: Browser | None = None
         self.speaker: Speaker = None
         self.live2d: Live2dApplication | None = None
-        self.viewer: ZerolanViewerServer | None = None
 
         self.temp_data_manager: TempDataManager = TempDataManager()
         self._init()
@@ -94,10 +93,8 @@ class ZerolanLiveRobotContext:
         if config.pipeline.vec_db.enable:
             self.vec_db = MilvusPipeline(config.pipeline.vec_db.milvus)
         if config.service.viewer.enable:
-            self.viewer = ZerolanViewerServer(host=config.service.viewer.host, port=config.service.viewer.port,
-                                              protocol="ZerolanViewerProtocol", version="1.0")
             self.model_manager = ModelManager()
-            self.custom_agent = CustomAgent(config=config.pipeline.llm, viewer=self.viewer)
+            self.custom_agent = CustomAgent(config=config.pipeline.llm)
 
         # Agents
         self.tool_agent = ToolAgent(config.pipeline.llm)

@@ -7,7 +7,6 @@ from agent.api import summary, summary_history, model_scale
 from agent.custom_agent import CustomAgent
 from common.config import get_config
 from common.data import GameObjectInfo
-from services.viewer.app import ZerolanViewerServer
 
 _config = get_config()
 
@@ -66,11 +65,9 @@ def test_model_scale():
 
 
 async def atest_custom_agent():
-    viewer = ZerolanViewerServer(host="0.0.0.0", port=11013, protocol="ZerolanViewerProtocol", version="1.0")
     async with TaskGroup() as tg:
-        tg.create_task(viewer.start())
         await asyncio.sleep(5)
-        agent = CustomAgent(_config.pipeline.llm, viewer)
+        agent = CustomAgent(_config.pipeline.llm)
         agent.run("创建一个绿色的立方体")
 
 

@@ -136,11 +136,11 @@ class ZerolanProtocolWebsocket(AbstractRunnable):
         await super().stop()
         await self._ws.stop()
 
-    def __init__(self, host: str, port: int, protocol: str, version: str):
+    def __init__(self, host: str, port: int):
         super().__init__()
         self._ws = WebSocketServer(host, port)
-        self._protocol = protocol
-        self._version = version
+        self._protocol = "Zerolan Protocol"
+        self._version = "1.1"
 
     @property
     def is_connected(self):
@@ -171,3 +171,6 @@ class ZerolanProtocolWebsocket(AbstractRunnable):
     @abstractmethod
     async def on_protocol(self, protocol: ZerolanProtocol):
         raise NotImplementedError()
+
+    async def send(self, protocol: ZerolanProtocol):
+        await self._ws.send_json(protocol.model_dump())

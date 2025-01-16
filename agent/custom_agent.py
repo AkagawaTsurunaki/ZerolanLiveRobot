@@ -10,16 +10,15 @@ from agent.tool.go_creator import GameObjectCreator
 from agent.tool.web_search import BaiduBaikeTool, MoeGirlTool
 from agent.tool_agent import ToolAgent
 from common.config import LLMPipelineConfig
-from services.viewer.app import ZerolanViewerServer
 
 
 class CustomAgent:
 
     @inject
-    def __init__(self, config: LLMPipelineConfig, viewer: ZerolanViewerServer, driver: Firefox | Chrome = None):
+    def __init__(self, config: LLMPipelineConfig, driver: Firefox | Chrome = None):
         self._model = ToolAgent(config=config)
         # Here to register more tools
-        tools = [BaiduBaikeTool(), GameObjectCreator(viewer)]
+        tools = [BaiduBaikeTool(), GameObjectCreator()]
         if driver is not None:
             tools.append(MoeGirlTool(driver))
         self._tools = {}

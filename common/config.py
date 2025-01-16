@@ -52,13 +52,6 @@ class LiveStreamConfig(BaseModel):
     youtube: YoutubeServiceConfig = None
 
 
-class Live2DConfig(BaseModel):
-    enable: bool = True
-    host: str = "127.0.0.1"
-    port: int = 11008
-    model_dir: str = "resources/static/models/live2d/"
-
-
 class GameBridgeConfig(BaseModel):
     enable: bool = True
     host: str = '127.0.0.1'
@@ -66,18 +59,20 @@ class GameBridgeConfig(BaseModel):
     platform: Literal["minecraft"] = "minecraft"
 
 
-class ZerolanViewerConfig(BaseModel):
+class PlaygroundBridgeConfig:
     enable: bool = True
-    host: str = '0.0.0.0'
+    host: str = "0.0.0.0"
     port: int = 11013
+    mode: Literal["live2d", "ar"] = "live2d"  # live2d 或者 ar
+    bot_id: str = "1"
+    model_dir: str = "./resources/static/models/live2d/hiyori_pro_zh"
 
 
 class ServiceConfig(BaseModel):
     controller: ControllerConfig
     live_stream: LiveStreamConfig
     game: GameBridgeConfig
-    live2d: Live2DConfig
-    viewer: ZerolanViewerConfig
+    playground: PlaygroundBridgeConfig
 
 
 class FilterConfig(BaseModel):

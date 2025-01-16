@@ -1,16 +1,15 @@
 import asyncio
 from typing import Any, Type
 
-from injector import inject
 from langchain_core.tools import BaseTool
 from pydantic import BaseModel, Field
 
 from common.data import CreateGameObjectDTO
-from services.viewer.app import ZerolanViewerServer
+from services.playground.api import create_gameobject
 
 
 class GameObjectCreatorInput(BaseModel):
-    dto: CreateGameObjectDTO = Field(description="DTO of the game object wiil be created")
+    dto: CreateGameObjectDTO = Field(description="DTO of the game object will be created")
 
 
 class GameObjectCreator(BaseTool):
@@ -19,14 +18,12 @@ class GameObjectCreator(BaseTool):
     args_schema: Type[BaseModel] = GameObjectCreatorInput
     return_direct: bool = True
 
-    @inject
-    def __init__(self, viewer: ZerolanViewerServer):
+    def __init__(self):
         super().__init__()
-        self._viewer = viewer
 
     def _run(self, dto: CreateGameObjectDTO) -> Any:
         task = [asyncio.create_task(self._arun(dto))]
         asyncio.gather(*task)
 
     async def _arun(self, dto: CreateGameObjectDTO) -> None:
-        await self._viewer.create_gameobject(dto)
+        await create_gameobject(dto)
