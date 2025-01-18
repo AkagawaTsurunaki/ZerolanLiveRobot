@@ -4,7 +4,7 @@ import os.path
 import uuid
 from pathlib import Path
 from time import time
-from typing import Literal
+from typing import Literal, LiteralString
 from uuid import uuid4
 
 import aiofiles
