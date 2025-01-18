@@ -17,7 +17,9 @@ langchain
 langgraph
 injector
 twitchAPI
-pytest
 Deprecated
 aiofiles
 python-magic
+# If you are not a developer, you can skip the following packages
+pytest
+pytest-asyncio
