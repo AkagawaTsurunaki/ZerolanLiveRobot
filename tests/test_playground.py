@@ -11,6 +11,8 @@ _bridge = PlaygroundBridge(host="127.0.0.1", port=11013)
 auto_close_flag = False
 
 
+# You can test the connection to ZerolanPlayground
+# All test cases will depend on this function so make sure you test it at first.
 @pytest.mark.asyncio
 async def test_conn():
     async with TaskGroup() as tg:
@@ -21,6 +23,10 @@ async def test_conn():
             await _bridge.stop()
             start_task.cancel()
 
+
+# You should put at least 1 3D-model file under `../resources/static/models/3d`,
+# Or the test case will not work.
+# You can also change the path if you want.
 @pytest.mark.asyncio
 async def test_load_3d_model():
     async with TaskGroup() as tg:
