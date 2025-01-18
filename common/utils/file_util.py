@@ -86,8 +86,9 @@ async def encrypt(fpath: str, algorithm: str = "sha256") -> str:
         return hashlib.new(algorithm, await f.read()).hexdigest()
 
 
-async def get_file_info(path: str) -> FileInfo:
+async def get_file_info(path: LiteralString | str | bytes) -> FileInfo:
     assert os.path.exists(path)
+    path = str(path)
     file_extension = Path(path).suffix
     file_name = Path(path).name
     # file_name = file_name[:len(file_name) - len(file_extension)]

@@ -59,7 +59,7 @@ class GameBridgeConfig(BaseModel):
     platform: Literal["minecraft"] = "minecraft"
 
 
-class PlaygroundBridgeConfig:
+class PlaygroundBridgeConfig(BaseModel):
     enable: bool = True
     host: str = "0.0.0.0"
     port: int = 11013

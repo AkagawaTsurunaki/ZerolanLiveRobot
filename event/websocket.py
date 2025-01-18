@@ -172,5 +172,9 @@ class ZerolanProtocolWebsocket(AbstractRunnable):
     async def on_protocol(self, protocol: ZerolanProtocol):
         raise NotImplementedError()
 
-    async def send(self, protocol: ZerolanProtocol):
+    async def send(self, action: str, data: any, message: str = "", code: int = 0):
+        protocol = ZerolanProtocol(message=message,
+                                   code=code,
+                                   action=action,
+                                   data=data)
         await self._ws.send_json(protocol.model_dump())

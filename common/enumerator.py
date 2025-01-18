@@ -91,3 +91,16 @@ class EventEnum(str, Enum):
     KONEKO_SERVER_CALL_INSTRUCTION = "koneko.server.call_instruction"
 
     WEBSOCKET_RECV_JSON = "websocket.recv.json"
+
+
+class Action(str, Enum):
+    PLAY_SPEECH = "play_speech"
+    LOAD_LIVE2D_MODEL = "load_live2d_model"
+
+    CLIENT_HELLO = "client_hello"
+    SERVER_HELLO = "server_hello"
+
+    LOAD_3D_MODEL = "load_model"
+    UPDATE_GAMEOBJECTS_INFO = "update_gameobjects_info"
+    MODIFY_GAMEOBJECT_SCALE = "modify_gameobject_scale"
+    CREATE_GAMEOBJECT = "create_gameobject"

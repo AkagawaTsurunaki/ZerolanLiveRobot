@@ -1,5 +1,5 @@
 import os
-from typing import Dict, List
+from typing import Dict, List, LiteralString
 
 from loguru import logger
 
@@ -8,8 +8,8 @@ from common.utils.file_util import get_file_info
 
 
 class ModelManager:
-    def __init__(self):
-        self._model_dir = R".\resources\static\models\3d"
+    def __init__(self, model_dir=None):
+        self._model_dir = R".\resources\static\models\3d" if model_dir is None else model_dir
         self._model_files: Dict[str, FileInfo] = {}
 
     async def scan(self):
