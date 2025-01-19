@@ -19,8 +19,8 @@ from services.device.screen import Screen
 from services.device.speaker import Speaker
 from services.filter.strategy import FirstMatchedFilter
 from services.game.minecraft.app import KonekoMinecraftAIAgent
-from services.live2d.app import Live2dApplication
 from services.live_stream.service import LiveStreamService
+from services.playground.bridge import PlaygroundBridge
 
 config = get_config()
 
@@ -52,7 +52,7 @@ class ZerolanLiveRobotContext:
         self.screen: Screen | None = None
         self.browser: Browser | None = None
         self.speaker: Speaker = None
-        self.live2d: Live2dApplication | None = None
+        self.playground: PlaygroundBridge = None
 
         self.temp_data_manager: TempDataManager = TempDataManager()
         self._init()
@@ -88,13 +88,12 @@ class ZerolanLiveRobotContext:
                 self.game_agent = KonekoMinecraftAIAgent(config.service.game, self.tool_agent)
         if config.service.live_stream.enable:
             self.live_stream = LiveStreamService(config.service.live_stream)
-        if config.service.live2d.enable:
-            self.live2d = Live2dApplication(config.service.live2d)
         if config.pipeline.vec_db.enable:
             self.vec_db = MilvusPipeline(config.pipeline.vec_db.milvus)
-        if config.service.viewer.enable:
+        if config.service.playground.enable:
             self.model_manager = ModelManager()
             self.custom_agent = CustomAgent(config=config.pipeline.llm)
+            self.playground = PlaygroundBridge(config=config.service.playground)
 
         # Agents
         self.tool_agent = ToolAgent(config.pipeline.llm)

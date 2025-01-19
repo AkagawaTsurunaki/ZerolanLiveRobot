@@ -3,6 +3,7 @@ import os.path
 from loguru import logger
 from zerolan.data.protocol.protocol import ZerolanProtocol
 
+from common.config import PlaygroundBridgeConfig
 from common.data import PlaySpeechDTO, LoadLive2DModelDTO, FileInfo, ScaleOperationDTO, CreateGameObjectDTO, \
     GameObjectInfo
 from common.enumerator import Action
@@ -14,8 +15,8 @@ from event.websocket import ZerolanProtocolWebsocket
 
 class PlaygroundBridge(ZerolanProtocolWebsocket):
 
-    def __init__(self, host: str, port: int):
-        super().__init__(host, port)
+    def __init__(self, config: PlaygroundBridgeConfig):
+        super().__init__(host=config.host, port=config.port)
         self.gameobjects_info = {}
 
     async def on_protocol(self, protocol: ZerolanProtocol):

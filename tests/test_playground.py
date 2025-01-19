@@ -8,7 +8,8 @@ from common.data import LoadLive2DModelDTO, CreateGameObjectDTO, GameObjectType,
 from manager.model_manager import ModelManager
 from services.playground.bridge import PlaygroundBridge
 
-_bridge = PlaygroundBridge(host="127.0.0.1", port=11013)
+_config = get_config()
+_bridge = PlaygroundBridge(_config.service.playground)
 
 auto_close_flag = False
 
@@ -44,9 +45,6 @@ async def test_load_3d_model():
         file_info = _manager.get_file_by_id(file_id)
         await syncwait()
         await _bridge.load_3d_model(file_info)
-
-
-_config = get_config()
 
 
 # You should set Live2D-model file path in your config.yaml
