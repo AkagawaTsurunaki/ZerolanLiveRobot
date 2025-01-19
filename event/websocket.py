@@ -139,7 +139,7 @@ class ZerolanProtocolWebsocket(AbstractRunnable):
     def __init__(self, host: str, port: int):
         super().__init__()
         self._ws = WebSocketServer(host, port)
-        self._protocol = "Zerolan Protocol"
+        self._protocol = "ZerolanProtocol"
         self._version = "1.1"
 
     @property

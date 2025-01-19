@@ -79,7 +79,7 @@ class GameObjectType(str, Enum):
 
 class CreateGameObjectDTO(BaseModel):
     instance_id: int = Field(description="The id of the gameobject instance")
-    gameobject_name: str = Field(description="The name of the gameobject")
+    game_object_name: str = Field(description="The name of the gameobject")
     object_type: GameObjectType = Field(
         description=f"The type of the gameobject, can be only in {enum_members_to_list(GameObjectType)}")
     color: str = Field(description='The color of the gameobject, hex format: "#000000"')
