@@ -95,7 +95,7 @@ class PlaygroundBridge(ZerolanProtocolWebsocket):
         Make a query for updating the gameobjects info.
         This method does not make effects immediately.
         """
-        await self.send(action=Action.UPDATE_GAMEOBJECTS_INFO, data=None)
+        await self.send(action=Action.QUERY_GAMEOBJECTS_INFO, data=None)
 
     def get_gameobjects_info(self) -> list[GameObjectInfo]:
         """

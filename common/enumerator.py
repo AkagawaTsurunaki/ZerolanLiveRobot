@@ -102,5 +102,6 @@ class Action(str, Enum):
 
     LOAD_3D_MODEL = "load_model"
     UPDATE_GAMEOBJECTS_INFO = "update_gameobjects_info"
+    QUERY_GAMEOBJECTS_INFO = "query_gameobjects_info"
     MODIFY_GAMEOBJECT_SCALE = "modify_gameobject_scale"
     CREATE_GAMEOBJECT = "create_gameobject"
