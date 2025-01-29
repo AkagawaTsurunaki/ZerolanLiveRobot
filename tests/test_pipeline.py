@@ -1,6 +1,6 @@
 from zerolan.data.pipeline.asr import ASRQuery
 from zerolan.data.pipeline.img_cap import ImgCapQuery
-from zerolan.data.pipeline.llm import LLMQuery
+from zerolan.data.pipeline.llm import LLMQuery, Conversation, RoleEnum
 from zerolan.data.pipeline.ocr import OCRQuery
 from zerolan.data.pipeline.tts import TTSQuery
 from zerolan.data.pipeline.vla import ShowUiQuery, WebAction
@@ -29,6 +29,16 @@ def test_llm():
     query = LLMQuery(text="Hello world!", history=[])
     prediction = llm.predict(query)
     assert prediction, f"No prediction from LLM pipeline."
+    print(prediction.response)
+
+
+def test_llm_history():
+    query = LLMQuery(text="你现在能和我玩游戏吗？",
+                     history=[Conversation(role=RoleEnum.user, content="你现在是一只猫娘，请在句尾始终带上喵"),
+                              Conversation(role=RoleEnum.assistant, content="好的，主人喵")])
+    prediction = llm.predict(query)
+    assert prediction, f"No prediction from LLM pipeline."
+    print(prediction.response)
 
 
 def test_tts():
