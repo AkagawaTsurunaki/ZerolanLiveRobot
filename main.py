@@ -108,9 +108,9 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
                     x, y = action.position[0] * img.width, action.position[1] * img.height
                     pyautogui.moveTo(x, y)
                     pyautogui.click()
-            elif "切换语言" in prediction.transcript:
-                self.cur_lang = Language.JA
-                self.tts_prompt_manager.set_lang(self.cur_lang)
+            # elif "切换语言" in prediction.transcript:
+            #     self.cur_lang = Language.JA
+            #     self.tts_prompt_manager.set_lang(self.cur_lang)
             elif "记得" in prediction.transcript:
                 query = MilvusQuery(collection_name="history_collection", limit=2, output_fields=['history', 'text'],
                                     query=prediction.transcript)
@@ -242,6 +242,10 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
         if is_filtered:
             return
         emitter.emit(LLMEvent(prediction=prediction))
+
+    def change_lang(self, lang: Language):
+        self.cur_lang = lang.name()
+        self.tts_prompt_manager.set_lang(self.cur_lang)
 
     async def _exit(self):
         await stop_all_runnable()

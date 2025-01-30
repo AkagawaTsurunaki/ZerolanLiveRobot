@@ -7,18 +7,20 @@ from loguru import logger
 from selenium.webdriver import Firefox, Chrome
 
 from agent.tool.go_creator import GameObjectCreator
+from agent.tool.lang_changer import LangChanger
 from agent.tool.web_search import BaiduBaikeTool, MoeGirlTool
 from agent.tool_agent import ToolAgent
 from common.config import LLMPipelineConfig
+from main import ZerolanLiveRobot
 
 
 class CustomAgent:
 
     @inject
-    def __init__(self, config: LLMPipelineConfig, driver: Firefox | Chrome = None):
+    def __init__(self, config: LLMPipelineConfig, bot: ZerolanLiveRobot, driver: Firefox | Chrome = None, ):
         self._model = ToolAgent(config=config)
         # Here to register more tools
-        tools = [BaiduBaikeTool(), GameObjectCreator()]
+        tools = [BaiduBaikeTool(), GameObjectCreator(), LangChanger(bot)]
         if driver is not None:
             tools.append(MoeGirlTool(driver))
         self._tools = {}
