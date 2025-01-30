@@ -22,7 +22,6 @@ from event.event_data import ASREvent, SpeechEvent, ScreenCapturedEvent, LLMEven
 from event.eventemitter import emitter
 from event.speech_emitter import SpeechEmitter
 from services.device.screen import is_image_uniform
-from services.playground.api import modify_game_object_scale, get_gameobjects_info, load_3d_model
 
 
 class ZerolanLiveRobot(ZerolanLiveRobotContext):
@@ -47,10 +46,8 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
                 tg.create_task(self.speaker.start())
                 if self.live_stream is not None:
                     tg.create_task(self.live_stream.start())
-                if self.live2d is not None:
-                    tg.create_task(self.live2d.start())
-                if self.viewer is not None:
-                    tg.create_task(self.viewer.start())
+                if self.playground is not None:
+                    tg.create_task(self.playground.start())
                 if self.model_manager is not None:
                     tg.create_task(self.model_manager.scan())
 
@@ -125,14 +122,14 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
             elif "加载模型" in prediction.transcript:
                 file_id = find_file(self.model_manager.get_files(), prediction.transcript)
                 file_info = self.model_manager.get_file_by_id(file_id)
-                await load_3d_model(file_info)
+                await self.playground.load_3d_model(file_info)
             elif "调整模型" in prediction.transcript:
-                info = get_gameobjects_info()
+                info = self.playground.get_gameobjects_info()
                 if not info:
                     logger.warning("No gameobjects info")
                     return
                 so = model_scale(info, prediction.transcript)
-                await modify_game_object_scale(so)
+                await self.playground.modify_game_object_scale(so)
             else:
                 tool_called = self.custom_agent.run(prediction.transcript)
                 if not tool_called:
@@ -229,14 +226,10 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
 
     async def emit_tts_handler(self, event: TTSEvent):
         prediction = event.prediction
-        if self.live2d.is_connected:
-            audio_path = save_tmp_audio(prediction.wave_data)
-            await self.live2d.playsound(audio_path, event.transcript)
-        elif self.viewer.is_connected:
+        if self.playground.is_playground_connected():
             bot_id = "0001"
-            bot_display_name = "UnityChan"
             audio_path = save_tmp_audio(prediction.wave_data)
-            await self.viewer.play_speech(bot_id, bot_display_name, audio_path, event.transcript)
+            await self.playground.play_speech(bot_id=bot_id, audio_path=audio_path, transcript=prediction.transcript)
         else:
             self.speaker.enqueue_sound(prediction.wave_data)
 
