@@ -92,6 +92,8 @@ class EventEnum(str, Enum):
 
     WEBSOCKET_RECV_JSON = "websocket.recv.json"
 
+    QQ_MESSAGE = "qq.message"
+
 
 class Action(str, Enum):
     PLAY_SPEECH = "play_speech"

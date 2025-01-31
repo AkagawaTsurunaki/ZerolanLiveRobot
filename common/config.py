@@ -68,11 +68,18 @@ class PlaygroundBridgeConfig(BaseModel):
     model_dir: str = "./resources/static/models/live2d/hiyori_pro_zh"
 
 
+class QQBotBridgeConfig(BaseModel):
+    enable: bool = True
+    host: str = "0.0.0.0"
+    port: int = 11014
+
+
 class ServiceConfig(BaseModel):
     controller: ControllerConfig
     live_stream: LiveStreamConfig
     game: GameBridgeConfig
     playground: PlaygroundBridgeConfig
+    qqbot: QQBotBridgeConfig
 
 
 class FilterConfig(BaseModel):

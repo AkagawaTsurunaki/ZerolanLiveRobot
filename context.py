@@ -21,6 +21,7 @@ from services.filter.strategy import FirstMatchedFilter
 from services.game.minecraft.app import KonekoMinecraftAIAgent
 from services.live_stream.service import LiveStreamService
 from services.playground.bridge import PlaygroundBridge
+from services.qqbot.bridge import QQBotBridge
 
 config = get_config()
 
@@ -53,6 +54,7 @@ class ZerolanLiveRobotContext:
         self.browser: Browser | None = None
         self.speaker: Speaker = None
         self.playground: PlaygroundBridge = None
+        self.qq: QQBotBridge = None
 
         self.temp_data_manager: TempDataManager = TempDataManager()
         self._init()
@@ -94,6 +96,8 @@ class ZerolanLiveRobotContext:
             self.model_manager = ModelManager()
             self.custom_agent = CustomAgent(config=config.pipeline.llm)
             self.playground = PlaygroundBridge(config=config.service.playground)
+        if config.service.qqbot.enable:
+            self.qq = QQBotBridge(config.service.qqbot)
 
         # Agents
         self.tool_agent = ToolAgent(config.pipeline.llm)

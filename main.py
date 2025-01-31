@@ -4,7 +4,7 @@ import pyautogui
 from loguru import logger
 from zerolan.data.pipeline.asr import ASRStreamQuery
 from zerolan.data.pipeline.img_cap import ImgCapQuery
-from zerolan.data.pipeline.llm import LLMQuery
+from zerolan.data.pipeline.llm import LLMQuery, LLMPrediction
 from zerolan.data.pipeline.milvus import MilvusInsert, InsertRow, MilvusQuery
 from zerolan.data.pipeline.ocr import OCRQuery
 from zerolan.data.pipeline.tts import TTSQuery
@@ -18,7 +18,8 @@ from common.enumerator import EventEnum, Language, SystemSoundEnum
 from common.killable_thread import kill_all_threads, KillableThread
 from common.utils.audio_util import save_tmp_audio
 from context import ZerolanLiveRobotContext
-from event.event_data import ASREvent, SpeechEvent, ScreenCapturedEvent, LLMEvent, OCREvent, ImgCapEvent, TTSEvent
+from event.event_data import ASREvent, SpeechEvent, ScreenCapturedEvent, LLMEvent, OCREvent, ImgCapEvent, TTSEvent, \
+    QQMessageEvent
 from event.eventemitter import emitter
 from event.speech_emitter import SpeechEmitter
 from services.device.screen import is_image_uniform
@@ -152,6 +153,14 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
                 logger.info("ImgCap: " + caption)
                 emitter.emit(ImgCapEvent(prediction=img_cap_prediction))
 
+        @emitter.on(EventEnum.QQ_MESSAGE)
+        async def on_qq_message(event: QQMessageEvent):
+            prediction = await self.emit_llm_prediction(event.message, direct_return=True)
+            if prediction is None:
+                logger.warning("No response from LLM remote service and will not send QQ message.")
+                return
+            await self.qq.send_plain_message(prediction.response, event.group_id)
+
         @emitter.on(EventEnum.PIPELINE_OCR)
         async def on_pipeline_ocr(event: OCREvent):
             prediction = event.prediction
@@ -179,15 +188,6 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
             else:
                 cut_punc = ",.!?"
 
-            # query = TTSQuery(
-            #     text=text,
-            #     text_language="zh",
-            #     refer_wav_path=tts_prompt.audio_path,
-            #     prompt_text=tts_prompt.prompt_text,
-            #     prompt_language=tts_prompt.lang,
-            #     cut_punc=cut_punc,
-            # )
-
             def punc_cut(text: str, punc: str):
                 texts = []
                 last = -1
@@ -212,18 +212,6 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
                 prediction = self.tts.predict(query=query)
                 await self.emit_tts_handler(TTSEvent(prediction=prediction, transcript=transcript))
 
-            # i = 0
-            #
-            # for prediction in self.tts.stream_predict(query):
-            #     await self.emit_tts_handler(TTSEvent(prediction=prediction, transcript=text))
-            #     i += 1
-
-        @emitter.on(EventEnum.PIPELINE_LLM)
-        async def history_handler(event: LLMEvent):
-            prediction = event.prediction
-            logger.info(f"Length of current history: {len(self.llm_prompt_manager.current_history)}")
-            self.llm_prompt_manager.reset_history(prediction.history, self.save_memory)
-
     async def emit_tts_handler(self, event: TTSEvent):
         prediction = event.prediction
         if self.playground.is_playground_connected():
@@ -233,7 +221,7 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
         else:
             self.speaker.enqueue_sound(prediction.wave_data)
 
-    async def emit_llm_prediction(self, text):
+    async def emit_llm_prediction(self, text, direct_return: bool = False) -> None | LLMPrediction:
         query = LLMQuery(text=text, history=self.llm_prompt_manager.current_history)
         prediction = self.llm.predict(query)
 
@@ -241,7 +229,11 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
         is_filtered = self.filter.filter(prediction.response)
         if is_filtered:
             return
-        emitter.emit(LLMEvent(prediction=prediction))
+        logger.info(f"Length of current history: {len(self.llm_prompt_manager.current_history)}")
+        self.llm_prompt_manager.reset_history(prediction.history, self.save_memory)
+        if not direct_return:
+            emitter.emit(LLMEvent(prediction=prediction))
+        return prediction
 
     def change_lang(self, lang: Language):
         self.cur_lang = lang.name()

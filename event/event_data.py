@@ -25,6 +25,13 @@ class ASREvent(BaseEvent):
 
 
 @dataclass
+class QQMessageEvent(BaseEvent):
+    message: str
+    group_id: int | None
+    type: EventEnum = EventEnum.QQ_MESSAGE
+
+
+@dataclass
 class LLMEvent(BaseEvent):
     prediction: LLMPrediction
     type: EventEnum = EventEnum.PIPELINE_LLM
