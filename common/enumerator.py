@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-class Language(str, Enum ):
+class Language(str, Enum):
     ZH = "zh"
     EN = "en"
     JA = "ja"
@@ -63,6 +63,7 @@ class EventEnum(str, Enum):
     """
     All event names should be registered here.
     """
+
     TEST = "test"
     LANG_CHANGE = "lang_change"
 
@@ -94,6 +95,9 @@ class EventEnum(str, Enum):
     WEBSOCKET_RECV_JSON = "websocket.recv.json"
 
     QQ_MESSAGE = "qq.message"
+
+    CLOSE_MICROPHONE = "close_microphone"
+    OPEN_MICROPHONE = "open_microphone"
 
 
 class Action(str, Enum):

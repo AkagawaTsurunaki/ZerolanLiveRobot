@@ -59,6 +59,15 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
         vad_thread.join()
 
     def init(self):
+
+        @emitter.on(EventEnum.OPEN_MICROPHONE)
+        async def on_open_microphone(_):
+            await self.vad.start()
+
+        @emitter.on(EventEnum.CLOSE_MICROPHONE)
+        async def on_close_microphone(_):
+            await self.vad.stop()
+
         @emitter.on(EventEnum.SERVICE_VAD_SPEECH_CHUNK)
         async def on_service_vad_speech_chunk(event: SpeechEvent):
             speech, channels, sample_rate = event.speech, event.channels, event.sample_rate
@@ -269,5 +278,3 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
             logger.info(f"Add a history memory: {row.text}")
         else:
             logger.warning(f"Failed to add a history memory.")
-
-

@@ -120,7 +120,18 @@ class ScreenCapturedEvent(BaseEvent):
     img_path: str
     type: EventEnum = EventEnum.DEVICE_SCREEN_CAPTURED
 
+
 @dataclass
 class LanguageChangeEvent(BaseEvent):
     target_lang: str
     type: EventEnum = EventEnum.LANG_CHANGE
+
+
+@dataclass
+class OpenMicrophoneEvent(BaseEvent):
+    type: EventEnum = EventEnum.OPEN_MICROPHONE
+
+
+@dataclass
+class CloseMicrophoneEvent(BaseEvent):
+    type: EventEnum = EventEnum.CLOSE_MICROPHONE
