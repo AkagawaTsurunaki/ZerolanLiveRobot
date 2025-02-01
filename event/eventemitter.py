@@ -84,6 +84,7 @@ class TypedEventEmitter(AbstractRunnable):
         while not self._stop_flag:
             for listener, event in self._sync_tasks:
                 listener.func(event)
+                self._sync_tasks.remove((listener, event))
 
             self._thread_event.clear()
             if self._stop_flag:

@@ -24,23 +24,34 @@ class SpeechEmitter(AbstractRunnable):
         self.vad = EasyEnergyVad()
         self.speech_chunks = LimitList(50)
         self._stop_flag = False
+        self._asyncio_event = asyncio.Event()
 
     @property
     def is_recording(self):
         return not self._stop_flag
 
-    @withsound(SystemSoundEnum.enable_func)
     async def start(self):
         await super().start()
         self._stop_flag = False
         self.mp.open()
         await self.handler()
 
-    @withsound(SystemSoundEnum.disable_func)
+    @withsound(SystemSoundEnum.enable_func)
+    def resume(self):
+        self._asyncio_event.set()
+        self._stop_flag = False
+        logger.info("VAD resumed.")
+
     async def stop(self):
         await super().stop()
         self._stop_flag = True
         self.mp.close()
+
+    @withsound(SystemSoundEnum.disable_func)
+    def pause(self):
+        self._asyncio_event.clear()
+        self._stop_flag = True
+        logger.info("VAD paused.")
 
     async def handler(self):
         for chunk in self.mp.stream():
@@ -51,7 +62,7 @@ class SpeechEmitter(AbstractRunnable):
                 #           不要删除上方的这行代码，否则关闭麦克风时将会产生段错误：-1073741819(0xC0000005)
                 #           初步判断可能是协程实现的问题
                 #           使用日志 IO 和显式 asyncio.sleep(0) 可以强制挂起本任务，让出任务执行权
-                break
+                await self._asyncio_event.wait()
 
             await asyncio.sleep(0)
             speech_chunk = np.frombuffer(chunk, dtype=np.float32)

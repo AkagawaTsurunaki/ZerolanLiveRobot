@@ -1,6 +1,6 @@
 from injector import inject
 
-from event.event_data import CloseMicrophoneEvent, OpenMicrophoneEvent
+from event.event_data import SwitchVADEvent
 from event.eventemitter import emitter
 from event.speech_emitter import SpeechEmitter
 
@@ -12,7 +12,4 @@ class ZerolanController:
         self._vad = vad
 
     def switch_microphone(self):
-        if not self._vad.is_recording:
-            emitter.emit(OpenMicrophoneEvent())
-        else:
-            emitter.emit(CloseMicrophoneEvent())
+        emitter.emit(SwitchVADEvent())

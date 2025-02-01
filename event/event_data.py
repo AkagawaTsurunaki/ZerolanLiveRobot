@@ -128,10 +128,5 @@ class LanguageChangeEvent(BaseEvent):
 
 
 @dataclass
-class OpenMicrophoneEvent(BaseEvent):
-    type: EventEnum = EventEnum.OPEN_MICROPHONE
-
-
-@dataclass
-class CloseMicrophoneEvent(BaseEvent):
-    type: EventEnum = EventEnum.CLOSE_MICROPHONE
+class SwitchVADEvent(BaseEvent):
+    type: EventEnum = EventEnum.SWITCH_VAD

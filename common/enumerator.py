@@ -96,8 +96,7 @@ class EventEnum(str, Enum):
 
     QQ_MESSAGE = "qq.message"
 
-    CLOSE_MICROPHONE = "close_microphone"
-    OPEN_MICROPHONE = "open_microphone"
+    SWITCH_VAD = "switch_vad"
 
 
 class Action(str, Enum):

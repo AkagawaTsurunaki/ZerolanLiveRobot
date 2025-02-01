@@ -60,13 +60,12 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
 
     def init(self):
 
-        @emitter.on(EventEnum.OPEN_MICROPHONE)
-        async def on_open_microphone(_):
-            await self.vad.start()
-
-        @emitter.on(EventEnum.CLOSE_MICROPHONE)
-        async def on_close_microphone(_):
-            await self.vad.stop()
+        @emitter.on(EventEnum.SWITCH_VAD)
+        def on_open_microphone(_):
+            if self.vad.is_recording:
+                self.vad.pause()
+            else:
+                self.vad.resume()
 
         @emitter.on(EventEnum.SERVICE_VAD_SPEECH_CHUNK)
         async def on_service_vad_speech_chunk(event: SpeechEvent):
