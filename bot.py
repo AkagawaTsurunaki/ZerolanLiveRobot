@@ -19,7 +19,7 @@ from common.killable_thread import kill_all_threads, KillableThread
 from common.utils.audio_util import save_tmp_audio
 from context import ZerolanLiveRobotContext
 from event.event_data import ASREvent, SpeechEvent, ScreenCapturedEvent, LLMEvent, OCREvent, ImgCapEvent, TTSEvent, \
-    QQMessageEvent
+    QQMessageEvent, SwitchVADEvent
 from event.eventemitter import emitter
 from services.device.screen import is_image_uniform
 
@@ -61,10 +61,16 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
     def init(self):
 
         @emitter.on(EventEnum.SWITCH_VAD)
-        def on_open_microphone(_):
+        def on_open_microphone(event: SwitchVADEvent):
             if self.vad.is_recording:
+                if event.switch:
+                    logger.warning("The microphone has already resumed.")
+                    return
                 self.vad.pause()
             else:
+                if not event.switch:
+                    logger.warning("The microphone has already paused.")
+                    return
                 self.vad.resume()
 
         @emitter.on(EventEnum.SERVICE_VAD_SPEECH_CHUNK)
@@ -93,8 +99,6 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
                     self.browser.move_to_search_box()
                     text = prediction.transcript[4:]
                     self.browser.send_keys_and_enter(text)
-            elif "关闭麦克风" in prediction.transcript:
-                await self.vad.stop()
             elif "游戏" in prediction.transcript:
                 await self.game_agent.exec_instruction(prediction.transcript)
             elif "看见" in prediction.transcript:
@@ -116,9 +120,6 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
                     x, y = action.position[0] * img.width, action.position[1] * img.height
                     pyautogui.moveTo(x, y)
                     pyautogui.click()
-            # elif "切换语言" in prediction.transcript:
-            #     self.cur_lang = Language.JA
-            #     self.tts_prompt_manager.set_lang(self.cur_lang)
             elif "记得" in prediction.transcript:
                 query = MilvusQuery(collection_name="history_collection", limit=2, output_fields=['history', 'text'],
                                     query=prediction.transcript)

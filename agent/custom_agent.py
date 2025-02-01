@@ -8,6 +8,7 @@ from selenium.webdriver import Firefox, Chrome
 
 from agent.tool.go_creator import GameObjectCreator
 from agent.tool.lang_changer import LangChanger
+from agent.tool.microphone_tool import MicrophoneTool
 from agent.tool.web_search import BaiduBaikeTool, MoeGirlTool
 from agent.tool_agent import ToolAgent
 from common.config import LLMPipelineConfig
@@ -21,7 +22,7 @@ class CustomAgent:
                  bridge: PlaygroundBridge | None = None):
         self._model = ToolAgent(config=config)
         # Here to register more tools
-        tools = [BaiduBaikeTool(), LangChanger()]
+        tools = [BaiduBaikeTool(), LangChanger(), MicrophoneTool()]
         if driver is not None:
             tools.append(MoeGirlTool(driver))
         if bridge is not None:

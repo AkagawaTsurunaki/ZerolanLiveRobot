@@ -129,4 +129,5 @@ class LanguageChangeEvent(BaseEvent):
 
 @dataclass
 class SwitchVADEvent(BaseEvent):
+    switch: bool
     type: EventEnum = EventEnum.SWITCH_VAD
