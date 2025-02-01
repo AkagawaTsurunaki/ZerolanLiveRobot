@@ -32,6 +32,7 @@ class SpeechEmitter(AbstractRunnable):
     @withsound(SystemSoundEnum.enable_func)
     async def start(self):
         await super().start()
+        self._stop_flag = False
         self.mp.open()
         await self.handler()
 
@@ -44,6 +45,12 @@ class SpeechEmitter(AbstractRunnable):
     async def handler(self):
         for chunk in self.mp.stream():
             if self._stop_flag:
+                logger.debug("Microphone stop flag invoked.")
+                await asyncio.sleep(0)
+                # └---- ⚠️ 【警告】
+                #           不要删除上方的这行代码，否则关闭麦克风时将会产生段错误：-1073741819(0xC0000005)
+                #           初步判断可能是协程实现的问题
+                #           使用日志 IO 和显式 asyncio.sleep(0) 可以强制挂起本任务，让出任务执行权
                 break
 
             await asyncio.sleep(0)
