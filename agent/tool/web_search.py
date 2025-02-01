@@ -46,7 +46,7 @@ class BaiduBaikeTool(BaseTool):
             html = get_html(f"{self._url}/{keyword}")
             content = html_to_text(html)
             if "百度百科错误页" in content:
-                raise ToolException("Error when visit the website.")
+                raise ToolException(f"BaiduBaike returns error page: {keyword} is not found?")
             return content
         else:
             raise ToolException("Keyword should not be empty")

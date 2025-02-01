@@ -5,11 +5,13 @@ from langchain_core.tools import BaseTool
 from pydantic import BaseModel, Field
 
 from common.enumerator import Language
-from main import ZerolanLiveRobot
+from common.utils.enum_util import enum_members_to_list
+from event.event_data import LanguageChangeEvent
+from event.eventemitter import emitter
 
 
 class LangChangeInput(BaseModel):
-    target_lang: Language = Field(description="Target language")
+    target_lang: str = Field(description=f"Target language: {enum_members_to_list(Language)}, Only return ")
 
 
 class LangChanger(BaseTool):
@@ -19,11 +21,10 @@ class LangChanger(BaseTool):
     return_direct: bool = True
 
     @inject
-    def __init__(self, bot: ZerolanLiveRobot):
+    def __init__(self):
         super().__init__()
-        self._bot = bot
 
     def _run(self, target_lang: Language) -> Any:
         if isinstance(target_lang, str):
             target_lang = Language.value_of(target_lang)
-        self._bot.change_lang(target_lang)
+        emitter.emit(LanguageChangeEvent(target_lang=target_lang))

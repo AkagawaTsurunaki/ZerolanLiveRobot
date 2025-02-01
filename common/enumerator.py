@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-class Language:
+class Language(str, Enum ):
     ZH = "zh"
     EN = "en"
     JA = "ja"
@@ -64,6 +64,7 @@ class EventEnum(str, Enum):
     All event names should be registered here.
     """
     TEST = "test"
+    LANG_CHANGE = "lang_change"
 
     SYSTEM_ERROR = "system.error"
     SYSTEM_CRASHED = "system.crashed"

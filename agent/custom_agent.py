@@ -11,18 +11,21 @@ from agent.tool.lang_changer import LangChanger
 from agent.tool.web_search import BaiduBaikeTool, MoeGirlTool
 from agent.tool_agent import ToolAgent
 from common.config import LLMPipelineConfig
-from main import ZerolanLiveRobot
+from services.playground.bridge import PlaygroundBridge
 
 
 class CustomAgent:
 
     @inject
-    def __init__(self, config: LLMPipelineConfig, bot: ZerolanLiveRobot, driver: Firefox | Chrome = None, ):
+    def __init__(self, config: LLMPipelineConfig, driver: Firefox | Chrome = None,
+                 bridge: PlaygroundBridge | None = None):
         self._model = ToolAgent(config=config)
         # Here to register more tools
-        tools = [BaiduBaikeTool(), GameObjectCreator(), LangChanger(bot)]
+        tools = [BaiduBaikeTool(), LangChanger()]
         if driver is not None:
             tools.append(MoeGirlTool(driver))
+        if bridge is not None:
+            tools.append(GameObjectCreator())
         self._tools = {}
         self._model.bind_tools(tools)
         for tool in tools:

@@ -119,3 +119,8 @@ class ScreenCapturedEvent(BaseEvent):
     img: Image
     img_path: str
     type: EventEnum = EventEnum.DEVICE_SCREEN_CAPTURED
+
+@dataclass
+class LanguageChangeEvent(BaseEvent):
+    target_lang: str
+    type: EventEnum = EventEnum.LANG_CHANGE

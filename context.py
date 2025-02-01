@@ -10,11 +10,14 @@ from zerolan.ump.pipeline.vla import ShowUIPipeline
 from agent.custom_agent import CustomAgent
 from agent.tool_agent import ToolAgent
 from common.config import get_config
+from event.speech_emitter import SpeechEmitter
 from manager.llm_prompt_manager import LLMPromptManager
 from manager.model_manager import ModelManager
 from manager.temp_data_manager import TempDataManager
 from manager.tts_prompt_manager import TTSPromptManager
 from services.browser.browser import Browser
+from services.controller.controller import ZerolanController
+from services.controller.webui import ZerolanControllerWebUI
 from services.device.screen import Screen
 from services.device.speaker import Speaker
 from services.filter.strategy import FirstMatchedFilter
@@ -98,6 +101,9 @@ class ZerolanLiveRobotContext:
             self.playground = PlaygroundBridge(config=config.service.playground)
         if config.service.qqbot.enable:
             self.qq = QQBotBridge(config.service.qqbot)
+        self.vad = SpeechEmitter()
+        self.controller = ZerolanController(self.vad)
+        self.webui = ZerolanControllerWebUI(self.controller)
 
         # Agents
         self.tool_agent = ToolAgent(config.pipeline.llm)

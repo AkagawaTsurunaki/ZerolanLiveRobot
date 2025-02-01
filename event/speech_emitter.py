@@ -25,6 +25,10 @@ class SpeechEmitter(AbstractRunnable):
         self.speech_chunks = LimitList(50)
         self._stop_flag = False
 
+    @property
+    def is_recording(self):
+        return not self._stop_flag
+
     @withsound(SystemSoundEnum.enable_func)
     async def start(self):
         await super().start()
