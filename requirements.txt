@@ -21,6 +21,7 @@ Deprecated
 aiofiles
 python-magic
 grpcio
+transitions
 grpcio-tools
 gradio
 # If you are not a developer, you can skip the following packages
