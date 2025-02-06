@@ -37,7 +37,9 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
         def run_vad():
             asyncio.run(self.vad.start())
 
-        vad_thread = KillableThread(target=run_vad, daemon=True)
+        vad_thread = KillableThread(target=run_vad, daemon=True, name="VADThread")
+        controller_thread = KillableThread(target=self.controller.run, daemon=True, name="ControllerThread")
+        controller_thread.start()
         vad_thread.start()
         try:
             async with asyncio.TaskGroup() as tg:
@@ -57,6 +59,7 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
             logger.error("Unhandled exception, crashed!")
             await self._force_exit()
         vad_thread.join()
+        controller_thread.join()
 
     def init(self):
 

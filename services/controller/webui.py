@@ -2,14 +2,16 @@ import gradio as gr
 from gradio.components.textbox import Textbox
 
 from common.abs_runnable import AbstractRunnable
+from common.config import ControllerConfig
+from common.utils.web_util import urljoin
 from services.controller.controller import ZerolanController
 
 
 class ZerolanControllerWebUI(AbstractRunnable):
 
-    def __init__(self, controller: ZerolanController):
+    def __init__(self, config: ControllerConfig):
         super().__init__()
-        self._controller = controller
+        self._controller = ZerolanController(urljoin(config.host, config.port))
         self._history_num_text_box = None
         self._microphone_btn = None
         self._frontend = None
