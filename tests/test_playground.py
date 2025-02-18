@@ -15,6 +15,11 @@ _bridge = PlaygroundBridge(_config.service.playground)
 auto_close_flag = False
 
 
+@pytest.mark.asyncio
+async def test_conn():
+    await connect(_bridge, auto_close_flag)
+
+
 # You should put at least 1 3D-model file under `../resources/static/models/3d`,
 # Or the test case will not work.
 # You can also change the path if you want.
