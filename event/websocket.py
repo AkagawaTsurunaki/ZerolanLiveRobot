@@ -7,7 +7,7 @@ from typing import List
 import websockets
 from loguru import logger
 from pydantic import ValidationError
-from websockets import serve, ConnectionClosedError
+from websockets import serve, ConnectionClosedError, Subprotocol
 from websockets.asyncio.server import ServerConnection
 from websockets.protocol import State
 from zerolan.data.protocol.protocol import ZerolanProtocol
@@ -23,13 +23,14 @@ class WebSocketServer(TypedEventEmitter):
     def name(self):
         return "WebSocketServer"
 
-    def __init__(self, host: str, port: int):
+    def __init__(self, host: str, port: int, match_sub_protocol: str | None = None):
         super().__init__()
         self._host = host
         self._port = port
         self._connections: List[ServerConnection] = []
         self._stop_flag = False
         self._server_task: Task = None
+        self._match_sub_protocol = match_sub_protocol
 
     async def start(self):
         """
@@ -40,6 +41,7 @@ class WebSocketServer(TypedEventEmitter):
             async with TaskGroup() as tg:
                 tg.create_task(super().start())
                 tg.create_task(self._run())
+                logger.info(f"Start WebSocket server at {self._host}:{self._port}")
         except asyncio.exceptions.CancelledError:
             logger.debug("WebSocket server stopped.")
 
@@ -49,7 +51,7 @@ class WebSocketServer(TypedEventEmitter):
 
     async def _run(self):
         try:
-            server = await serve(self._handler, self._host, self._port)
+            server = await serve(self._handler, self._host, self._port, subprotocols=[Subprotocol("ZerolanProtocol")])
             await server.serve_forever()
         except OSError as e:
             # 端口冲突
@@ -59,6 +61,11 @@ class WebSocketServer(TypedEventEmitter):
                 raise e
 
     async def _handler(self, websocket: ServerConnection):
+        if self._match_sub_protocol is not None:
+            if self._match_sub_protocol != "ZerolanProtocol":
+                logger.warning("Not supported sub protocol.")
+                return
+
         self._add_connection(websocket)
         try:
             while not self._stop_flag:
@@ -138,7 +145,7 @@ class ZerolanProtocolWebsocket(AbstractRunnable):
 
     def __init__(self, host: str, port: int):
         super().__init__()
-        self._ws = WebSocketServer(host, port)
+        self._ws = WebSocketServer(host, port, match_sub_protocol="ZerolanProtocol")
         self._protocol = "ZerolanProtocol"
         self._version = "1.1"
 
