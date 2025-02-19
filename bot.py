@@ -13,13 +13,14 @@ from zerolan.ump.pipeline.ocr import avg_confidence, stringify
 
 from agent.api import find_file, sentiment_analyse, translate, summary_history, model_scale
 from common.abs_runnable import stop_all_runnable
+from common.data import LoadLive2DModelDTO
 from common.decorator import withsound
 from common.enumerator import EventEnum, Language, SystemSoundEnum
 from common.killable_thread import kill_all_threads, KillableThread
 from common.utils.audio_util import save_tmp_audio
 from context import ZerolanLiveRobotContext
 from event.event_data import ASREvent, SpeechEvent, ScreenCapturedEvent, LLMEvent, OCREvent, ImgCapEvent, TTSEvent, \
-    QQMessageEvent, SwitchVADEvent
+    QQMessageEvent, SwitchVADEvent, PlaygroundConnectedEvent
 from event.eventemitter import emitter
 from services.device.screen import is_image_uniform
 
@@ -33,12 +34,25 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
     @withsound(SystemSoundEnum.start)
     async def start(self):
         self.init()
+        threads = []
 
         def run_vad():
             asyncio.run(self.vad.start())
 
+        def run_playground():
+            asyncio.run(self.playground.start())
+
         vad_thread = KillableThread(target=run_vad, daemon=True, name="VADThread")
+        threads.append(vad_thread)
+
         controller_thread = KillableThread(target=self.controller.run, daemon=True, name="ControllerThread")
+        threads.append(controller_thread)
+
+        if self.playground is not None:
+            playground_thread = KillableThread(target=run_playground, daemon=True, name="PlaygroundThread")
+            playground_thread.start()
+            threads.append(playground_thread)
+
         controller_thread.start()
         vad_thread.start()
         try:
@@ -47,8 +61,7 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
                 tg.create_task(self.speaker.start())
                 if self.live_stream is not None:
                     tg.create_task(self.live_stream.start())
-                if self.playground is not None:
-                    tg.create_task(self.playground.start())
+
                 if self.model_manager is not None:
                     tg.create_task(self.model_manager.scan())
                 tg.create_task(self.webui.start())
@@ -58,10 +71,16 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
             logger.exception(e)
             logger.error("Unhandled exception, crashed!")
             await self._force_exit()
-        vad_thread.join()
-        controller_thread.join()
+
+        for thread in threads:
+            thread.join()
 
     def init(self):
+        @emitter.on(EventEnum.PLAYGROUND_CONNECTED)
+        async def on_playground_connected(_: PlaygroundConnectedEvent):
+            await self.playground.load_live2d_model(
+                LoadLive2DModelDTO(bot_id=self.bot_id, bot_display_name=self.bot_name, model_dir=self.live2d_model))
+            logger.info(f"Live 2D model loaded: {self.live2d_model}")
 
         @emitter.on(EventEnum.SWITCH_VAD)
         def on_open_microphone(event: SwitchVADEvent):

@@ -131,3 +131,7 @@ class LanguageChangeEvent(BaseEvent):
 class SwitchVADEvent(BaseEvent):
     switch: bool
     type: EventEnum = EventEnum.SWITCH_VAD
+
+@dataclass
+class PlaygroundConnectedEvent(BaseEvent):
+    type: EventEnum = EventEnum.PLAYGROUND_CONNECTED

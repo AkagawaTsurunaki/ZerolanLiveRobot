@@ -99,6 +99,7 @@ class SpeechConfig(BaseModel):
 
 
 class CharacterConfig(BaseModel):
+    bot_name: str
     chat: ChatConfig
     speech: SpeechConfig
 

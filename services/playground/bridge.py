@@ -10,6 +10,8 @@ from common.enumerator import Action
 from common.utils.audio_util import check_audio_format, check_audio_info
 from common.utils.collection_util import to_value_list
 from common.utils.file_util import path_to_uri
+from event.event_data import PlaygroundConnectedEvent
+from event.eventemitter import emitter
 from event.websocket import ZerolanProtocolWebsocket
 
 
@@ -32,6 +34,7 @@ class PlaygroundBridge(ZerolanProtocolWebsocket):
     async def _on_client_hello(self):
         logger.info(f"ZerolanPlayground client is found, prepare for connecting...")
         await self.send(action=Action.SERVER_HELLO, data=None)
+        emitter.emit(PlaygroundConnectedEvent())
 
     def _on_update_gameobjects_info(self, data: list[dict]):
         assert isinstance(data, list)

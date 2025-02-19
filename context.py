@@ -59,6 +59,10 @@ class ZerolanLiveRobotContext:
         self.playground: PlaygroundBridge = None
         self.qq: QQBotBridge = None
 
+        self.bot_id: str = None
+        self.bot_name: str = None
+        self.live2d_model: str = None
+
         self.temp_data_manager: TempDataManager = TempDataManager()
         self._init()
 
@@ -69,6 +73,7 @@ class ZerolanLiveRobotContext:
         self.llm_prompt_manager = LLMPromptManager(config.character.chat)
         self.speaker = Speaker()
         self.temp_data_manager.create_temp_dir()
+        self.bot_name = config.character.bot_name
 
         if config.pipeline.asr.enable:
             self.asr = ASRPipeline(config.pipeline.asr)
@@ -97,6 +102,8 @@ class ZerolanLiveRobotContext:
             self.vec_db = MilvusPipeline(config.pipeline.vec_db.milvus)
         if config.service.playground.enable:
             self.model_manager = ModelManager()
+            self.bot_id = config.service.playground.bot_id
+            self.live2d_model = config.service.playground.model_dir
             self.custom_agent = CustomAgent(config=config.pipeline.llm)
             self.playground = PlaygroundBridge(config=config.service.playground)
         if config.service.qqbot.enable:

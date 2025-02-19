@@ -97,6 +97,7 @@ class EventEnum(str, Enum):
     QQ_MESSAGE = "qq.message"
 
     SWITCH_VAD = "switch_vad"
+    PLAYGROUND_CONNECTED = "playground_connected"
 
 
 class Action(str, Enum):
