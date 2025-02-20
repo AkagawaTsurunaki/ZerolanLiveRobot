@@ -4,25 +4,25 @@ from dataclasses import dataclass
 
 from loguru import logger
 
-from common.enumerator import EventEnum
 from event.event_data import BaseEvent
 from event.eventemitter import emitter
+from event.registry import EventKeyRegistry
 
 
 @dataclass
 class TestEvent(BaseEvent):
     content: str
-    type = EventEnum.TEST
+    type = EventKeyRegistry.Dev.TEST
 
 
-@emitter.on(EventEnum.TEST)
+@emitter.on(EventKeyRegistry.Dev.TEST)
 def exit__(event: TestEvent):
     print("To sleep!")
     time.sleep(2)
     print(f"time: {event.content}")
 
 
-@emitter.on(EventEnum.TEST)
+@emitter.on(EventKeyRegistry.Dev.TEST)
 async def aexit(event: TestEvent):
     print("To sleep!")
     await asyncio.sleep(2)

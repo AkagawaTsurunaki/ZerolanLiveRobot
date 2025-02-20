@@ -93,19 +93,19 @@ class TypedEventEmitter(AbstractRunnable):
     def emit(self, event: Event):
         self.activate_check()
         assert isinstance(event, BaseEvent)
-        listeners = self._listeners.get(event.type.value, None)
+        listeners = self._listeners.get(event.type, None)
         if listeners is None:
             return
         for listener in listeners:
             if listener.once:
-                self._listeners[event.type.value].remove(listener)
+                self._listeners[event.type].remove(listener)
             if inspect.iscoroutinefunction(listener.func):
                 self._add_async_task(listener, event)
             else:
                 self._add_sync_task(listener, event)
 
     def on(self, event: str):
-        assert isinstance(event, Enum)
+        assert isinstance(event, str)
 
         def decorator(func: Callable[[Event], None] | Callable[[Event], Coroutine[Any, Any, None]]):
             assert isinstance(func, Callable)
@@ -114,7 +114,7 @@ class TypedEventEmitter(AbstractRunnable):
         return decorator
 
     def once(self, event: str):
-        assert isinstance(event, Enum)
+        assert isinstance(event, str)
 
         def decorator(func: Callable[[Event], None] | Callable[[Event], Coroutine[Any, Any, None]]):
             assert isinstance(func, Callable)

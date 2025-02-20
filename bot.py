@@ -15,13 +15,14 @@ from agent.api import find_file, sentiment_analyse, translate, summary_history, 
 from common.abs_runnable import stop_all_runnable
 from common.data import LoadLive2DModelDTO
 from common.decorator import withsound
-from common.enumerator import EventEnum, Language, SystemSoundEnum
+from common.enumerator import Language, SystemSoundEnum
 from common.killable_thread import kill_all_threads, KillableThread
 from common.utils.audio_util import save_tmp_audio
 from context import ZerolanLiveRobotContext
 from event.event_data import ASREvent, SpeechEvent, ScreenCapturedEvent, LLMEvent, OCREvent, ImgCapEvent, TTSEvent, \
     QQMessageEvent, SwitchVADEvent, PlaygroundConnectedEvent
 from event.eventemitter import emitter
+from event.registry import EventKeyRegistry
 from services.device.screen import is_image_uniform
 
 
@@ -76,13 +77,13 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
             thread.join()
 
     def init(self):
-        @emitter.on(EventEnum.PLAYGROUND_CONNECTED)
+        @emitter.on(EventKeyRegistry.Playground.PLAYGROUND_CONNECTED)
         async def on_playground_connected(_: PlaygroundConnectedEvent):
             await self.playground.load_live2d_model(
                 LoadLive2DModelDTO(bot_id=self.bot_id, bot_display_name=self.bot_name, model_dir=self.live2d_model))
             logger.info(f"Live 2D model loaded: {self.live2d_model}")
 
-        @emitter.on(EventEnum.SWITCH_VAD)
+        @emitter.on(EventKeyRegistry.Device.SWITCH_VAD)
         def on_open_microphone(event: SwitchVADEvent):
             if self.vad.is_recording:
                 if event.switch:
@@ -95,7 +96,7 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
                     return
                 self.vad.resume()
 
-        @emitter.on(EventEnum.SERVICE_VAD_SPEECH_CHUNK)
+        @emitter.on(EventKeyRegistry.Device.SERVICE_VAD_SPEECH_CHUNK)
         async def on_service_vad_speech_chunk(event: SpeechEvent):
             speech, channels, sample_rate = event.speech, event.channels, event.sample_rate
             query = ASRStreamQuery(is_final=True, audio_data=speech, channels=channels, sample_rate=sample_rate)
@@ -104,7 +105,7 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
             logger.debug("ASREvent emitted.")
             emitter.emit(ASREvent(prediction=prediction))
 
-        @emitter.on(EventEnum.PIPELINE_ASR)
+        @emitter.on(EventKeyRegistry.Pipeline.ASR)
         async def asr_handler(event: ASREvent):
             logger.debug("ASREvent received.")
             prediction = event.prediction
@@ -166,7 +167,7 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
                 if not tool_called:
                     await self.emit_llm_prediction(prediction.transcript)
 
-        @emitter.on(EventEnum.DEVICE_SCREEN_CAPTURED)
+        @emitter.on(EventKeyRegistry.Device.SCREEN_CAPTURED)
         async def on_device_screen_captured(event: ScreenCapturedEvent):
             img, img_path = event.img, event.img_path
 
@@ -183,7 +184,7 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
                 logger.info("ImgCap: " + caption)
                 emitter.emit(ImgCapEvent(prediction=img_cap_prediction))
 
-        @emitter.on(EventEnum.QQ_MESSAGE)
+        @emitter.on(EventKeyRegistry.QQBot.QQ_MESSAGE)
         async def on_qq_message(event: QQMessageEvent):
             prediction = await self.emit_llm_prediction(event.message, direct_return=True)
             if prediction is None:
@@ -191,19 +192,19 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
                 return
             await self.qq.send_plain_message(prediction.response, event.group_id)
 
-        @emitter.on(EventEnum.PIPELINE_OCR)
+        @emitter.on(EventKeyRegistry.Pipeline.OCR)
         async def on_pipeline_ocr(event: OCREvent):
             prediction = event.prediction
             text = "你看见了" + stringify(prediction.region_results) + "\n请总结一下"
             await self.emit_llm_prediction(text)
 
-        @emitter.on(EventEnum.PIPELINE_IMG_CAP)
+        @emitter.on(EventKeyRegistry.Pipeline.IMG_CAP)
         async def on_pipeline_img_cap(event: ImgCapEvent):
             prediction = event.prediction
             text = "你看见了" + prediction.caption
             await self.emit_llm_prediction(text)
 
-        @emitter.on(EventEnum.PIPELINE_LLM)
+        @emitter.on(EventKeyRegistry.Pipeline.LLM)
         async def llm_query_handler(event: LLMEvent):
             prediction = event.prediction
             text = prediction.response

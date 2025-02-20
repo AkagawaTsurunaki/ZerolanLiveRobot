@@ -10,50 +10,50 @@ from zerolan.data.pipeline.ocr import OCRPrediction
 from zerolan.data.pipeline.tts import TTSPrediction
 
 from agent.tool_agent import Tool
-from common.enumerator import EventEnum
+from event.registry import EventKeyRegistry
 from services.game.minecraft.data import KonekoProtocol
 
 
 class BaseEvent:
-    type: EventEnum
+    type: str
 
 
 @dataclass
 class ASREvent(BaseEvent):
     prediction: ASRPrediction
-    type: EventEnum = EventEnum.PIPELINE_ASR
+    type: str = EventKeyRegistry.Pipeline.ASR
 
 
 @dataclass
 class QQMessageEvent(BaseEvent):
     message: str
     group_id: int | None
-    type: EventEnum = EventEnum.QQ_MESSAGE
+    type: str = EventKeyRegistry.QQBot.QQ_MESSAGE
 
 
 @dataclass
 class LLMEvent(BaseEvent):
     prediction: LLMPrediction
-    type: EventEnum = EventEnum.PIPELINE_LLM
+    type: str = EventKeyRegistry.Pipeline.LLM
 
 
 @dataclass
 class OCREvent(BaseEvent):
     prediction: OCRPrediction
-    type: EventEnum = EventEnum.PIPELINE_OCR
+    type: str = EventKeyRegistry.Pipeline.OCR
 
 
 @dataclass
 class TTSEvent(BaseEvent):
     prediction: TTSPrediction
     transcript: str
-    type: EventEnum = EventEnum.PIPELINE_TTS
+    type: str = EventKeyRegistry.Pipeline.TTS
 
 
 @dataclass
 class ImgCapEvent(BaseEvent):
     prediction: ImgCapPrediction
-    type: EventEnum = EventEnum.PIPELINE_IMG_CAP
+    type: str = EventKeyRegistry.Pipeline.IMG_CAP
 
 
 @dataclass
@@ -61,77 +61,78 @@ class SpeechEvent(BaseEvent):
     speech: bytes
     channels: int
     sample_rate: int
-    type: EventEnum = EventEnum.SERVICE_VAD_SPEECH_CHUNK
+    type: str = EventKeyRegistry.Device.SERVICE_VAD_SPEECH_CHUNK
 
 
 @dataclass
 class WebSocketJsonReceivedEvent(BaseEvent):
     data: any
-    type: EventEnum = EventEnum.WEBSOCKET_RECV_JSON
+    type: str = EventKeyRegistry._Inner.WEBSOCKET_RECV_JSON
 
 
 @dataclass
 class LiveStreamConnectedEvent(BaseEvent):
     platform: Literal["bilibili", "twitch", "youtube"]
-    type: EventEnum = EventEnum.SERVICE_LIVE_STREAM_CONNECTED
+    type: str = EventKeyRegistry.LiveStream.CONNECTED
 
 
 @dataclass
 class LiveStreamDisconnectedEvent(BaseEvent):
     platform: Literal["bilibili", "twitch", "youtube"]
     reason: str
-    type: EventEnum = EventEnum.SERVICE_LIVE_STREAM_DISCONNECTED
+    type: str = EventKeyRegistry.LiveStream.DISCONNECTED
 
 
 @dataclass
 class DanmakuEvent(BaseEvent):
     platform: Literal["bilibili", "twitch", "youtube"]
     danmaku: Danmaku
-    type: EventEnum = EventEnum.SERVICE_LIVE_STREAM_DANMAKU
+    type: str = EventKeyRegistry.LiveStream.DANMAKU
 
 
 @dataclass
 class SuperChatEvent(BaseEvent):
     platform: Literal["bilibili", "twitch", "youtube"]
     superchat: SuperChat
-    type: EventEnum = EventEnum.SERVICE_LIVE_STREAM_SUPER_CHAT
+    type: str = EventKeyRegistry.LiveStream.SUPER_CHAT
 
 
 @dataclass
 class KonekoClientPushInstructionsEvent(BaseEvent):
     tools: List[Tool]
-    type: EventEnum = EventEnum.KONEKO_CLIENT_PUSH_INSTRUCTIONS
+    type: str = EventKeyRegistry.Koneko.Client.PUSH_INSTRUCTIONS
 
 
 @dataclass
 class KonekoClientHelloEvent(BaseEvent):
-    type = EventEnum.KONEKO_CLIENT_HELLO
+    type = EventKeyRegistry.Koneko.Client.HELLO
 
 
 @dataclass
 class KonekoServerCallInstruction(BaseEvent):
     protocol_obj: KonekoProtocol
-    type = EventEnum.KONEKO_SERVER_CALL_INSTRUCTION
+    type = EventKeyRegistry.Koneko.Server.CALL_INSTRUCTION
 
 
 @dataclass
 class ScreenCapturedEvent(BaseEvent):
     img: Image
     img_path: str
-    type: EventEnum = EventEnum.DEVICE_SCREEN_CAPTURED
+    type: str = EventKeyRegistry.Device.SCREEN_CAPTURED
 
 
 @dataclass
 class LanguageChangeEvent(BaseEvent):
     target_lang: str
-    type: EventEnum = EventEnum.LANG_CHANGE
+    type: str = EventKeyRegistry.System.LANG_CHANGE
 
 
 @dataclass
 class SwitchVADEvent(BaseEvent):
     switch: bool
-    type: EventEnum = EventEnum.SWITCH_VAD
+    type: str = EventKeyRegistry.Device.SWITCH_VAD
+
 
 @dataclass
 class PlaygroundConnectedEvent(BaseEvent):
-    type: EventEnum = EventEnum.PLAYGROUND_CONNECTED
+    type: str = EventKeyRegistry.Playground.PLAYGROUND_CONNECTED
