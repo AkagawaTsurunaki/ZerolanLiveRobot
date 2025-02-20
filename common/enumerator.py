@@ -59,47 +59,6 @@ class SystemSoundEnum(str, Enum):
     filtered: str = "filtered.wav"
 
 
-class EventEnum(str, Enum):
-    """
-    All event names should be registered here.
-    """
-
-    TEST = "test"
-    LANG_CHANGE = "lang_change"
-
-    SYSTEM_ERROR = "system.error"
-    SYSTEM_CRASHED = "system.crashed"
-
-    PIPELINE_ASR = "pipeline.asr"
-    PIPELINE_LLM = "pipeline.llm"
-    PIPELINE_TTS = "pipeline.tts"
-    PIPELINE_IMG_CAP = "pipeline.img_cap"
-    PIPELINE_OCR = "pipeline.ocr"
-
-    DEVICE_SCREEN_CAPTURED = "device.screen_captured"
-
-    SERVICE_LIVE_STREAM_CONNECTED = "service.live_stream.connected"
-    SERVICE_LIVE_STREAM_DISCONNECTED = "service.live_stream.disconnected"
-    SERVICE_LIVE_STREAM_DANMAKU = "service.live_stream.danmaku"
-    SERVICE_LIVE_STREAM_GIFT = "service.live_stream.gift"
-    SERVICE_LIVE_STREAM_SUPER_CHAT = "service.live_stream.super_chat"
-
-    SERVICE_VAD_SPEECH_CHUNK = "service.vad.speech_chunk"
-
-    KONEKO_CLIENT_HELLO = "koneko.client.hello"
-    KONEKO_CLIENT_PUSH_INSTRUCTIONS = "koneko.client.push_instructions"
-    KONEKO_SERVER_HELLO = "koneko.server.hello"
-    KONEKO_SERVER_FETCH_INSTRUCTIONS = "koneko.server.fetch_instructions"
-    KONEKO_SERVER_CALL_INSTRUCTION = "koneko.server.call_instruction"
-
-    WEBSOCKET_RECV_JSON = "websocket.recv.json"
-
-    QQ_MESSAGE = "qq.message"
-
-    SWITCH_VAD = "switch_vad"
-    PLAYGROUND_CONNECTED = "playground_connected"
-
-
 class Action(str, Enum):
     PLAY_SPEECH = "play_speech"
     LOAD_LIVE2D_MODEL = "load_live2d_model"
