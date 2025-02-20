@@ -5,6 +5,7 @@ message SpeechChunk {
   bytes data = 1;
   string audio_type = 2;
   int32 sample_rate = 3;
+  int32 channels = 4;
 }
 
 message RPCResponse {
