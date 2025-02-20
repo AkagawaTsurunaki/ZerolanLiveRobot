@@ -185,25 +185,25 @@ Zerolan Live Robot 1.0 旧版本使用的是简单的按秒轮询，从各个服
 
 在本项目中，机器人是在一系列事件的发送和处理过程中运行的。换句话说，没有事件发生，机器人就不会有任何回应。
 
-每一个事件 `Event` 都继承自 `BaseEvent`，并含有一个 `type` 字段（字符串类型）用以标记这个事件的类型。本项目中使用的所有事件类型的都定义在 `common.enumerator.EventEnum` 中，您也可以拓展添加自己的事件名，并实现一个继承自 `BaseEvent` 的自定义事件 。
+每一个事件 `Event` 都继承自 `BaseEvent`，并含有一个 `type` 字段（字符串类型）用以标记这个事件的类型。本项目中使用的所有事件类型的都定义在 `event.registry` 中，您也可以拓展添加自己的事件名，并实现一个继承自 `BaseEvent` 的自定义事件 。
 
 `emitter` 是一个全局对象，用以处理事件发送和监听器的执行，`emitter` 始终拥有主线程，然而整个系统的运行过程中会有多个协程任务被创建和销毁。
 
-使用装饰器 `@emitter.on(EventEnum.某个事件)` 可以快捷地注册某个监听器。当监听器是异步函数时，会在触发事件时以协程任务的形式执行；当监听器是同步函数时，会在额外的线程中按注册的先后同步顺序执行（这不会阻塞主线程）。
+使用装饰器 `@emitter.on(event_key)` 可以快捷地注册某个监听器。当监听器是异步函数时，会在触发事件时以协程任务的形式执行；当监听器是同步函数时，会在额外的线程中按注册的先后同步顺序执行（这不会阻塞主线程）。
 
-当我们需要发送事件时，可以使用 `emitter.emit(EventEnum.某个事件, event)`，其中 `event` 就是一个事件对象。
+当我们需要发送事件时，可以使用 `emitter.emit(event_key)`，其中 `event` 就是一个事件对象。
 
-例如，当系统检测到一段人声音频时，将会发送 `SERVICE_VAD_SPEECH_CHUNK` 事件，并调用所有注册这个事件的监听器，进行某种处理：
+例如，当系统检测到一段人声音频时，将会发送 `SpeechEvent` 事件（其 `event_key` 为 `EventKeyRegistry.Device.SERVICE_VAD_SPEECH_CHUNK` 所代表的字符串），并调用所有注册这个事件的监听器，进行某种处理：
 
 ```python
-@emitter.on(EventEnum.SERVICE_VAD_SPEECH_CHUNK)
+@emitter.on(EventKeyRegistry.Device.SERVICE_VAD_SPEECH_CHUNK)
 async def on_service_vad_speech_chunk(event: SpeechEvent):
     speech, channels, sample_rate = event.speech, event.channels, event.sample_rate
     prediction = ... # 假如调用了某个函数获得了 ASR 的结果
     emitter.emit(EventEnum.PIPELINE_ASR, ASREvent(prediction=prediction)) # 发送自动语音识别事件
 ```
 
-这里的监听器即 `on_service_vad_speech_chunk`，本质上是一个函数，它会在 `SERVICE_VAD_SPEECH_CHUNK` 发生时被调用。
+这里的监听器即 `on_service_vad_speech_chunk`，本质上是一个函数，它会在 `SpeechEvent` 发生时被调用。
 
 ### Pipeline
 
