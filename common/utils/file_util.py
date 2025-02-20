@@ -12,7 +12,21 @@ import yaml
 
 from common.data import FileInfo
 
-project_dir = os.getcwd()
+
+def get_real_project_dir() -> Path:
+    """
+    获取项目的真实路径。
+    为了避免在 tests 文件夹下找不到相对路径。
+    :return:
+    """
+    cur_work_dir = os.getcwd()
+    if Path(cur_work_dir).name == "tests":
+        return Path(cur_work_dir).parent
+    else:
+        return Path(cur_work_dir)
+
+
+project_dir = get_real_project_dir()
 temp_data_dir = os.path.join(project_dir, ".temp/")
 
 
