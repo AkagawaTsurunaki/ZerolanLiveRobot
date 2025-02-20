@@ -1,0 +1,17 @@
+syntax = "proto3";
+package zerolan.playground;
+
+message SpeechChunk {
+  bytes data = 1;
+  string audio_type = 2;
+  int32 sample_rate = 3;
+}
+
+message RPCResponse {
+  int32 code = 1;
+  string message = 2;
+}
+
+service MicrophoneManager {
+  rpc SendSpeechChunk (SpeechChunk) returns (RPCResponse) {}
+}
