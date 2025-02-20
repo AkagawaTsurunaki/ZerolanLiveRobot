@@ -2,8 +2,14 @@
 from concurrent import futures
 
 import grpc
+from zerolan.data.pipeline.asr import ASRQuery
+from zerolan.ump.pipeline.asr import ASRPipeline, ASRPipelineConfig
 
 from bridge.proto import helloworld_pb2, helloworld_pb2_grpc
+from common.config import get_config
+from common.utils.audio_util import save_tmp_audio
+
+_config = get_config()
 
 
 # 实现 Greeter 服务
@@ -40,6 +46,17 @@ class MicrophoneManagerServer(microphone_pb2_grpc.MicrophoneManagerServicer):
     def SendSpeechChunk(self, request, context):
         logger.info("Get speech data from remote microphone")
         print(len(request.data))
+        asr = ASRPipeline(_config.pipeline.asr)
+        audio_path = save_tmp_audio(request.data)
+        prediction = asr.predict(ASRQuery(
+            audio_path=audio_path,
+            media_type=request.audio_type,
+            sample_rate=request.sample_rate,
+            channels=request.channels
+        ))
+        assert prediction, f"No response from ASR pipeline."
+        print(audio_path)
+        print(prediction.transcript)
         response = microphone_pb2.RPCResponse(message=f"OK", code=0)
         return response
 
