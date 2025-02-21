@@ -154,4 +154,15 @@ class TypedEventEmitter(AbstractRunnable):
             logger.warning("Too many listeners, maybe memory leak!")
 
 
-emitter = TypedEventEmitter()
+from pymitter import EventEmitter
+
+
+class NewEventEmitter(EventEmitter):
+    def emit(self, *args: Any, **kwargs: Any) -> None:
+        event: BaseEvent = args[0]
+        super().emit(event.type, event)
+
+    # emitter = TypedEventEmitter()
+
+
+emitter = NewEventEmitter()
