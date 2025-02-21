@@ -82,6 +82,7 @@ class WebSocketServer(TypedEventEmitter):
                     return
 
         except websockets.exceptions.ConnectionClosedOK:
+            self._connections.remove(websocket)
             logger.info("WebSocket client disconnected.")
 
     async def _send_json(self, ws: ServerConnection, msg: dict | list):
