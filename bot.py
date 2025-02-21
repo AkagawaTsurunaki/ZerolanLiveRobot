@@ -7,7 +7,7 @@ from zerolan.data.pipeline.img_cap import ImgCapQuery
 from zerolan.data.pipeline.llm import LLMQuery, LLMPrediction
 from zerolan.data.pipeline.milvus import MilvusInsert, InsertRow, MilvusQuery
 from zerolan.data.pipeline.ocr import OCRQuery
-from zerolan.data.pipeline.tts import TTSQuery
+from zerolan.data.pipeline.tts import TTSQuery, TTSPrediction
 from zerolan.data.pipeline.vla import ShowUiQuery
 from zerolan.ump.pipeline.ocr import avg_confidence, stringify
 
@@ -19,7 +19,7 @@ from common.enumerator import Language, SystemSoundEnum
 from common.killable_thread import kill_all_threads, KillableThread
 from common.utils.audio_util import save_tmp_audio
 from context import ZerolanLiveRobotContext
-from event.event_data import ASREvent, SpeechEvent, ScreenCapturedEvent, LLMEvent, OCREvent, ImgCapEvent, TTSEvent, \
+from event.event_data import ASREvent, SpeechEvent, ScreenCapturedEvent, LLMEvent, OCREvent, ImgCapEvent, \
     QQMessageEvent, SwitchVADEvent
 from event.eventemitter import emitter
 from event.registry import EventKeyRegistry
@@ -251,19 +251,17 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
                     prompt_language=tts_prompt.lang,
                 )
                 prediction = self.tts.predict(query=query)
-                emitter.emit(TTSEvent(prediction=prediction, transcript=transcript))
+                await self.play_tts(prediction)
 
-        @emitter.on(EventKeyRegistry.Pipeline.TTS)
-        async def tts_event_handler(event: TTSEvent):
-            prediction = event.prediction
-            if self.playground.is_connected:
-                audio_path = save_tmp_audio(prediction.wave_data)
-                await self.playground.play_speech(bot_id=self.bot_id, audio_path=audio_path,
-                                                  transcript=prediction.transcript)
-                logger.debug("Remote speaker enqueue speech data")
-            else:
-                self.speaker.enqueue_sound(prediction.wave_data)
-                logger.debug("Speaker enqueue speech data")
+    async def play_tts(self, prediction: TTSPrediction):
+        if self.playground.is_connected:
+            audio_path = save_tmp_audio(prediction.wave_data)
+            await self.playground.play_speech(bot_id=self.bot_id, audio_path=audio_path,
+                                              transcript=prediction.transcript)
+            logger.debug("Remote speaker enqueue speech data")
+        else:
+            self.speaker.enqueue_sound(prediction.wave_data)
+            logger.debug("Local speaker enqueue speech data")
 
     async def emit_llm_prediction(self, text, direct_return: bool = False) -> None | LLMPrediction:
         query = LLMQuery(text=text, history=self.llm_prompt_manager.current_history)
