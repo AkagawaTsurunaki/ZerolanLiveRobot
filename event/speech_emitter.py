@@ -1,10 +1,9 @@
-import asyncio
 import threading
 
 import numpy as np
 from loguru import logger
 
-from common.abs_runnable import AbstractRunnable
+from common.abs_runnable import ThreadRunnable
 from common.decorator import withsound
 from common.enumerator import SystemSoundEnum
 from common.limit_list import LimitList
@@ -15,7 +14,7 @@ from services.device.microphone import Microphone
 from services.vad.strategy import EasyEnergyVad
 
 
-class SpeechEmitter(AbstractRunnable):
+class SpeechEmitter(ThreadRunnable):
     def name(self):
         return "VoiceEventEmitter"
 
@@ -31,11 +30,11 @@ class SpeechEmitter(AbstractRunnable):
     def is_recording(self):
         return not self._stop_flag
 
-    async def start(self):
-        await super().start()
+    def start(self):
+        super().start()
         self._stop_flag = False
         self.mp.open()
-        await self.handler()
+        self.handler()
 
     @withsound(SystemSoundEnum.enable_func)
     def resume(self):
@@ -43,8 +42,8 @@ class SpeechEmitter(AbstractRunnable):
         self._stop_flag = False
         logger.info("VAD resumed.")
 
-    async def stop(self):
-        await super().stop()
+    def stop(self):
+        super().stop()
         self._stop_flag = True
         self.mp.close()
 
@@ -54,20 +53,14 @@ class SpeechEmitter(AbstractRunnable):
         self._stop_flag = True
         logger.info("VAD paused.")
 
-    async def handler(self):
+    def handler(self):
         for chunk in self.mp.stream():
-            logger.debug("Test")
+            print("-^v-", end="")
             if self._stop_flag:
                 logger.debug("Microphone `_pause_event` clear.")
-                await asyncio.sleep(0)
-                # └---- ⚠️ 【警告】
-                #           不要删除上方的这行代码，否则关闭麦克风时将会产生段错误：-1073741819(0xC0000005)
-                #           初步判断可能是协程实现的问题
-                #           使用日志 IO 和显式 asyncio.sleep(0) 可以强制挂起本任务，让出任务执行权
                 self._pause_event.wait()
                 logger.debug("Microphone `_pause_event` set")
 
-            await asyncio.sleep(0)
             speech_chunk = np.frombuffer(chunk, dtype=np.float32)
             speech = self.vad.check_stream(speech_chunk)
             if speech is None:
