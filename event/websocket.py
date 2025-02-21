@@ -13,7 +13,7 @@ from websockets.protocol import State
 from zerolan.data.protocol.protocol import ZerolanProtocol
 
 from common.abs_runnable import AbstractRunnable
-from event.event_data import WebSocketJsonReceivedEvent
+from event.event_data import WebSocketJsonReceivedEvent, WebSocketDisconnectedEvent
 from event.eventemitter import TypedEventEmitter
 from event.registry import EventKeyRegistry
 
@@ -31,6 +31,7 @@ class WebSocketServer(TypedEventEmitter):
         self._stop_flag = False
         self._server_task: Task = None
         self._match_sub_protocol = match_sub_protocol
+        self._error_handlers = []
 
     async def start(self):
         """
@@ -76,6 +77,7 @@ class WebSocketServer(TypedEventEmitter):
                     self.emit(WebSocketJsonReceivedEvent(data=data))
                 except websockets.exceptions.ConnectionClosedError as e:
                     self._connections.remove(websocket)
+                    self.emit(WebSocketDisconnectedEvent())
                     logger.warning("A client disconnected abnormally from the server.")
                     return
 

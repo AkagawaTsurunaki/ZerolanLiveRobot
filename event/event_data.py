@@ -136,3 +136,13 @@ class SwitchVADEvent(BaseEvent):
 @dataclass
 class PlaygroundConnectedEvent(BaseEvent):
     type: str = EventKeyRegistry.Playground.PLAYGROUND_CONNECTED
+
+
+@dataclass
+class PlaygroundDisconnectedEvent(BaseEvent):
+    type: str = EventKeyRegistry.Playground.DISCONNECTED
+
+
+@dataclass
+class WebSocketDisconnectedEvent(BaseEvent):
+    type: str = EventKeyRegistry._Inner.WEBSOCKET_DISCONNECTED

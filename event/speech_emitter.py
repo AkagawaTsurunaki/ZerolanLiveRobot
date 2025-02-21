@@ -18,9 +18,9 @@ class SpeechEmitter(AbstractRunnable):
     def name(self):
         return "VoiceEventEmitter"
 
-    def __init__(self):
+    def __init__(self, microphone: Microphone):
         super().__init__()
-        self.mp = Microphone()
+        self.mp = microphone
         self.vad = EasyEnergyVad()
         self.speech_chunks = LimitList(50)
         self._stop_flag = False

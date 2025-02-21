@@ -18,6 +18,7 @@ from manager.tts_prompt_manager import TTSPromptManager
 from services.browser.browser import Browser
 from services.controller.controller import ControllerWebServer
 from services.controller.webui import ZerolanControllerWebUI
+from services.device.microphone import Microphone
 from services.device.screen import Screen
 from services.device.speaker import Speaker
 from services.filter.strategy import FirstMatchedFilter
@@ -53,6 +54,7 @@ class ZerolanLiveRobotContext:
         self.live_stream: LiveStreamService | None = None
 
         self.tool_agent: ToolAgent = None
+        self.microphone: Microphone | None = None
         self.screen: Screen | None = None
         self.browser: Browser | None = None
         self.speaker: Speaker = None
@@ -108,7 +110,8 @@ class ZerolanLiveRobotContext:
             self.playground = PlaygroundBridge(config=config.service.playground)
         if config.service.qqbot.enable:
             self.qq = QQBotBridge(config.service.qqbot)
-        self.vad = SpeechEmitter()
+        self.microphone = Microphone()
+        self.vad = SpeechEmitter(self.microphone)
         self.controller = ControllerWebServer(config.service.controller)
         self.webui = ZerolanControllerWebUI(config.service.controller)
 

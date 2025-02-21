@@ -10,8 +10,9 @@ from common.enumerator import Action
 from common.utils.audio_util import check_audio_format, check_audio_info
 from common.utils.collection_util import to_value_list
 from common.utils.file_util import path_to_uri
-from event.event_data import PlaygroundConnectedEvent
+from event.event_data import PlaygroundConnectedEvent, PlaygroundDisconnectedEvent
 from event.eventemitter import emitter
+from event.registry import EventKeyRegistry
 from event.websocket import ZerolanProtocolWebsocket
 
 
@@ -20,6 +21,10 @@ class PlaygroundBridge(ZerolanProtocolWebsocket):
     def __init__(self, config: PlaygroundBridgeConfig):
         super().__init__(host=config.host, port=config.port)
         self.gameobjects_info = {}
+
+        @self._ws.on(EventKeyRegistry._Inner.WEBSOCKET_DISCONNECTED)
+        def on_disconnect(_):
+            emitter.emit(PlaygroundDisconnectedEvent())
 
     async def on_protocol(self, protocol: ZerolanProtocol):
         logger.info(f"{protocol.action}: {protocol.message}")
@@ -108,11 +113,11 @@ class PlaygroundBridge(ZerolanProtocolWebsocket):
         """
         return to_value_list(self.gameobjects_info)
 
-    def is_playground_connected(self):
-        def decorator(func):
-            if self.is_connected:
-                return func()
-            else:
-                raise RuntimeError("Your operation is invalid because there is no playground client connected.")
-
-        return decorator
+    # def is_playground_connected(self):
+    #     def decorator(func):
+    #         if self.is_connected:
+    #             return func()
+    #         else:
+    #             raise RuntimeError("Your operation is invalid because there is no playground client connected.")
+    #
+    #     return decorator

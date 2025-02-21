@@ -20,7 +20,7 @@ from common.killable_thread import kill_all_threads, KillableThread
 from common.utils.audio_util import save_tmp_audio
 from context import ZerolanLiveRobotContext
 from event.event_data import ASREvent, SpeechEvent, ScreenCapturedEvent, LLMEvent, OCREvent, ImgCapEvent, TTSEvent, \
-    QQMessageEvent, SwitchVADEvent, PlaygroundConnectedEvent
+    QQMessageEvent, SwitchVADEvent
 from event.eventemitter import emitter
 from event.registry import EventKeyRegistry
 from services.device.screen import is_image_uniform
@@ -78,10 +78,19 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
 
     def init(self):
         @emitter.on(EventKeyRegistry.Playground.PLAYGROUND_CONNECTED)
-        async def on_playground_connected(_: PlaygroundConnectedEvent):
+        async def on_playground_connected(_):
+            # self.microphone.close()
+            logger.info("Because ZerolanPlayground client connected, close the local microphone.")
             await self.playground.load_live2d_model(
-                LoadLive2DModelDTO(bot_id=self.bot_id, bot_display_name=self.bot_name, model_dir=self.live2d_model))
+                LoadLive2DModelDTO(bot_id=self.bot_id,
+                                   bot_display_name=self.bot_name,
+                                   model_dir=self.live2d_model))
             logger.info(f"Live 2D model loaded: {self.live2d_model}")
+
+        @emitter.on(EventKeyRegistry.Playground.DISCONNECTED)
+        def on_playground_disconnected(_):
+            self.microphone.open()
+            logger.info("Because ZerolanPlayground client disconnected, open the local microphone.")
 
         @emitter.on(EventKeyRegistry.Device.SWITCH_VAD)
         def on_open_microphone(event: SwitchVADEvent):
@@ -164,8 +173,9 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
                 await self.playground.modify_game_object_scale(so)
             else:
                 tool_called = self.custom_agent.run(prediction.transcript)
-                if not tool_called:
-                    await self.emit_llm_prediction(prediction.transcript)
+                if tool_called:
+                    logger.debug("Tool called.")
+                await self.emit_llm_prediction(prediction.transcript)
 
         @emitter.on(EventKeyRegistry.Device.SCREEN_CAPTURED)
         async def on_device_screen_captured(event: ScreenCapturedEvent):
@@ -241,16 +251,19 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
                     prompt_language=tts_prompt.lang,
                 )
                 prediction = self.tts.predict(query=query)
-                await self.emit_tts_handler(TTSEvent(prediction=prediction, transcript=transcript))
+                emitter.emit(TTSEvent(prediction=prediction, transcript=transcript))
 
-    async def emit_tts_handler(self, event: TTSEvent):
-        prediction = event.prediction
-        if self.playground.is_playground_connected():
-            bot_id = "0001"
-            audio_path = save_tmp_audio(prediction.wave_data)
-            await self.playground.play_speech(bot_id=bot_id, audio_path=audio_path, transcript=prediction.transcript)
-        else:
-            self.speaker.enqueue_sound(prediction.wave_data)
+        @emitter.on(EventKeyRegistry.Pipeline.TTS)
+        async def tts_event_handler(event: TTSEvent):
+            prediction = event.prediction
+            if self.playground.is_connected:
+                audio_path = save_tmp_audio(prediction.wave_data)
+                await self.playground.play_speech(bot_id=self.bot_id, audio_path=audio_path,
+                                                  transcript=prediction.transcript)
+                logger.debug("Remote speaker enqueue speech data")
+            else:
+                self.speaker.enqueue_sound(prediction.wave_data)
+                logger.debug("Speaker enqueue speech data")
 
     async def emit_llm_prediction(self, text, direct_return: bool = False) -> None | LLMPrediction:
         query = LLMQuery(text=text, history=self.llm_prompt_manager.current_history)

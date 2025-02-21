@@ -43,9 +43,11 @@ class EventKeyRegistry:
 
     class _Inner:
         WEBSOCKET_RECV_JSON = "websocket.recv.json"
+        WEBSOCKET_DISCONNECTED = "_inner/websocket/disconnected"
 
     class QQBot:
         QQ_MESSAGE = "qq.message"
 
     class Playground:
+        DISCONNECTED = "playground/disconnected"
         PLAYGROUND_CONNECTED = "playground_connected"
