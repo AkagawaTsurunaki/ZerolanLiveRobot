@@ -49,6 +49,9 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
         controller_thread = KillableThread(target=self.controller.run, daemon=True, name="ControllerThread")
         threads.append(controller_thread)
 
+        grpc_thread = KillableThread(target=self.grpc.start, daemon=True, name="GrpcThread")
+        threads.append(grpc_thread)
+
         if self.playground is not None:
             playground_thread = KillableThread(target=run_playground, daemon=True, name="PlaygroundThread")
             playground_thread.start()
@@ -56,6 +59,8 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
 
         controller_thread.start()
         vad_thread.start()
+        grpc_thread.start()
+
         try:
             async with asyncio.TaskGroup() as tg:
                 tg.create_task(emitter.start())
@@ -106,7 +111,7 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
                 self.vad.resume()
 
         @emitter.on(EventKeyRegistry.Device.SERVICE_VAD_SPEECH_CHUNK)
-        async def on_service_vad_speech_chunk(event: SpeechEvent):
+        def on_service_vad_speech_chunk(event: SpeechEvent):
             speech, channels, sample_rate = event.speech, event.channels, event.sample_rate
             query = ASRStreamQuery(is_final=True, audio_data=speech, channels=channels, sample_rate=sample_rate)
             prediction = self.asr.stream_predict(query)
