@@ -37,13 +37,10 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
         self.init()
         threads = []
 
-        def run_vad():
-            asyncio.run(self.vad.start())
-
         def run_playground():
             asyncio.run(self.playground.start())
 
-        vad_thread = KillableThread(target=run_vad, daemon=True, name="VADThread")
+        vad_thread = KillableThread(target=self.vad.start, daemon=True, name="VADThread")
         threads.append(vad_thread)
 
         controller_thread = KillableThread(target=self.controller.run, daemon=True, name="ControllerThread")
