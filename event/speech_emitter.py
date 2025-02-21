@@ -1,4 +1,5 @@
 import asyncio
+import threading
 
 import numpy as np
 from loguru import logger
@@ -24,7 +25,7 @@ class SpeechEmitter(AbstractRunnable):
         self.vad = EasyEnergyVad()
         self.speech_chunks = LimitList(50)
         self._stop_flag = False
-        self._asyncio_event = asyncio.Event()
+        self._pause_event = threading.Event()
 
     @property
     def is_recording(self):
@@ -38,7 +39,7 @@ class SpeechEmitter(AbstractRunnable):
 
     @withsound(SystemSoundEnum.enable_func)
     def resume(self):
-        self._asyncio_event.set()
+        self._pause_event.set()
         self._stop_flag = False
         logger.info("VAD resumed.")
 
@@ -49,20 +50,22 @@ class SpeechEmitter(AbstractRunnable):
 
     @withsound(SystemSoundEnum.disable_func)
     def pause(self):
-        self._asyncio_event.clear()
+        self._pause_event.clear()
         self._stop_flag = True
         logger.info("VAD paused.")
 
     async def handler(self):
         for chunk in self.mp.stream():
+            logger.debug("Test")
             if self._stop_flag:
-                logger.debug("Microphone stop flag invoked.")
+                logger.debug("Microphone `_pause_event` clear.")
                 await asyncio.sleep(0)
                 # └---- ⚠️ 【警告】
                 #           不要删除上方的这行代码，否则关闭麦克风时将会产生段错误：-1073741819(0xC0000005)
                 #           初步判断可能是协程实现的问题
                 #           使用日志 IO 和显式 asyncio.sleep(0) 可以强制挂起本任务，让出任务执行权
-                await self._asyncio_event.wait()
+                self._pause_event.wait()
+                logger.debug("Microphone `_pause_event` set")
 
             await asyncio.sleep(0)
             speech_chunk = np.frombuffer(chunk, dtype=np.float32)

@@ -79,7 +79,7 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
     def init(self):
         @emitter.on(EventKeyRegistry.Playground.PLAYGROUND_CONNECTED)
         async def on_playground_connected(_):
-            # self.microphone.close()
+            self.vad.pause()
             logger.info("Because ZerolanPlayground client connected, close the local microphone.")
             await self.playground.load_live2d_model(
                 LoadLive2DModelDTO(bot_id=self.bot_id,
@@ -89,7 +89,7 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
 
         @emitter.on(EventKeyRegistry.Playground.DISCONNECTED)
         def on_playground_disconnected(_):
-            self.microphone.open()
+            self.vad.resume()
             logger.info("Because ZerolanPlayground client disconnected, open the local microphone.")
 
         @emitter.on(EventKeyRegistry.Device.SWITCH_VAD)
