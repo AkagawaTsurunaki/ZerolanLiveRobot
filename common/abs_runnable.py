@@ -29,13 +29,37 @@ class AbstractRunnable:
         self._activate = False
 
 
+class ThreadRunnable:
+
+    def __init__(self):
+        self._activate: bool = False
+        self.id: str = str(uuid.uuid4())
+
+    @abstractmethod
+    def name(self):
+        return self.id
+
+    @abstractmethod
+    def start(self):
+        self._activate = True
+        add_runnable(self)
+
+    def activate_check(self):
+        if not self._activate:
+            raise RuntimeError("This runnable object is not activated. Call `start()` first.")
+
+    @abstractmethod
+    def stop(self):
+        self._activate = False
+
+
 # 所有的可运行组件都应该在调用 `start` 方法的时候被注册在这里
 # All runnable components should be registered here when the `start` method is called
 _all: Dict[str, AbstractRunnable] = {}
 _ids: List[str] = []
 
 
-def add_runnable(run: AbstractRunnable):
+def add_runnable(run: AbstractRunnable | ThreadRunnable):
     _all[run.id] = run
     _ids.append(run.id)
     logger.debug(f"Runnable {run.name()}: {run.id}")
