@@ -2,6 +2,7 @@ import os
 import subprocess
 
 
+# python -m grpc_tools.protoc -I. --python_out=. --grpc_python_out=. bridge/proto/*.proto
 def compile_proto_files(proto_dir):
     # 获取指定目录下的所有文件
     files = os.listdir(proto_dir)
