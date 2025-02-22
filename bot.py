@@ -7,7 +7,7 @@ from zerolan.data.pipeline.img_cap import ImgCapQuery
 from zerolan.data.pipeline.llm import LLMQuery, LLMPrediction
 from zerolan.data.pipeline.milvus import MilvusInsert, InsertRow, MilvusQuery
 from zerolan.data.pipeline.ocr import OCRQuery
-from zerolan.data.pipeline.tts import TTSQuery, TTSPrediction
+from zerolan.data.pipeline.tts import TTSQuery
 from zerolan.data.pipeline.vla import ShowUiQuery
 from zerolan.ump.pipeline.ocr import avg_confidence, stringify
 
@@ -117,66 +117,66 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
             emitter.emit(ASREvent(prediction=prediction))
 
         @emitter.on(EventKeyRegistry.Pipeline.ASR)
-        def asr_handler(event: ASREvent):
+        async def asr_handler(event: ASREvent):
             logger.debug("ASREvent received.")
             prediction = event.prediction
-            # if "关机" in prediction.transcript:
-            #     await self._exit()
-            # elif "打开浏览器" in prediction.transcript:
-            #     if self.browser is not None:
-            #         self.browser.open("https://www.bing.com")
-            # elif "关闭浏览器" in prediction.transcript:
-            #     if self.browser is not None:
-            #         self.browser.close()
-            # elif "网页搜索" in prediction.transcript:
-            #     if self.browser is not None:
-            #         self.browser.move_to_search_box()
-            #         text = prediction.transcript[4:]
-            #         self.browser.send_keys_and_enter(text)
-            # elif "游戏" in prediction.transcript:
-            #     await self.game_agent.exec_instruction(prediction.transcript)
-            # elif "看见" in prediction.transcript:
-            #     img, img_save_path = self.screen.safe_capture(k=0.99)
-            #     if not await self.check_img(img):
-            #         return
-            #     emitter.emit(ScreenCapturedEvent(img=img, img_path=img_save_path))
-            # elif "点击" in prediction.transcript:
-            #     img, img_save_path = self.screen.safe_capture(k=0.99)
-            #     if not await self.check_img(img):
-            #         return
-            #
-            #     query = ShowUiQuery(query=prediction.transcript, env="web", img_path=img_save_path)
-            #     prediction = self.showui.predict(query)
-            #     logger.debug("ShowUI: " + prediction.model_dump_json())
-            #     action = prediction.actions[0]
-            #     if action.action == "CLICK":
-            #         logger.info("Click action triggered.")
-            #         x, y = action.position[0] * img.width, action.position[1] * img.height
-            #         pyautogui.moveTo(x, y)
-            #         pyautogui.click()
-            # elif "记得" in prediction.transcript:
-            #     query = MilvusQuery(collection_name="history_collection", limit=2, output_fields=['history', 'text'],
-            #                         query=prediction.transcript)
-            #     result = self.vec_db.search(query)
-            #     memory = result.result[0][0]
-            #     memory = memory.entity["text"]
-            #     logger.debug(f"Memory found: {memory}")
-            #     self.emit_llm_prediction(f"{memory}\n\n请根据上文回答：{prediction.transcript} \n")
-            # elif "加载模型" in prediction.transcript:
-            #     file_id = find_file(self.model_manager.get_files(), prediction.transcript)
-            #     file_info = self.model_manager.get_file_by_id(file_id)
-            #     await self.playground.load_3d_model(file_info)
-            # elif "调整模型" in prediction.transcript:
-            #     info = self.playground.get_gameobjects_info()
-            #     if not info:
-            #         logger.warning("No gameobjects info")
-            #         return
-            #     so = model_scale(info, prediction.transcript)
-            #     await self.playground.modify_game_object_scale(so)
-            # else:
-            #     tool_called = self.custom_agent.run(prediction.transcript)
-            #     if tool_called:
-            #         logger.debug("Tool called.")
+            if "关机" in prediction.transcript:
+                await self._exit()
+            elif "打开浏览器" in prediction.transcript:
+                if self.browser is not None:
+                    self.browser.open("https://www.bing.com")
+            elif "关闭浏览器" in prediction.transcript:
+                if self.browser is not None:
+                    self.browser.close()
+            elif "网页搜索" in prediction.transcript:
+                if self.browser is not None:
+                    self.browser.move_to_search_box()
+                    text = prediction.transcript[4:]
+                    self.browser.send_keys_and_enter(text)
+            elif "游戏" in prediction.transcript:
+                await self.game_agent.exec_instruction(prediction.transcript)
+            elif "看见" in prediction.transcript:
+                img, img_save_path = self.screen.safe_capture(k=0.99)
+                if not await self.check_img(img):
+                    return
+                emitter.emit(ScreenCapturedEvent(img=img, img_path=img_save_path))
+            elif "点击" in prediction.transcript:
+                img, img_save_path = self.screen.safe_capture(k=0.99)
+                if not await self.check_img(img):
+                    return
+
+                query = ShowUiQuery(query=prediction.transcript, env="web", img_path=img_save_path)
+                prediction = self.showui.predict(query)
+                logger.debug("ShowUI: " + prediction.model_dump_json())
+                action = prediction.actions[0]
+                if action.action == "CLICK":
+                    logger.info("Click action triggered.")
+                    x, y = action.position[0] * img.width, action.position[1] * img.height
+                    pyautogui.moveTo(x, y)
+                    pyautogui.click()
+            elif "记得" in prediction.transcript:
+                query = MilvusQuery(collection_name="history_collection", limit=2, output_fields=['history', 'text'],
+                                    query=prediction.transcript)
+                result = self.vec_db.search(query)
+                memory = result.result[0][0]
+                memory = memory.entity["text"]
+                logger.debug(f"Memory found: {memory}")
+                self.emit_llm_prediction(f"{memory}\n\n请根据上文回答：{prediction.transcript} \n")
+            elif "加载模型" in prediction.transcript:
+                file_id = find_file(self.model_manager.get_files(), prediction.transcript)
+                file_info = self.model_manager.get_file_by_id(file_id)
+                await self.playground.load_3d_model(file_info)
+            elif "调整模型" in prediction.transcript:
+                info = self.playground.get_gameobjects_info()
+                if not info:
+                    logger.warning("No gameobjects info")
+                    return
+                so = model_scale(info, prediction.transcript)
+                await self.playground.modify_game_object_scale(so)
+            else:
+                tool_called = self.custom_agent.run(prediction.transcript)
+                if tool_called:
+                    logger.debug("Tool called.")
             self.emit_llm_prediction(prediction.transcript)
 
         @emitter.on(EventKeyRegistry.Device.SCREEN_CAPTURED)
