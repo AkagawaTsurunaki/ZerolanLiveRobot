@@ -13,6 +13,60 @@ message RPCResponse {
   string message = 2;
 }
 
+message PlaySpeechEvent {
+    string bot_id = 1;
+    string bot_display_name = 2;
+    string audio_uri = 3;
+    string transcript = 4;
+    string audio_type = 5;
+    int32 sample_rate = 6;
+    int32 channels = 7;
+    float duration = 8;
+}
+
+message LoadLive2DModelEvent {
+    string bot_id = 1;
+    string bot_display_name = 2;
+    string model_dir = 3;
+}
+
+message FileInfo {
+    string file_id = 1;
+    string uri = 2;
+    string file_type = 3;
+    string origin_file_name = 4;
+    string file_name = 5;
+    int64 file_size = 6;  // 使用 int64 以支持大文件大小
+    string sha256 = 7;
+}
+
+
+// Position message
+message Position {
+    float x = 1; // x position
+    float y = 2; // y position
+    float z = 3; // z position
+}
+
+// Transform message
+message Transform {
+    float scale = 1; // The scale of the gameobject
+    Position position = 2; // The position of the gameobject
+}
+
+// GameObjectInfo message
+message GameObjectInfo {
+    int32 instance_id = 1; // Unique instance ID of the game object
+    string game_object_name = 2; // Name of the game object
+    Transform transform = 3; // Transform information of the game object
+}
+
+// ScaleOperationDTO message
+message ScaleOperationDTO {
+    int32 instance_id = 1; // Instance ID of the game object to scale
+    float target_scale = 2; // Target scale value
+}
+
 service MicrophoneManager {
   rpc SendSpeechChunk (SpeechChunk) returns (RPCResponse) {}
 }
