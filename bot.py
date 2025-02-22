@@ -60,7 +60,7 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
 
         try:
             async with asyncio.TaskGroup() as tg:
-                # tg.create_task(emitter.start())
+                tg.create_task(emitter.start())
                 tg.create_task(self.speaker.start())
                 if self.live_stream is not None:
                     tg.create_task(self.live_stream.start())
@@ -161,7 +161,7 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
                 memory = result.result[0][0]
                 memory = memory.entity["text"]
                 logger.debug(f"Memory found: {memory}")
-                self.emit_llm_prediction(f"{memory}\n\n请根据上文回答：{prediction.transcript} \n")
+                await self.emit_llm_prediction(f"{memory}\n\n请根据上文回答：{prediction.transcript} \n")
             elif "加载模型" in prediction.transcript:
                 file_id = find_file(self.model_manager.get_files(), prediction.transcript)
                 file_info = self.model_manager.get_file_by_id(file_id)
@@ -177,7 +177,7 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
                 tool_called = self.custom_agent.run(prediction.transcript)
                 if tool_called:
                     logger.debug("Tool called.")
-                self.emit_llm_prediction(prediction.transcript)
+                await self.emit_llm_prediction(prediction.transcript)
 
         @emitter.on(EventKeyRegistry.Device.SCREEN_CAPTURED)
         async def on_device_screen_captured(event: ScreenCapturedEvent):
@@ -198,7 +198,7 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
 
         @emitter.on(EventKeyRegistry.QQBot.QQ_MESSAGE)
         async def on_qq_message(event: QQMessageEvent):
-            prediction = self.emit_llm_prediction(event.message, direct_return=True)
+            prediction = await self.emit_llm_prediction(event.message, direct_return=True)
             if prediction is None:
                 logger.warning("No response from LLM remote service and will not send QQ message.")
                 return
@@ -208,13 +208,13 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
         async def on_pipeline_ocr(event: OCREvent):
             prediction = event.prediction
             text = "你看见了" + stringify(prediction.region_results) + "\n请总结一下"
-            self.emit_llm_prediction(text)
+            await self.emit_llm_prediction(text)
 
         @emitter.on(EventKeyRegistry.Pipeline.IMG_CAP)
         async def on_pipeline_img_cap(event: ImgCapEvent):
             prediction = event.prediction
             text = "你看见了" + prediction.caption
-            self.emit_llm_prediction(text)
+            await self.emit_llm_prediction(text)
 
         @emitter.on(EventKeyRegistry.Pipeline.LLM)
         async def llm_query_handler(event: LLMEvent):
@@ -265,7 +265,7 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
             self.speaker.enqueue_sound(prediction.wave_data)
             logger.debug("Local speaker enqueue speech data")
 
-    def emit_llm_prediction(self, text, direct_return: bool = False) -> None | LLMPrediction:
+    async def emit_llm_prediction(self, text, direct_return: bool = False) -> None | LLMPrediction:
         query = LLMQuery(text=text, history=self.llm_prompt_manager.current_history)
         prediction = self.llm.predict(query)
 
@@ -295,7 +295,7 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
     async def check_img(self, img) -> bool:
         if is_image_uniform(img):
             logger.warning("Are you sure you capture the screen properly? The screen is black!")
-            self.emit_llm_prediction("你忽然什么都看不见了！请向你的开发者求助！")
+            await self.emit_llm_prediction("你忽然什么都看不见了！请向你的开发者求助！")
             return False
         return True
 
