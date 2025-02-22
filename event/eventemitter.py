@@ -73,6 +73,8 @@ class TypedEventEmitter(AbstractRunnable):
                     # TODO: Here we need to fix it...
                     if "attached to a different loop" in f"{e}":
                         logger.warning(f"Task({task.get_name()}) is attached to a different loop?! Why?!")
+                except Exception as e:
+                    logger.exception(e)
                 self._tasks.remove(task)
             self._event_pending.clear()
             if self._stop_flag:
@@ -137,7 +139,19 @@ class TypedEventEmitter(AbstractRunnable):
         logger.debug(f"Added sync task to event loop: {listener.id}")
 
     def _add_async_task(self, listener: Listener, event: Event):
-        task = asyncio.create_task(listener.func(event), name=listener.id)
+        task = None
+        try:
+            task = asyncio.create_task(listener.func(event), name=listener.id)
+        except RuntimeError as e:
+            # 欸嘿嘿，暂时先这么解决了
+            # 多线程不能操作主线程的事件循环导致的问题，通过在新线程中创建
+            if "no running event loop" in f"{e}":
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
+                task = loop.create_task(listener.func(event), name=listener.id)
+                loop.run_until_complete(task)
+        if task is None:
+            return
         self._tasks.append(task)
         self._event_pending.set()
         logger.debug(f"Added async task to event loop: {task.get_name()}")
