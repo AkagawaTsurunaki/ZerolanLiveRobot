@@ -2,6 +2,7 @@ import asyncio
 import inspect
 import threading
 from asyncio import Task
+from enum import Enum
 from typing import Callable, List, Dict, TypeVar, Coroutine, Any, Tuple
 from uuid import uuid4
 
