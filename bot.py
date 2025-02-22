@@ -20,7 +20,7 @@ from common.killable_thread import kill_all_threads, KillableThread
 from common.utils.audio_util import save_tmp_audio
 from context import ZerolanLiveRobotContext
 from event.event_data import ASREvent, SpeechEvent, ScreenCapturedEvent, LLMEvent, OCREvent, ImgCapEvent, \
-    QQMessageEvent, SwitchVADEvent
+    QQMessageEvent, SwitchVADEvent, TTSEvent
 from event.eventemitter import emitter
 from event.registry import EventKeyRegistry
 from services.device.screen import is_image_uniform
@@ -117,67 +117,67 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
             emitter.emit(ASREvent(prediction=prediction))
 
         @emitter.on(EventKeyRegistry.Pipeline.ASR)
-        async def asr_handler(event: ASREvent):
+        def asr_handler(event: ASREvent):
             logger.debug("ASREvent received.")
             prediction = event.prediction
-            if "关机" in prediction.transcript:
-                await self._exit()
-            elif "打开浏览器" in prediction.transcript:
-                if self.browser is not None:
-                    self.browser.open("https://www.bing.com")
-            elif "关闭浏览器" in prediction.transcript:
-                if self.browser is not None:
-                    self.browser.close()
-            elif "网页搜索" in prediction.transcript:
-                if self.browser is not None:
-                    self.browser.move_to_search_box()
-                    text = prediction.transcript[4:]
-                    self.browser.send_keys_and_enter(text)
-            elif "游戏" in prediction.transcript:
-                await self.game_agent.exec_instruction(prediction.transcript)
-            elif "看见" in prediction.transcript:
-                img, img_save_path = self.screen.safe_capture(k=0.99)
-                if not await self.check_img(img):
-                    return
-                emitter.emit(ScreenCapturedEvent(img=img, img_path=img_save_path))
-            elif "点击" in prediction.transcript:
-                img, img_save_path = self.screen.safe_capture(k=0.99)
-                if not await self.check_img(img):
-                    return
-
-                query = ShowUiQuery(query=prediction.transcript, env="web", img_path=img_save_path)
-                prediction = self.showui.predict(query)
-                logger.debug("ShowUI: " + prediction.model_dump_json())
-                action = prediction.actions[0]
-                if action.action == "CLICK":
-                    logger.info("Click action triggered.")
-                    x, y = action.position[0] * img.width, action.position[1] * img.height
-                    pyautogui.moveTo(x, y)
-                    pyautogui.click()
-            elif "记得" in prediction.transcript:
-                query = MilvusQuery(collection_name="history_collection", limit=2, output_fields=['history', 'text'],
-                                    query=prediction.transcript)
-                result = self.vec_db.search(query)
-                memory = result.result[0][0]
-                memory = memory.entity["text"]
-                logger.debug(f"Memory found: {memory}")
-                await self.emit_llm_prediction(f"{memory}\n\n请根据上文回答：{prediction.transcript} \n")
-            elif "加载模型" in prediction.transcript:
-                file_id = find_file(self.model_manager.get_files(), prediction.transcript)
-                file_info = self.model_manager.get_file_by_id(file_id)
-                await self.playground.load_3d_model(file_info)
-            elif "调整模型" in prediction.transcript:
-                info = self.playground.get_gameobjects_info()
-                if not info:
-                    logger.warning("No gameobjects info")
-                    return
-                so = model_scale(info, prediction.transcript)
-                await self.playground.modify_game_object_scale(so)
-            else:
-                tool_called = self.custom_agent.run(prediction.transcript)
-                if tool_called:
-                    logger.debug("Tool called.")
-                await self.emit_llm_prediction(prediction.transcript)
+            # if "关机" in prediction.transcript:
+            #     await self._exit()
+            # elif "打开浏览器" in prediction.transcript:
+            #     if self.browser is not None:
+            #         self.browser.open("https://www.bing.com")
+            # elif "关闭浏览器" in prediction.transcript:
+            #     if self.browser is not None:
+            #         self.browser.close()
+            # elif "网页搜索" in prediction.transcript:
+            #     if self.browser is not None:
+            #         self.browser.move_to_search_box()
+            #         text = prediction.transcript[4:]
+            #         self.browser.send_keys_and_enter(text)
+            # elif "游戏" in prediction.transcript:
+            #     await self.game_agent.exec_instruction(prediction.transcript)
+            # elif "看见" in prediction.transcript:
+            #     img, img_save_path = self.screen.safe_capture(k=0.99)
+            #     if not await self.check_img(img):
+            #         return
+            #     emitter.emit(ScreenCapturedEvent(img=img, img_path=img_save_path))
+            # elif "点击" in prediction.transcript:
+            #     img, img_save_path = self.screen.safe_capture(k=0.99)
+            #     if not await self.check_img(img):
+            #         return
+            #
+            #     query = ShowUiQuery(query=prediction.transcript, env="web", img_path=img_save_path)
+            #     prediction = self.showui.predict(query)
+            #     logger.debug("ShowUI: " + prediction.model_dump_json())
+            #     action = prediction.actions[0]
+            #     if action.action == "CLICK":
+            #         logger.info("Click action triggered.")
+            #         x, y = action.position[0] * img.width, action.position[1] * img.height
+            #         pyautogui.moveTo(x, y)
+            #         pyautogui.click()
+            # elif "记得" in prediction.transcript:
+            #     query = MilvusQuery(collection_name="history_collection", limit=2, output_fields=['history', 'text'],
+            #                         query=prediction.transcript)
+            #     result = self.vec_db.search(query)
+            #     memory = result.result[0][0]
+            #     memory = memory.entity["text"]
+            #     logger.debug(f"Memory found: {memory}")
+            #     self.emit_llm_prediction(f"{memory}\n\n请根据上文回答：{prediction.transcript} \n")
+            # elif "加载模型" in prediction.transcript:
+            #     file_id = find_file(self.model_manager.get_files(), prediction.transcript)
+            #     file_info = self.model_manager.get_file_by_id(file_id)
+            #     await self.playground.load_3d_model(file_info)
+            # elif "调整模型" in prediction.transcript:
+            #     info = self.playground.get_gameobjects_info()
+            #     if not info:
+            #         logger.warning("No gameobjects info")
+            #         return
+            #     so = model_scale(info, prediction.transcript)
+            #     await self.playground.modify_game_object_scale(so)
+            # else:
+            #     tool_called = self.custom_agent.run(prediction.transcript)
+            #     if tool_called:
+            #         logger.debug("Tool called.")
+            self.emit_llm_prediction(prediction.transcript)
 
         @emitter.on(EventKeyRegistry.Device.SCREEN_CAPTURED)
         async def on_device_screen_captured(event: ScreenCapturedEvent):
@@ -198,7 +198,7 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
 
         @emitter.on(EventKeyRegistry.QQBot.QQ_MESSAGE)
         async def on_qq_message(event: QQMessageEvent):
-            prediction = await self.emit_llm_prediction(event.message, direct_return=True)
+            prediction = self.emit_llm_prediction(event.message, direct_return=True)
             if prediction is None:
                 logger.warning("No response from LLM remote service and will not send QQ message.")
                 return
@@ -208,16 +208,16 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
         async def on_pipeline_ocr(event: OCREvent):
             prediction = event.prediction
             text = "你看见了" + stringify(prediction.region_results) + "\n请总结一下"
-            await self.emit_llm_prediction(text)
+            self.emit_llm_prediction(text)
 
         @emitter.on(EventKeyRegistry.Pipeline.IMG_CAP)
         async def on_pipeline_img_cap(event: ImgCapEvent):
             prediction = event.prediction
             text = "你看见了" + prediction.caption
-            await self.emit_llm_prediction(text)
+            self.emit_llm_prediction(text)
 
         @emitter.on(EventKeyRegistry.Pipeline.LLM)
-        async def llm_query_handler(event: LLMEvent):
+        def llm_query_handler(event: LLMEvent):
             prediction = event.prediction
             text = prediction.response
             logger.info("LLM: " + text)
@@ -253,19 +253,21 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
                     prompt_language=tts_prompt.lang,
                 )
                 prediction = self.tts.predict(query=query)
-                await self.play_tts(prediction)
+                logger.info(f"TTS: {query.text}")
+                self.play_tts(TTSEvent(prediction=prediction, transcript=transcript))
 
-    async def play_tts(self, prediction: TTSPrediction):
+    def play_tts(self, event: TTSEvent):
+        prediction = event.prediction
         if self.playground.is_connected:
             audio_path = save_tmp_audio(prediction.wave_data)
-            await self.playground.play_speech(bot_id=self.bot_id, audio_path=audio_path,
-                                              transcript=prediction.transcript)
+            self.playground.play_speech(bot_id=self.bot_id, audio_path=audio_path,
+                                        transcript=event.transcript, bot_name=self.bot_name)
             logger.debug("Remote speaker enqueue speech data")
         else:
             self.speaker.enqueue_sound(prediction.wave_data)
             logger.debug("Local speaker enqueue speech data")
 
-    async def emit_llm_prediction(self, text, direct_return: bool = False) -> None | LLMPrediction:
+    def emit_llm_prediction(self, text, direct_return: bool = False) -> None | LLMPrediction:
         query = LLMQuery(text=text, history=self.llm_prompt_manager.current_history)
         prediction = self.llm.predict(query)
 
@@ -295,7 +297,7 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
     async def check_img(self, img) -> bool:
         if is_image_uniform(img):
             logger.warning("Are you sure you capture the screen properly? The screen is black!")
-            await self.emit_llm_prediction("你忽然什么都看不见了！请向你的开发者求助！")
+            self.emit_llm_prediction("你忽然什么都看不见了！请向你的开发者求助！")
             return False
         return True
 

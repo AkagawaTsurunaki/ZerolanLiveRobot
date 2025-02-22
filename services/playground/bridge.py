@@ -3,6 +3,7 @@ import os.path
 from loguru import logger
 from zerolan.data.protocol.protocol import ZerolanProtocol
 
+from common.asyncio_util import sync_wait
 from common.config import PlaygroundBridgeConfig
 from common.data import PlaySpeechDTO, LoadLive2DModelDTO, FileInfo, ScaleOperationDTO, CreateGameObjectDTO, \
     GameObjectInfo
@@ -49,7 +50,7 @@ class PlaygroundBridge(ZerolanProtocolWebsocket):
             self.gameobjects_info[go_info.instance_id] = go_info
         logger.debug("Local gameobjects cache is updated")
 
-    async def play_speech(self, bot_id: str, audio_path: str, transcript: str):
+    def play_speech(self, bot_id: str, audio_path: str, transcript: str, bot_name: str):
         """
         Play a speech clip in the playground for specific bot with transcript subtitle.
         :param bot_id: The ID of the bot. You should configurate it in the `config.yaml`.
@@ -60,12 +61,13 @@ class PlaygroundBridge(ZerolanProtocolWebsocket):
         audio_type = check_audio_format(audio_path)
         sample_rate, num_channels, duration = check_audio_info(audio_path)
         audio_uri = path_to_uri(audio_path)
-        await self.send(action=Action.PLAY_SPEECH, data=PlaySpeechDTO(bot_id=bot_id, audio_uri=audio_uri,
-                                                                      transcript=transcript,
-                                                                      audio_type=audio_type,
-                                                                      sample_rate=sample_rate,
-                                                                      channels=num_channels,
-                                                                      duration=duration))
+        sync_wait(self.send(action=Action.PLAY_SPEECH, data=PlaySpeechDTO(bot_id=bot_id, audio_uri=audio_uri,
+                                                                          bot_display_name=bot_name,
+                                                                          transcript=transcript,
+                                                                          audio_type=audio_type,
+                                                                          sample_rate=sample_rate,
+                                                                          channels=num_channels,
+                                                                          duration=duration)))
 
     async def load_live2d_model(self, dto: LoadLive2DModelDTO):
         """
