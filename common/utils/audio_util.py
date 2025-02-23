@@ -1,4 +1,5 @@
 import io
+from pathlib import Path
 
 from pydub import AudioSegment
 
@@ -14,7 +15,15 @@ def from_ndarray_to_bytes(speech_chunk, sample_rate):
 
 
 def check_audio_info(file_path) -> (int, int, float):
-    audio = AudioSegment.from_ogg(file_path)
+    suffix = Path(file_path).suffix
+    if suffix == ".ogg":
+        audio = AudioSegment.from_ogg(file_path)
+    elif suffix == ".wav":
+        audio = AudioSegment.from_wav(file_path)
+    elif suffix == ".mp3":
+        audio = AudioSegment.from_mp3(file_path)
+    else:
+        raise NotImplementedError()
     sample_rate = audio.frame_rate
     num_channels = audio.channels
     duration_ms = len(audio)
