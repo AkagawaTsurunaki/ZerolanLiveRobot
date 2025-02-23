@@ -1,6 +1,7 @@
 import asyncio
 import inspect
 import threading
+from concurrent.futures.thread import ThreadPoolExecutor
 from typing import Callable, List, Dict, TypeVar, Coroutine, Any, Tuple
 from uuid import uuid4
 
@@ -10,9 +11,10 @@ from common.abs_runnable import AbstractRunnable
 from common.killable_thread import KillableThread
 from event.event_data import BaseEvent
 
-#########################
-#  Typed Event Emitter  #
-#########################
+##############################
+#     Typed Event Emitter    #
+#  Author: AkagawaTsurunaki  #
+##############################
 
 Event = TypeVar('Event', bound=BaseEvent)
 
@@ -39,7 +41,6 @@ class TypedEventEmitter(AbstractRunnable):
 
         # 监听器与待处理（同步和异步）任务
         self._listeners: Dict[str, List[Listener]] = dict()
-        # self._coro_queue: Queue[Coroutine[Any, Any, Any]] = Queue()
         self._coro_queue: asyncio.Queue[Coroutine[Any, Any, Any]] = asyncio.Queue()
         self._sync_tasks: List[Tuple[Listener, Event]] = []
 
@@ -47,8 +48,10 @@ class TypedEventEmitter(AbstractRunnable):
         self._stop_flag: bool = False
         self._async_wait_flag = asyncio.Event()
         self._thread_event = threading.Event()
+
         self._emitter_thread = KillableThread(target=self._sync_loop, daemon=True,
                                               name="TypedEventEmitterLoop")
+        self._thread_pool = ThreadPoolExecutor(max_workers=4)
 
     async def start(self):
         await super().start()
@@ -92,7 +95,7 @@ class TypedEventEmitter(AbstractRunnable):
         while not self._stop_flag:
             for listener, event in self._sync_tasks:
                 try:
-                    listener.func(event)
+                    self._thread_pool.submit(listener.func, event)
                 except Exception as e:
                     logger.exception(e)
                 finally:
@@ -140,6 +143,7 @@ class TypedEventEmitter(AbstractRunnable):
         self._stop_flag = True
         self._async_wait_flag.set()
         self._emitter_thread.kill()
+        self._thread_pool.shutdown()
         logger.info("Stopping...")
 
     def _add_sync_task(self, listener: Listener, event: Event):
