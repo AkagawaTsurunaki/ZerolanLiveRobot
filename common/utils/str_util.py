@@ -1,4 +1,6 @@
-import re
+from typing import List
+
+from common.enumerator import Language
 
 
 def is_blank(s: str) -> bool:
@@ -6,14 +8,36 @@ def is_blank(s: str) -> bool:
     return s is None or not s.strip() or s == ""
 
 
-def split_by_punctuations(text, punctuations=None, k=10):
-    if punctuations is None:
-        punctuations = ["：", "。", "！", "？", "!", "?"]
-    pattern = '|'.join(re.escape(p) for p in punctuations)
-    parts = re.split(pattern, text)
-    parts = [part for part in parts if part.strip()]
+# def split_by_punctuations(text, punctuations=None, k=10):
+#     if punctuations is None:
+#         punctuations = ["：", "。", "！", "？", "!", "?"]
+#     pattern = '|'.join(re.escape(p) for p in punctuations)
+#     parts = re.split(pattern, text)
+#     parts = [part for part in parts if part.strip()]
+#
+#     return parts
 
-    return parts
+def split_by_punc(text: str, lang: Language) -> List[str]:
+    if lang == Language.ZH:
+        cut_punc = "，。！？"
+    elif lang == Language.JA:
+        cut_punc = "、。！？"
+    else:
+        cut_punc = ",.!?"
+
+    def punc_cut(text: str, punc: str):
+        texts = []
+        last = -1
+        for i in range(len(text)):
+            if text[i] in punc:
+                try:
+                    texts.append(text[last + 1: i])
+                except IndexError:
+                    continue
+                last = i
+        return texts
+
+    return punc_cut(text, cut_punc)
 
 
 def adjust_strings(strings, k):
