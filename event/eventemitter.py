@@ -145,7 +145,7 @@ class TypedEventEmitter(AbstractRunnable):
     def _add_sync_task(self, listener: Listener, event: Event):
         self._sync_tasks.append((listener, event))
         self._thread_event.set()
-        logger.debug(f"Added sync task to event loop: {listener.id}")
+        logger.debug(f"Added sync task to event loop: {listener.func.__name__}")
 
     def _add_async_task(self, listener: Listener, event: Event):
         coro = listener.func(event)
