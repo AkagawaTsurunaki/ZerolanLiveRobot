@@ -11,6 +11,7 @@ from common.utils.audio_util import save_tmp_audio
 from common.utils.file_util import spath
 
 pygame.mixer.init()
+_system_sound = False
 
 
 class Speaker(AbstractRunnable):
@@ -85,6 +86,8 @@ class Speaker(AbstractRunnable):
 
     @staticmethod
     def play_system_sound(key: SystemSoundEnum, block: bool = False):
+        if not _system_sound:
+            return
         try:
             Speaker.playsound(spath(os.path.join("resources/static/sound/system", key.value)), block=block)
         except Exception as _:
