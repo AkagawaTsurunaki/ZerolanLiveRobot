@@ -15,6 +15,7 @@ from common.decorator import withsound
 from common.enumerator import Language, SystemSoundEnum
 from common.killable_thread import kill_all_threads, KillableThread
 from common.utils.audio_util import save_tmp_audio
+from common.utils.str_util import split_by_punc
 from context import ZerolanLiveRobotContext
 from event.event_data import ASREvent, SpeechEvent, ScreenCapturedEvent, LLMEvent, OCREvent, ImgCapEvent, \
     QQMessageEvent, SwitchVADEvent, TTSEvent
@@ -227,27 +228,7 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
             logger.info("LLM: " + text)
             sentiment = sentiment_analyse(sentiments=self.tts_prompt_manager.sentiments, text=text)
             tts_prompt = self.tts_prompt_manager.get_tts_prompt(sentiment)
-            # tts_prompt = self.sentiment_analyzer_agent.sentiment_tts_prompt(text)
-            if self.cur_lang == Language.ZH:
-                cut_punc = "，。！？"
-            elif self.cur_lang == Language.JA:
-                cut_punc = "、。！？"
-            else:
-                cut_punc = ",.!?"
-
-            def punc_cut(text: str, punc: str):
-                texts = []
-                last = -1
-                for i in range(len(text)):
-                    if text[i] in punc:
-                        try:
-                            texts.append(text[last + 1: i])
-                        except IndexError:
-                            continue
-                        last = i
-                return texts
-
-            transcripts = punc_cut(text, cut_punc)
+            transcripts = split_by_punc(text, self.cur_lang)
             for transcript in transcripts:
                 query = TTSQuery(
                     text=transcript,
