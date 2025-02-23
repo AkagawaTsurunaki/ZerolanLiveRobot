@@ -1,7 +1,6 @@
 import asyncio
 import inspect
 import threading
-from asyncio import Task
 from typing import Callable, List, Dict, TypeVar, Coroutine, Any, Tuple
 from uuid import uuid4
 
@@ -26,7 +25,6 @@ class Listener:
         self.id: str = str(uuid4())
         self.func: Callable[[BaseEvent], None] = func
         self.once: bool = once
-        self.awaitable: bool = False  # Need judge
 
 
 class TypedEventEmitter(AbstractRunnable):
@@ -38,14 +36,19 @@ class TypedEventEmitter(AbstractRunnable):
         super().__init__()
         self._max_listeners: int = 100
         self._cur_listeners: int = 0
-        self._stop_flag: bool = False
-        self._event_pending = asyncio.Event()
-        self._thread_event = threading.Event()
+
+        # 监听器与待处理（同步和异步）任务
         self._listeners: Dict[str, List[Listener]] = dict()
-        self._tasks: List[Task] = []
-        self._sync_loop_thread = KillableThread(target=self._sync_loop, daemon=True,
-                                                name="TypedEventEmitterSyncEventLoop")
+        # self._coro_queue: Queue[Coroutine[Any, Any, Any]] = Queue()
+        self._coro_queue: asyncio.Queue[Coroutine[Any, Any, Any]] = asyncio.Queue()
         self._sync_tasks: List[Tuple[Listener, Event]] = []
+
+        # 线程与信号量
+        self._stop_flag: bool = False
+        self._async_wait_flag = asyncio.Event()
+        self._thread_event = threading.Event()
+        self._emitter_thread = KillableThread(target=self._sync_loop, daemon=True,
+                                              name="TypedEventEmitterLoop")
 
     async def start(self):
         await super().start()
@@ -53,32 +56,37 @@ class TypedEventEmitter(AbstractRunnable):
         self._stop_flag = False
 
         # NOTE: Start thread first, then start async event loop.
-        self._sync_loop_thread.start()
+        self._emitter_thread.start()
         await self._async_loop()
 
         # Join the thread
-        self._sync_loop_thread.join()
+        self._emitter_thread.join()
 
         logger.info("TypedEventEmitter exited")
 
     async def _async_loop(self):
+        loop_counter = 0
         while not self._stop_flag:
-            for task in self._tasks:
-                try:
-                    await task
-                except asyncio.CancelledError:
-                    logger.warning(f"Task cancelled: {task.get_name()}")
-                except RuntimeError as e:
-                    # TODO: Here we need to fix it...
-                    if "attached to a different loop" in f"{e}":
-                        logger.warning(f"Task({task.get_name()}) is attached to a different loop?! Why?!")
-                except Exception as e:
-                    logger.exception(e)
-                self._tasks.remove(task)
-            self._event_pending.clear()
-            if self._stop_flag:
-                break
-            await self._event_pending.wait()
+            loop_counter += 1
+            logger.debug(f"Enter async loop ({loop_counter})")
+            logger.debug(f"Count: {self._coro_queue.qsize()}")
+
+            gathered_tasks = []
+            while not self._coro_queue.empty():
+                # coro = await asyncio.to_thread(self._coro_queue.get)
+                coro = await self._coro_queue.get()
+                task = asyncio.create_task(coro)
+                gathered_tasks.append(task)
+            await asyncio.gather(*gathered_tasks)
+
+            logger.debug(f"Tasks done: {[task for task in gathered_tasks]}")
+
+            if self._coro_queue.empty():
+                self._async_wait_flag.clear()
+                await asyncio.sleep(0)
+            await self._async_wait_flag.wait()
+            # await asyncio.sleep(1)
+            logger.debug(f"Exit async loop ({loop_counter})")
 
     def _sync_loop(self):
         while not self._stop_flag:
@@ -130,10 +138,8 @@ class TypedEventEmitter(AbstractRunnable):
     async def stop(self):
         await super().stop()
         self._stop_flag = True
-        self._event_pending.set()
-        for task in self._tasks:
-            task.cancel()
-        self._sync_loop_thread.kill()
+        self._async_wait_flag.set()
+        self._emitter_thread.kill()
         logger.info("Stopping...")
 
     def _add_sync_task(self, listener: Listener, event: Event):
@@ -142,22 +148,13 @@ class TypedEventEmitter(AbstractRunnable):
         logger.debug(f"Added sync task to event loop: {listener.id}")
 
     def _add_async_task(self, listener: Listener, event: Event):
-        task = None
-        try:
-            task = asyncio.create_task(listener.func(event), name=listener.id)
-        except RuntimeError as e:
-            # 欸嘿嘿，暂时先这么解决了
-            # 多线程不能操作主线程的事件循环导致的问题，通过在新线程中创建
-            if "no running event loop" in f"{e}":
-                loop = asyncio.new_event_loop()
-                asyncio.set_event_loop(loop)
-                task = loop.create_task(listener.func(event), name=listener.id)
-                loop.run_until_complete(task)
-        if task is None:
-            return
-        self._tasks.append(task)
-        self._event_pending.set()
-        logger.debug(f"Added async task to event loop: {task.get_name()}")
+        coro = listener.func(event)
+        assert isinstance(coro, Coroutine)
+        # self._coro_queue.put(coro)
+        self._coro_queue.put_nowait(coro)
+        self._async_wait_flag.set()
+        logger.debug(f"_coro_queue size: {self._coro_queue.qsize()}")
+        logger.debug(f"Added async task to event loop: {coro.__name__}")
 
     def _add_listener(self, event: str, listener: Listener):
 
