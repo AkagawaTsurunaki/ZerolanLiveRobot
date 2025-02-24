@@ -1,4 +1,3 @@
-import hashlib
 import os
 import os.path
 import uuid
@@ -7,7 +6,6 @@ from time import time
 from typing import Literal, LiteralString
 from uuid import uuid4
 
-import aiofiles
 import yaml
 
 from common.data import FileInfo
@@ -95,12 +93,7 @@ def try_create_dir(dir_path: str):
     assert os.path.isdir(dir_path)
 
 
-async def encrypt(fpath: str, algorithm: str = "sha256") -> str:
-    async with aiofiles.open(fpath, 'rb') as f:
-        return hashlib.new(algorithm, await f.read()).hexdigest()
-
-
-async def get_file_info(path: LiteralString | str | bytes) -> FileInfo:
+def get_file_info(path: LiteralString | str | bytes) -> FileInfo:
     assert os.path.exists(path)
     path = str(path)
     file_extension = Path(path).suffix
@@ -116,7 +109,6 @@ async def get_file_info(path: LiteralString | str | bytes) -> FileInfo:
         origin_file_name=file_name,
         file_name=file_name,
         file_size=file_size,
-        sha256=await encrypt(path)
     )
 
 

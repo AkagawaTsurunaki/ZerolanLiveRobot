@@ -47,7 +47,6 @@ class FileInfo(BaseModel):
     origin_file_name: str
     file_name: str
     file_size: int  # Bytes
-    sha256: str
 
 
 class Position(BaseModel):

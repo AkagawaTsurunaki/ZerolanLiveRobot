@@ -12,11 +12,11 @@ class ModelManager:
         self._model_dir = R".\resources\static\models\3d" if model_dir is None else model_dir
         self._model_files: Dict[str, FileInfo] = {}
 
-    async def scan(self):
+    def scan(self):
         for root, dirs, files in os.walk(self._model_dir):
             for file in files:
                 filepath = os.path.join(root, file)
-                file_info = await get_file_info(filepath)
+                file_info = get_file_info(filepath)
                 self._model_files[file_info.file_id] = file_info
                 logger.info(f"{file_info.file_name} is registered as {file_info.file_id}")
 
