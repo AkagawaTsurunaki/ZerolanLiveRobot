@@ -4,7 +4,7 @@ from queue import Queue
 
 import pygame
 
-from common.abs_runnable import AbstractRunnable
+from common.abs_runnable import ThreadRunnable
 from common.enumerator import SystemSoundEnum
 from common.killable_thread import KillableThread
 from common.utils.audio_util import save_tmp_audio
@@ -14,7 +14,7 @@ pygame.mixer.init()
 _system_sound = False
 
 
-class Speaker(AbstractRunnable):
+class Speaker(ThreadRunnable):
 
     def name(self):
         return 'Speaker'
@@ -26,14 +26,14 @@ class Speaker(AbstractRunnable):
         self._speaker_thread = KillableThread(target=self._run)
         self.audio_clips: Queue[str] = Queue()
 
-    async def start(self):
-        await super().start()
+    def start(self):
+        super().start()
         self._stop_flag = False
         self._semaphore.set()
         self._speaker_thread.start()
 
-    async def stop(self):
-        await super().stop()
+    def stop(self):
+        super().stop()
         self._stop_flag = True
         self.audio_clips = None
         self._speaker_thread.kill()
