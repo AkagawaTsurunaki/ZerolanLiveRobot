@@ -5,7 +5,7 @@ from zerolan.data.protocol.protocol import ZerolanProtocol
 
 from common.config import PlaygroundBridgeConfig
 from common.data import PlaySpeechDTO, LoadLive2DModelDTO, FileInfo, ScaleOperationDTO, CreateGameObjectDTO, \
-    GameObjectInfo
+    GameObjectInfo, ShowUserTextInputDTO
 from common.enumerator import Action
 from common.utils.audio_util import check_audio_format, check_audio_info
 from common.utils.collection_util import to_value_list
@@ -112,3 +112,6 @@ class PlaygroundBridge(ZerolanProtocolWsServer):
         :return:
         """
         return to_value_list(self.gameobjects_info)
+
+    def show_user_input_text(self, text: str):
+        self.send(action=Action.SHOW_USER_TEXT_INPUT, data=ShowUserTextInputDTO(text=text))

@@ -165,6 +165,8 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
                 tool_called = self.custom_agent.run(prediction.transcript)
                 if tool_called:
                     logger.debug("Tool called.")
+            if self.playground.is_connected:
+                self.playground.show_user_input_text(prediction.transcript)
             self.emit_llm_prediction(prediction.transcript)
 
         @emitter.on(EventKeyRegistry.Device.SCREEN_CAPTURED)
@@ -212,7 +214,7 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
             sentiment = sentiment_analyse(sentiments=self.tts_prompt_manager.sentiments, text=text)
             tts_prompt = self.tts_prompt_manager.get_tts_prompt(sentiment)
             transcripts = split_by_punc(text, self.cur_lang)
-            for transcript in transcripts:
+            for idx, transcript in enumerate(transcripts):
                 query = TTSQuery(
                     text=transcript,
                     text_language=self.cur_lang,

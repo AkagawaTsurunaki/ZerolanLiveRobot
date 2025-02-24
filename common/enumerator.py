@@ -71,3 +71,5 @@ class Action(str, Enum):
     QUERY_GAMEOBJECTS_INFO = "query_gameobjects_info"
     MODIFY_GAMEOBJECT_SCALE = "modify_gameobject_scale"
     CREATE_GAMEOBJECT = "create_gameobject"
+
+    SHOW_USER_TEXT_INPUT = "show_user_text_input"

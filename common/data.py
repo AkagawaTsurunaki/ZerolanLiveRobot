@@ -30,16 +30,6 @@ class FileType(str, Enum):
     NONE = "none"
 
 
-class ViewerAction(str, Enum):
-    CLIENT_HELLO = "client_hello"
-    SERVER_HELLO = "server_hello"
-    PLAY_SPEECH = "play_speech"
-    LOAD_MODEL = "load_model"
-    UPDATE_GAMEOBJECTS_INFO = "update_gameobjects_info"
-    MODIFY_GAMEOBJECT_SCALE = "modify_gameobject_scale"
-    CREATE_GAMEOBJECT = "create_gameobject"
-
-
 class FileInfo(BaseModel):
     file_id: str
     uri: str
@@ -83,3 +73,7 @@ class CreateGameObjectDTO(BaseModel):
         description=f"The type of the gameobject, can be only in {enum_members_to_list(GameObjectType)}")
     color: str = Field(description='The color of the gameobject, hex format: "#000000"')
     transform: Transform = Field(description="The transform of the gameobject")
+
+
+class ShowUserTextInputDTO(BaseModel):
+    text: str
