@@ -39,9 +39,6 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
         self.init()
         threads = []
 
-        def run_playground():
-            asyncio.run(self.playground.start())
-
         vad_thread = KillableThread(target=self.vad.start, daemon=True, name="VADThread")
         threads.append(vad_thread)
 
@@ -52,7 +49,7 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
         threads.append(grpc_thread)
 
         if self.playground is not None:
-            playground_thread = KillableThread(target=run_playground, daemon=True, name="PlaygroundThread")
+            playground_thread = KillableThread(target=self.playground.start, daemon=True, name="PlaygroundThread")
             playground_thread.start()
             threads.append(playground_thread)
 
@@ -68,7 +65,7 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
                     tg.create_task(self.live_stream.start())
 
                 if self.model_manager is not None:
-                    tg.create_task(self.model_manager.scan())
+                    self.model_manager.scan()
                 tg.create_task(self.webui.start())
 
         except ExceptionGroup as e:
@@ -82,10 +79,10 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
 
     def init(self):
         @emitter.on(EventKeyRegistry.Playground.PLAYGROUND_CONNECTED)
-        async def on_playground_connected(_):
+        def on_playground_connected(_):
             self.vad.pause()
             logger.info("Because ZerolanPlayground client connected, close the local microphone.")
-            await self.playground.load_live2d_model(
+            self.playground.load_live2d_model(
                 LoadLive2DModelDTO(bot_id=self.bot_id,
                                    bot_display_name=self.bot_name,
                                    model_dir=self.live2d_model))
