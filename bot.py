@@ -37,42 +37,31 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
     @withsound(SystemSoundEnum.start)
     async def start(self):
         self.init()
+
+        if self.model_manager is not None:
+            self.model_manager.scan()
+
         threads = []
 
         vad_thread = KillableThread(target=self.vad.start, daemon=True, name="VADThread")
         threads.append(vad_thread)
 
-        controller_thread = KillableThread(target=self.controller.run, daemon=True, name="ControllerThread")
-        threads.append(controller_thread)
+        speaker_thread = KillableThread(target=self.speaker.start, daemon=True, name="SpeakerThread")
+        threads.append(speaker_thread)
 
         grpc_thread = KillableThread(target=self.grpc.start, daemon=True, name="GrpcThread")
         threads.append(grpc_thread)
 
-        if self.playground is not None:
-            playground_thread = KillableThread(target=self.playground.start, daemon=True, name="PlaygroundThread")
-            playground_thread.start()
-            threads.append(playground_thread)
+        playground_thread = KillableThread(target=self.playground.start, daemon=True, name="PlaygroundThread")
+        threads.append(playground_thread)
 
-        controller_thread.start()
-        vad_thread.start()
-        grpc_thread.start()
+        for thread in threads:
+            thread.start()
 
-        try:
-            async with asyncio.TaskGroup() as tg:
-                tg.create_task(emitter.start())
-                tg.create_task(self.speaker.start())
-                if self.live_stream is not None:
-                    tg.create_task(self.live_stream.start())
-
-                if self.model_manager is not None:
-                    self.model_manager.scan()
-                tg.create_task(self.webui.start())
-
-        except ExceptionGroup as e:
-            self.speaker.play_system_sound(SystemSoundEnum.error, block=False)
-            logger.exception(e)
-            logger.error("Unhandled exception, crashed!")
-            await self._force_exit()
+        async with asyncio.TaskGroup() as tg:
+            tg.create_task(emitter.start())
+            if self.live_stream is not None:
+                tg.create_task(self.live_stream.start())
 
         for thread in threads:
             thread.join()
