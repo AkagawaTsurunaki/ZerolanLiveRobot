@@ -2,21 +2,21 @@ from injector import inject
 from zerolan.data.protocol.protocol import ZerolanProtocol
 
 from common.config import QQBotBridgeConfig
+from common.web.zrl_ws import ZerolanProtocolWsServer
 from event.event_data import QQMessageEvent
 from event.eventemitter import emitter
-from event.websocket import ZerolanProtocolWebsocket
 
 
 class _QQBotAction:
     GROUP_MESSAGE = "group_message"
 
 
-class QQBotBridge(ZerolanProtocolWebsocket):
+class QQBotBridge(ZerolanProtocolWsServer):
 
     @inject
     def __init__(self, config: QQBotBridgeConfig):
         host, port = config.host, config.port
-        ZerolanProtocolWebsocket.__init__(self, host=host, port=port)
+        ZerolanProtocolWsServer.__init__(self, host=host, port=port)
 
     async def on_protocol(self, protocol: ZerolanProtocol):
         if protocol.action == _QQBotAction.GROUP_MESSAGE:
@@ -27,8 +27,8 @@ class QQBotBridge(ZerolanProtocolWebsocket):
     def name(self):
         return "QQBotBridge"
 
-    async def send_plain_message(self, message: str, group: int):
-        await self.send(action="send_plain_text_in_group", data={
+    def send_plain_message(self, message: str, group: int):
+        self.send(action="send_plain_text_in_group", data={
             "group": group,
             "message": message
         })
