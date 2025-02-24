@@ -30,6 +30,7 @@ class ZerolanProtocolWsServer(ThreadRunnable):
 
     def stop(self):
         super().stop()
+        self._jws.stop()
 
     @property
     def is_connected(self):
