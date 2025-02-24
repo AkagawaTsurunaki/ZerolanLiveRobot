@@ -140,6 +140,7 @@ class PlaygroundConnectedEvent(BaseEvent):
 
 @dataclass
 class PlaygroundDisconnectedEvent(BaseEvent):
+    ws_id: str
     type: str = EventKeyRegistry.Playground.DISCONNECTED
 
 
