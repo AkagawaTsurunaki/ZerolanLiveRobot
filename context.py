@@ -17,8 +17,6 @@ from manager.model_manager import ModelManager
 from manager.temp_data_manager import TempDataManager
 from manager.tts_prompt_manager import TTSPromptManager
 from services.browser.browser import Browser
-from services.controller.controller import ControllerWebServer
-from services.controller.webui import ZerolanControllerWebUI
 from services.device.microphone import Microphone
 from services.device.screen import Screen
 from services.device.speaker import Speaker
@@ -114,8 +112,6 @@ class ZerolanLiveRobotContext:
             self.qq = QQBotBridge(config.service.qqbot)
         self.microphone = Microphone()
         self.vad = SpeechEmitter(self.microphone)
-        self.controller = ControllerWebServer(config.service.controller)
-        self.webui = ZerolanControllerWebUI(config.service.controller)
 
         # Agents
         self.tool_agent = ToolAgent(config.pipeline.llm)
