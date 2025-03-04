@@ -2,19 +2,14 @@
 Modify from:
     http://www.s1nh.org/post/python-different-ways-to-kill-a-thread/
 """
-import asyncio
 import ctypes
 import threading
 from typing import List
 
 from loguru import logger
 
-
-def sync_thread_wrapper(func):
-    def wrapper():
-        asyncio.run(func())
-
-    return wrapper
+PyGILState_Ensure = ctypes.pythonapi.PyGILState_Ensure
+PyGILState_Release = ctypes.pythonapi.PyGILState_Release
 
 
 class ThreadKilledError(RuntimeError):
@@ -62,6 +57,13 @@ class KillableThread(threading.Thread):
             ctypes.pythonapi.PyThreadState_SetAsyncExc(thread_id, 0)
             raise ThreadCanNotBeKilledError('Exception raise failure')
         self._killed = True
+
+    def kill_with_gil_held(self):
+        gstate = PyGILState_Ensure()
+        try:
+            self.kill()
+        finally:
+            PyGILState_Release(gstate)
 
     def join(self, timeout=None):
         """
