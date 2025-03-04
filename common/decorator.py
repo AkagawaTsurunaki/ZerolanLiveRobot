@@ -1,30 +1,11 @@
 import json
 import threading
 from functools import wraps
-from multiprocessing import Process
 
 from loguru import logger
-from zerolan.ui import app
 
 from common.enumerator import SystemSoundEnum
 from services.device.speaker import Speaker
-
-
-# def log_run_time():
-#     def decorator(func):
-#         @wraps(func)
-#         def wrapper(*args, **kwargs):
-#             from time import time
-#             time_start = time()
-#             ret = func(*args, **kwargs)
-#             time_end = time()
-#             time_used = "{:.2f}".format(time_end - time_start)
-#             logger.info(func.__name__ + "time used: " + time_used + " s.")
-#             return ret
-#
-#         return wrapper
-#
-#     return decorator
 
 
 def withsound(sound: SystemSoundEnum, block: bool = False):
@@ -104,50 +85,6 @@ def log_stop(service_name: str):
             ret = func(*args, **kwargs)
             logger.info(f"{service_name} stopped.")
             return ret
-
-        return wrapper
-
-    return decorator
-
-
-_ui_process: Process | None = None
-
-
-def start_ui_process(enable: bool):
-    def decorator(func):
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            if enable:
-                global _ui_process
-                _ui_process = Process(target=app.start_ui_application, daemon=True)
-                _ui_process.start()
-                logger.info("Zerolan UI Process started.")
-            ret = func(*args, **kwargs)
-            # process.join()
-            return ret
-
-        return wrapper
-
-    return decorator
-
-
-def kill_ui_process(force: bool):
-    def decorator(func):
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            global _ui_process
-            if _ui_process is None:
-                return func(*args, **kwargs)
-
-            if force:
-                _ui_process.kill()
-                _ui_process.terminate()
-            else:
-                app.shutdown()
-                _ui_process.terminate()
-            _ui_process.join()
-            logger.info("Zerolan UI Process stopped.")
-            return func(*args, **kwargs)
 
         return wrapper
 
