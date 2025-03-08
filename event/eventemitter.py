@@ -94,8 +94,15 @@ class TypedEventEmitter(AbstractRunnable):
     def _sync_loop(self):
         while not self._stop_flag:
             for listener, event in self._sync_tasks:
+
+                def wrapper():
+                    try:
+                        listener.func(event)
+                    except Exception as e:
+                        logger.error(e)
+
                 try:
-                    self._thread_pool.submit(listener.func, event)
+                    self._thread_pool.submit(wrapper)
                 except Exception as e:
                     logger.exception(e)
                 finally:
