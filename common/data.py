@@ -20,6 +20,7 @@ class LoadLive2DModelDTO(BaseModel):
     bot_id: str
     bot_display_name: str
     model_dir: str
+    model_uri: str
 
 
 class FileType(str, Enum):

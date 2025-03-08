@@ -10,18 +10,20 @@ from common.enumerator import Action
 from common.killable_thread import KillableThread
 from common.utils.audio_util import check_audio_format, check_audio_info
 from common.utils.collection_util import to_value_list
-from common.utils.file_util import path_to_uri
+from common.utils.file_util import create_temp_file, compress_directory
 from common.web.zrl_ws import ZerolanProtocolWsServer
 from event.event_data import PlaygroundConnectedEvent, PlaygroundDisconnectedEvent
 from event.eventemitter import emitter
 from services.playground.grpc_server import GRPCServer
+from services.res_server import ResourceServer
 
 
 class PlaygroundBridge(ZerolanProtocolWsServer):
 
-    def __init__(self, config: PlaygroundBridgeConfig):
+    def __init__(self, config: PlaygroundBridgeConfig, res_server: ResourceServer):
         super().__init__(host=config.host, port=config.port)
         self.gameobjects_info = {}
+        self.res_server = res_server
         self._grpc_server = GRPCServer(config.grpc_server.host, config.grpc_server.port)
         self._grpc_server_thread: KillableThread | None = None
 
@@ -73,7 +75,7 @@ class PlaygroundBridge(ZerolanProtocolWsServer):
         """
         audio_type = check_audio_format(audio_path)
         sample_rate, num_channels, duration = check_audio_info(audio_path)
-        audio_uri = path_to_uri(audio_path)
+        audio_uri = self.res_server.path_to_url(audio_path)
         self.send(action=Action.PLAY_SPEECH, data=PlaySpeechDTO(bot_id=bot_id, audio_uri=audio_uri,
                                                                 bot_display_name=bot_name,
                                                                 transcript=transcript,
@@ -82,14 +84,25 @@ class PlaygroundBridge(ZerolanProtocolWsServer):
                                                                 channels=num_channels,
                                                                 duration=duration))
 
-    def load_live2d_model(self, dto: LoadLive2DModelDTO):
+    def load_live2d_model(self, bot_id: str,
+                          bot_display_name: str,
+                          model_dir: str):
         """
         Load a specific Cubism Live2D model in the playground.
-        :param dto: See LoadLive2DModelDTO
+        :param bot_id:
+        :param model_dir:
+        :param bot_display_name:
         """
-        model_dir = dto.model_dir
         assert os.path.exists(model_dir) and os.path.isdir(model_dir), f"{model_dir} is not a directory"
-        self.send(action=Action.LOAD_LIVE2D_MODEL, data=dto)
+        zip_path = create_temp_file("live2d", ".zip", "model")
+        compress_directory(model_dir, zip_path)
+        model_uri = self.res_server.path_to_url(zip_path)
+        self.send(action=Action.LOAD_LIVE2D_MODEL, data=LoadLive2DModelDTO(
+            bot_id=bot_id,
+            bot_display_name=bot_display_name,
+            model_dir=model_dir,
+            model_uri=model_uri
+        ))
 
     def load_3d_model(self, file_info: FileInfo):
         """

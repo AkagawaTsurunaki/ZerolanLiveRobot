@@ -34,7 +34,6 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
         self.cur_lang = Language.ZH
         self.tts_prompt_manager.set_lang(self.cur_lang)
 
-    @withsound(SystemSoundEnum.start)
     async def start(self):
         self.init()
 
@@ -51,6 +50,9 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
 
         playground_thread = KillableThread(target=self.playground.start, daemon=True, name="PlaygroundThread")
         threads.append(playground_thread)
+
+        res_server_thread = KillableThread(target=self.res_server.start, daemon=True, name="ResServerThread")
+        threads.append(res_server_thread)
 
         for thread in threads:
             thread.start()
@@ -69,9 +71,10 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
             self.vad.pause()
             logger.info("Because ZerolanPlayground client connected, close the local microphone.")
             self.playground.load_live2d_model(
-                LoadLive2DModelDTO(bot_id=self.bot_id,
-                                   bot_display_name=self.bot_name,
-                                   model_dir=self.live2d_model))
+                bot_id=self.bot_id,
+                bot_display_name=self.bot_name,
+                model_dir=self.live2d_model
+            )
             logger.info(f"Live 2D model loaded: {self.live2d_model}")
 
         @emitter.on(EventKeyRegistry.Playground.DISCONNECTED)
@@ -151,7 +154,7 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
             elif "加载模型" in prediction.transcript:
                 file_id = find_file(self.model_manager.get_files(), prediction.transcript)
                 file_info = self.model_manager.get_file_by_id(file_id)
-                sync_wait(self.playground.load_3d_model(file_info))
+                self.playground.load_3d_model(file_info)
             elif "调整模型" in prediction.transcript:
                 info = self.playground.get_gameobjects_info()
                 if not info:

@@ -24,6 +24,7 @@ from services.game.minecraft.app import KonekoMinecraftAIAgent
 from services.live_stream.service import LiveStreamService
 from services.playground.bridge import PlaygroundBridge
 from services.qqbot.bridge import QQBotBridge
+from services.res_server import ResourceServer
 
 config = get_config()
 
@@ -62,6 +63,7 @@ class ZerolanLiveRobotContext:
         self.bot_id: str = None
         self.bot_name: str = None
         self.live2d_model: str = None
+        self.res_server: ResourceServer | None = None
 
         self.temp_data_manager: TempDataManager = TempDataManager()
         self._init()
@@ -74,6 +76,7 @@ class ZerolanLiveRobotContext:
         self.speaker = Speaker()
         self.temp_data_manager.create_temp_dir()
         self.bot_name = config.character.bot_name
+        self.res_server = ResourceServer(config.service.controller.host, config.service.controller.port)
 
         if config.pipeline.asr.enable:
             self.asr = ASRPipeline(config.pipeline.asr)
@@ -105,7 +108,7 @@ class ZerolanLiveRobotContext:
             self.bot_id = config.service.playground.bot_id
             self.live2d_model = config.service.playground.model_dir
             self.custom_agent = CustomAgent(config=config.pipeline.llm)
-            self.playground = PlaygroundBridge(config=config.service.playground)
+            self.playground = PlaygroundBridge(config=config.service.playground, res_server=self.res_server)
         if config.service.qqbot.enable:
             self.qq = QQBotBridge(config.service.qqbot)
         self.microphone = Microphone()
