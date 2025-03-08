@@ -98,6 +98,8 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
         @emitter.on(EventKeyRegistry.Device.SERVICE_VAD_SPEECH_CHUNK)
         def on_service_vad_speech_chunk(event: SpeechEvent):
             speech, channels, sample_rate = event.speech, event.channels, event.sample_rate
+            # Test
+            # emitter.emit(LLMEvent(prediction=LLMPrediction(response="我听见了", history=[])))
             query = ASRStreamQuery(is_final=True, audio_data=speech, channels=channels, sample_rate=sample_rate)
             prediction = self.asr.stream_predict(query)
             logger.info(f"ASR: {prediction.transcript}")

@@ -32,6 +32,6 @@ def compile_proto_files(proto_dir):
 
 if __name__ == "__main__":
     print("Compiling protoc...")
-    proto_dir = "bridge/proto"  # 指定.proto文件所在的目录
+    proto_dir = "services/playground/proto"  # 指定.proto文件所在的目录
     compile_proto_files(proto_dir)
     print("Done.")
