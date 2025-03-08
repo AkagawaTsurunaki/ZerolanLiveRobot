@@ -99,7 +99,7 @@ class TypedEventEmitter(AbstractRunnable):
                     try:
                         listener.func(event)
                     except Exception as e:
-                        logger.error(e)
+                        logger.exception(e)
 
                 try:
                     self._thread_pool.submit(wrapper)
