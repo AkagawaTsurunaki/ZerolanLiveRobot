@@ -65,12 +65,6 @@ class SpeechEvent(BaseEvent):
 
 
 @dataclass
-class WebSocketJsonReceivedEvent(BaseEvent):
-    data: any
-    type: str = EventKeyRegistry._Inner.WEBSOCKET_RECV_JSON
-
-
-@dataclass
 class LiveStreamConnectedEvent(BaseEvent):
     platform: Literal["bilibili", "twitch", "youtube"]
     type: str = EventKeyRegistry.LiveStream.CONNECTED
@@ -116,8 +110,8 @@ class KonekoServerCallInstruction(BaseEvent):
 
 @dataclass
 class ScreenCapturedEvent(BaseEvent):
-    img: Image
     img_path: str
+    is_camera: bool
     type: str = EventKeyRegistry.Device.SCREEN_CAPTURED
 
 

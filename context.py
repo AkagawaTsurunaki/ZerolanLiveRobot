@@ -9,7 +9,7 @@ from zerolan.ump.pipeline.vla import ShowUIPipeline
 
 from agent.custom_agent import CustomAgent
 from agent.tool_agent import ToolAgent
-from bridge.server.microphone import GRPCServer
+from services.playground.grpc_server import GRPCServer
 from common.config import get_config
 from event.speech_emitter import SpeechEmitter
 from manager.llm_prompt_manager import LLMPromptManager

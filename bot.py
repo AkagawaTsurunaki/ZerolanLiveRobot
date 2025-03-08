@@ -97,9 +97,8 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
 
         @emitter.on(EventKeyRegistry.Device.SERVICE_VAD_SPEECH_CHUNK)
         def on_service_vad_speech_chunk(event: SpeechEvent):
+            logger.debug("`SpeechEvent` received.")
             speech, channels, sample_rate = event.speech, event.channels, event.sample_rate
-            # Test
-            # emitter.emit(LLMEvent(prediction=LLMPrediction(response="我听见了", history=[])))
             query = ASRStreamQuery(is_final=True, audio_data=speech, channels=channels, sample_rate=sample_rate)
             prediction = self.asr.stream_predict(query)
             logger.info(f"ASR: {prediction.transcript}")
@@ -108,7 +107,7 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
 
         @emitter.on(EventKeyRegistry.Pipeline.ASR)
         def asr_handler(event: ASREvent):
-            logger.debug("ASREvent received.")
+            logger.debug("`ASREvent` received.")
             prediction = event.prediction
             if "关机" in prediction.transcript:
                 sync_wait(self._exit())
@@ -129,7 +128,7 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
                 img, img_save_path = self.screen.safe_capture(k=0.99)
                 if not self.check_img(img):
                     return
-                emitter.emit(ScreenCapturedEvent(img=img, img_path=img_save_path))
+                emitter.emit(ScreenCapturedEvent(img_path=img_save_path, is_camera=False))
             elif "点击" in prediction.transcript:
                 img, img_save_path = self.screen.safe_capture(k=0.99)
                 if not self.check_img(img):
