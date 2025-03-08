@@ -4,13 +4,14 @@ import grpc
 from loguru import logger
 
 from common.utils.img_util import save_bytes_as_image
+from common.utils.web_util import get_local_ip
 from event.event_data import SpeechEvent, ScreenCapturedEvent
 from event.eventemitter import emitter
 from services.playground.proto import bridge_pb2, bridge_pb2_grpc
 
 
-def start_server(server):
-    server.add_insecure_port('0.0.0.0:11020')
+def start_server(server, host, port):
+    server.add_insecure_port(f'{host}:{port}')
 
     # 启动服务器
     logger.info("Starting gRPC server. Listening on port 11020.")
@@ -19,6 +20,12 @@ def start_server(server):
 
 
 class GRPCServer(bridge_pb2_grpc.PlaygroundBridgeServicer):
+
+    def __init__(self, host, port):
+        self.host = host
+        self.local_ip = get_local_ip()
+        self.port = port
+
     def SendSpeechChunk(self, request, context):
         logger.info("Get speech data from client.")
         emitter.emit(SpeechEvent(speech=request.data,
@@ -36,10 +43,6 @@ class GRPCServer(bridge_pb2_grpc.PlaygroundBridgeServicer):
 
     def start(self):
         server = grpc.server(futures.ThreadPoolExecutor(max_workers=2))
-        bridge_pb2_grpc.add_PlaygroundBridgeServicer_to_server(GRPCServer(), server)
+        bridge_pb2_grpc.add_PlaygroundBridgeServicer_to_server(GRPCServer(self.host, self.port), server)
 
-        start_server(server)
-
-
-if __name__ == '__main__':
-    GRPCServer().start()
+        start_server(server, self.host, self.port)

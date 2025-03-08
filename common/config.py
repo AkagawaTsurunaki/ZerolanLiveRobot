@@ -59,6 +59,12 @@ class GameBridgeConfig(BaseModel):
     platform: Literal["minecraft"] = "minecraft"
 
 
+class GRPCServerConfig(BaseModel):
+    enable: bool = True
+    host: str = "0.0.0.0"
+    port: int = 11020
+
+
 class PlaygroundBridgeConfig(BaseModel):
     enable: bool = True
     host: str = "0.0.0.0"
@@ -66,6 +72,7 @@ class PlaygroundBridgeConfig(BaseModel):
     mode: Literal["live2d", "ar"] = "live2d"  # live2d 或者 ar
     bot_id: str = "1"
     model_dir: str = "./resources/static/models/live2d/hiyori_pro_zh"
+    grpc_server: GRPCServerConfig
 
 
 class QQBotBridgeConfig(BaseModel):

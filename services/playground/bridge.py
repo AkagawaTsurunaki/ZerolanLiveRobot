@@ -5,14 +5,16 @@ from zerolan.data.protocol.protocol import ZerolanProtocol
 
 from common.config import PlaygroundBridgeConfig
 from common.data import PlaySpeechDTO, LoadLive2DModelDTO, FileInfo, ScaleOperationDTO, CreateGameObjectDTO, \
-    GameObjectInfo, ShowUserTextInputDTO
+    GameObjectInfo, ShowUserTextInputDTO, ServerHello
 from common.enumerator import Action
+from common.killable_thread import KillableThread
 from common.utils.audio_util import check_audio_format, check_audio_info
 from common.utils.collection_util import to_value_list
 from common.utils.file_util import path_to_uri
 from common.web.zrl_ws import ZerolanProtocolWsServer
 from event.event_data import PlaygroundConnectedEvent, PlaygroundDisconnectedEvent
 from event.eventemitter import emitter
+from services.playground.grpc_server import GRPCServer
 
 
 class PlaygroundBridge(ZerolanProtocolWsServer):
@@ -20,6 +22,18 @@ class PlaygroundBridge(ZerolanProtocolWsServer):
     def __init__(self, config: PlaygroundBridgeConfig):
         super().__init__(host=config.host, port=config.port)
         self.gameobjects_info = {}
+        self._grpc_server = GRPCServer(config.grpc_server.host, config.grpc_server.port)
+        self._grpc_server_thread: KillableThread | None = None
+
+    def start(self):
+        self._grpc_server_thread = KillableThread(target=self._grpc_server.start, daemon=True)
+        self._grpc_server_thread.start()
+        super().start()
+        self._grpc_server_thread.join()
+
+    def stop(self):
+        super().stop()
+        self._grpc_server_thread.kill()
 
     def name(self):
         return "PlaygroundBridge"
@@ -36,7 +50,8 @@ class PlaygroundBridge(ZerolanProtocolWsServer):
 
     def _on_client_hello(self):
         logger.info(f"ZerolanPlayground client is found, prepare for connecting...")
-        self.send(action=Action.SERVER_HELLO, data=None)
+        grpc_server_url = f"http://{self._grpc_server.local_ip}:{self._grpc_server.port}"
+        self.send(action=Action.SERVER_HELLO, data=ServerHello(grpc_server_url=grpc_server_url))
         emitter.emit(PlaygroundConnectedEvent())
         logger.info(f"`PlaygroundConnectedEvent` event emitted.")
 

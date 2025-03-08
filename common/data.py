@@ -77,3 +77,7 @@ class CreateGameObjectDTO(BaseModel):
 
 class ShowUserTextInputDTO(BaseModel):
     text: str
+
+
+class ServerHello(BaseModel):
+    grpc_server_url: str
