@@ -23,7 +23,7 @@ python-magic
 grpcio
 transitions
 grpcio-tools
-gradio
+netifaces
 # If you are not a developer, you can skip the following packages
 pytest
 pytest-asyncio

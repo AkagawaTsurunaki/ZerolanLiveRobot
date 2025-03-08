@@ -24,6 +24,22 @@ def urljoin(host: str, port: int, path: str = None):
 
     return url
 
+
 def is_valid_url(url: str | None) -> bool:
     protocol = url.split("://")[0]
     return protocol in ['http', 'https']
+
+
+import netifaces as ni
+
+
+def get_local_ip() -> str | None:
+    interfaces = ni.interfaces()  # 获取所有网络接口
+    for interface in interfaces:
+        if interface != "lo":  # 排除本地回环接口
+            try:
+                ip = ni.ifaddresses(interface)[ni.AF_INET][0]['addr']
+                return ip
+            except KeyError:
+                continue
+    return None
