@@ -1,4 +1,3 @@
-import os
 import os.path
 import uuid
 from pathlib import Path
@@ -7,6 +6,7 @@ from typing import Literal, LiteralString
 from uuid import uuid4
 
 import yaml
+from loguru import logger
 
 from common.data import FileInfo
 
@@ -28,6 +28,10 @@ project_dir = get_real_project_dir()
 temp_data_dir = os.path.join(project_dir, ".temp/")
 
 
+def get_temp_data_dir() -> str:
+    return temp_data_dir
+
+
 def find_dir(dir_path: str, tgt_dir_name: str) -> str | None:
     assert os.path.exists(dir_path), f"{dir_path} 不是合法路径"
     for dirpath, dirnames, filenames in os.walk(dir_path):
@@ -38,7 +42,7 @@ def find_dir(dir_path: str, tgt_dir_name: str) -> str | None:
     return None
 
 
-def create_temp_file(prefix: str, suffix: str, tmpdir: Literal["image", "video", "audio"]) -> str:
+def create_temp_file(prefix: str, suffix: str, tmpdir: Literal["image", "video", "audio", "model"]) -> str:
     tmp_dir = os.path.join(temp_data_dir, tmpdir)
     tmp_dir = os.path.abspath(tmp_dir)
     temp_file_path = os.path.join(f"{tmp_dir}", f"{prefix}-{time()}-{uuid.uuid4()}{suffix}")
@@ -117,3 +121,33 @@ def path_to_uri(path):
     path = path.replace('\\', '/')
     uri = f'file:///{path}'
     return uri
+
+
+import os
+import zipfile
+
+
+def compress_directory(directory_path: str, output_zip_path: str):
+    """
+    将指定目录压缩为一个 ZIP 文件。
+
+    参数：
+    - directory_path: 要压缩的目录路径（str）
+    - output_zip_path: 输出的 ZIP 文件路径（str）
+    """
+    # 检查目录是否存在
+    if not os.path.isdir(directory_path):
+        raise ValueError(f"指定的路径不是一个目录: {directory_path}")
+
+    with zipfile.ZipFile(output_zip_path, 'a', zipfile.ZIP_DEFLATED) as zipf:
+        # 遍历目录及其子目录
+        for root, dirs, files in os.walk(directory_path):
+            for file in files:
+                # 获取文件的完整路径
+                file_path = os.path.join(root, file)
+                # 获取文件在 ZIP 文件中的相对路径
+                arcname = os.path.relpath(file_path, start=directory_path)
+                # 将文件添加到 ZIP 文件中
+                zipf.write(file_path, arcname=arcname)
+
+    logger.info(f"目录已成功压缩为: {output_zip_path}")
