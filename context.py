@@ -62,6 +62,7 @@ class ZerolanLiveRobotContext:
 
         self.bot_id: str = None
         self.bot_name: str = None
+        self.master_name: str = "AkagawaTsurunaki"
         self.live2d_model: str = None
         self.res_server: ResourceServer | None = None
 

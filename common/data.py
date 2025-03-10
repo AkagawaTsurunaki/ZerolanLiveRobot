@@ -82,3 +82,9 @@ class ShowUserTextInputDTO(BaseModel):
 
 class ServerHello(BaseModel):
     grpc_server_url: str
+
+
+class AddHistoryDTO(BaseModel):
+    role: str
+    text: str
+    username: str

@@ -109,6 +109,7 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
         def asr_handler(event: ASREvent):
             logger.debug("`ASREvent` received.")
             prediction = event.prediction
+            self.playground.add_history(role="user", text=prediction.transcript, username=self.master_name)
             if "关机" in prediction.transcript:
                 sync_wait(self._exit())
             elif "打开浏览器" in prediction.transcript:
@@ -215,6 +216,7 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
             sentiment = sentiment_analyse(sentiments=self.tts_prompt_manager.sentiments, text=text)
             tts_prompt = self.tts_prompt_manager.get_tts_prompt(sentiment)
             transcripts = split_by_punc(text, self.cur_lang)
+            self.playground.add_history(role="assistant", text=text, username=self.bot_name)
             for idx, transcript in enumerate(transcripts):
                 query = TTSQuery(
                     text=transcript,

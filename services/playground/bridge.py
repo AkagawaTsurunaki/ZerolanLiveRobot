@@ -5,7 +5,7 @@ from zerolan.data.protocol.protocol import ZerolanProtocol
 
 from common.config import PlaygroundBridgeConfig
 from common.data import PlaySpeechDTO, LoadLive2DModelDTO, FileInfo, ScaleOperationDTO, CreateGameObjectDTO, \
-    GameObjectInfo, ShowUserTextInputDTO, ServerHello
+    GameObjectInfo, ShowUserTextInputDTO, ServerHello, AddHistoryDTO
 from common.enumerator import Action
 from common.killable_thread import KillableThread
 from common.utils.audio_util import check_audio_format, check_audio_info
@@ -143,3 +143,6 @@ class PlaygroundBridge(ZerolanProtocolWsServer):
 
     def show_user_input_text(self, text: str):
         self.send(action=Action.SHOW_USER_TEXT_INPUT, data=ShowUserTextInputDTO(text=text))
+
+    def add_history(self, username: str, role: str, text: str):
+        self.send(action=Action.ADD_HISTORY, data=AddHistoryDTO(role=role, text=text, username=username))

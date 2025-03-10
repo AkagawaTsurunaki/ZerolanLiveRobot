@@ -73,3 +73,4 @@ class Action(str, Enum):
     CREATE_GAMEOBJECT = "create_gameobject"
 
     SHOW_USER_TEXT_INPUT = "show_user_text_input"
+    ADD_HISTORY = "add_history"
