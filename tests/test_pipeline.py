@@ -47,8 +47,8 @@ def test_llm_history():
 def test_tts():
     query = TTSQuery(text="你好！能听见我说话吗？",
                      text_language=Language.ZH,
-                     refer_wav_path="",
-                     prompt_text="我是赤川鹤鸣",
+                     refer_wav_path="/home/akagawatsurunaki/workspace/ZerolanLiveRobot/resources/static/prompts/tts/[zh][Default]喜欢游戏的人和擅长游戏的人有很多不一样的地方，老师属于哪一种呢？.wav",
+                     prompt_text="喜欢游戏的人和擅长游戏的人有很多不一样的地方，老师属于哪一种呢？",
                      prompt_language=Language.ZH)
 
     @log_run_time()
@@ -124,8 +124,8 @@ def test_tts2():
 def test_tts3():
     query = TTSQuery(text="你好！能听见我说话吗？",
                      text_language=Language.ZH,
-                     refer_wav_path="",
-                     prompt_text="",
+                     refer_wav_path="/home/akagawatsurunaki/workspace/ZerolanLiveRobot/resources/static/prompts/tts/[zh][Default]喜欢游戏的人和擅长游戏的人有很多不一样的地方，老师属于哪一种呢？.wav",
+                     prompt_text="喜欢游戏的人和擅长游戏的人有很多不一样的地方，老师属于哪一种呢？",
                      prompt_language=Language.ZH)
     for prediction in tts.stream_predict(query):
         print(prediction.seq)
