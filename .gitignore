@@ -8,3 +8,4 @@ resources/config.yaml
 /data
 /.temp
 config.yaml
+/services/playground/proto/*_pb2*.py
