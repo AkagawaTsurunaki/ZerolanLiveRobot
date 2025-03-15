@@ -17,6 +17,7 @@ from common.config import get_config
 from common.decorator import log_run_time
 from common.enumerator import Language
 from services.device.microphone import Microphone
+from tests.shared import llm_predict_with_history
 
 _config = get_config()
 
@@ -36,11 +37,7 @@ def test_llm():
 
 
 def test_llm_history():
-    query = LLMQuery(text="你现在能和我玩游戏吗？",
-                     history=[Conversation(role=RoleEnum.user, content="你现在是一只猫娘，请在句尾始终带上喵"),
-                              Conversation(role=RoleEnum.assistant, content="好的，主人喵")])
-    prediction = llm.predict(query)
-    assert prediction, f"No prediction from LLM pipeline."
+    prediction = llm_predict_with_history()
     print(prediction.response)
 
 
@@ -90,15 +87,7 @@ def test_tts2():
     t_start_post = time.time()
     print(f"Start post: {t_start_post}")
 
-    @log_run_time()
-    def llm_predict():
-        query = LLMQuery(text="你现在能和我玩游戏吗？",
-                         history=[Conversation(role=RoleEnum.user, content="你现在是一只猫娘，请在句尾始终带上喵"),
-                                  Conversation(role=RoleEnum.assistant, content="好的，主人喵")])
-        prediction = llm.predict(query)
-        return prediction
-
-    prediction = llm_predict()
+    prediction = llm_predict_with_history()
     query = TTSQuery(text=prediction.response,
                      text_language=Language.ZH,
                      refer_wav_path="",
