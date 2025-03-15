@@ -26,7 +26,7 @@ Zerolan Live Robot 是一款多功能的直播机器人（AI VTuber），它可�
 - [x] 🎮️ 根据语音指令控制 Minecraft AI 智能体（例如：`在游戏中跟大家说你好！`）
 - [x] 📓 基于最大记录条数的简单的运行时上下文短期记忆
 - [x] 📖 基于向量数据库的长期记忆存储与提取（例如：`你还记得我说过春日影是什么嘛？`）
-- [ ] Live2D 形象的控制（正在开发和测试阶段，将会使用另一个项目） 
+- [x] Live2D + AR 形象的控制（ZerolanPlayground开发基本完毕，已进入测试阶段） 
 
 以下简要列出了本项目支持的内容：
 
@@ -156,11 +156,15 @@ pip install git+https://github.com/AkagawaTsurunaki/zerolan-data.git@dev
 
 ### 启动本项目
 
-> [!TIP]
-> 
-> 建议启动前测试各个管线是否可以正常运行。测试文件位于 `test_pipeline.py`。
+启动之前需要运行 build.py 文件生成 gRPC 代码，这一步也是为了测试您的环境是否配置正确且依赖是否正确安装了。请先执行：
 
-使用以下命令运行 Zerolan Live Robot 的主程序：
+```shell
+python build.py
+```
+
+看到 `Done.` 字样即完成构建。
+
+接着，使用以下命令运行 Zerolan Live Robot 的主程序：
 
 ```shell
 python main.py
