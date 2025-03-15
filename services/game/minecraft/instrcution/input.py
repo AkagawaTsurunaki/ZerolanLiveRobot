@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 from typing import Optional, Union
 
-from dataclasses_json import dataclass_json
 from pydantic import create_model, Field, BaseModel
 
 
@@ -15,8 +14,6 @@ def ts_type_to_py_type(t: str) -> type:
     else:
         raise ValueError(f"Not a valid type: {t}")
 
-
-@dataclass_json
 @dataclass
 class FieldMetadata:
     name: str
