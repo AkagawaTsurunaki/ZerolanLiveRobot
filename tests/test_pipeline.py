@@ -10,9 +10,8 @@ from zerolan.ump.pipeline.ocr import OCRPipeline
 from zerolan.ump.pipeline.vla import ShowUIPipeline
 
 from common.config import get_config
-from services.device.microphone import Microphone
 from tests.shared import llm_predict_with_history, tts_stream_predict, create_pyaudio, close_pyaudio, tts_predict, \
-    llm_pipeline
+    llm_pipeline, asr_predict
 
 _config = get_config()
 
@@ -53,10 +52,14 @@ def test_tts2():
 
 
 def test_llm_tts_stream():
+    asr_time_records: list[float] = []
     llm_time_records: list[float] = []
     tts_time_records: list[float] = []
 
     for i in range(100):
+        prediction = asr_predict(lambda elapsed_time: asr_time_records.append(elapsed_time))
+        print(prediction.transcript)
+
         prediction = llm_predict_with_history(lambda elapsed_time: llm_time_records.append(elapsed_time))
         print(prediction.response)
 
@@ -67,32 +70,32 @@ def test_llm_tts_stream():
                            lambda elapsed_time: tts_time_records.append(elapsed_time))
 
     i = 0
-    print("No. LLM   TTS   Total")
-    for llm_elapsed_time, tts_elapsed_time in zip(llm_time_records, tts_time_records):
-        print(f"{i} {llm_elapsed_time:.4f} {tts_elapsed_time:.4f} {llm_elapsed_time + tts_elapsed_time:.4f}")
+    print("No.,ASR,LLM,TTS,Total")
+    for asr_elapsed_time, llm_elapsed_time, tts_elapsed_time in zip(asr_time_records, llm_time_records,
+                                                                    tts_time_records):
+        total = asr_elapsed_time + llm_elapsed_time + tts_elapsed_time
+        print(f"{i} {asr_elapsed_time:4f} {llm_elapsed_time:.4f} {tts_elapsed_time:.4f} {total:.4f}")
         i += 1
 
     print("----------------------")
+    asr_avg = sum(asr_time_records) / len(asr_time_records)
     llm_avg = sum(llm_time_records) / len(llm_time_records)
     tts_avg = sum(tts_time_records) / len(tts_time_records)
     print(
-        f"  {llm_avg:.4f} {tts_avg:.4f} {llm_avg + tts_avg:.4f} (avg)")
+        f" {asr_avg:4f} {llm_avg:.4f} {tts_avg:.4f} {asr_avg + llm_avg + tts_avg:.4f} (avg)")
     print("Test passed.")
 
     # 基本可以将时延控制在 1.5s 左右
-    # 在网络延时 100ms 的情况下，先进行 LLM 的非流式请求，然后进行 TTS 的流式请求
+    # ，先进行 LLM 的非流式请求，然后进行 TTS 的流式请求
     # 多次实验的结果的平均值是
-    # LLM 0.8891s，TTS 0.4369s，合计 1.3260s
+    # LLM 0.8891s，TTS 0.4369s，合计 1.3260s (Win -> Ubuntu)
+    # LLM 0.6507s，TTS 0.1542s，合计 0.8049s (Ubuntu -> Ubuntu)
 
 
 def test_asr():
-    microphone = Microphone()
-    microphone.open()
-    query = ASRQuery(audio_path="resources/tts-test.wav")
-    prediction = asr.predict(query)
+    prediction = asr_predict()
     assert prediction, f"No prediction from ASR pipeline."
     print(prediction.transcript)
-    microphone.close()
 
 
 def test_imgcap():
