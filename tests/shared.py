@@ -2,6 +2,7 @@ import time
 from typing import Callable
 
 import pyaudio
+from zerolan.data.pipeline.asr import ASRQuery
 from zerolan.data.pipeline.llm import LLMQuery, Conversation, RoleEnum
 from zerolan.data.pipeline.tts import TTSQuery, TTSStreamPrediction
 from zerolan.ump.pipeline.asr import ASRPipeline
@@ -101,3 +102,14 @@ def tts_predict(text: str | None):
         return tts_pipeline.predict(_tts_query)
 
     return predict()
+
+
+def asr_predict(timer_handler: Callable[[float], None] | None = None):
+    query = ASRQuery(audio_path="/home/akagawatsurunaki/workspace/ZerolanLiveRobot/tests/resources/tts-test.wav",
+                     channels=2)
+    t_start_post = time.time()
+    prediction = asr_pipeline.predict(query)
+    t_end_post = time.time()
+    if timer_handler is not None:
+        timer_handler(t_end_post - t_start_post)
+    return prediction
