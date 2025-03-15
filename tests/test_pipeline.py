@@ -1,28 +1,21 @@
-import time
-
 from zerolan.data.pipeline.asr import ASRQuery
 from zerolan.data.pipeline.img_cap import ImgCapQuery
-from zerolan.data.pipeline.llm import LLMQuery, Conversation, RoleEnum
+from zerolan.data.pipeline.llm import LLMQuery
 from zerolan.data.pipeline.ocr import OCRQuery
-from zerolan.data.pipeline.tts import TTSQuery
+from zerolan.data.pipeline.tts import TTSStreamPrediction
 from zerolan.data.pipeline.vla import ShowUiQuery, WebAction
 from zerolan.ump.pipeline.asr import ASRPipeline
 from zerolan.ump.pipeline.img_cap import ImgCapPipeline
-from zerolan.ump.pipeline.llm import LLMPipeline
 from zerolan.ump.pipeline.ocr import OCRPipeline
-from zerolan.ump.pipeline.tts import TTSPipeline
 from zerolan.ump.pipeline.vla import ShowUIPipeline
 
 from common.config import get_config
-from common.decorator import log_run_time
-from common.enumerator import Language
 from services.device.microphone import Microphone
-from tests.shared import llm_predict_with_history
+from tests.shared import llm_predict_with_history, tts_stream_predict, create_pyaudio, close_pyaudio, tts_predict, \
+    llm_pipeline
 
 _config = get_config()
 
-llm = LLMPipeline(_config.pipeline.llm)
-tts = TTSPipeline(_config.pipeline.tts)
 asr = ASRPipeline(_config.pipeline.asr)
 imgcap = ImgCapPipeline(_config.pipeline.img_cap)
 ocr = OCRPipeline(_config.pipeline.ocr)
@@ -31,7 +24,7 @@ showui = ShowUIPipeline(_config.pipeline.vla.showui)
 
 def test_llm():
     query = LLMQuery(text="Hello world!", history=[])
-    prediction = llm.predict(query)
+    prediction = llm_pipeline.predict(query)
     assert prediction, f"No prediction from LLM pipeline."
     print(prediction.response)
 
@@ -42,82 +35,54 @@ def test_llm_history():
 
 
 def test_tts():
-    query = TTSQuery(text="你好！能听见我说话吗？",
-                     text_language=Language.ZH,
-                     refer_wav_path="/home/akagawatsurunaki/workspace/ZerolanLiveRobot/resources/static/prompts/tts/[zh][Default]喜欢游戏的人和擅长游戏的人有很多不一样的地方，老师属于哪一种呢？.wav",
-                     prompt_text="喜欢游戏的人和擅长游戏的人有很多不一样的地方，老师属于哪一种呢？",
-                     prompt_language=Language.ZH)
-
-    @log_run_time()
-    def tts_predict():
-        return tts.predict(query)
-
-    prediction = tts_predict()
+    prediction = tts_predict("这是一段测试音频。是非流式的推理。意味着需要等待整段音频结束才能进行播放。")
     assert prediction, f"No prediction from TTS pipeline."
     assert prediction.wave_data is not None and len(
         prediction.wave_data) > 0, f"No audio data returned from TTS pipeline."
 
 
-CHUNK_SIZE = 1024  # 每次处理的音频数据大小
-
-import pyaudio
-
-FORMAT = pyaudio.paInt16  # 音频格式（16位整数）
-CHANNELS = 1  # 单声道
-RATE = 32000  # 采样率（16kHz）
-# 初始化PyAudio
-p = pyaudio.PyAudio()
-
-# 打开音频流
-stream = p.open(format=FORMAT,
-                channels=CHANNELS,
-                rate=RATE,
-                output=True)
-
-
-def close_pyaudio():
-    stream.stop_stream()
-    stream.close()
-    p.terminate()
-
-
 def test_tts2():
-    times = []
+    p, stream = create_pyaudio()
 
-    t_start_post = time.time()
-    print(f"Start post: {t_start_post}")
-
-    prediction = llm_predict_with_history()
-    query = TTSQuery(text=prediction.response,
-                     text_language=Language.ZH,
-                     refer_wav_path="",
-                     prompt_text="",
-                     prompt_language=Language.ZH)
-
-    first_rcv = False
-    for prediction in tts.stream_predict(query):
-        if not first_rcv:
-            first_rcv = True
-            t_first_chunk = time.time()
-            print(f"Post data got: {time.time()}")
-            print(f"Elapsed time: {t_first_chunk - t_start_post}")
-            times.append(t_first_chunk - t_start_post)
+    def handler(prediction: TTSStreamPrediction):
         stream.write(prediction.wave_data)  # 将音频数据写入音频流并播放
 
-    # 大幅度提升速度，从原来的1.5s延时提升到0.5秒以内，提升超过3倍。
-    print(f"Len: {times}")
-    print(f"Avg: {sum(times) / len(times)}")
-    close_pyaudio()
+    tts_stream_predict(None, handler)
+    # 自 TTS 发送 Post 到受到第一个请求的时延为 0.5s 左右，速度提升约3倍。
+    close_pyaudio(p, stream)
 
 
-def test_tts3():
-    query = TTSQuery(text="你好！能听见我说话吗？",
-                     text_language=Language.ZH,
-                     refer_wav_path="/home/akagawatsurunaki/workspace/ZerolanLiveRobot/resources/static/prompts/tts/[zh][Default]喜欢游戏的人和擅长游戏的人有很多不一样的地方，老师属于哪一种呢？.wav",
-                     prompt_text="喜欢游戏的人和擅长游戏的人有很多不一样的地方，老师属于哪一种呢？",
-                     prompt_language=Language.ZH)
-    for prediction in tts.stream_predict(query):
-        print(prediction.seq)
+def test_llm_tts_stream():
+    llm_time_records: list[float] = []
+    tts_time_records: list[float] = []
+
+    for i in range(100):
+        prediction = llm_predict_with_history(lambda elapsed_time: llm_time_records.append(elapsed_time))
+        print(prediction.response)
+
+        def handler(prediction: TTSStreamPrediction):
+            print(prediction.seq)
+
+        tts_stream_predict(prediction.response, handler,
+                           lambda elapsed_time: tts_time_records.append(elapsed_time))
+
+    i = 0
+    print("No. LLM   TTS   Total")
+    for llm_elapsed_time, tts_elapsed_time in zip(llm_time_records, tts_time_records):
+        print(f"{i} {llm_elapsed_time:.4f} {tts_elapsed_time:.4f} {llm_elapsed_time + tts_elapsed_time:.4f}")
+        i += 1
+
+    print("----------------------")
+    llm_avg = sum(llm_time_records) / len(llm_time_records)
+    tts_avg = sum(tts_time_records) / len(tts_time_records)
+    print(
+        f"  {llm_avg:.4f} {tts_avg:.4f} {llm_avg + tts_avg:.4f} (avg)")
+    print("Test passed.")
+
+    # 基本可以将时延控制在 1.5s 左右
+    # 在网络延时 100ms 的情况下，先进行 LLM 的非流式请求，然后进行 TTS 的流式请求
+    # 多次实验的结果的平均值是
+    # LLM 0.8891s，TTS 0.4369s，合计 1.3260s
 
 
 def test_asr():
