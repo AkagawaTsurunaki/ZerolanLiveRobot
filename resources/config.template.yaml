@@ -8,9 +8,10 @@ pipeline:
 
   llm:
     enable: true
-    model: "moonshot-v1-8k"
+    server_url: "http://127.0.0.1:11002"
+    # If you do not use OpenAI call, ignore `model` and `api_key` fields.
+    model: ""
     api_key: ""
-    server_url: "https://api.moonshot.cn/v1"
 
   img_cap:
     enable: true
@@ -31,31 +32,31 @@ pipeline:
   vla:
     enable: true
     showui:
-      server_url: "http://127.0.0.1:11009"
+      enable: true
+      server_url: "http://127.0.0.1:11007"
 
   vec_db:
     enable: true
     milvus:
-      server_url: "http://127.0.0.1:10010"
+      server_url: "http://127.0.0.1:11008"
 
 service:
   controller:
-    host: "127.0.0.1"
+    host: "0.0.0.0"
     port: 11000
 
   game:
     enable: true
     host: '127.0.0.1'
-    port: 11007
+    port: 11010
     platform: minecraft
 
   live_stream:
-    enable: true
+    enable: false
     bilibili:
-      # Your target Bilibili live-streaming room id. Should be an integer.
       room_id: -1
-      # How to get credential? See: https://nemo2011.github.io/bilibili-api/#/get-credential
       credential:
+        # [See here](https://nemo2011.github.io/bilibili-api/#/get-credential)
         sessdata: ""
         bili_jct: ""
         buvid3: ""
@@ -72,10 +73,14 @@ service:
     enable: true
     host: "0.0.0.0"
     port: 11013
-    mode: live2d # live2d 或者 ar
+    mode: live2d # `live2d` or `ar`
     bot_id: "1"
     bot: "Koneko"
-    model_dir: "./resources/static/models/live2d/hiyori_pro_zh"
+    model_dir: "resources/static/models/live2d/your_live2d"
+    grpc_server:
+      enable: true
+      host: "0.0.0.0"
+      port: 11020
 
   qqbot:
     enable: true
@@ -83,25 +88,32 @@ service:
     port: 11014
 
 character:
+  bot_name: "赤川小喵(Koneko)"
   chat:
     filter:
       strategy: default
       bad_words:
         - 作为一名人工智能助手
         - 人工智能助手
+        - 作为一个人工智能
+        - 作为一个AI
     system_prompt:
       '''
-          你现在是一只叫做“赤川小喵”的猫娘，正在直播平台上与观众们友好互动。
-          请注意你的回复不能超过超过50字，直接输出对话内容即可。
+          你现在是叫做“赤川小喵”的一名猫娘，你的开发者是赤川鹤鸣。
+          我会为你提供语音识别、图像识别、图像理解、语音合成和一系列的 AI 集成功能。
+          你现在正在直播平台上与观众友好交流，请把自己当成一名真正的人类，与观众友好交流。
+          你的话不要太长，控制在50字左右。
       '''
+    # Keep the `injected_history` array length even 
     injected_history:
       - "你叫什么名字？"
       - "我是赤川小喵，很高兴见到你！"
       - "你是谁研发出来的？"
-      - "我是由赤川鹤鸣（AkagawaTsurunaki）研发的 AI 直播机器人！"
+      - "我是由赤川鹤鸣（AkagawaTsurunaki）研发的。"
     max_history: 20
   speech:
     prompts_dir: "resources/static/prompts/tts"
+
 external_tool:
   browser:
     enable: True
