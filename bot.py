@@ -1,6 +1,6 @@
 import asyncio
+import os
 
-import pyautogui
 from loguru import logger
 from zerolan.data.pipeline.asr import ASRStreamQuery
 from zerolan.data.pipeline.img_cap import ImgCapQuery
@@ -131,6 +131,9 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
                     return
                 emitter.emit(ScreenCapturedEvent(img_path=img_save_path, is_camera=False))
             elif "点击" in prediction.transcript:
+                # If there is no display, then can not use this feature
+                if os.environ.get('DISPLAY', None) is None:
+                    return
                 img, img_save_path = self.screen.safe_capture(k=0.99)
                 if not self.check_img(img):
                     return
@@ -140,6 +143,7 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
                 logger.debug("ShowUI: " + prediction.model_dump_json())
                 action = prediction.actions[0]
                 if action.action == "CLICK":
+                    import pyautogui
                     logger.info("Click action triggered.")
                     x, y = action.position[0] * img.width, action.position[1] * img.height
                     pyautogui.moveTo(x, y)
