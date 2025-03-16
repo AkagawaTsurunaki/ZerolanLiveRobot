@@ -19,8 +19,8 @@ class VLAPipelineConfig(BaseModel):
     enable: bool = True
 
 
-class ControllerConfig(BaseModel):
-    host: str = "127.0.0.1"
+class ResourceServerConfig(BaseModel):
+    host: str = "0.0.0.0"
     port: int = 11000
 
 
@@ -82,7 +82,7 @@ class QQBotBridgeConfig(BaseModel):
 
 
 class ServiceConfig(BaseModel):
-    controller: ControllerConfig
+    res_server: ResourceServerConfig
     live_stream: LiveStreamConfig
     game: GameBridgeConfig
     playground: PlaygroundBridgeConfig

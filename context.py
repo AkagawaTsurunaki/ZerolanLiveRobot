@@ -84,7 +84,7 @@ class ZerolanLiveRobotContext:
         self.speaker = Speaker()
         self.temp_data_manager.create_temp_dir()
         self.bot_name = config.character.bot_name
-        self.res_server = ResourceServer(config.service.controller.host, config.service.controller.port)
+        self.res_server = ResourceServer(config.service.res_server.host, config.service.res_server.port)
 
         if config.pipeline.asr.enable:
             self.asr = ASRPipeline(config.pipeline.asr)
