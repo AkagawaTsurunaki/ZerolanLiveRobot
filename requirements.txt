@@ -1,3 +1,6 @@
+# If dev branch, uncomment following
+# git+https://github.com/AkagawaTsurunaki/ZerolanUMP.git@dev
+# git+https://github.com/AkagawaTsurunaki/zerolan-data.git@dev
 git+https://github.com/AkagawaTsurunaki/ZerolanUMP.git
 git+https://github.com/AkagawaTsurunaki/zerolan-data.git
 pyaudio
