@@ -1,3 +1,5 @@
+import os
+
 from zerolan.ump.pipeline.asr import ASRPipeline
 from zerolan.ump.pipeline.database import MilvusPipeline
 from zerolan.ump.pipeline.img_cap import ImgCapPipeline
@@ -17,7 +19,6 @@ from manager.temp_data_manager import TempDataManager
 from manager.tts_prompt_manager import TTSPromptManager
 from services.browser.browser import Browser
 from services.device.microphone import Microphone
-from services.device.screen import Screen
 from services.device.speaker import Speaker
 from services.filter.strategy import FirstMatchedFilter
 from services.game.minecraft.app import KonekoMinecraftAIAgent
@@ -54,7 +55,13 @@ class ZerolanLiveRobotContext:
 
         self.tool_agent: ToolAgent = None
         self.microphone: Microphone | None = None
-        self.screen: Screen | None = None
+
+        if os.environ.get("DISPLAY", None) is not None:
+            from services.device.screen import Screen
+            self.screen: Screen | None = Screen()
+        else:
+            self.screen = None
+
         self.browser: Browser | None = None
         self.speaker: Speaker = None
         self.playground: PlaygroundBridge = None
@@ -83,13 +90,11 @@ class ZerolanLiveRobotContext:
             self.asr = ASRPipeline(config.pipeline.asr)
         if config.pipeline.ocr.enable:
             self.ocr = OCRPipeline(config.pipeline.ocr)
-            self.screen = Screen()
         if config.pipeline.tts.enable:
             self.tts_prompt_manager = TTSPromptManager(config.character.speech)
             self.tts = TTSPipeline(config.pipeline.tts)
         if config.pipeline.img_cap.enable:
             self.img_cap = ImgCapPipeline(config.pipeline.img_cap)
-            self.screen = Screen()
         if config.pipeline.vid_cap.enable:
             self.vid_cap = VidCapPipeline(config.pipeline.vid_cap)
         if config.pipeline.vla.enable:
