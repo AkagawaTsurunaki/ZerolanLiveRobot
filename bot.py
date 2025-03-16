@@ -14,18 +14,17 @@ from zerolan.ump.pipeline.ocr import avg_confidence, stringify
 from agent.api import sentiment_analyse, translate, summary_history, find_file, model_scale
 from common.abs_runnable import stop_all_runnable
 from common.asyncio_util import sync_wait
-from common.data import LoadLive2DModelDTO
 from common.decorator import withsound
 from common.enumerator import Language, SystemSoundEnum
 from common.killable_thread import kill_all_threads, KillableThread
 from common.utils.audio_util import save_tmp_audio
+from common.utils.img_util import is_image_uniform
 from common.utils.str_util import split_by_punc
 from context import ZerolanLiveRobotContext
 from event.event_data import ASREvent, SpeechEvent, ScreenCapturedEvent, LLMEvent, OCREvent, ImgCapEvent, \
     QQMessageEvent, SwitchVADEvent, TTSEvent
 from event.eventemitter import emitter
 from event.registry import EventKeyRegistry
-from services.device.screen import is_image_uniform
 
 
 class ZerolanLiveRobot(ZerolanLiveRobotContext):

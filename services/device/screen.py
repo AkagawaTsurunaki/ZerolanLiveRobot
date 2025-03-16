@@ -9,12 +9,6 @@ from pygetwindow import Win32Window
 from common.utils import file_util
 
 
-def is_image_uniform(img: Image):
-    gray_img = img.convert('L')
-    min_value, max_value = gray_img.getextrema()
-    return min_value == max_value
-
-
 class Screen:
 
     def __init__(self):
