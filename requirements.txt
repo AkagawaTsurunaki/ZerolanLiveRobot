@@ -19,6 +19,7 @@ loguru
 websockets
 langchain
 langgraph
+langchain-core
 beautifulsoup4
 bilibili-api-python
 twitchAPI
