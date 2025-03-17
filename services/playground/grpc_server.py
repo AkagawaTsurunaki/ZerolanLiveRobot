@@ -23,7 +23,6 @@ class GRPCServer(bridge_pb2_grpc.PlaygroundBridgeServicer):
 
     def __init__(self, host, port):
         self.host = host
-        self.local_ip = get_local_ip()
         self.port = port
 
     def SendSpeechChunk(self, request, context):
@@ -42,7 +41,7 @@ class GRPCServer(bridge_pb2_grpc.PlaygroundBridgeServicer):
         return response
 
     def start(self):
-        server = grpc.server(futures.ThreadPoolExecutor(max_workers=2))
+        server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
         bridge_pb2_grpc.add_PlaygroundBridgeServicer_to_server(GRPCServer(self.host, self.port), server)
 
         start_server(server, self.host, self.port)
