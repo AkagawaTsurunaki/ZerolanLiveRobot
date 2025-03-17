@@ -252,6 +252,11 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
         is_filtered = self.filter.filter(prediction.response)
         if is_filtered:
             return
+
+        # Remove \n start
+        if prediction.response[0] == '\n':
+            prediction.response = prediction.response[1:]
+
         logger.info(f"Length of current history: {len(self.llm_prompt_manager.current_history)}")
         self.llm_prompt_manager.reset_history(prediction.history, self.save_memory)
         if not direct_return:
