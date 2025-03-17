@@ -81,7 +81,10 @@ class ShowUserTextInputDTO(BaseModel):
 
 
 class ServerHello(BaseModel):
-    grpc_server_url: str
+    server_ipv6: str
+    server_ipv4: str
+    server_ws_port: int = 11000
+    server_grpc_port: int = 8443
 
 
 class AddHistoryDTO(BaseModel):
