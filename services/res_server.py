@@ -5,6 +5,7 @@ from flask import Flask, abort, send_file
 from loguru import logger
 
 from common.abs_runnable import ThreadRunnable
+from common.config import get_config
 from common.utils.file_util import get_temp_data_dir
 from common.utils.web_util import get_local_ip
 
@@ -16,6 +17,8 @@ RESOURCE_TYPES = {
     "model": "model",
 }
 
+_config = get_config()
+
 
 class ResourceServer(ThreadRunnable):
     def name(self):
@@ -24,12 +27,10 @@ class ResourceServer(ThreadRunnable):
     def stop(self):
         super().stop()
 
-    def __init__(self, host, port):
+    def __init__(self, host: str, port: int):
         super().__init__()
         self.host = host
         self.port = port
-        self.ipv6 = True
-        self.local_ip = get_local_ip(self.ipv6)
         self.app = Flask(__name__)
         self.init()
 
@@ -57,9 +58,9 @@ class ResourceServer(ThreadRunnable):
         super().start()
         self.app.run(host=self.host, port=self.port, debug=True, use_reloader=False)
 
-    def path_to_url(self, path: str) -> str:
+    def get_resource_endpoint(self, path: str) -> str:
         path = os.path.abspath(path).replace("\\", "/")
         filename, res_dir = path.split("/")[-1], path.split("/")[-2]
-        url = urljoin(f"http://{self.local_ip}:11000", f"/resource/temp/{res_dir}/{filename}")
-        logger.debug(f"Convert to url: {url}")
-        return url
+        endpoint = f"/resource/temp/{res_dir}/{filename}"
+        logger.debug(f"Convert to resource endpoint: {endpoint}")
+        return endpoint

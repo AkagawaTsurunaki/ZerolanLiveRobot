@@ -11,6 +11,7 @@ from common.killable_thread import KillableThread
 from common.utils.audio_util import check_audio_format, check_audio_info
 from common.utils.collection_util import to_value_list
 from common.utils.file_util import create_temp_file, compress_directory
+from common.utils.web_util import get_local_ip
 from common.web.zrl_ws import ZerolanProtocolWsServer
 from event.event_data import PlaygroundConnectedEvent, PlaygroundDisconnectedEvent
 from event.eventemitter import emitter
@@ -26,6 +27,7 @@ class PlaygroundBridge(ZerolanProtocolWsServer):
         self.res_server = res_server
         self._grpc_server = GRPCServer(config.grpc_server.host, config.grpc_server.port)
         self._grpc_server_thread: KillableThread | None = None
+        self.server_ipv6, self.server_ipv4 = get_local_ip(True), get_local_ip()
 
     def start(self):
         self._grpc_server_thread = KillableThread(target=self._grpc_server.start, daemon=True)
@@ -52,8 +54,7 @@ class PlaygroundBridge(ZerolanProtocolWsServer):
 
     def _on_client_hello(self):
         logger.info(f"ZerolanPlayground client is found, prepare for connecting...")
-        grpc_server_url = f"http://{self._grpc_server.local_ip}:{self._grpc_server.port}"
-        self.send(action=Action.SERVER_HELLO, data=ServerHello(grpc_server_url=grpc_server_url))
+        self.send(action=Action.SERVER_HELLO, data=ServerHello(server_ipv6=self.server_ipv6, server_ipv4=self.server_ipv4))
         emitter.emit(PlaygroundConnectedEvent())
         logger.info(f"`PlaygroundConnectedEvent` event emitted.")
 
@@ -75,7 +76,7 @@ class PlaygroundBridge(ZerolanProtocolWsServer):
         """
         audio_type = check_audio_format(audio_path)
         sample_rate, num_channels, duration = check_audio_info(audio_path)
-        audio_uri = self.res_server.path_to_url(audio_path)
+        audio_uri = self.res_server.get_resource_endpoint(audio_path)
         self.send(action=Action.PLAY_SPEECH, data=PlaySpeechDTO(bot_id=bot_id, audio_uri=audio_uri,
                                                                 bot_display_name=bot_name,
                                                                 transcript=transcript,
@@ -96,7 +97,7 @@ class PlaygroundBridge(ZerolanProtocolWsServer):
         assert os.path.exists(model_dir) and os.path.isdir(model_dir), f"{model_dir} is not a directory"
         zip_path = create_temp_file("live2d", ".zip", "model")
         compress_directory(model_dir, zip_path)
-        model_uri = self.res_server.path_to_url(zip_path)
+        model_uri = self.res_server.get_resource_endpoint(zip_path)
         self.send(action=Action.LOAD_LIVE2D_MODEL, data=LoadLive2DModelDTO(
             bot_id=bot_id,
             bot_display_name=bot_display_name,

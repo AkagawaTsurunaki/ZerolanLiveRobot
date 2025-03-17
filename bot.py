@@ -227,6 +227,7 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
                     refer_wav_path=tts_prompt.audio_path,
                     prompt_text=tts_prompt.prompt_text,
                     prompt_language=tts_prompt.lang,
+                    audio_type="wav"
                 )
                 prediction = self.tts.predict(query=query)
                 logger.info(f"TTS: {query.text}")
