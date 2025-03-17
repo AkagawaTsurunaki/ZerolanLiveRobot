@@ -13,7 +13,7 @@ class TempDataManager:
         temp_dir = self._temp_dir
         try_create_dir(temp_dir)
 
-        for dir_name in ["image", "audio", "video"]:
+        for dir_name in ["image", "audio", "video", "model"]:
             dir_path = os.path.join(temp_dir, dir_name)
             try_create_dir(dir_path)
 
