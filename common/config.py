@@ -1,7 +1,7 @@
 from typing import Literal
 
 from loguru import logger
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from zerolan.ump.pipeline.asr import ASRPipelineConfig
 from zerolan.ump.pipeline.database import MilvusDatabaseConfig
 from zerolan.ump.pipeline.img_cap import ImgCapPipelineConfig
@@ -13,6 +13,7 @@ from zerolan.ump.pipeline.vla import ShowUIConfig
 
 from common.utils.file_util import read_yaml, spath
 from services.browser.config import BrowserConfig
+from services.live_stream.config import LiveStreamConfig
 from services.obs.config import ObsStudioClientConfig
 
 
@@ -24,34 +25,6 @@ class VLAPipelineConfig(BaseModel):
 class ResourceServerConfig(BaseModel):
     host: str = "0.0.0.0"
     port: int = 11000
-
-
-class BilibiliServiceConfig(BaseModel):
-    class Credential(BaseModel):
-        sessdata: str = ""
-        bili_jct: str = ""
-        buvid3: str = ""
-
-    room_id: int = -1
-    credential: Credential = Credential()
-
-
-class TwitchServiceConfig(BaseModel):
-    channel_id: str = ""
-    app_id: str = ""
-    app_secret: str | None = None
-
-
-class YoutubeServiceConfig(BaseModel):
-    # GCloud auth print access token
-    token: str = ""
-
-
-class LiveStreamConfig(BaseModel):
-    enable: bool = True
-    bilibili: BilibiliServiceConfig = None
-    twitch: TwitchServiceConfig = None
-    youtube: YoutubeServiceConfig = None
 
 
 class GameBridgeConfig(BaseModel):
@@ -131,7 +104,7 @@ class PipelineConfig(BaseModel):
 
 
 class ExternalToolConfig(BaseModel):
-    browser: BrowserConfig = BrowserConfig()
+    browser: BrowserConfig = Field(default=BrowserConfig(), description="Browser config")
 
 
 class ZerolanLiveRobotConfig(BaseModel):

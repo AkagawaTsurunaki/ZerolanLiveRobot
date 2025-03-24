@@ -4,7 +4,7 @@ from typing import List, TypeVar
 from loguru import logger
 
 from common.abs_runnable import AbstractRunnable
-from common.config import LiveStreamConfig
+from services.live_stream.config import LiveStreamConfig
 from common.decorator import log_start, log_stop
 from services.live_stream.bilibili import BilibiliService
 from services.live_stream.twitch import TwitchService

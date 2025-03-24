@@ -4,7 +4,7 @@ from loguru import logger
 from zerolan.data.data.danmaku import Danmaku
 
 from common.abs_runnable import AbstractRunnable
-from common.config import BilibiliServiceConfig
+from services.live_stream.config import BilibiliServiceConfig
 from common.decorator import log_init, log_stop, log_start
 from event.event_data import LiveStreamConnectedEvent, DanmakuEvent, LiveStreamDisconnectedEvent
 from event.eventemitter import emitter
