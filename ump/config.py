@@ -1,12 +1,13 @@
 from pydantic import BaseModel, Field
-from zerolan.ump.pipeline.asr import ASRPipelineConfig
-from zerolan.ump.pipeline.database import MilvusDatabaseConfig
-from zerolan.ump.pipeline.img_cap import ImgCapPipelineConfig
-from zerolan.ump.pipeline.llm import LLMPipelineConfig
-from zerolan.ump.pipeline.ocr import OCRPipelineConfig
-from zerolan.ump.pipeline.tts import TTSPipelineConfig
-from zerolan.ump.pipeline.vid_cap import VidCapPipelineConfig
-from zerolan.ump.pipeline.vla import ShowUIConfig
+
+from ump.pipeline.asr import ASRPipelineConfig
+from ump.pipeline.database import MilvusDatabaseConfig
+from ump.pipeline.img_cap import ImgCapPipelineConfig
+from ump.pipeline.llm import LLMPipelineConfig
+from ump.pipeline.ocr import OCRPipelineConfig
+from ump.pipeline.tts import TTSPipelineConfig
+from ump.pipeline.vid_cap import VidCapPipelineConfig
+from ump.pipeline.vla import ShowUIConfig
 
 
 class VLAPipelineConfig(BaseModel):

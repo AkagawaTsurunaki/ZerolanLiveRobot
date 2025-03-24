@@ -3,7 +3,7 @@ from pydantic import BaseModel, Field
 
 from character.config import CharacterConfig
 from common.utils.file_util import read_yaml, spath
-from pipeline.config import PipelineConfig
+from ump.config import PipelineConfig
 from services.config import ServiceConfig
 
 
