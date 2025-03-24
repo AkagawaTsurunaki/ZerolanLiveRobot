@@ -2,7 +2,7 @@ from selenium.webdriver import Firefox, Chrome, Keys
 from selenium.webdriver.common.actions.action_builder import ActionBuilder
 from selenium.webdriver.common.by import By
 
-from common.config import BrowserConfig
+from services.browser.config import BrowserConfig
 from services.browser import driver
 from services.browser.driver import DriverInitializer
 

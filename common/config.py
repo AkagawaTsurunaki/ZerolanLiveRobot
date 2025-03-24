@@ -12,6 +12,7 @@ from zerolan.ump.pipeline.vid_cap import VidCapPipelineConfig
 from zerolan.ump.pipeline.vla import ShowUIConfig
 
 from common.utils.file_util import read_yaml, spath
+from services.browser.config import BrowserConfig
 from services.obs.config import ObsStudioClientConfig
 
 
@@ -32,7 +33,7 @@ class BilibiliServiceConfig(BaseModel):
         buvid3: str = ""
 
     room_id: int = -1
-    credential: Credential = ""
+    credential: Credential = Credential()
 
 
 class TwitchServiceConfig(BaseModel):
@@ -73,7 +74,7 @@ class PlaygroundBridgeConfig(BaseModel):
     mode: Literal["live2d", "ar"] = "live2d"  # live2d 或者 ar
     bot_id: str = "1"
     model_dir: str = "./resources/static/models/live2d/hiyori_pro_zh"
-    grpc_server: GRPCServerConfig
+    grpc_server: GRPCServerConfig = GRPCServerConfig()
 
 
 class QQBotBridgeConfig(BaseModel):
@@ -89,6 +90,7 @@ class ServiceConfig(BaseModel):
     playground: PlaygroundBridgeConfig
     qqbot: QQBotBridgeConfig
     obs: ObsStudioClientConfig
+
 
 class FilterConfig(BaseModel):
     bad_words: list[str]
@@ -128,14 +130,8 @@ class PipelineConfig(BaseModel):
     vec_db: VectorDBConfig
 
 
-class BrowserConfig(BaseModel):
-    enable: bool = True
-    profile_dir: str | None = None
-    driver: Literal["chrome", "firefox"] = "firefox"
-
-
 class ExternalToolConfig(BaseModel):
-    browser: BrowserConfig
+    browser: BrowserConfig = BrowserConfig()
 
 
 class ZerolanLiveRobotConfig(BaseModel):

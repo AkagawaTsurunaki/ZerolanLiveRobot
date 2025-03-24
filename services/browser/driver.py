@@ -6,7 +6,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.webdriver import WebDriver as ChromeWebDriver
 from selenium.webdriver.firefox.webdriver import WebDriver as FireFoxWebDriver
 
-from common.config import BrowserConfig
+from services.browser.config import BrowserConfig
 from common.utils import file_util
 
 
