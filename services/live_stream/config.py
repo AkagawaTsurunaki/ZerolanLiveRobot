@@ -12,7 +12,7 @@ class BilibiliServiceConfig(BaseModel):
                                      "Note: Must be a positive integer.")
     credential: Credential = Field(default=Credential(),
                                    description="Your Bilibili Credential. \n"
-                                               "How to get: [See here](https://nemo2011.github.io/bilibili-api/#/get-credential)")
+                                               "How to get: [获取 Credential 类所需信息](https://nemo2011.github.io/bilibili-api/#/get-credential)")
 
 
 class TwitchServiceConfig(BaseModel):
@@ -22,12 +22,14 @@ class TwitchServiceConfig(BaseModel):
                         description="Your Twitch app ID.")
     app_secret: str | None = Field(default=None,
                                    description="Your Twitch app secret. \n"
-                                               "Leave it as `null` if you only want to use User Authentication.")
+                                               "Leave it as `null` if you only want to use User Authentication. \n"
+                                               "How to get: [Twitch Developers - Authentication](https://dev.twitch.tv/docs/authentication/)")
 
 
 class YoutubeServiceConfig(BaseModel):
     token: str = Field(default="<YOUTUBE_TOKEN>",
-                       description="GCloud auth print access token.")
+                       description="GCloud auth print access token. \n"
+                                   "How to get: [Obtaining authorization credentials](https://developers.google.cn/youtube/registering_an_application?hl=en)")
 
 
 class LiveStreamConfig(BaseModel):
