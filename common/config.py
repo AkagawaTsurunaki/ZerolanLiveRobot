@@ -16,16 +16,12 @@ from services.browser.config import BrowserConfig
 from services.live_stream.config import LiveStreamConfig
 from services.obs.config import ObsStudioClientConfig
 from services.playground.config import PlaygroundBridgeConfig
+from services.res.config import ResourceServerConfig
 
 
 class VLAPipelineConfig(BaseModel):
     showui: ShowUIConfig
     enable: bool = True
-
-
-class ResourceServerConfig(BaseModel):
-    host: str = "0.0.0.0"
-    port: int = 11000
 
 
 class GameBridgeConfig(BaseModel):

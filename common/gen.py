@@ -11,8 +11,9 @@ from zerolan.ump.pipeline.vid_cap import VidCapPipelineConfig
 from zerolan.ump.pipeline.vla import ShowUIConfig
 
 from common.config import VectorDBConfig, VLAPipelineConfig, PipelineConfig, ZerolanLiveRobotConfig, ServiceConfig, \
-    CharacterConfig, ExternalToolConfig, ResourceServerConfig, GameBridgeConfig, \
+    CharacterConfig, ExternalToolConfig, GameBridgeConfig, \
     QQBotBridgeConfig, ChatConfig, SpeechConfig, FilterConfig
+from services.res.config import ResourceServerConfig
 from services.playground.config import PlaygroundBridgeConfig
 from services.live_stream.config import LiveStreamConfig, BilibiliServiceConfig, TwitchServiceConfig, \
     YoutubeServiceConfig
