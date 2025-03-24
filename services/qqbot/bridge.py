@@ -1,7 +1,7 @@
 from injector import inject
 from zerolan.data.protocol.protocol import ZerolanProtocol
 
-from common.config import QQBotBridgeConfig
+from services.qqbot.config import QQBotBridgeConfig
 from common.web.zrl_ws import ZerolanProtocolWsServer
 from event.event_data import QQMessageEvent
 from event.eventemitter import emitter

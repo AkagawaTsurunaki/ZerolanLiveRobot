@@ -5,7 +5,7 @@ from typing import Tuple, List
 from loguru import logger
 from zerolan.data.data.prompt import TTSPrompt
 
-from common.config import SpeechConfig
+from character.config import SpeechConfig
 from common.enumerator import Language
 from common.utils.file_util import spath
 

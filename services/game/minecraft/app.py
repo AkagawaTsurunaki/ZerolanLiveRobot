@@ -5,7 +5,7 @@ from loguru import logger
 from zerolan.data.protocol.protocol import ZerolanProtocol
 
 from agent.tool_agent import Tool, ToolAgent
-from common.config import GameBridgeConfig
+from services.game.config import GameBridgeConfig
 from common.web.zrl_ws import ZerolanProtocolWsServer
 from event.registry import EventKeyRegistry
 from services.game.minecraft.instrcution.input import generate_model_from_args, FieldMetadata
