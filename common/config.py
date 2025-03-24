@@ -12,6 +12,7 @@ from zerolan.ump.pipeline.vid_cap import VidCapPipelineConfig
 from zerolan.ump.pipeline.vla import ShowUIConfig
 
 from common.utils.file_util import read_yaml, spath
+from services.obs.config import ObsStudioClientConfig
 
 
 class VLAPipelineConfig(BaseModel):
@@ -87,7 +88,7 @@ class ServiceConfig(BaseModel):
     game: GameBridgeConfig
     playground: PlaygroundBridgeConfig
     qqbot: QQBotBridgeConfig
-
+    obs: ObsStudioClientConfig
 
 class FilterConfig(BaseModel):
     bad_words: list[str]
