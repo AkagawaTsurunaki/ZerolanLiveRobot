@@ -12,7 +12,8 @@ from zerolan.ump.pipeline.vla import ShowUIConfig
 
 from common.config import VectorDBConfig, VLAPipelineConfig, PipelineConfig, ZerolanLiveRobotConfig, ServiceConfig, \
     CharacterConfig, ExternalToolConfig, ResourceServerConfig, GameBridgeConfig, \
-    PlaygroundBridgeConfig, QQBotBridgeConfig, ChatConfig, SpeechConfig, FilterConfig
+    QQBotBridgeConfig, ChatConfig, SpeechConfig, FilterConfig
+from services.playground.config import PlaygroundBridgeConfig
 from services.live_stream.config import LiveStreamConfig, BilibiliServiceConfig, TwitchServiceConfig, \
     YoutubeServiceConfig
 from services.obs.config import ObsStudioClientConfig

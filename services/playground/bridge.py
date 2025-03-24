@@ -3,7 +3,7 @@ import os.path
 from loguru import logger
 from zerolan.data.protocol.protocol import ZerolanProtocol
 
-from common.config import PlaygroundBridgeConfig
+from services.playground.config import PlaygroundBridgeConfig
 from common.data import PlaySpeechDTO, LoadLive2DModelDTO, FileInfo, ScaleOperationDTO, CreateGameObjectDTO, \
     GameObjectInfo, ShowUserTextInputDTO, ServerHello, AddHistoryDTO
 from common.enumerator import Action
