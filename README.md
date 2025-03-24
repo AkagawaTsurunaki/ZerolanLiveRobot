@@ -26,7 +26,8 @@ Zerolan Live Robot 是一款多功能的直播机器人（AI VTuber），它可�
 - [x] 🎮️ 根据语音指令控制 Minecraft AI 智能体（例如：`在游戏中跟大家说你好！`）
 - [x] 📓 基于最大记录条数的简单的运行时上下文短期记忆
 - [x] 📖 基于向量数据库的长期记忆存储与提取（例如：`你还记得我说过春日影是什么嘛？`）
-- [x] Live2D + AR 形象的控制（ZerolanPlayground开发基本完毕，已进入测试阶段） 
+- [x] Live2D + AR 形象的控制（ZerolanPlayground 开发基本完毕，已进入测试阶段） 
+- [x] 🎞️ OBS 直播流式字幕显示（OBS-WebSocket 实现）
 
 以下简要列出了本项目支持的内容：
 
