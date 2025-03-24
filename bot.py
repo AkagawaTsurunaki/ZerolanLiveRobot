@@ -14,8 +14,8 @@ from ump.pipeline.ocr import avg_confidence, stringify
 from agent.api import sentiment_analyse, translate, summary_history, find_file, model_scale
 from common.abs_runnable import stop_all_runnable
 from common.asyncio_util import sync_wait
-from services.device.speaker import withsound
-from common.enumerator import Language, SystemSoundEnum
+from services.device.speaker import withsound, SystemSoundEnum
+from common.enumerator import Language
 from common.killable_thread import kill_all_threads, KillableThread
 from common.utils.audio_util import save_tmp_audio
 from common.utils.img_util import is_image_uniform

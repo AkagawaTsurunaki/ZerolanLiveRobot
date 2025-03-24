@@ -1,12 +1,11 @@
 import os.path
+from enum import Enum
 
 from loguru import logger
 from zerolan.data.protocol.protocol import ZerolanProtocol
 
-from services.playground.config import PlaygroundBridgeConfig
 from common.data import PlaySpeechDTO, LoadLive2DModelDTO, FileInfo, ScaleOperationDTO, CreateGameObjectDTO, \
     GameObjectInfo, ShowUserTextInputDTO, ServerHello, AddHistoryDTO
-from common.enumerator import Action
 from common.killable_thread import KillableThread
 from common.utils.audio_util import check_audio_format, check_audio_info
 from common.utils.collection_util import to_value_list
@@ -15,8 +14,26 @@ from common.utils.web_util import get_local_ip
 from common.web.zrl_ws import ZerolanProtocolWsServer
 from event.event_data import PlaygroundConnectedEvent, PlaygroundDisconnectedEvent
 from event.eventemitter import emitter
+from services.playground.config import PlaygroundBridgeConfig
 from services.playground.grpc_server import GRPCServer
 from services.res_server import ResourceServer
+
+
+class Action(str, Enum):
+    PLAY_SPEECH = "play_speech"
+    LOAD_LIVE2D_MODEL = "load_live2d_model"
+
+    CLIENT_HELLO = "client_hello"
+    SERVER_HELLO = "server_hello"
+
+    LOAD_3D_MODEL = "load_model"
+    UPDATE_GAMEOBJECTS_INFO = "update_gameobjects_info"
+    QUERY_GAMEOBJECTS_INFO = "query_gameobjects_info"
+    MODIFY_GAMEOBJECT_SCALE = "modify_gameobject_scale"
+    CREATE_GAMEOBJECT = "create_gameobject"
+
+    SHOW_USER_TEXT_INPUT = "show_user_text_input"
+    ADD_HISTORY = "add_history"
 
 
 class PlaygroundBridge(ZerolanProtocolWsServer):
@@ -54,7 +71,8 @@ class PlaygroundBridge(ZerolanProtocolWsServer):
 
     def _on_client_hello(self):
         logger.info(f"ZerolanPlayground client is found, prepare for connecting...")
-        self.send(action=Action.SERVER_HELLO, data=ServerHello(server_ipv6=self.server_ipv6, server_ipv4=self.server_ipv4))
+        self.send(action=Action.SERVER_HELLO,
+                  data=ServerHello(server_ipv6=self.server_ipv6, server_ipv4=self.server_ipv4))
         emitter.emit(PlaygroundConnectedEvent())
         logger.info(f"`PlaygroundConnectedEvent` event emitted.")
 

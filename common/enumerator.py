@@ -47,30 +47,3 @@ class Language(str, Enum):
             return Language.JA
         else:
             raise ValueError("Unknown language")
-
-
-class SystemSoundEnum(str, Enum):
-    warn: str = "warn.wav"
-    error: str = "error.wav"
-    start: str = "start.wav"
-    exit: str = "exit.wav"
-    enable_func: str = "microphone-recoding.wav"
-    disable_func: str = "microphone-stopped.wav"
-    filtered: str = "filtered.wav"
-
-
-class Action(str, Enum):
-    PLAY_SPEECH = "play_speech"
-    LOAD_LIVE2D_MODEL = "load_live2d_model"
-
-    CLIENT_HELLO = "client_hello"
-    SERVER_HELLO = "server_hello"
-
-    LOAD_3D_MODEL = "load_model"
-    UPDATE_GAMEOBJECTS_INFO = "update_gameobjects_info"
-    QUERY_GAMEOBJECTS_INFO = "query_gameobjects_info"
-    MODIFY_GAMEOBJECT_SCALE = "modify_gameobject_scale"
-    CREATE_GAMEOBJECT = "create_gameobject"
-
-    SHOW_USER_TEXT_INPUT = "show_user_text_input"
-    ADD_HISTORY = "add_history"

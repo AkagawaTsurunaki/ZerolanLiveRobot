@@ -1,8 +1,7 @@
 from abc import ABC, abstractmethod
 from loguru import logger
 
-from services.device.speaker import withsound
-from common.enumerator import SystemSoundEnum
+from services.device.speaker import withsound, SystemSoundEnum
 
 
 class AbstractFilter(ABC):

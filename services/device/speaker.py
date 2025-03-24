@@ -1,12 +1,12 @@
 import os
 import threading
+from enum import Enum
 from functools import wraps
 from queue import Queue
 
 import pygame
 
 from common.abs_runnable import ThreadRunnable
-from common.enumerator import SystemSoundEnum
 from common.killable_thread import KillableThread
 from common.utils.audio_util import save_tmp_audio
 from common.utils.file_util import spath
@@ -93,6 +93,16 @@ class Speaker(ThreadRunnable):
             Speaker.playsound(spath(os.path.join("resources/static/sound/system", key.value)), block=block)
         except Exception as _:
             pass
+
+
+class SystemSoundEnum(str, Enum):
+    warn: str = "warn.wav"
+    error: str = "error.wav"
+    start: str = "start.wav"
+    exit: str = "exit.wav"
+    enable_func: str = "microphone-recoding.wav"
+    disable_func: str = "microphone-stopped.wav"
+    filtered: str = "filtered.wav"
 
 
 def withsound(sound: SystemSoundEnum, block: bool = False):
