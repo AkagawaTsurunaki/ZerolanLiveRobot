@@ -11,9 +11,10 @@ from zerolan.ump.pipeline.vid_cap import VidCapPipelineConfig
 from zerolan.ump.pipeline.vla import ShowUIConfig
 
 from common.config import VectorDBConfig, VLAPipelineConfig, PipelineConfig, ZerolanLiveRobotConfig, ServiceConfig, \
-    CharacterConfig, ExternalToolConfig, ResourceServerConfig, LiveStreamConfig, GameBridgeConfig, \
-    PlaygroundBridgeConfig, QQBotBridgeConfig, BilibiliServiceConfig, TwitchServiceConfig, YoutubeServiceConfig, \
-    ChatConfig, SpeechConfig, FilterConfig
+    CharacterConfig, ExternalToolConfig, ResourceServerConfig, GameBridgeConfig, \
+    PlaygroundBridgeConfig, QQBotBridgeConfig, ChatConfig, SpeechConfig, FilterConfig
+from services.live_stream.config import LiveStreamConfig, BilibiliServiceConfig, TwitchServiceConfig, \
+    YoutubeServiceConfig
 from services.obs.config import ObsStudioClientConfig
 
 
@@ -147,6 +148,9 @@ def model_to_yaml_with_comments(model: BaseModel, indent: int = 0) -> str:
         field_val = model.__getattribute__(field_name)
         if isinstance(field_val, BaseModel):
             # print(type(field_val))
+            if field_info.description:
+                for description_line in field_info.description.split("\n"):
+                    yaml_str += " " * indent + f"# {description_line}\n"
             yaml_str += " " * indent + f"{field_name}:\n"
             model_to_yaml_with_comments(field_val, indent + indent)
         else:
@@ -162,5 +166,3 @@ def model_to_yaml_with_comments(model: BaseModel, indent: int = 0) -> str:
             # yaml_str += yaml.dump(field_val, allow_unicode=True) + "\n"
         # print(field_name, description)
     return yaml_str
-
-
