@@ -11,8 +11,8 @@ from agent.tool.lang_changer import LangChanger
 from agent.tool.microphone_tool import MicrophoneTool
 from agent.tool.web_search import BaiduBaikeTool, MoeGirlTool
 from agent.tool_agent import ToolAgent
-from common.config import LLMPipelineConfig
 from services.playground.bridge import PlaygroundBridge
+from ump.pipeline.llm import LLMPipelineConfig
 
 
 class CustomAgent:

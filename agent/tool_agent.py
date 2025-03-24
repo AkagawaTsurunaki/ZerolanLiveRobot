@@ -15,8 +15,8 @@ from pydantic import BaseModel
 from zerolan.data.pipeline.llm import LLMQuery
 
 from agent.adaptor import LangChainAdaptedLLM, convert
-from common.config import LLMPipelineConfig
 from common.utils.json_util import smart_load_json_like
+from ump.pipeline.llm import LLMPipelineConfig
 
 
 class Property(BaseModel):

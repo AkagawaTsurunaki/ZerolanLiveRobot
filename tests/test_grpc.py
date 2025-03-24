@@ -3,7 +3,7 @@ from concurrent import futures
 
 import grpc
 from zerolan.data.pipeline.asr import ASRQuery
-from zerolan.ump.pipeline.asr import ASRPipeline, ASRPipelineConfig
+from ump.pipeline.asr import ASRPipeline, ASRPipelineConfig
 
 from bridge.proto import helloworld_pb2, helloworld_pb2_grpc
 from common.config import get_config

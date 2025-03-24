@@ -1,13 +1,13 @@
 import os
 
-from zerolan.ump.pipeline.asr import ASRPipeline
-from zerolan.ump.pipeline.database import MilvusPipeline
-from zerolan.ump.pipeline.img_cap import ImgCapPipeline
-from zerolan.ump.pipeline.llm import LLMPipeline
-from zerolan.ump.pipeline.ocr import OCRPipeline
-from zerolan.ump.pipeline.tts import TTSPipeline
-from zerolan.ump.pipeline.vid_cap import VidCapPipeline
-from zerolan.ump.pipeline.vla import ShowUIPipeline
+from ump.pipeline.asr import ASRPipeline
+from ump.pipeline.database import MilvusPipeline
+from ump.pipeline.img_cap import ImgCapPipeline
+from ump.pipeline.llm import LLMPipeline
+from ump.pipeline.ocr import OCRPipeline
+from ump.pipeline.tts import TTSPipeline
+from ump.pipeline.vid_cap import VidCapPipeline
+from ump.pipeline.vla import ShowUIPipeline
 
 from agent.custom_agent import CustomAgent
 from agent.tool_agent import ToolAgent
