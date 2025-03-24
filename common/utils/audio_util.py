@@ -1,9 +1,26 @@
 import io
 from pathlib import Path
-
+import numpy as np
 from pydub import AudioSegment
 
 from common.utils.file_util import create_temp_file
+
+
+def from_bytes_to_np_ndarray(bytes_data: bytes, dtype: str = "float32") -> (np.ndarray, int):
+    """
+    Convert byte data to np.ndarray format.
+    Args:
+        bytes_data: Audio bytes of data.
+        dtype: Default is float32.
+
+    Returns: Returns the converted np.ndarray format data, sample rate.
+
+    """
+    import soundfile as sf
+
+    wave_bytes_buf = io.BytesIO(bytes_data)
+    data, samplerate = sf.read(wave_bytes_buf, dtype=dtype)
+    return data, samplerate
 
 
 def from_ndarray_to_bytes(speech_chunk, sample_rate):
