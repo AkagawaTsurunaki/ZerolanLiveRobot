@@ -4,7 +4,7 @@ from enum import Enum
 from loguru import logger
 from zerolan.data.protocol.protocol import ZerolanProtocol
 
-from common.data import PlaySpeechDTO, LoadLive2DModelDTO, FileInfo, ScaleOperationDTO, CreateGameObjectDTO, \
+from data import PlaySpeechDTO, LoadLive2DModelDTO, FileInfo, ScaleOperationDTO, CreateGameObjectDTO, \
     GameObjectInfo, ShowUserTextInputDTO, ServerHello, AddHistoryDTO
 from common.killable_thread import KillableThread
 from common.utils.audio_util import check_audio_format, check_audio_info

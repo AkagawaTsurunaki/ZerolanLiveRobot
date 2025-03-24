@@ -8,7 +8,7 @@ from uuid import uuid4
 import yaml
 from loguru import logger
 
-from common.data import FileInfo
+from services.playground.data import FileInfo
 
 
 def get_real_project_dir() -> Path:

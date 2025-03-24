@@ -16,7 +16,7 @@ from zerolan.data.pipeline.ocr import RegionResult
 
 from agent.adaptor import LangChainAdaptedLLM
 from common.config import get_config
-from common.data import GameObjectInfo, ScaleOperationDTO
+from services.playground.data import GameObjectInfo, ScaleOperationDTO
 from common.decorator import log_run_time
 from common.enumerator import Language
 from common.utils.json_util import smart_load_json_like

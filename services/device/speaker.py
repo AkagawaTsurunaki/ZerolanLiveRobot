@@ -15,6 +15,16 @@ pygame.mixer.init()
 _system_sound = False
 
 
+class SystemSoundEnum(str, Enum):
+    warn: str = "warn.wav"
+    error: str = "error.wav"
+    start: str = "start.wav"
+    exit: str = "exit.wav"
+    enable_func: str = "microphone-recoding.wav"
+    disable_func: str = "microphone-stopped.wav"
+    filtered: str = "filtered.wav"
+
+
 class Speaker(ThreadRunnable):
 
     def name(self):
@@ -93,16 +103,6 @@ class Speaker(ThreadRunnable):
             Speaker.playsound(spath(os.path.join("resources/static/sound/system", key.value)), block=block)
         except Exception as _:
             pass
-
-
-class SystemSoundEnum(str, Enum):
-    warn: str = "warn.wav"
-    error: str = "error.wav"
-    start: str = "start.wav"
-    exit: str = "exit.wav"
-    enable_func: str = "microphone-recoding.wav"
-    disable_func: str = "microphone-stopped.wav"
-    filtered: str = "filtered.wav"
 
 
 def withsound(sound: SystemSoundEnum, block: bool = False):

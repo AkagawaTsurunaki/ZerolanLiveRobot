@@ -1,10 +1,10 @@
 import os
-from typing import Dict, List, LiteralString
+from typing import Dict, List
 
 from loguru import logger
 
-from common.data import FileInfo
 from common.utils.file_util import get_file_info
+from services.playground.data import FileInfo
 
 
 class ModelManager:

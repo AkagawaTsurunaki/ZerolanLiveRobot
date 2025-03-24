@@ -5,7 +5,7 @@ from injector import inject
 from langchain_core.tools import BaseTool
 from pydantic import BaseModel, Field
 
-from common.data import CreateGameObjectDTO
+from services.playground.data import CreateGameObjectDTO
 from services.playground.bridge import PlaygroundBridge
 
 
