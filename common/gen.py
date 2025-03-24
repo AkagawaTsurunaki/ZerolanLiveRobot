@@ -151,7 +151,8 @@ def model_to_yaml_with_comments(model: BaseModel, indent: int = 0) -> str:
             model_to_yaml_with_comments(field_val, indent + indent)
         else:
             if field_info.description:
-                yaml_str += " " * indent + f"# {field_info.description}\n"
+                for description_line in field_info.description.split("\n"):
+                    yaml_str += " " * indent + f"# {description_line}\n"
             # kv = yaml.dump({field_name: field_val}, sys.stdout, allow_unicode=True)
             # yaml_str += " " * indent + f"{kv}\n"
             if isinstance(field_val, str):
