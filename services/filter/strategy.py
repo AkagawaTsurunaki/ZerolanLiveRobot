@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from loguru import logger
 
-from common.decorator import withsound
+from services.device.speaker import withsound
 from common.enumerator import SystemSoundEnum
 
 

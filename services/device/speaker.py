@@ -1,5 +1,6 @@
 import os
 import threading
+from functools import wraps
 from queue import Queue
 
 import pygame
@@ -92,3 +93,16 @@ class Speaker(ThreadRunnable):
             Speaker.playsound(spath(os.path.join("resources/static/sound/system", key.value)), block=block)
         except Exception as _:
             pass
+
+
+def withsound(sound: SystemSoundEnum, block: bool = False):
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            Speaker.play_system_sound(sound, block)
+            ret = func(*args, **kwargs)
+            return ret
+
+        return wrapper
+
+    return decorator

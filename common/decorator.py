@@ -1,53 +1,7 @@
-import json
 import threading
 from functools import wraps
 
 from loguru import logger
-
-from common.enumerator import SystemSoundEnum
-from services.device.speaker import Speaker
-
-
-def withsound(sound: SystemSoundEnum, block: bool = False):
-    def decorator(func):
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            Speaker.play_system_sound(sound, block)
-            ret = func(*args, **kwargs)
-            return ret
-
-        return wrapper
-
-    return decorator
-
-
-def pipeline_resolve():
-    def decorator(func):
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            try:
-                ret = func(*args, **kwargs)
-                return ret
-            except Exception as e:
-                if isinstance(e, json.decoder.JSONDecodeError):
-                    logger.error("""
-                    Pipeline encountered an error when decode JSON content, please try:
-                    1. Check your connection to your zerolan-core server.
-                    2. Maybe you need authentication to your server.
-                    3. Just enter the url in your browser and see what happened.
-                    """.strip())
-                elif isinstance(e, ConnectionError):
-                    logger.error("""
-                    Pipeline encountered an error when connect to zerolan-core, please try:
-                    1. Check your connection to your zerolan-core server.
-                    2. See your configuration for pipeline.
-                    """)
-                    # if e.
-                raise e
-
-        return wrapper
-
-    return decorator
 
 
 def log_init(service_name: str):
