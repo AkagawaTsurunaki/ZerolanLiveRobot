@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field
 
+from services.browser.config import BrowserConfig
 from services.game.config import GameBridgeConfig
 from services.live_stream.config import LiveStreamConfig
 from services.obs.config import ObsStudioClientConfig
@@ -20,3 +21,4 @@ class ServiceConfig(BaseModel):
                                      description="Configuration for the QQBot Bridge service.")
     obs: ObsStudioClientConfig = Field(default=ObsStudioClientConfig(),
                                        description="Configuration for the OBS Studio Client.")
+    browser: BrowserConfig = Field(default=BrowserConfig(), description="Browser config.")

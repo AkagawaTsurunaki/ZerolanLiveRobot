@@ -4,12 +4,7 @@ from pydantic import BaseModel, Field
 from character.config import CharacterConfig
 from common.utils.file_util import read_yaml, spath
 from pipeline.config import PipelineConfig
-from services.browser.config import BrowserConfig
 from services.config import ServiceConfig
-
-
-class ExternalToolConfig(BaseModel):
-    browser: BrowserConfig = Field(default=BrowserConfig(), description="Browser config.")
 
 
 class ZerolanLiveRobotConfig(BaseModel):
@@ -19,8 +14,6 @@ class ZerolanLiveRobotConfig(BaseModel):
                                    description="Configuration for the service settings.")
     character: CharacterConfig = Field(default=CharacterConfig(),
                                        description="Configuration for the character settings.")
-    external_tool: ExternalToolConfig = Field(default=ExternalToolConfig(),
-                                              description="Configuration for the external tool settings.")
 
 
 def get_config() -> ZerolanLiveRobotConfig:
