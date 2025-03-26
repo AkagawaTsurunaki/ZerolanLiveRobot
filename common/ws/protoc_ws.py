@@ -4,6 +4,8 @@ Author: AkagawaTsurunaki
 """
 from typing import List, Any
 
+from loguru import logger
+
 from common.ws.base_ws import BaseWebSocketServer
 
 
@@ -18,11 +20,13 @@ class ProtoBufWebSocketServer(BaseWebSocketServer):
     def on_message(self, protoc_type: Any):
         def decorator(func):
             @super(ProtoBufWebSocketServer, self).on_message()
-            def wrapper(connection, message):
+            def on_pb_message_wrapper(connection, message):
                 instance = protoc_type()
                 instance.ParseFromString(message)
                 assert isinstance(instance, protoc_type)
                 func(connection, instance)
+
+            logger.debug(f"Function {func.__name__} is registered as OnProtoBufMessageListener")
 
         return decorator
 
