@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Dict, Any
+from typing import Dict, Any, Callable, List
 
 from loguru import logger
 from websockets.frames import CloseCode
@@ -49,6 +49,7 @@ class SafeZerolanProtocolWebSocketServer(ZerolanProtocolWebSocket):
         self._password = password
         self.challenges: Dict[Connection, str] = {}
         self.verified_conns = []
+        self.on_verified_handlers: List[Callable[[Connection, ClientHello], None]] = []
         self.init()
 
     def init(self):
@@ -61,7 +62,8 @@ class SafeZerolanProtocolWebSocketServer(ZerolanProtocolWebSocket):
             self.send(action=BaseAction.SERVER_HELLO, data=dto, message="Please verify your identity.")
             self.challenges[conn] = do_challenge(self._password, salt, challenge)
 
-        @super(SafeZerolanProtocolWebSocketServer, self).on_message(action=BaseAction.CLIENT_HELLO, data_type=ClientHello)
+        @super(SafeZerolanProtocolWebSocketServer, self).on_message(action=BaseAction.CLIENT_HELLO,
+                                                                    data_type=ClientHello)
         def verify_connection(conn: Connection, client_hello: ClientHello):
             logger.debug("Verifying connection...")
             auth = self.challenges.get(conn, None)
@@ -70,6 +72,8 @@ class SafeZerolanProtocolWebSocketServer(ZerolanProtocolWebSocket):
                 self.challenges.pop(conn, None)
                 self.verified_conns.append(conn)
                 logger.info(f"Connection {conn.id} verified!")
+                for handler in self.on_verified_handlers:
+                    handler(conn, client_hello)
             else:
                 conn.close(CloseCode.NORMAL_CLOSURE, reason="Challenge failure. Closed.")
                 logger.warning("Failed to verify client identity. Closed.")
@@ -83,6 +87,12 @@ class SafeZerolanProtocolWebSocketServer(ZerolanProtocolWebSocket):
                 logger.warning("A unverified connection is closed.")
             else:
                 logger.warning(f"A verified connection is closed: ({code}) {reason}")
+
+    def on_verified(self):
+        def decorator(func: Callable[[Connection, ClientHello], None]):
+            self.on_verified_handlers.append(func)
+
+        return decorator
 
     def on_message(self, data_type: Any, action: str):
         def decorator(func):
