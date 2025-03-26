@@ -81,8 +81,6 @@ class BaseWebSocketServer(ThreadRunnable):
                 except Exception as e:
                     if isinstance(e, ConnectionClosed):
                         raise e
-                    if len(self.on_err_handlers) == 0:
-                        logger.exception(e)
                     self._handle_exception(connection, e)
 
         except ConnectionClosed as e:
@@ -101,6 +99,9 @@ class BaseWebSocketServer(ThreadRunnable):
         logger.warning(f"WebSocket client disconnected: {ws_id}")
 
     def _handle_exception(self, connection: Connection, e: Exception):
+        if len(self.on_err_handlers) == 0:
+            logger.exception(e)
+            return
         for handler in self.on_err_handlers:
             handler(connection, e)
 
