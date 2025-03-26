@@ -4,10 +4,20 @@ import "google/protobuf/any.proto";
 package zerolan.liverobot.protocol;
 
 message ZerolanProtocol {
-    string protocol = 1;
-    string version = 2;
-    string message = 3;
-    string action = 4;
-    int32 code = 5;
-    google.protobuf.Any data = 6;
+  string protocol = 1;
+  string version = 2;
+  string message = 3;
+  string action = 4;
+  int32 code = 5;
+  google.protobuf.Any data = 6;
+}
+
+message ServerHello {
+  string challenge = 1;
+  string salt = 2;
+}
+
+message ClientHello {
+  string auth = 1;
+  string namespace = 2;
 }
