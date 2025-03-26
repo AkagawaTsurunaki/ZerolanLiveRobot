@@ -106,28 +106,28 @@ class BaseWebSocketServer(ThreadRunnable):
             handler(connection, e)
 
     def on_message(self, *args, **kwargs):
-        def decorator(func: Callable[[Connection, Any], None]):
+        def decorator(func):
             self.on_msg_handlers.append(func)
             logger.debug(f"Function `{func.__name__}` has been registered as OnMessageListener.`")
 
         return decorator
 
     def on_close(self, *args, **kwargs):
-        def decorator(func: Callable[[Connection, int, str], None]):
+        def decorator(func):
             self.on_close_handlers.append(func)
             logger.debug(f"Function `{func.__name__}` has been registered as OnCloseListener.`")
 
         return decorator
 
     def on_open(self, *args, **kwargs):
-        def decorator(func: Callable[[Connection], None]):
+        def decorator(func):
             self.on_open_handlers.append(func)
             logger.debug(f"Function `{func.__name__}` has been registered as OnOpenListener.`")
 
         return decorator
 
     def on_error(self, *args, **kwargs):
-        def decorator(func: Callable[[Connection, Exception], None]):
+        def decorator(func):
             self.on_err_handlers.append(func)
             logger.debug(f"Function `{func.__name__}` has been registered as OnErrorListener.`")
 
