@@ -9,12 +9,10 @@ from zerolan.data.pipeline.milvus import MilvusInsert, InsertRow, MilvusQuery
 from zerolan.data.pipeline.ocr import OCRQuery
 from zerolan.data.pipeline.tts import TTSQuery
 from zerolan.data.pipeline.vla import ShowUiQuery
-from ump.pipeline.ocr import avg_confidence, stringify
 
-from agent.api import sentiment_analyse, translate, summary_history, find_file, model_scale
+from agent.api import sentiment_analyse, translate, summary_history, find_file
 from common.abs_runnable import stop_all_runnable
 from common.asyncio_util import sync_wait
-from services.device.speaker import withsound, SystemSoundEnum
 from common.enumerator import Language
 from common.killable_thread import kill_all_threads, KillableThread
 from common.utils.audio_util import save_tmp_audio
@@ -25,6 +23,8 @@ from event.event_data import ASREvent, SpeechEvent, ScreenCapturedEvent, LLMEven
     QQMessageEvent, SwitchVADEvent, TTSEvent
 from event.eventemitter import emitter
 from event.registry import EventKeyRegistry
+from services.device.speaker import withsound, SystemSoundEnum
+from ump.pipeline.ocr import avg_confidence, stringify
 
 
 class ZerolanLiveRobot(ZerolanLiveRobotContext):
@@ -159,13 +159,6 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
                 file_id = find_file(self.model_manager.get_files(), prediction.transcript)
                 file_info = self.model_manager.get_file_by_id(file_id)
                 self.playground.load_3d_model(file_info)
-            elif "调整模型" in prediction.transcript:
-                info = self.playground.get_gameobjects_info()
-                if not info:
-                    logger.warning("No gameobjects info")
-                    return
-                so = model_scale(info, prediction.transcript)
-                sync_wait(self.playground.modify_game_object_scale(so))
             else:
                 tool_called = self.custom_agent.run(prediction.transcript)
                 if tool_called:
