@@ -22,3 +22,36 @@ service PlaygroundBridge {
   rpc SendSpeechChunk (SpeechChunk) returns (RPCResponse) {}
   rpc SendCameraImage (CameraImage) returns (RPCResponse) {}
 }
+
+message PlaySpeech {
+  string bot_id = 1;
+  string bot_display_name = 2;
+  string audio_type = 3;
+  int32 sample_rate = 4;
+  int32 channels = 5;
+  float duration = 6;
+  string transcript = 7;
+  bytes audio_data = 8;
+}
+
+message LoadLive2DModel {
+  string bot_id = 1;
+  string bot_display_name = 2;
+  bytes model_zip = 3;
+}
+
+message ShowUserTextInput {
+  string text = 1;
+}
+
+message AddHistory {
+  string role = 1;
+  string text = 2;
+  string username = 3;
+}
+
+message Model3DFile {
+  string file_id = 1;
+  string file_type = 2;
+  bytes file_data = 3;
+}

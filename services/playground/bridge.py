@@ -1,30 +1,20 @@
 import os.path
-from enum import Enum
 
 from loguru import logger
-from zerolan.data.protocol.protocol import ZerolanProtocol
+from websockets.sync.connection import Connection
 
-from data import PlaySpeechDTO, LoadLive2DModelDTO, FileInfo, ScaleOperationDTO, CreateGameObjectDTO, \
-    GameObjectInfo, ShowUserTextInputDTO, ServerHello, AddHistoryDTO
-from common.killable_thread import KillableThread
 from common.utils.audio_util import check_audio_format, check_audio_info
-from common.utils.collection_util import to_value_list
 from common.utils.file_util import create_temp_file, compress_directory
-from common.utils.web_util import get_local_ip
-from common.web.zrl_ws import ZerolanProtocolWsServer
+from common.ws.proto.protocol_pb2 import ClientHello  # type: ignore
+from common.ws.safe_zrl_ws import BaseAction, SafeZerolanProtocolWebSocketServer
 from event.event_data import PlaygroundConnectedEvent, PlaygroundDisconnectedEvent
 from event.eventemitter import emitter
-from services.playground.config import PlaygroundBridgeConfig
-from services.playground.grpc_server import GRPCServer
-from services.res_server import ResourceServer
+from services.playground.proto import bridge_pb2
 
 
-class Action(str, Enum):
+class Action(BaseAction):
     PLAY_SPEECH = "play_speech"
     LOAD_LIVE2D_MODEL = "load_live2d_model"
-
-    CLIENT_HELLO = "client_hello"
-    SERVER_HELLO = "server_hello"
 
     LOAD_3D_MODEL = "load_model"
     UPDATE_GAMEOBJECTS_INFO = "update_gameobjects_info"
@@ -36,53 +26,31 @@ class Action(str, Enum):
     ADD_HISTORY = "add_history"
 
 
-class PlaygroundBridge(ZerolanProtocolWsServer):
+class PlaygroundBridge(SafeZerolanProtocolWebSocketServer):
 
-    def __init__(self, config: PlaygroundBridgeConfig, res_server: ResourceServer):
-        super().__init__(host=config.host, port=config.port)
+    def __init__(self, host: str, port: int, password: str):
+        super().__init__(host, port, password)
         self.gameobjects_info = {}
-        self.res_server = res_server
-        self._grpc_server = GRPCServer(config.grpc_server.host, config.grpc_server.port)
-        self._grpc_server_thread: KillableThread | None = None
-        self.server_ipv6, self.server_ipv4 = get_local_ip(True), get_local_ip()
-
-    def start(self):
-        self._grpc_server_thread = KillableThread(target=self._grpc_server.start, daemon=True)
-        self._grpc_server_thread.start()
-        super().start()
-        self._grpc_server_thread.join()
-
-    def stop(self):
-        super().stop()
-        self._grpc_server_thread.kill()
 
     def name(self):
-        return "PlaygroundBridge"
+        return "ZerolanPlaygroundBridge"
 
-    def on_disconnect(self, ws_id: str):
-        emitter.emit(PlaygroundDisconnectedEvent(ws_id=ws_id))
+    def init(self):
+        @self.on_close()
+        def on_disconnect(conn: Connection, code: int, reason: str):
+            emitter.emit(PlaygroundDisconnectedEvent(ws_id=str(conn.id), code=code, reason=reason))
 
-    def on_protocol(self, protocol: ZerolanProtocol):
-        logger.info(f"{protocol.action}: {protocol.message}")
-        if protocol.action == Action.CLIENT_HELLO:
-            self._on_client_hello()
-        elif protocol.action == Action.UPDATE_GAMEOBJECTS_INFO:
-            self._on_update_gameobjects_info(protocol.data)
+        @self.on_verified()
+        def on_verified(_: Connection, client_hello: ClientHello):
+            logger.info(f"ZerolanPlayground client is connected and verified.")
+            emitter.emit(PlaygroundConnectedEvent(namespace=client_hello.namespace))
+            logger.info(f"`PlaygroundConnectedEvent` event emitted.")
 
-    def _on_client_hello(self):
-        logger.info(f"ZerolanPlayground client is found, prepare for connecting...")
-        self.send(action=Action.SERVER_HELLO,
-                  data=ServerHello(server_ipv6=self.server_ipv6, server_ipv4=self.server_ipv4))
-        emitter.emit(PlaygroundConnectedEvent())
-        logger.info(f"`PlaygroundConnectedEvent` event emitted.")
-
-    def _on_update_gameobjects_info(self, data: list[dict]):
-        assert isinstance(data, list)
-        self.gameobjects_info.clear()
-        for info in data:
-            go_info = GameObjectInfo.model_validate(info)
-            self.gameobjects_info[go_info.instance_id] = go_info
-        logger.debug("Local gameobjects cache is updated")
+        @self.on_message(action=Action.UPDATE_GAMEOBJECTS_INFO, data_type=bridge_pb2.BatchedGameObjects)
+        def on_update_gameobjects_info(_, gos: bridge_pb2.BatchedGameObjects):
+            for go in gos.list:
+                self.gameobjects_info[go.instance_id] = go
+            logger.debug("Local gameobjects cache is updated")
 
     def play_speech(self, bot_id: str, audio_path: str, transcript: str, bot_name: str):
         """
@@ -94,14 +62,18 @@ class PlaygroundBridge(ZerolanProtocolWsServer):
         """
         audio_type = check_audio_format(audio_path)
         sample_rate, num_channels, duration = check_audio_info(audio_path)
-        audio_uri = self.res_server.get_resource_endpoint(audio_path)
-        self.send(action=Action.PLAY_SPEECH, data=PlaySpeechDTO(bot_id=bot_id, audio_uri=audio_uri,
-                                                                bot_display_name=bot_name,
-                                                                transcript=transcript,
-                                                                audio_type=audio_type,
-                                                                sample_rate=sample_rate,
-                                                                channels=num_channels,
-                                                                duration=duration))
+        with open(audio_path, 'rb') as f:
+            data = bridge_pb2.PlaySpeech(
+                bot_id=bot_id,
+                bot_display_name=bot_name,
+                audio_type=audio_type,
+                sample_rate=sample_rate,
+                channels=num_channels,
+                duration=duration,
+                transcript=transcript,
+                audio_data=f.read()
+            )
+            self.send(action=Action.PLAY_SPEECH, data=data, message="Play speech")
 
     def load_live2d_model(self, bot_id: str,
                           bot_display_name: str,
@@ -115,53 +87,32 @@ class PlaygroundBridge(ZerolanProtocolWsServer):
         assert os.path.exists(model_dir) and os.path.isdir(model_dir), f"{model_dir} is not a directory"
         zip_path = create_temp_file("live2d", ".zip", "model")
         compress_directory(model_dir, zip_path)
-        model_uri = self.res_server.get_resource_endpoint(zip_path)
-        self.send(action=Action.LOAD_LIVE2D_MODEL, data=LoadLive2DModelDTO(
-            bot_id=bot_id,
-            bot_display_name=bot_display_name,
-            model_dir=model_dir,
-            model_uri=model_uri
-        ))
-
-    def load_3d_model(self, file_info: FileInfo):
-        """
-        Load a specific 3D model as a GameObject in the playground.
-        :param file_info: FileInfo
-        """
-        self.send(action=Action.LOAD_3D_MODEL,
-                  data=file_info, message="Load 3D model")
-
-    def modify_game_object_scale(self, dto: ScaleOperationDTO):
-        """
-        Modify the scale of a specific GameObject in the playground.
-        :param dto: ScaleOperationDTO
-        """
-        self.send(action=Action.MODIFY_GAMEOBJECT_SCALE, data=dto)
-
-    def create_gameobject(self, dto: CreateGameObjectDTO):
-        """
-        Create a built-in GameObject in the playground.
-        :param dto: CreateGameObjectDTO
-        :return:
-        """
-        self.send(action=Action.CREATE_GAMEOBJECT, data=dto)
-
-    def query_update_gameobjects_info(self):
-        """
-        Make a query for updating the gameobjects info.
-        This method does not make effects immediately.
-        """
-        self.send(action=Action.QUERY_GAMEOBJECTS_INFO, data=None)
-
-    def get_gameobjects_info(self) -> list[GameObjectInfo]:
-        """
-        Get a list of the gameobjects info from the local cache.
-        :return:
-        """
-        return to_value_list(self.gameobjects_info)
+        with open(zip_path, 'rb') as f:
+            data = bridge_pb2.LoadLive2DModel(
+                bot_id=bot_id,
+                bot_display_name=bot_display_name,
+                model_zip=f.read()
+            )
+            self.send(action=Action.LOAD_LIVE2D_MODEL, data=data)
 
     def show_user_input_text(self, text: str):
-        self.send(action=Action.SHOW_USER_TEXT_INPUT, data=ShowUserTextInputDTO(text=text))
+        self.send(action=Action.SHOW_USER_TEXT_INPUT, data=bridge_pb2.ShowUserTextInput(text=text))
 
     def add_history(self, username: str, role: str, text: str):
-        self.send(action=Action.ADD_HISTORY, data=AddHistoryDTO(role=role, text=text, username=username))
+        self.send(action=Action.ADD_HISTORY, data=bridge_pb2.AddHistory(role=role, text=text, username=username))
+
+    def load_3d_model(self, file_id: str, file_type: str, path: str):
+        """
+        Load a specific 3D model as a GameObject in the playground.
+        :param path:
+        :param file_type:
+        :param file_id:
+        """
+        with open(path, 'rb') as f:
+            data = bridge_pb2.Model3DFile(
+                file_id=file_id,
+                file_type=file_type,
+                file_data=f.read()
+            )
+            self.send(action=Action.LOAD_3D_MODEL,
+                      data=data, message="Load 3D model")
