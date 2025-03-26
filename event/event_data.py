@@ -129,12 +129,15 @@ class SwitchVADEvent(BaseEvent):
 
 @dataclass
 class PlaygroundConnectedEvent(BaseEvent):
+    namespace: str
     type: str = EventKeyRegistry.Playground.PLAYGROUND_CONNECTED
 
 
 @dataclass
 class PlaygroundDisconnectedEvent(BaseEvent):
-    ws_id: str
+    code: int
+    ws_id: str = ""
+    reason: str = ""
     type: str = EventKeyRegistry.Playground.DISCONNECTED
 
 
