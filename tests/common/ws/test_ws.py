@@ -82,7 +82,7 @@ def test_send_message():
 def test_zws():
     ws = ZerolanProtocolWebSocket(host="0.0.0.0", port=5684)
 
-    @ws.on_message(test_ws_pb2.ZerolanProtocol)
+    @ws.on_message(test_ws_pb2.ZerolanProtocol, "ClientTest")
     def some(_, msg: test_ws_pb2.ZerolanProtocol):
         print(f"Received message: {msg.protocol}/{msg.version}")
         data_msg = test_ws_pb2.DataMessage()
@@ -105,7 +105,7 @@ def test_zws():
                                                        version="1.1",
                                                        message="Ciallo!",
                                                        code=1,
-                                                       action="Test",
+                                                       action="ClientTest",
                                                        data=Any().Pack(data_msg))
 
         websocket.send(protocol_obj.SerializeToString())
