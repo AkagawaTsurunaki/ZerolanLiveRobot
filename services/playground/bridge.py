@@ -27,15 +27,12 @@ class Action(BaseAction):
 
 
 class PlaygroundBridge(SafeZerolanProtocolWebSocketServer):
-
-    def __init__(self, host: str, port: int, password: str):
-        super().__init__(host, port, password)
-        self.gameobjects_info = {}
-
     def name(self):
         return "ZerolanPlaygroundBridge"
 
-    def init(self):
+    def __init__(self, host: str, port: int, password: str):
+        super().__init__(host, port, password)
+
         @self.on_close()
         def on_disconnect(conn: Connection, code: int, reason: str):
             emitter.emit(PlaygroundDisconnectedEvent(ws_id=str(conn.id), code=code, reason=reason))
@@ -45,12 +42,6 @@ class PlaygroundBridge(SafeZerolanProtocolWebSocketServer):
             logger.info(f"ZerolanPlayground client is connected and verified.")
             emitter.emit(PlaygroundConnectedEvent(namespace=client_hello.namespace))
             logger.info(f"`PlaygroundConnectedEvent` event emitted.")
-
-        @self.on_message(action=Action.UPDATE_GAMEOBJECTS_INFO, data_type=bridge_pb2.BatchedGameObjects)
-        def on_update_gameobjects_info(_, gos: bridge_pb2.BatchedGameObjects):
-            for go in gos.list:
-                self.gameobjects_info[go.instance_id] = go
-            logger.debug("Local gameobjects cache is updated")
 
     def play_speech(self, bot_id: str, audio_path: str, transcript: str, bot_name: str):
         """

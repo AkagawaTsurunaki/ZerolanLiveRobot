@@ -66,25 +66,25 @@ class BaseWebSocketServer(ThreadRunnable):
         """
 
         self._add_connection(connection)
-        try:
-            while True:
+        while True:
+            try:
                 exceptions = []
-                try:
-                    message = connection.recv()
-                    for handler in self.on_msg_handlers:
-                        try:
-                            handler(connection, message)
-                        except Exception as e:
-                            exceptions.append(e)
-                    for e in exceptions:
-                        self._handle_exception(connection, e)
-                except Exception as e:
-                    if isinstance(e, ConnectionClosed):
-                        raise e
+                message = connection.recv()
+                for handler in self.on_msg_handlers:
+                    try:
+                        handler(connection, message)
+                    except Exception as e:
+                        exceptions.append(e)
+                for e in exceptions:
                     self._handle_exception(connection, e)
-
-        except ConnectionClosed as e:
-            self._remove_connection(connection, e)
+            except ConnectionClosed as e:
+                self._remove_connection(connection, e)
+                logger.warning("Disconnect")
+                return
+            except Exception as e:
+                if isinstance(e, ConnectionClosed):
+                    raise e
+                self._handle_exception(connection, e)
 
     def _add_connection(self, connection: Connection):
         self._connections[connection] = str(connection.id)
@@ -95,7 +95,12 @@ class BaseWebSocketServer(ThreadRunnable):
     def _remove_connection(self, connection: Connection, e: ConnectionClosed):
         ws_id = self._connections.pop(connection)
         for handler in self.on_close_handlers:
-            handler(connection, e.rcvd.code, e.rcvd.reason)
+            code = -1
+            reason = "???"
+            if e.rcvd is not None:
+                code = e.rcvd.code
+                reason = e.rcvd.reason
+            handler(connection, code, reason)
         logger.warning(f"WebSocket client disconnected: {ws_id}")
 
     def _handle_exception(self, connection: Connection, e: Exception):
@@ -141,3 +146,4 @@ class BaseWebSocketServer(ThreadRunnable):
         """
         for conn in self._connections:
             conn.send(message, text)
+        print(message)

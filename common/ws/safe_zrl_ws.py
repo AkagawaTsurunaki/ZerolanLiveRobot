@@ -10,7 +10,7 @@ from common.ws.proto.protocol_pb2 import ServerHello, ClientHello  # type: ignor
 from common.ws.zrl_ws import ZerolanProtocolWebSocket
 
 
-class BaseAction(str, Enum):
+class BaseAction:
     CLIENT_HELLO = "client_hello"
     SERVER_HELLO = "server_hello"
 
@@ -50,9 +50,6 @@ class SafeZerolanProtocolWebSocketServer(ZerolanProtocolWebSocket):
         self.challenges: Dict[Connection, str] = {}
         self.verified_conns = []
         self.on_verified_handlers: List[Callable[[Connection, ClientHello], None]] = []
-        self.init()
-
-    def init(self):
 
         @self.on_open()
         def on_connect(conn: Connection):
