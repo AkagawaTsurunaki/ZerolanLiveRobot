@@ -3,6 +3,8 @@ from datetime import datetime
 from pydantic import BaseModel
 from pydantic.fields import FieldInfo
 
+from common.decorator import log_run_time
+
 
 class ConfigFileGenerator:
 
@@ -45,6 +47,7 @@ class ConfigFileGenerator:
 
         return header
 
+    @log_run_time()
     def generate_yaml(self, model: BaseModel):
         """
         Generate yaml from BaseModel instance.
