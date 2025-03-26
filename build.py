@@ -32,6 +32,8 @@ def compile_proto_files(proto_dir):
 
 if __name__ == "__main__":
     print("Compiling protoc...")
-    proto_dir = "services/playground/proto"  # 指定.proto文件所在的目录
-    compile_proto_files(proto_dir)
+    proto_dirs = ["services/playground/proto", "tests/common/ws/proto"]  # 指定.proto文件所在的目录
+
+    for proto_dir in proto_dirs:
+        compile_proto_files(proto_dir)
     print("Done.")
