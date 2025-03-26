@@ -1,3 +1,5 @@
+import base64
+import hashlib
 import json
 import threading
 import time
@@ -11,8 +13,18 @@ from websockets import Subprotocol
 from websockets.sync.client import connect, ClientConnection
 
 from common.abs_runnable import ThreadRunnable
-from common.utils.pws_util import do_challenge
 from services.obs.config import ObsStudioClientConfig
+
+
+def generate_base64_secret(data: str) -> str:
+    """
+    Generate SHA256 hash and encode it as Base64 string
+    :param data: Original string
+    :return: Base64-encoded string
+    """
+    sha256_hash = hashlib.sha256(data.encode('utf-8')).digest()
+    base64_encoded_hash = base64.b64encode(sha256_hash).decode('utf-8')
+    return base64_encoded_hash
 
 
 class ObsStudioWsClient(ThreadRunnable):
@@ -71,7 +83,8 @@ class ObsStudioWsClient(ThreadRunnable):
         """
         challenge = json_dict['d']['authentication']['challenge']
         salt = json_dict['d']['authentication']['salt']
-        my_auth = do_challenge(password=self._password, salt=salt, challenge=challenge)
+        base64_secret = generate_base64_secret(self._password + salt)
+        my_auth = generate_base64_secret(base64_secret + challenge)
 
         request = {
             "op": 1,
