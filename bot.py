@@ -9,12 +9,11 @@ from zerolan.data.pipeline.milvus import MilvusInsert, InsertRow, MilvusQuery
 from zerolan.data.pipeline.ocr import OCRQuery
 from zerolan.data.pipeline.tts import TTSQuery
 from zerolan.data.pipeline.vla import ShowUiQuery
-from ump.pipeline.ocr import avg_confidence, stringify
 
 from agent.api import sentiment_analyse, translate, summary_history, find_file, model_scale
 from common.abs_runnable import stop_all_runnable
 from common.asyncio_util import sync_wait
-from services.device.speaker import withsound, SystemSoundEnum
+from common.config import get_config
 from common.enumerator import Language
 from common.killable_thread import kill_all_threads, KillableThread
 from common.utils.audio_util import save_tmp_audio
@@ -25,6 +24,10 @@ from event.event_data import ASREvent, SpeechEvent, ScreenCapturedEvent, LLMEven
     QQMessageEvent, SwitchVADEvent, TTSEvent
 from event.eventemitter import emitter
 from event.registry import EventKeyRegistry
+from services.device.speaker import withsound, SystemSoundEnum
+from ump.pipeline.ocr import avg_confidence, stringify
+
+_config = get_config()
 
 
 class ZerolanLiveRobot(ZerolanLiveRobotContext):
@@ -40,9 +43,9 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
             self.model_manager.scan()
 
         threads = []
-
-        vad_thread = KillableThread(target=self.vad.start, daemon=True, name="VADThread")
-        threads.append(vad_thread)
+        if _config.system.default_enable_microphone:
+            vad_thread = KillableThread(target=self.vad.start, daemon=True, name="VADThread")
+            threads.append(vad_thread)
 
         speaker_thread = KillableThread(target=self.speaker.start, daemon=True, name="SpeakerThread")
         threads.append(speaker_thread)

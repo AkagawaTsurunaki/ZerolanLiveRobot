@@ -10,6 +10,11 @@ from services.config import ServiceConfig
 from ump.config import PipelineConfig
 
 
+class SystemConfig(BaseModel):
+    default_enable_microphone: bool = Field(default=False, description="For safety, do not open your microphone by default. \n"
+                                                                       "You can set it `True` to enable your microphone")
+
+
 class ZerolanLiveRobotConfig(BaseModel):
     pipeline: PipelineConfig = Field(default=PipelineConfig(),
                                      description="Configuration for the pipeline settings. \n"
@@ -26,6 +31,7 @@ class ZerolanLiveRobotConfig(BaseModel):
                                                "and the service controls the behavior of its sub-project instances.")
     character: CharacterConfig = Field(default=CharacterConfig(),
                                        description="Configuration for the character settings.")
+    system: SystemConfig = Field(default=SystemConfig(), description="Configuration for the system settings.")
 
 # Check if the config file exists
 if not os.path.exists("resources/config.yaml"):
