@@ -41,6 +41,7 @@ class JsonWsServer(ThreadRunnable):
         with serve(handler=self._handle_json_recv, host=self.host, port=self.port,
                    subprotocols=self.subprotocols) as ws:
             self.ws = ws
+            logger.info(f"WebSocket server started at {self.host}:{self.port}")
             self.ws.serve_forever()
 
     def stop(self):
