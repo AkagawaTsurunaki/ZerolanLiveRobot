@@ -100,7 +100,7 @@ class ZerolanLiveRobotContext:
         if config.pipeline.vla.enable:
             if config.pipeline.vla.showui.enable:
                 self.showui = ShowUIPipeline(config.pipeline.vla.showui)
-        if config.external_tool.browser.enable:
+        if config.service.browser.enable:
             self.browser = Browser(config.external_tool.browser)
         if config.service.game.enable:
             if config.service.game.platform == "minecraft":
