@@ -37,10 +37,10 @@ class ChatConfig(BaseModel):
 
 class SpeechConfig(BaseModel):
     prompts_dir: str = Field("resources/static/prompts/tts",
-                             description="Directory path for TTS prompts. \n"
+                             description="Directory path for TTS prompts. (Absolute path is recommended)\n"
                                          "All files in the directory must conform to the file format: \n"
                                          "  [lang][sentiment_tag]text.wav \n"
-                                         "For example, `[en][happy] Wow! It's been a really good weather.wav`. \n"
+                                         "For example, `[en][happy] Wow! What a good day today.wav`. \n"
                                          "where, \n"
                                          "  1. `lang` only supports 'zh', 'en', 'ja'; \n"
                                          "  2. `sentiment_tag` are arbitrary, as long as they can be discriminated by LLM; \n"
