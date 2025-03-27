@@ -91,12 +91,16 @@ class ShowUserTextInputResponse(BaseModel):
 
 
 class ServerHello(BaseModel):
-    server_domain: str | None = Field(description="The domain name of the ZerolanPlayground WebSocket server.")
-    server_ipv6: str = Field(description="The IPv6 address of the ZerolanPlayground WebSocket server.")
-    server_ipv4: str = Field(description="The IPv4 address of the ZerolanPlayground WebSocket server.")
-    server_ws_port: int = Field(description="The port number of the ZerolanPlayground WebSocket server.")
-    server_grpc_port: int = Field(description="The port number of the gRPC server.")
-    server_res_port: int = Field(description="The resource port number of the Resource HTTP server.")
+    ws_domain_or_ip: str = Field(
+        description="The domain name or the IP address of the ZerolanPlayground WebSocket server.")
+    ws_port: int = Field(description="The port number of the ZerolanPlayground WebSocket server.")
+    grpc_domain_or_ip: str = Field(
+        description="The domain name or the IP address of the ZerolanPlayground gRPC server.")
+    grpc_port: int = Field(description="The port number of the gRPC server.")
+    res_domain_or_ip: str = Field(
+        description="The domain name or the IP address of the Resource HTTP server."
+    )
+    res_port: int = Field(description="The resource port number of the Resource HTTP server.")
 
 
 class AddChatHistory(BaseModel):

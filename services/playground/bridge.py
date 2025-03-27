@@ -4,14 +4,15 @@ from enum import Enum
 from loguru import logger
 from zerolan.data.protocol.protocol import ZerolanProtocol
 
-from data import FileInfo, ScaleOperationResponse, CreateGameObjectResponse, \
-    GameObject, ShowUserTextInputResponse, ServerHello, AddChatHistory
+from common.config import get_config
 from common.killable_thread import KillableThread
 from common.utils.audio_util import check_audio_format, check_audio_info
 from common.utils.collection_util import to_value_list
 from common.utils.file_util import create_temp_file, compress_directory
 from common.utils.web_util import get_local_ip
 from common.web.zrl_ws import ZerolanProtocolWsServer
+from services.playground.data import FileInfo, ScaleOperationResponse, CreateGameObjectResponse, \
+    GameObject, ShowUserTextInputResponse, ServerHello, AddChatHistory
 from event.event_data import PlaygroundConnectedEvent, PlaygroundDisconnectedEvent
 from event.eventemitter import emitter
 from services.playground.config import PlaygroundBridgeConfig
@@ -35,6 +36,9 @@ class Action(str, Enum):
 
     SHOW_USER_TEXT_INPUT = "show_user_text_input"
     ADD_HISTORY = "add_history"
+
+
+_config = get_config()
 
 
 class PlaygroundBridge(ZerolanProtocolWsServer):
@@ -72,13 +76,16 @@ class PlaygroundBridge(ZerolanProtocolWsServer):
 
     def _on_client_hello(self):
         logger.info(f"ZerolanPlayground client is found, prepare for connecting...")
+        local_ip = get_local_ip(True)
+        server_hello = ServerHello(ws_domain_or_ip=local_ip,
+                                   ws_port=_config.service.playground.port,
+                                   grpc_domain_or_ip=local_ip,
+                                   grpc_port=_config.service.playground.grpc_server.port,
+                                   res_domain_or_ip=local_ip,
+                                   res_port=_config.service.res_server.port)
+        logger.debug(server_hello.model_dump_json())
         self.send(action=Action.SERVER_HELLO,
-                  data=ServerHello(server_domain=None,
-                                   server_ipv6=self.server_ipv6,
-                                   server_ipv4=self.server_ipv4,
-                                   server_ws_port=...,
-                                   server_grpc_port=...,
-                                   server_res_port=...))
+                  data=server_hello)
         emitter.emit(PlaygroundConnectedEvent())
         logger.info(f"`PlaygroundConnectedEvent` event emitted.")
 
@@ -100,14 +107,14 @@ class PlaygroundBridge(ZerolanProtocolWsServer):
         """
         audio_type = check_audio_format(audio_path)
         sample_rate, num_channels, duration = check_audio_info(audio_path)
-        audio_uri = self.res_server.get_resource_endpoint(audio_path)
-        self.send(action=Action.PLAY_SPEECH, data=PlaySpeechResponse(bot_id=bot_id, audio_uri=audio_uri,
-                                                                    bot_display_name=bot_name,
-                                                                    transcript=transcript,
-                                                                    audio_type=audio_type,
-                                                                    sample_rate=sample_rate,
-                                                                    channels=num_channels,
-                                                                    duration=duration))
+        audio_download_endpoint = self.res_server.get_resource_endpoint(audio_path)
+        self.send(action=Action.PLAY_SPEECH, data=PlaySpeechResponse(bot_id=bot_id, audio_download_endpoint=audio_download_endpoint,
+                                                                     bot_display_name=bot_name,
+                                                                     transcript=transcript,
+                                                                     audio_type=audio_type,
+                                                                     sample_rate=sample_rate,
+                                                                     channels=num_channels,
+                                                                     duration=duration))
 
     def load_live2d_model(self, bot_id: str,
                           bot_display_name: str,
@@ -126,7 +133,7 @@ class PlaygroundBridge(ZerolanProtocolWsServer):
             bot_id=bot_id,
             bot_display_name=bot_display_name,
             model_dir=model_dir,
-            model_uri=model_download_endpoint
+            model_download_endpoint=model_download_endpoint
         ))
 
     def load_3d_model(self, file_info: FileInfo):
