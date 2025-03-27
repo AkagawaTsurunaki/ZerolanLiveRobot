@@ -102,10 +102,11 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
             logger.debug("`SpeechEvent` received.")
             speech, channels, sample_rate = event.speech, event.channels, event.sample_rate
             query = ASRStreamQuery(is_final=True, audio_data=speech, channels=channels, sample_rate=sample_rate)
-            prediction = self.asr.predict(query)
-            logger.info(f"ASR: {prediction.transcript}")
-            emitter.emit(ASREvent(prediction=prediction))
-            logger.debug("ASREvent emitted.")
+
+            for prediction in self.asr.stream_predict(query):
+                logger.info(f"ASR: {prediction.transcript}")
+                emitter.emit(ASREvent(prediction=prediction))
+                logger.debug("ASREvent emitted.")
 
         @emitter.on(EventKeyRegistry.Pipeline.ASR)
         def asr_handler(event: ASREvent):
