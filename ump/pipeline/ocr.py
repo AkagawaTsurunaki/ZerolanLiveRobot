@@ -10,9 +10,9 @@ from ump.abs_pipeline import AbstractImagePipeline, AbstractPipelineConfig
 
 class OCRPipelineConfig(AbstractPipelineConfig):
     model_id: str = Field(default="paddlepaddle/PaddleOCR", description="The ID of the model used for OCR.")
-    predict_url: str = Field(default="http://127.0.0.1:11000/img_cap/predict",
+    predict_url: str = Field(default="http://127.0.0.1:11000/ocr/predict",
                              description="The URL for OCR prediction requests.")
-    stream_predict_url: str = Field(default="http://127.0.0.1:11000/img-cap/stream-predict",
+    stream_predict_url: str = Field(default="http://127.0.0.1:11000/ocr/stream-predict",
                                     description="The URL for streaming OCR prediction requests.")
 
 

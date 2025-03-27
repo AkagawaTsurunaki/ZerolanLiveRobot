@@ -9,9 +9,9 @@ from ump.abs_pipeline import AbstractImagePipeline, AbstractPipelineConfig
 class ImgCapPipelineConfig(AbstractPipelineConfig):
     model_id: str = Field(default="Salesforce/blip-image-captioning-large",
                           description="The ID of the model used for image captioning.")
-    predict_url: str = Field(default="http://127.0.0.1:11000/llm/predict",
+    predict_url: str = Field(default="http://127.0.0.1:11000/img-cap/predict",
                              description="The URL for image captioning prediction requests.")
-    stream_predict_url: str = Field(default="http://127.0.0.1:11000/llm/stream-predict",
+    stream_predict_url: str = Field(default="http://127.0.0.1:11000/img-cap/stream-predict",
                                     description="The URL for streaming image captioning prediction requests.")
 
 
