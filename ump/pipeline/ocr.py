@@ -22,9 +22,11 @@ class OCRPipeline(AbstractImagePipeline):
         super().__init__(config)
 
     def predict(self, query: OCRQuery) -> OCRPrediction | None:
+        assert isinstance(query, OCRQuery)
         return super().predict(query)
 
-    def stream_predict(self, query: AbstractModelQuery, chunk_size: int | None = None):
+    def stream_predict(self, query: OCRQuery, chunk_size: int | None = None):
+        assert isinstance(query, OCRQuery)
         raise NotImplementedError()
 
     def parse_query(self, query: any) -> dict:

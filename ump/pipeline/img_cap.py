@@ -21,9 +21,11 @@ class ImgCapPipeline(AbstractImagePipeline):
         super().__init__(config)
 
     def predict(self, query: ImgCapQuery) -> ImgCapPrediction | None:
+        assert isinstance(query, ImgCapQuery)
         return super().predict(query)
 
-    def stream_predict(self, query: AbstractModelQuery, chunk_size: int | None = None):
+    def stream_predict(self, query: ImgCapQuery, chunk_size: int | None = None):
+        assert isinstance(query, ImgCapQuery)
         raise NotImplementedError()
 
     def parse_query(self, query: any) -> dict:

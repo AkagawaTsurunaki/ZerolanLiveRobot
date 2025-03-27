@@ -37,7 +37,9 @@ class MilvusPipeline(AbstractPipeline):
         self.search_url = config.search_url
 
     def insert(self, insert: MilvusInsert) -> MilvusInsertResult:
+        assert isinstance(insert, MilvusInsert)
         return _post(url=self.insert_url, obj=insert, return_type=MilvusInsertResult)
 
     def search(self, query: MilvusQuery) -> MilvusQueryResult:
+        assert isinstance(query, MilvusQuery)
         return _post(url=self.search_url, obj=query, return_type=MilvusQueryResult)

@@ -59,6 +59,7 @@ class LLMPipeline(CommonModelPipeline):
             self._remote_model = OpenAI(api_key=config.api_key, base_url=base_url)
 
     def predict(self, query: LLMQuery) -> LLMPrediction | None:
+        assert isinstance(query, LLMQuery)
         if self._is_openai_format:
             if self.model_id == "moonshot-v1-8k":
                 def wrapper_kimi(messages):
@@ -83,7 +84,8 @@ class LLMPipeline(CommonModelPipeline):
         else:
             return super().predict(query)
 
-    def stream_predict(self, query: AbstractModelQuery, chunk_size: int | None = None):
+    def stream_predict(self, query: LLMQuery, chunk_size: int | None = None):
+        assert isinstance(query, LLMQuery)
         # TODO: Kimi and Deepseek stream prediction.
         return super().stream_predict(query)
 

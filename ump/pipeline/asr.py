@@ -27,6 +27,7 @@ class ASRPipeline(CommonModelPipeline):
         super().__init__(config)
 
     def predict(self, query: ASRQuery) -> ASRPrediction | None:
+        assert isinstance(query, ASRQuery)
         files, data = self.parse_query(query)
         response = requests.post(url=self.predict_url, files=files, data=data)
 
@@ -36,6 +37,7 @@ class ASRPipeline(CommonModelPipeline):
 
     def stream_predict(self, query: ASRStreamQuery, chunk_size: int | None = None) -> Generator[
         ASRPrediction, None, None]:
+        assert isinstance(query, ASRStreamQuery)
         files, data = self.parse_query(query)
         response = requests.post(url=self.stream_predict_url, files=files, data=data)
         response.raise_for_status()

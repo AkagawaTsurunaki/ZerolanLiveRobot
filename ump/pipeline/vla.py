@@ -18,9 +18,11 @@ class ShowUIPipeline(AbstractImagePipeline):
         super().__init__(config)
 
     def predict(self, query: ShowUiQuery) -> ShowUiPrediction | None:
+        assert isinstance(query, ShowUiQuery)
         return super().predict(query)
 
     def stream_predict(self, query: ShowUiQuery, chunk_size: int | None = None):
+        assert isinstance(query, ShowUiQuery)
         raise NotImplementedError()
 
     def parse_query(self, query: any) -> dict:

@@ -27,10 +27,12 @@ class VidCapPipeline(CommonModelPipeline):
         super().__init__(config)
 
     def predict(self, query: VidCapQuery) -> VidCapPrediction | None:
+        assert isinstance(query, VidCapQuery)
         assert os.path.exists(query.vid_path), f"视频路径不存在：{query.vid_path}"
         return super().predict(query)
 
-    def stream_predict(self, query: AbstractModelQuery, chunk_size: int | None = None):
+    def stream_predict(self, query: VidCapQuery, chunk_size: int | None = None):
+        assert isinstance(query, VidCapQuery)
         raise NotImplementedError()
 
     def parse_prediction(self, response: Response) -> VidCapPrediction:

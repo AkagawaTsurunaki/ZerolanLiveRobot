@@ -24,6 +24,7 @@ class TTSPipeline(CommonModelPipeline):
         super().__init__(config)
 
     def predict(self, query: TTSQuery) -> TTSPrediction | None:
+        assert isinstance(query, TTSQuery)
         if os.path.exists(query.refer_wav_path):
             query.refer_wav_path = os.path.abspath(query.refer_wav_path).replace("\\", "/")
         query_dict = self.parse_query(query)
@@ -35,6 +36,7 @@ class TTSPipeline(CommonModelPipeline):
             response.raise_for_status()
 
     def stream_predict(self, query: TTSQuery, chunk_size: int | None = None):
+        assert isinstance(query, TTSQuery)
         if os.path.exists(query.refer_wav_path):
             query.refer_wav_path = os.path.abspath(query.refer_wav_path).replace("\\", "/")
         query_dict = self.parse_query(query)
