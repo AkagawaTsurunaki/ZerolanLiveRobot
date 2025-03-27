@@ -1,5 +1,4 @@
 import os
-from urllib.parse import urljoin
 
 from flask import Flask, abort, send_file
 from loguru import logger
@@ -7,9 +6,7 @@ from loguru import logger
 from common.abs_runnable import ThreadRunnable
 from common.config import get_config
 from common.utils.file_util import get_temp_data_dir
-from common.utils.web_util import get_local_ip
 
-# 定义资源类型
 RESOURCE_TYPES = {
     "audio": "audio",
     "image": "image",
