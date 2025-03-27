@@ -4,8 +4,8 @@ from enum import Enum
 from loguru import logger
 from zerolan.data.protocol.protocol import ZerolanProtocol
 
-from data import PlaySpeechRequest, LoadLive2DModelRequest, FileInfo, ScaleOperationRequest, CreateGameObjectRequest, \
-    GameObject, ShowUserTextInputRequest, ServerHello, AddChatHistory
+from data import FileInfo, ScaleOperationResponse, CreateGameObjectResponse, \
+    GameObject, ShowUserTextInputResponse, ServerHello, AddChatHistory
 from common.killable_thread import KillableThread
 from common.utils.audio_util import check_audio_format, check_audio_info
 from common.utils.collection_util import to_value_list
@@ -15,6 +15,7 @@ from common.web.zrl_ws import ZerolanProtocolWsServer
 from event.event_data import PlaygroundConnectedEvent, PlaygroundDisconnectedEvent
 from event.eventemitter import emitter
 from services.playground.config import PlaygroundBridgeConfig
+from services.playground.data import PlaySpeechResponse, LoadLive2DModelResponse
 from services.playground.grpc_server import GRPCServer
 from services.res_server import ResourceServer
 
@@ -72,7 +73,12 @@ class PlaygroundBridge(ZerolanProtocolWsServer):
     def _on_client_hello(self):
         logger.info(f"ZerolanPlayground client is found, prepare for connecting...")
         self.send(action=Action.SERVER_HELLO,
-                  data=ServerHello(server_ipv6=self.server_ipv6, server_ipv4=self.server_ipv4))
+                  data=ServerHello(server_domain=None,
+                                   server_ipv6=self.server_ipv6,
+                                   server_ipv4=self.server_ipv4,
+                                   server_ws_port=...,
+                                   server_grpc_port=...,
+                                   server_res_port=...))
         emitter.emit(PlaygroundConnectedEvent())
         logger.info(f"`PlaygroundConnectedEvent` event emitted.")
 
@@ -95,7 +101,7 @@ class PlaygroundBridge(ZerolanProtocolWsServer):
         audio_type = check_audio_format(audio_path)
         sample_rate, num_channels, duration = check_audio_info(audio_path)
         audio_uri = self.res_server.get_resource_endpoint(audio_path)
-        self.send(action=Action.PLAY_SPEECH, data=PlaySpeechRequest(bot_id=bot_id, audio_uri=audio_uri,
+        self.send(action=Action.PLAY_SPEECH, data=PlaySpeechResponse(bot_id=bot_id, audio_uri=audio_uri,
                                                                     bot_display_name=bot_name,
                                                                     transcript=transcript,
                                                                     audio_type=audio_type,
@@ -116,7 +122,7 @@ class PlaygroundBridge(ZerolanProtocolWsServer):
         zip_path = create_temp_file("live2d", ".zip", "model")
         compress_directory(model_dir, zip_path)
         model_download_endpoint = self.res_server.get_resource_endpoint(zip_path)
-        self.send(action=Action.LOAD_LIVE2D_MODEL, data=LoadLive2DModelRequest(
+        self.send(action=Action.LOAD_LIVE2D_MODEL, data=LoadLive2DModelResponse(
             bot_id=bot_id,
             bot_display_name=bot_display_name,
             model_dir=model_dir,
@@ -131,14 +137,14 @@ class PlaygroundBridge(ZerolanProtocolWsServer):
         self.send(action=Action.LOAD_3D_MODEL,
                   data=file_info, message="Load 3D model")
 
-    def modify_game_object_scale(self, dto: ScaleOperationRequest):
+    def modify_game_object_scale(self, dto: ScaleOperationResponse):
         """
         Modify the scale of a specific GameObject in the playground.
         :param dto: ScaleOperationDTO
         """
         self.send(action=Action.MODIFY_GAMEOBJECT_SCALE, data=dto)
 
-    def create_gameobject(self, dto: CreateGameObjectRequest):
+    def create_gameobject(self, dto: CreateGameObjectResponse):
         """
         Create a built-in GameObject in the playground.
         :param dto: CreateGameObjectDTO
@@ -161,7 +167,7 @@ class PlaygroundBridge(ZerolanProtocolWsServer):
         return to_value_list(self.gameobjects_info)
 
     def show_user_input_text(self, text: str):
-        self.send(action=Action.SHOW_USER_TEXT_INPUT, data=ShowUserTextInputRequest(text=text))
+        self.send(action=Action.SHOW_USER_TEXT_INPUT, data=ShowUserTextInputResponse(text=text))
 
     def add_history(self, username: str, role: str, text: str):
         self.send(action=Action.ADD_HISTORY, data=AddChatHistory(role=role, text=text, username=username))

@@ -1,7 +1,11 @@
 """
 API documents will be generated from here.
-"""
 
+We define that:
+    Request is the data object send from client to server.
+    Response is the data object send from server to client.
+This is not defined by who is the sender or who is the receiver, please note.
+"""
 from enum import Enum
 
 from pydantic import BaseModel, Field
@@ -9,7 +13,7 @@ from pydantic import BaseModel, Field
 from common.utils.enum_util import enum_members_to_list
 
 
-class PlaySpeechRequest(BaseModel):
+class PlaySpeechResponse(BaseModel):
     bot_id: str = Field(description="The unique identifier of the bot.")
     bot_display_name: str = Field(description="The display name of the bot.")
     audio_download_endpoint: str = Field(description="The endpoint of the audio file to be played. \n"
@@ -22,7 +26,7 @@ class PlaySpeechRequest(BaseModel):
     duration: float = Field(description="The duration of the audio in seconds.")
 
 
-class LoadLive2DModelRequest(BaseModel):
+class LoadLive2DModelResponse(BaseModel):
     bot_id: str = Field(description="The unique identifier of the bot.")
     bot_display_name: str = Field(description="The display name of the bot.")
     model_download_endpoint: str = Field(description="The endpoint of the Live2D model file. \n"
@@ -38,12 +42,12 @@ class FileType(str, Enum):
 
 
 class FileInfo(BaseModel):
-    file_id: str
-    uri: str
-    file_type: FileType
-    origin_file_name: str
-    file_name: str
-    file_size: int  # Bytes
+    file_id: str = Field(description="The unique identifier of the file.")
+    uri: str = Field(description="The URI of the file.")
+    file_type: FileType = Field(description="The type of the file (e.g., image, video, audio, document).")
+    origin_file_name: str = Field(description="The original name of the file when it was uploaded.")
+    file_name: str = Field(description="The current name of the file after processing or storage.")
+    file_size: int = Field(description="The size of the file in bytes.")
 
 
 class Position(BaseModel):
@@ -58,14 +62,14 @@ class Transform(BaseModel):
 
 
 class GameObject(BaseModel):
-    instance_id: int
-    game_object_name: str
-    transform: Transform
+    instance_id: int = Field(description="The unique identifier of the game object instance.")
+    game_object_name: str = Field(description="The name of the game object.")
+    transform: Transform = Field(description="The transformation data (position, rotation, scale) of the game object.")
 
 
-class ScaleOperationRequest(BaseModel):
-    instance_id: int
-    target_scale: float
+class ScaleOperationResponse(BaseModel):
+    instance_id: int = Field(description="The unique identifier of the game object instance that was scaled.")
+    target_scale: float = Field(description="The target scale value applied to the game object.")
 
 
 class BuiltinGameObjectType(str, Enum):
@@ -73,7 +77,7 @@ class BuiltinGameObjectType(str, Enum):
     SPHERE = "sphere"
 
 
-class CreateGameObjectRequest(BaseModel):
+class CreateGameObjectResponse(BaseModel):
     instance_id: int = Field(description="The id of the gameobject instance")
     game_object_name: str = Field(description="The name of the gameobject")
     object_type: BuiltinGameObjectType = Field(
@@ -82,11 +86,12 @@ class CreateGameObjectRequest(BaseModel):
     transform: Transform = Field(description="The transform of the gameobject")
 
 
-class ShowUserTextInputRequest(BaseModel):
+class ShowUserTextInputResponse(BaseModel):
     text: str = Field(description="The text input (transcript from ASR) from the user that needs to be shown.")
 
 
 class ServerHello(BaseModel):
+    server_domain: str | None = Field(description="The domain name of the ZerolanPlayground WebSocket server.")
     server_ipv6: str = Field(description="The IPv6 address of the ZerolanPlayground WebSocket server.")
     server_ipv4: str = Field(description="The IPv4 address of the ZerolanPlayground WebSocket server.")
     server_ws_port: int = Field(description="The port number of the ZerolanPlayground WebSocket server.")
