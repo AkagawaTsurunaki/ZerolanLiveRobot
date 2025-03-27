@@ -16,7 +16,7 @@ from zerolan.data.pipeline.ocr import RegionResult
 
 from agent.adaptor import LangChainAdaptedLLM
 from common.config import get_config
-from services.playground.data import GameObjectInfo, ScaleOperationDTO
+from services.playground.data import GameObject, ScaleOperationRequest
 from common.decorator import log_run_time
 from common.enumerator import Language
 from common.utils.json_util import smart_load_json_like
@@ -174,7 +174,7 @@ def summary_history(history: List[Conversation]) -> AIMessage:
 
 
 @log_run_time()
-def model_scale(info: List[GameObjectInfo], question: str) -> ScaleOperationDTO | None:
+def model_scale(info: List[GameObject], question: str) -> ScaleOperationRequest | None:
     config = get_config()
     model = LangChainAdaptedLLM(config=config.pipeline.llm)
     format = {
@@ -193,4 +193,4 @@ def model_scale(info: List[GameObjectInfo], question: str) -> ScaleOperationDTO 
     result.to_messages()
     response = model.invoke(result)
     json = smart_load_json_like(response.content)
-    return ScaleOperationDTO.model_validate(json)
+    return ScaleOperationRequest.model_validate(json)

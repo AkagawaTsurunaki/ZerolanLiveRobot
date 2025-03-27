@@ -5,12 +5,12 @@ from injector import inject
 from langchain_core.tools import BaseTool
 from pydantic import BaseModel, Field
 
-from services.playground.data import CreateGameObjectDTO
+from services.playground.data import CreateGameObjectRequest
 from services.playground.bridge import PlaygroundBridge
 
 
 class GameObjectCreatorInput(BaseModel):
-    dto: CreateGameObjectDTO = Field(description="DTO of the game object will be created")
+    dto: CreateGameObjectRequest = Field(description="DTO of the game object will be created")
 
 
 class GameObjectCreator(BaseTool):
@@ -24,9 +24,9 @@ class GameObjectCreator(BaseTool):
         super().__init__()
         self._bridge = bridge
 
-    def _run(self, dto: CreateGameObjectDTO) -> Any:
+    def _run(self, dto: CreateGameObjectRequest) -> Any:
         task = [asyncio.create_task(self._arun(dto))]
         asyncio.gather(*task)
 
-    async def _arun(self, dto: CreateGameObjectDTO) -> None:
+    async def _arun(self, dto: CreateGameObjectRequest) -> None:
         await self._bridge.create_gameobject(dto)

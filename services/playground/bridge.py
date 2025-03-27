@@ -4,8 +4,8 @@ from enum import Enum
 from loguru import logger
 from zerolan.data.protocol.protocol import ZerolanProtocol
 
-from data import PlaySpeechDTO, LoadLive2DModelDTO, FileInfo, ScaleOperationDTO, CreateGameObjectDTO, \
-    GameObjectInfo, ShowUserTextInputDTO, ServerHello, AddHistoryDTO
+from data import PlaySpeechRequest, LoadLive2DModelRequest, FileInfo, ScaleOperationRequest, CreateGameObjectRequest, \
+    GameObject, ShowUserTextInputRequest, ServerHello, AddChatHistory
 from common.killable_thread import KillableThread
 from common.utils.audio_util import check_audio_format, check_audio_info
 from common.utils.collection_util import to_value_list
@@ -80,7 +80,7 @@ class PlaygroundBridge(ZerolanProtocolWsServer):
         assert isinstance(data, list)
         self.gameobjects_info.clear()
         for info in data:
-            go_info = GameObjectInfo.model_validate(info)
+            go_info = GameObject.model_validate(info)
             self.gameobjects_info[go_info.instance_id] = go_info
         logger.debug("Local gameobjects cache is updated")
 
@@ -95,13 +95,13 @@ class PlaygroundBridge(ZerolanProtocolWsServer):
         audio_type = check_audio_format(audio_path)
         sample_rate, num_channels, duration = check_audio_info(audio_path)
         audio_uri = self.res_server.get_resource_endpoint(audio_path)
-        self.send(action=Action.PLAY_SPEECH, data=PlaySpeechDTO(bot_id=bot_id, audio_uri=audio_uri,
-                                                                bot_display_name=bot_name,
-                                                                transcript=transcript,
-                                                                audio_type=audio_type,
-                                                                sample_rate=sample_rate,
-                                                                channels=num_channels,
-                                                                duration=duration))
+        self.send(action=Action.PLAY_SPEECH, data=PlaySpeechRequest(bot_id=bot_id, audio_uri=audio_uri,
+                                                                    bot_display_name=bot_name,
+                                                                    transcript=transcript,
+                                                                    audio_type=audio_type,
+                                                                    sample_rate=sample_rate,
+                                                                    channels=num_channels,
+                                                                    duration=duration))
 
     def load_live2d_model(self, bot_id: str,
                           bot_display_name: str,
@@ -115,12 +115,12 @@ class PlaygroundBridge(ZerolanProtocolWsServer):
         assert os.path.exists(model_dir) and os.path.isdir(model_dir), f"{model_dir} is not a directory"
         zip_path = create_temp_file("live2d", ".zip", "model")
         compress_directory(model_dir, zip_path)
-        model_uri = self.res_server.get_resource_endpoint(zip_path)
-        self.send(action=Action.LOAD_LIVE2D_MODEL, data=LoadLive2DModelDTO(
+        model_download_endpoint = self.res_server.get_resource_endpoint(zip_path)
+        self.send(action=Action.LOAD_LIVE2D_MODEL, data=LoadLive2DModelRequest(
             bot_id=bot_id,
             bot_display_name=bot_display_name,
             model_dir=model_dir,
-            model_uri=model_uri
+            model_uri=model_download_endpoint
         ))
 
     def load_3d_model(self, file_info: FileInfo):
@@ -131,14 +131,14 @@ class PlaygroundBridge(ZerolanProtocolWsServer):
         self.send(action=Action.LOAD_3D_MODEL,
                   data=file_info, message="Load 3D model")
 
-    def modify_game_object_scale(self, dto: ScaleOperationDTO):
+    def modify_game_object_scale(self, dto: ScaleOperationRequest):
         """
         Modify the scale of a specific GameObject in the playground.
         :param dto: ScaleOperationDTO
         """
         self.send(action=Action.MODIFY_GAMEOBJECT_SCALE, data=dto)
 
-    def create_gameobject(self, dto: CreateGameObjectDTO):
+    def create_gameobject(self, dto: CreateGameObjectRequest):
         """
         Create a built-in GameObject in the playground.
         :param dto: CreateGameObjectDTO
@@ -153,7 +153,7 @@ class PlaygroundBridge(ZerolanProtocolWsServer):
         """
         self.send(action=Action.QUERY_GAMEOBJECTS_INFO, data=None)
 
-    def get_gameobjects_info(self) -> list[GameObjectInfo]:
+    def get_gameobjects_info(self) -> list[GameObject]:
         """
         Get a list of the gameobjects info from the local cache.
         :return:
@@ -161,7 +161,7 @@ class PlaygroundBridge(ZerolanProtocolWsServer):
         return to_value_list(self.gameobjects_info)
 
     def show_user_input_text(self, text: str):
-        self.send(action=Action.SHOW_USER_TEXT_INPUT, data=ShowUserTextInputDTO(text=text))
+        self.send(action=Action.SHOW_USER_TEXT_INPUT, data=ShowUserTextInputRequest(text=text))
 
     def add_history(self, username: str, role: str, text: str):
-        self.send(action=Action.ADD_HISTORY, data=AddHistoryDTO(role=role, text=text, username=username))
+        self.send(action=Action.ADD_HISTORY, data=AddChatHistory(role=role, text=text, username=username))
