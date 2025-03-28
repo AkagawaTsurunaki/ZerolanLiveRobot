@@ -65,8 +65,6 @@ class PlaygroundBridge(ZerolanProtocolWsServer):
         local_ip = get_local_ip(True)
         server_hello = ServerHello(ws_domain_or_ip=local_ip,
                                    ws_port=_config.service.playground.port,
-                                   grpc_domain_or_ip=local_ip,
-                                   grpc_port=_config.service.playground.grpc_server.port,
                                    res_domain_or_ip=local_ip,
                                    res_port=_config.service.res_server.port)
         logger.debug(server_hello.model_dump_json())
