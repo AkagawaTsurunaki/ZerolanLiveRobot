@@ -59,6 +59,7 @@ class ImgCapEvent(BaseEvent):
 @dataclass
 class SpeechEvent(BaseEvent):
     speech: bytes
+    audio_type: str
     channels: int
     sample_rate: int
     type: str = EventKeyRegistry.Device.SERVICE_VAD_SPEECH_CHUNK
