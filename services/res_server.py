@@ -1,11 +1,15 @@
 import os
 
-from flask import Flask, abort, send_file
+from flask import Flask, abort, send_file, request
 from loguru import logger
+from openai import BaseModel
 
 from common.abs_runnable import ThreadRunnable
 from common.config import get_config
-from common.utils.file_util import get_temp_data_dir
+from common.utils.audio_util import check_audio_format
+from common.utils.file_util import get_temp_data_dir, create_temp_file
+from event.event_data import ScreenCapturedEvent, SpeechEvent
+from event.eventemitter import emitter
 
 RESOURCE_TYPES = {
     "audio": "audio",
@@ -15,6 +19,17 @@ RESOURCE_TYPES = {
 }
 
 _config = get_config()
+
+
+class HTTPResponseBody(BaseModel):
+    code: int = 0  # 0 means successful operation
+    message: str
+    data: any = None
+
+
+class _AudioMetadata(BaseModel):
+    channels: int
+    sample_rate: int
 
 
 class ResourceServer(ThreadRunnable):
@@ -50,6 +65,68 @@ class ResourceServer(ThreadRunnable):
                 abort(404, description="File not found")
 
             return send_file(file_path)
+
+        @self.app.route("/playground/camera", methods=["POST"])
+        def camera_send():
+            try:
+                logger.info("Get camera image from client.")
+                file = request.files.get("image", None)
+                image_type = None
+                if file.content_type == "image/png":
+                    image_type = 'png'
+                elif file.content_type == "image/jpeg":
+                    image_type = 'jpeg'
+                elif file.content_type == "image/jpg":
+                    image_type = 'jpg'
+
+                img_path = create_temp_file(prefix="imgcap", suffix=f".{image_type}", tmpdir="image")
+                file.save(img_path)
+                file.close()
+
+                emitter.emit(ScreenCapturedEvent(img_path=img_path, is_camera=True))
+                return HTTPResponseBody(message="OK").model_dump()
+            except Exception as e:
+                logger.exception(e)
+                return HTTPResponseBody(message="Failed to receive your image data.", code=1).model_dump()
+
+        @self.app.route("/playground/microphone", methods=["POST"])
+        def microphone_send():
+            # channels: int
+            # sample_rate: int
+            # audio: bytes
+            try:
+                logger.info("Get microphone audio from client.")
+
+                # Decode from JSON binary data to get metadata about audio file
+                audio_metadata = request.files.get("metadata", None)
+                assert audio_metadata is not None, "Invalid audio metadata"
+                audio_metadata = audio_metadata.stream.read()
+                audio_metadata = audio_metadata.decode("utf-8")
+                audio_metadata = _AudioMetadata.model_validate_json(audio_metadata)
+
+                # Read data from audio file
+                file = request.files.get("audio", None)
+                audio_data = file.stream.read()
+
+                # Check audio data type
+                if file.content_type == "audio/mp3":
+                    audio_type = 'mp3'
+                elif file.content_type == "audio/wav":
+                    audio_type = 'wav'
+                elif file.content_type == "audio/ogg":
+                    audio_type = 'ogg'
+                else:
+                    audio_type = check_audio_format(audio_data)
+
+                emitter.emit(SpeechEvent(speech=audio_data,
+                                         channels=audio_metadata.channels,
+                                         sample_rate=audio_metadata.sample_rate,
+                                         audio_type=audio_type))
+
+                return HTTPResponseBody(message="OK").model_dump()
+            except Exception as e:
+                logger.exception(e)
+                return HTTPResponseBody(message="Failed to receive your audio data.", code=1).model_dump()
 
     def start(self):
         super().start()
