@@ -5,19 +5,17 @@ from loguru import logger
 from zerolan.data.protocol.protocol import ZerolanProtocol
 
 from common.config import get_config
-from common.killable_thread import KillableThread
 from common.utils.audio_util import check_audio_format, check_audio_info
 from common.utils.collection_util import to_value_list
 from common.utils.file_util import create_temp_file, compress_directory
 from common.utils.web_util import get_local_ip
 from common.web.zrl_ws import ZerolanProtocolWsServer
-from services.playground.data import FileInfo, ScaleOperationResponse, CreateGameObjectResponse, \
-    GameObject, ShowUserTextInputResponse, ServerHello, AddChatHistory
 from event.event_data import PlaygroundConnectedEvent, PlaygroundDisconnectedEvent
 from event.eventemitter import emitter
 from services.playground.config import PlaygroundBridgeConfig
+from services.playground.data import FileInfo, ScaleOperationResponse, CreateGameObjectResponse, \
+    GameObject, ShowUserTextInputResponse, ServerHello, AddChatHistory
 from services.playground.data import PlaySpeechResponse, LoadLive2DModelResponse
-from services.playground.grpc_server import GRPCServer
 from services.res_server import ResourceServer
 
 
@@ -47,19 +45,7 @@ class PlaygroundBridge(ZerolanProtocolWsServer):
         super().__init__(host=config.host, port=config.port)
         self.gameobjects_info = {}
         self.res_server = res_server
-        self._grpc_server = GRPCServer(config.grpc_server.host, config.grpc_server.port)
-        self._grpc_server_thread: KillableThread | None = None
         self.server_ipv6, self.server_ipv4 = get_local_ip(True), get_local_ip()
-
-    def start(self):
-        self._grpc_server_thread = KillableThread(target=self._grpc_server.start, daemon=True)
-        self._grpc_server_thread.start()
-        super().start()
-        self._grpc_server_thread.join()
-
-    def stop(self):
-        super().stop()
-        self._grpc_server_thread.kill()
 
     def name(self):
         return "PlaygroundBridge"
