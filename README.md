@@ -93,15 +93,7 @@ pip install git+https://github.com/AkagawaTsurunaki/zerolan-data.git@dev
 
 ### 启动本项目
 
-启动之前需要运行 build.py 文件生成 gRPC 代码，这一步也是为了测试您的环境是否配置正确且依赖是否正确安装了。请先执行：
-
-```shell
-python build.py
-```
-
-看到 `Done.` 字样即完成构建。
-
-接着，使用以下命令运行 Zerolan Live Robot 的主程序：
+使用以下命令运行 Zerolan Live Robot 的主程序：
 
 ```shell
 python main.py
