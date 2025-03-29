@@ -1,10 +1,14 @@
 import asyncio
 import os
 
+from loguru import logger
+
 from agent.custom_agent import CustomAgent
 from agent.tool_agent import ToolAgent
 from common.config import get_config
 from common.killable_thread import KillableThread
+from common.utils.audio_util import save_tmp_audio
+from event.event_data import TTSEvent
 from event.eventemitter import emitter
 from event.speech_emitter import SpeechEmitter
 from manager.llm_prompt_manager import LLMPromptManager
@@ -152,3 +156,14 @@ class ZerolanLiveRobotContext:
 
         for thread in threads:
             thread.join()
+
+    def play_tts(self, event: TTSEvent):
+        prediction = event.prediction
+        if self.playground.is_connected:
+            audio_path = save_tmp_audio(prediction.wave_data)
+            self.playground.play_speech(bot_id=self.bot_id, audio_path=audio_path,
+                                        transcript=event.transcript, bot_name=self.bot_name)
+            logger.debug("Remote speaker enqueue speech data")
+        else:
+            self.speaker.enqueue_sound(prediction.wave_data)
+            logger.debug("Local speaker enqueue speech data")

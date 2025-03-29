@@ -14,7 +14,6 @@ from common.abs_runnable import stop_all_runnable
 from common.asyncio_util import sync_wait
 from common.enumerator import Language
 from common.killable_thread import kill_all_threads
-from common.utils.audio_util import save_tmp_audio
 from common.utils.img_util import is_image_uniform
 from common.utils.str_util import split_by_punc
 from context import ZerolanLiveRobotContext
@@ -31,6 +30,7 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
         super().__init__()
         self.cur_lang = Language.ZH
         self.tts_prompt_manager.set_lang(self.cur_lang)
+        self.init()
 
     def init(self):
         @emitter.on(EventKeyRegistry.Playground.PLAYGROUND_CONNECTED)
@@ -202,17 +202,6 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
                 prediction = self.tts.predict(query=query)
                 logger.info(f"TTS: {query.text}")
                 self.play_tts(TTSEvent(prediction=prediction, transcript=transcript))
-
-    def play_tts(self, event: TTSEvent):
-        prediction = event.prediction
-        if self.playground.is_connected:
-            audio_path = save_tmp_audio(prediction.wave_data)
-            self.playground.play_speech(bot_id=self.bot_id, audio_path=audio_path,
-                                        transcript=event.transcript, bot_name=self.bot_name)
-            logger.debug("Remote speaker enqueue speech data")
-        else:
-            self.speaker.enqueue_sound(prediction.wave_data)
-            logger.debug("Local speaker enqueue speech data")
 
     def emit_llm_prediction(self, text, direct_return: bool = False) -> None | LLMPrediction:
         logger.debug("`emit_llm_prediction` called")
