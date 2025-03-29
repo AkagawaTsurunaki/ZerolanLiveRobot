@@ -12,7 +12,7 @@ from common.utils.file_util import spath
 
 class TTSPromptManager:
     def __init__(self, config: SpeechConfig):
-        self.default_tts_prompt: TTSPrompt
+        self.default_tts_prompt: TTSPrompt | None = None
         self.tts_prompts: List[TTSPrompt] = []
         self.sentiments: List[str] = []
         self._lang = Language.ZH
