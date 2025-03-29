@@ -1,7 +1,8 @@
 import os
-from typing import Dict, Any
+from typing import Dict, Any, Generator
 
 import aiohttp
+from aiohttp import ClientResponse
 from typeguard import typechecked
 from zerolan.data.pipeline.abs_data import AbsractImageModelQuery
 
@@ -42,3 +43,12 @@ def _parse_imgcap_query(query: AbsractImageModelQuery) -> Dict[str, Any]:
     # Note: If the remote host does not have this file neither, raise 500 error!
     else:
         return query.model_dump()
+
+
+@typechecked
+async def stream_generator(response: ClientResponse, chunk_size: int = -1) -> Generator[bytes, None, None]:
+    while True:
+        chunk = await response.content.read(chunk_size)
+        if not chunk:
+            break
+        yield chunk

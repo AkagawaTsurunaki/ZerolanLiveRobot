@@ -1,12 +1,11 @@
 import os
 from typing import Dict, BinaryIO, Literal, Generator
 
-from aiohttp import ClientResponse
 from typeguard import typechecked
 from zerolan.data.pipeline.abs_data import AbstractModelQuery
 from zerolan.data.pipeline.asr import ASRQuery, ASRPrediction, ASRStreamQuery
 
-from ump.asyncio.pipeline.base import BaseAsyncPipeline
+from ump.asyncio.pipeline.base import BaseAsyncPipeline, stream_generator
 
 
 @typechecked
@@ -40,15 +39,6 @@ def _parse_asr_stream_query(query: ASRStreamQuery) -> Dict[str, BinaryIO | str]:
     data = {"json": stub_query.model_dump_json(), "audio": query.audio_data}
 
     return data
-
-
-@typechecked
-async def stream_generator(response: ClientResponse, chunk_size: int = -1) -> Generator[bytes, None, None]:
-    while True:
-        chunk = await response.content.read(chunk_size)
-        if not chunk:
-            break
-        yield chunk
 
 
 ModelID = Literal['iic/speech_paraformer_asr_nat-zh-cn-16k-common-vocab8358-tensorflow1',
