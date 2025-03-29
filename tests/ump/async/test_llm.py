@@ -1,10 +1,10 @@
 import pytest
 from zerolan.data.pipeline.llm import LLMQuery, Conversation, RoleEnum
 
+from private import base_url
 from ump.asyncio.pipeline.llm import LLMPipeline
 
-base_url = ""
-_llm = LLMPipeline(model_id="glm4", base_url=base_url)
+_llm = LLMPipeline(model_id="THUDM/GLM-4", base_url=base_url)
 
 
 @pytest.mark.asyncio
