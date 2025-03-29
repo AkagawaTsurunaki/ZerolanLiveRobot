@@ -1,25 +1,10 @@
 from openai import OpenAI
-from pydantic import Field
 from requests import Response
-from zerolan.data.pipeline.abs_data import AbstractModelQuery
 from zerolan.data.pipeline.llm import LLMQuery, LLMPrediction, RoleEnum, Conversation
 
-from ump.abs_pipeline import CommonModelPipeline, AbstractPipelineConfig
+from ump.abs_pipeline import CommonModelPipeline
+from ump.config import LLMPipelineConfig
 
-
-class LLMPipelineConfig(AbstractPipelineConfig):
-    api_key: str | None = Field(default=None, description="The API key for accessing the LLM service.　\n"
-                                                          "Kimi API supported: \n"
-                                                          "Reference: https://platform.moonshot.cn/docs/guide/start-using-kimi-api \n"
-                                                          "Deepseek API supported: \n"
-                                                          "Reference: https://api-docs.deepseek.com/zh-cn/")
-    openai_format: bool = Field(default=False, description="Whether the output format is compatible with OpenAI. \n"
-                                                           "Note: When you use Kimi API or Deepseek API, please set it `true`.")
-    model_id: str = Field(default="", description="The ID of the model used for LLM.")
-    predict_url: str = Field(default="http://127.0.0.1:11000/llm/predict",
-                             description="The URL for LLM prediction requests.")
-    stream_predict_url: str = Field(default="http://127.0.0.1:11000/llm/stream-predict",
-                                    description="The URL for streaming LLM prediction requests.")
 
 def _to_openai_format(query: LLMQuery):
     messages = []

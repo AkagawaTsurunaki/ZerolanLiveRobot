@@ -1,13 +1,28 @@
 from pydantic import BaseModel, Field
 
+from ump.abs_pipeline import AbstractPipelineConfig
 from ump.pipeline.asr import ASRPipelineConfig
 from ump.pipeline.database import MilvusDatabaseConfig
 from ump.pipeline.img_cap import ImgCapPipelineConfig
-from ump.pipeline.llm import LLMPipelineConfig
 from ump.pipeline.ocr import OCRPipelineConfig
 from ump.pipeline.tts import TTSPipelineConfig
 from ump.pipeline.vid_cap import VidCapPipelineConfig
 from ump.pipeline.vla import ShowUIConfig
+
+
+class LLMPipelineConfig(AbstractPipelineConfig):
+    api_key: str | None = Field(default=None, description="The API key for accessing the LLM service.　\n"
+                                                          "Kimi API supported: \n"
+                                                          "Reference: https://platform.moonshot.cn/docs/guide/start-using-kimi-api \n"
+                                                          "Deepseek API supported: \n"
+                                                          "Reference: https://api-docs.deepseek.com/zh-cn/")
+    openai_format: bool = Field(default=False, description="Whether the output format is compatible with OpenAI. \n"
+                                                           "Note: When you use Kimi API or Deepseek API, please set it `true`.")
+    model_id: str = Field(default="", description="The ID of the model used for LLM.")
+    predict_url: str = Field(default="http://127.0.0.1:11000/llm/predict",
+                             description="The URL for LLM prediction requests.")
+    stream_predict_url: str = Field(default="http://127.0.0.1:11000/llm/stream-predict",
+                                    description="The URL for streaming LLM prediction requests.")
 
 
 class VLAPipelineConfig(BaseModel):

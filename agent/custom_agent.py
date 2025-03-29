@@ -12,7 +12,7 @@ from agent.tool.microphone_tool import MicrophoneTool
 from agent.tool.web_search import BaiduBaikeTool, MoeGirlTool
 from agent.tool_agent import ToolAgent
 from services.playground.bridge import PlaygroundBridge
-from ump.pipeline.llm import LLMPipelineConfig
+from ump.config import LLMPipelineConfig
 
 
 class CustomAgent:
