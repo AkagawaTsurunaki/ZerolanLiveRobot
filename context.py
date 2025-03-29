@@ -1,17 +1,11 @@
+import asyncio
 import os
-
-from ump.pipeline.asr import ASRPipeline
-from ump.pipeline.database import MilvusPipeline
-from ump.pipeline.img_cap import ImgCapPipeline
-from ump.pipeline.llm import LLMPipeline
-from ump.pipeline.ocr import OCRPipeline
-from ump.pipeline.tts import TTSPipeline
-from ump.pipeline.vid_cap import VidCapPipeline
-from ump.pipeline.vla import ShowUIPipeline
 
 from agent.custom_agent import CustomAgent
 from agent.tool_agent import ToolAgent
 from common.config import get_config
+from common.killable_thread import KillableThread
+from event.eventemitter import emitter
 from event.speech_emitter import SpeechEmitter
 from manager.llm_prompt_manager import LLMPromptManager
 from manager.model_manager import ModelManager
@@ -26,8 +20,16 @@ from services.live_stream.service import LiveStreamService
 from services.playground.bridge import PlaygroundBridge
 from services.qqbot.bridge import QQBotBridge
 from services.res_server import ResourceServer
+from ump.pipeline.asr import ASRPipeline
+from ump.pipeline.database import MilvusPipeline
+from ump.pipeline.img_cap import ImgCapPipeline
+from ump.pipeline.llm import LLMPipeline
+from ump.pipeline.ocr import OCRPipeline
+from ump.pipeline.tts import TTSPipeline
+from ump.pipeline.vid_cap import VidCapPipeline
+from ump.pipeline.vla import ShowUIPipeline
 
-config = get_config()
+_config = get_config()
 
 
 class ZerolanLiveRobotContext:
@@ -74,51 +76,79 @@ class ZerolanLiveRobotContext:
         self.res_server: ResourceServer | None = None
 
         self.temp_data_manager: TempDataManager = TempDataManager()
-        self._init()
 
-    def _init(self):
-        assert config.pipeline.llm.enable, f"At least LLMPipeline must be enabled in your config."
-        self.llm = LLMPipeline(config.pipeline.llm)
-        self.filter = FirstMatchedFilter(config.character.chat.filter.bad_words)
-        self.llm_prompt_manager = LLMPromptManager(config.character.chat)
+        assert _config.pipeline.llm.enable, f"At least LLMPipeline must be enabled in your config."
+        self.llm = LLMPipeline(_config.pipeline.llm)
+        self.filter = FirstMatchedFilter(_config.character.chat.filter.bad_words)
+        self.llm_prompt_manager = LLMPromptManager(_config.character.chat)
         self.speaker = Speaker()
         self.temp_data_manager.create_temp_dir()
-        self.bot_name = config.character.bot_name
-        self.res_server = ResourceServer(config.service.res_server.host, config.service.res_server.port)
+        self.bot_name = _config.character.bot_name
+        self.res_server = ResourceServer(_config.service.res_server.host, _config.service.res_server.port)
 
-        if config.pipeline.asr.enable:
-            self.asr = ASRPipeline(config.pipeline.asr)
-        if config.pipeline.ocr.enable:
-            self.ocr = OCRPipeline(config.pipeline.ocr)
-        if config.pipeline.tts.enable:
-            self.tts_prompt_manager = TTSPromptManager(config.character.speech)
-            self.tts = TTSPipeline(config.pipeline.tts)
-        if config.pipeline.img_cap.enable:
-            self.img_cap = ImgCapPipeline(config.pipeline.img_cap)
-        if config.pipeline.vid_cap.enable:
-            self.vid_cap = VidCapPipeline(config.pipeline.vid_cap)
-        if config.pipeline.vla.enable:
-            if config.pipeline.vla.showui.enable:
-                self.showui = ShowUIPipeline(config.pipeline.vla.showui)
-        if config.service.browser.enable:
-            self.browser = Browser(config.external_tool.browser)
-        if config.service.game.enable:
-            if config.service.game.platform == "minecraft":
-                self.game_agent = KonekoMinecraftAIAgent(config.service.game, self.tool_agent)
-        if config.service.live_stream.enable:
-            self.live_stream = LiveStreamService(config.service.live_stream)
-        if config.pipeline.vec_db.enable:
-            self.vec_db = MilvusPipeline(config.pipeline.vec_db.milvus)
-        if config.service.playground.enable:
+        if _config.pipeline.asr.enable:
+            self.asr = ASRPipeline(_config.pipeline.asr)
+        if _config.pipeline.ocr.enable:
+            self.ocr = OCRPipeline(_config.pipeline.ocr)
+        if _config.pipeline.tts.enable:
+            self.tts_prompt_manager = TTSPromptManager(_config.character.speech)
+            self.tts = TTSPipeline(_config.pipeline.tts)
+        if _config.pipeline.img_cap.enable:
+            self.img_cap = ImgCapPipeline(_config.pipeline.img_cap)
+        if _config.pipeline.vid_cap.enable:
+            self.vid_cap = VidCapPipeline(_config.pipeline.vid_cap)
+        if _config.pipeline.vla.enable:
+            if _config.pipeline.vla.showui.enable:
+                self.showui = ShowUIPipeline(_config.pipeline.vla.showui)
+        if _config.service.browser.enable:
+            self.browser = Browser(_config.external_tool.browser)
+        if _config.service.game.enable:
+            if _config.service.game.platform == "minecraft":
+                self.game_agent = KonekoMinecraftAIAgent(_config.service.game, self.tool_agent)
+        if _config.service.live_stream.enable:
+            self.live_stream = LiveStreamService(_config.service.live_stream)
+        if _config.pipeline.vec_db.enable:
+            self.vec_db = MilvusPipeline(_config.pipeline.vec_db.milvus)
+        if _config.service.playground.enable:
             self.model_manager = ModelManager()
-            self.bot_id = config.service.playground.bot_id
-            self.live2d_model = config.service.playground.model_dir
-            self.custom_agent = CustomAgent(config=config.pipeline.llm)
-            self.playground = PlaygroundBridge(config=config.service.playground, res_server=self.res_server)
-        if config.service.qqbot.enable:
-            self.qq = QQBotBridge(config.service.qqbot)
+            self.bot_id = _config.service.playground.bot_id
+            self.live2d_model = _config.service.playground.model_dir
+            self.custom_agent = CustomAgent(config=_config.pipeline.llm)
+            self.playground = PlaygroundBridge(config=_config.service.playground, res_server=self.res_server)
+        if _config.service.qqbot.enable:
+            self.qq = QQBotBridge(_config.service.qqbot)
         self.microphone = Microphone()
         self.vad = SpeechEmitter(self.microphone)
 
         # Agents
-        self.tool_agent = ToolAgent(config.pipeline.llm)
+        self.tool_agent = ToolAgent(_config.pipeline.llm)
+
+    async def start(self):
+
+        if self.model_manager is not None:
+            self.model_manager.scan()
+
+        threads = []
+        if _config.system.default_enable_microphone:
+            vad_thread = KillableThread(target=self.vad.start, daemon=True, name="VADThread")
+            threads.append(vad_thread)
+
+        speaker_thread = KillableThread(target=self.speaker.start, daemon=True, name="SpeakerThread")
+        threads.append(speaker_thread)
+
+        playground_thread = KillableThread(target=self.playground.start, daemon=True, name="PlaygroundThread")
+        threads.append(playground_thread)
+
+        res_server_thread = KillableThread(target=self.res_server.start, daemon=True, name="ResServerThread")
+        threads.append(res_server_thread)
+
+        for thread in threads:
+            thread.start()
+
+        async with asyncio.TaskGroup() as tg:
+            tg.create_task(emitter.start())
+            if self.live_stream is not None:
+                tg.create_task(self.live_stream.start())
+
+        for thread in threads:
+            thread.join()

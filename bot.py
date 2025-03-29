@@ -1,4 +1,3 @@
-import asyncio
 import os
 
 from loguru import logger
@@ -13,9 +12,8 @@ from zerolan.data.pipeline.vla import ShowUiQuery
 from agent.api import sentiment_analyse, translate, summary_history, find_file, model_scale
 from common.abs_runnable import stop_all_runnable
 from common.asyncio_util import sync_wait
-from common.config import get_config
 from common.enumerator import Language
-from common.killable_thread import kill_all_threads, KillableThread
+from common.killable_thread import kill_all_threads
 from common.utils.audio_util import save_tmp_audio
 from common.utils.img_util import is_image_uniform
 from common.utils.str_util import split_by_punc
@@ -27,45 +25,12 @@ from event.registry import EventKeyRegistry
 from services.device.speaker import withsound, SystemSoundEnum
 from ump.pipeline.ocr import avg_confidence, stringify
 
-_config = get_config()
-
 
 class ZerolanLiveRobot(ZerolanLiveRobotContext):
     def __init__(self):
         super().__init__()
         self.cur_lang = Language.ZH
         self.tts_prompt_manager.set_lang(self.cur_lang)
-
-    async def start(self):
-        self.init()
-
-        if self.model_manager is not None:
-            self.model_manager.scan()
-
-        threads = []
-        if _config.system.default_enable_microphone:
-            vad_thread = KillableThread(target=self.vad.start, daemon=True, name="VADThread")
-            threads.append(vad_thread)
-
-        speaker_thread = KillableThread(target=self.speaker.start, daemon=True, name="SpeakerThread")
-        threads.append(speaker_thread)
-
-        playground_thread = KillableThread(target=self.playground.start, daemon=True, name="PlaygroundThread")
-        threads.append(playground_thread)
-
-        res_server_thread = KillableThread(target=self.res_server.start, daemon=True, name="ResServerThread")
-        threads.append(res_server_thread)
-
-        for thread in threads:
-            thread.start()
-
-        async with asyncio.TaskGroup() as tg:
-            tg.create_task(emitter.start())
-            if self.live_stream is not None:
-                tg.create_task(self.live_stream.start())
-
-        for thread in threads:
-            thread.join()
 
     def init(self):
         @emitter.on(EventKeyRegistry.Playground.PLAYGROUND_CONNECTED)
