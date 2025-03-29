@@ -54,7 +54,7 @@ class SpeechEmitter(ThreadRunnable):
 
     def handler(self):
         for chunk in self.mp.stream():
-            print("-^v-", end="")
+            # print("-^v-", end="")
             if self._stop_flag:
                 logger.debug("Microphone `_pause_event` clear.")
                 self._pause_event.wait()
@@ -69,7 +69,8 @@ class SpeechEmitter(ThreadRunnable):
                     logger.info("Voice event emitted")
                     emitter.emit(SpeechEvent(speech=combined_speech_bytes,
                                              channels=self.mp.channels,
-                                             sample_rate=self.mp.sample_rate))
+                                             sample_rate=self.mp.sample_rate,
+                                             audio_type='raw'))
 
                     self.speech_chunks.clear()
             else:
