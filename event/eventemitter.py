@@ -127,12 +127,18 @@ class TypedEventEmitter(AbstractRunnable):
             else:
                 self._add_sync_task(listener, event)
 
-    def on(self, event: str):
-        assert isinstance(event, str)
+    def on(self, event: str | BaseEvent):
+        event_name = None
+        if isinstance(event, str):
+            event_name = event
+        elif isinstance(event, BaseEvent):
+            event_name = event.type
+        else:
+            raise ValueError("Only str or BaseEvent is acceptable.")
 
         def decorator(func: Callable[[Event], None] | Callable[[Event], Coroutine[Any, Any, None]]):
             assert isinstance(func, Callable)
-            self._add_listener(event, Listener(func, False))
+            self._add_listener(event_name, Listener(func, False))
 
         return decorator
 
