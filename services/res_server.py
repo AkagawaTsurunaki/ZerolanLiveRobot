@@ -32,6 +32,14 @@ class _AudioMetadata(BaseModel):
     sample_rate: int
 
 
+def get_resource_endpoint(path: str) -> str:
+    path = os.path.abspath(path).replace("\\", "/")
+    filename, res_dir = path.split("/")[-1], path.split("/")[-2]
+    endpoint = f"/resource/temp/{res_dir}/{filename}"
+    logger.debug(f"Convert to resource endpoint: {endpoint}")
+    return endpoint
+
+
 class ResourceServer(ThreadRunnable):
     def name(self):
         return "ResourceServer"
@@ -131,10 +139,3 @@ class ResourceServer(ThreadRunnable):
     def start(self):
         super().start()
         self.app.run(host=self.host, port=self.port, debug=True, use_reloader=False)
-
-    def get_resource_endpoint(self, path: str) -> str:
-        path = os.path.abspath(path).replace("\\", "/")
-        filename, res_dir = path.split("/")[-1], path.split("/")[-2]
-        endpoint = f"/resource/temp/{res_dir}/{filename}"
-        logger.debug(f"Convert to resource endpoint: {endpoint}")
-        return endpoint

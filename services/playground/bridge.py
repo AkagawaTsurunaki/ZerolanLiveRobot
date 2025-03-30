@@ -16,7 +16,7 @@ from services.playground.config import PlaygroundBridgeConfig
 from services.playground.data import FileInfo, ScaleOperationResponse, CreateGameObjectResponse, \
     GameObject, ShowUserTextInputResponse, ServerHello, AddChatHistory
 from services.playground.data import PlaySpeechResponse, LoadLive2DModelResponse
-from services.res_server import ResourceServer
+from services.res_server import get_resource_endpoint
 
 
 class Action(str, Enum):
@@ -41,10 +41,9 @@ _config = get_config()
 
 class PlaygroundBridge(ZerolanProtocolWsServer):
 
-    def __init__(self, config: PlaygroundBridgeConfig, res_server: ResourceServer):
+    def __init__(self, config: PlaygroundBridgeConfig):
         super().__init__(host=config.host, port=config.port)
         self.gameobjects_info = {}
-        self.res_server = res_server
         self.server_ipv6, self.server_ipv4 = get_local_ip(True), get_local_ip()
 
     def name(self):
@@ -91,7 +90,7 @@ class PlaygroundBridge(ZerolanProtocolWsServer):
         """
         audio_type = check_audio_format(audio_path)
         sample_rate, num_channels, duration = check_audio_info(audio_path)
-        audio_download_endpoint = self.res_server.get_resource_endpoint(audio_path)
+        audio_download_endpoint = get_resource_endpoint(audio_path)
         self.send(action=Action.PLAY_SPEECH, data=PlaySpeechResponse(bot_id=bot_id, audio_download_endpoint=audio_download_endpoint,
                                                                      bot_display_name=bot_name,
                                                                      transcript=transcript,
@@ -112,7 +111,7 @@ class PlaygroundBridge(ZerolanProtocolWsServer):
         assert os.path.exists(model_dir) and os.path.isdir(model_dir), f"{model_dir} is not a directory"
         zip_path = create_temp_file("live2d", ".zip", "model")
         compress_directory(model_dir, zip_path)
-        model_download_endpoint = self.res_server.get_resource_endpoint(zip_path)
+        model_download_endpoint = get_resource_endpoint(zip_path)
         self.send(action=Action.LOAD_LIVE2D_MODEL, data=LoadLive2DModelResponse(
             bot_id=bot_id,
             bot_display_name=bot_display_name,
