@@ -1,8 +1,12 @@
+import json
 import os
+from typing import Dict
+from uuid import uuid4
 
 from flask import Flask, abort, send_file, request
 from loguru import logger
 from openai import BaseModel
+from typeguard import typechecked
 
 from common.abs_runnable import ThreadRunnable
 from common.config import get_config
@@ -32,12 +36,30 @@ class _AudioMetadata(BaseModel):
     sample_rate: int
 
 
-def get_resource_endpoint(path: str) -> str:
+def get_temp_resource_endpoint(path: str) -> str:
     path = os.path.abspath(path).replace("\\", "/")
     filename, res_dir = path.split("/")[-1], path.split("/")[-2]
     endpoint = f"/resource/temp/{res_dir}/{filename}"
     logger.debug(f"Convert to resource endpoint: {endpoint}")
     return endpoint
+
+
+# Path => file_id
+_files: Dict[str, str] = {}
+
+
+@typechecked
+def register_file(path: str) -> str:
+    global _files
+    assert os.path.exists(path), f"No such file: {path}"
+    path = os.path.abspath(path).replace("\\", "/")
+
+    file_id = _files.get(path, None)
+    if file_id is None:
+        file_id = str(uuid4())
+        _files[str(path)] = file_id
+
+    return file_id
 
 
 class ResourceServer(ThreadRunnable):
@@ -73,6 +95,21 @@ class ResourceServer(ThreadRunnable):
                 abort(404, description="File not found")
 
             return send_file(file_path)
+
+        @self.app.route('/resource/file')
+        def handle_resource_file():
+            global _files
+            file_id = request.args.get('file_id')
+            assert file_id is not None
+
+            for path, id in _files.items():
+                if id == file_id:
+                    logger.info(f"File (id={file_id}) is found: {path}")
+                    return send_file(path)
+
+            logger.warning(f"No file (id={file_id}). Current files map is: \n{json.dumps(_files, indent=4)}")
+
+            abort(404, description="File not found")
 
         @self.app.route("/playground/camera", methods=["POST"])
         def camera_send():
