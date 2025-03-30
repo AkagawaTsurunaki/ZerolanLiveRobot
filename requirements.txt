@@ -26,6 +26,7 @@ transitions
 netifaces
 injector
 typeguard
+watchdog
 # If you are not a developer, you can skip the following packages
 pytest
 pytest-asyncio
