@@ -2,7 +2,6 @@ import os
 from typing import Callable
 
 from loguru import logger
-from pyventus.events import EventLinker
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 
@@ -35,6 +34,10 @@ class ConfigManager:
 
     def stop(self):
         self._observer.stop()
+
+    @property
+    def config(self):
+        return self._config
 
     @log_run_time()
     def _load_config(self):
@@ -85,8 +88,3 @@ class ConfigManager:
         event_handler = ConfigFileModifiedHandler(self._config_path, self._load_config)
         self._observer = Observer()
         self._observer.schedule(event_handler, path='.', recursive=True)
-
-
-@EventLinker.on("ConfigFileModified")
-def on_modified():
-    logger.debug("I need to do something because the config file was modified.")
