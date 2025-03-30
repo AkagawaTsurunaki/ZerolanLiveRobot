@@ -1,7 +1,10 @@
 import os.path
+import uuid
 from enum import Enum
+from typing import List
 
 from loguru import logger
+from typeguard import typechecked
 from zerolan.data.protocol.protocol import ZerolanProtocol
 
 from common.config import get_config
@@ -14,12 +17,13 @@ from event.event_data import PlaygroundConnectedEvent, PlaygroundDisconnectedEve
 from event.eventemitter import emitter
 from services.playground.config import PlaygroundBridgeConfig
 from services.playground.data import FileInfo, ScaleOperationResponse, CreateGameObjectResponse, \
-    GameObject, ShowUserTextInputResponse, ServerHello, AddChatHistory
+    GameObject, ShowUserTextInputResponse, ServerHello, AddChatHistory, ShowTopMenu, SelectionItem, Arg_MenuItem
 from services.playground.data import PlaySpeechResponse, LoadLive2DModelResponse
-from services.res_server import get_resource_endpoint
+from services.res_server import get_temp_resource_endpoint, register_file
 
 
 class Action(str, Enum):
+    SHOW_MENU = "show_menu"
     PLAY_SPEECH = "play_speech"
     LOAD_LIVE2D_MODEL = "load_live2d_model"
 
@@ -90,14 +94,15 @@ class PlaygroundBridge(ZerolanProtocolWsServer):
         """
         audio_type = check_audio_format(audio_path)
         sample_rate, num_channels, duration = check_audio_info(audio_path)
-        audio_download_endpoint = get_resource_endpoint(audio_path)
-        self.send(action=Action.PLAY_SPEECH, data=PlaySpeechResponse(bot_id=bot_id, audio_download_endpoint=audio_download_endpoint,
-                                                                     bot_display_name=bot_name,
-                                                                     transcript=transcript,
-                                                                     audio_type=audio_type,
-                                                                     sample_rate=sample_rate,
-                                                                     channels=num_channels,
-                                                                     duration=duration))
+        audio_download_endpoint = get_temp_resource_endpoint(audio_path)
+        self.send(action=Action.PLAY_SPEECH,
+                  data=PlaySpeechResponse(bot_id=bot_id, audio_download_endpoint=audio_download_endpoint,
+                                          bot_display_name=bot_name,
+                                          transcript=transcript,
+                                          audio_type=audio_type,
+                                          sample_rate=sample_rate,
+                                          channels=num_channels,
+                                          duration=duration))
 
     def load_live2d_model(self, bot_id: str,
                           bot_display_name: str,
@@ -111,7 +116,7 @@ class PlaygroundBridge(ZerolanProtocolWsServer):
         assert os.path.exists(model_dir) and os.path.isdir(model_dir), f"{model_dir} is not a directory"
         zip_path = create_temp_file("live2d", ".zip", "model")
         compress_directory(model_dir, zip_path)
-        model_download_endpoint = get_resource_endpoint(zip_path)
+        model_download_endpoint = get_temp_resource_endpoint(zip_path)
         self.send(action=Action.LOAD_LIVE2D_MODEL, data=LoadLive2DModelResponse(
             bot_id=bot_id,
             bot_display_name=bot_display_name,
@@ -161,3 +166,20 @@ class PlaygroundBridge(ZerolanProtocolWsServer):
 
     def add_history(self, username: str, role: str, text: str):
         self.send(action=Action.ADD_HISTORY, data=AddChatHistory(role=role, text=text, username=username))
+
+    @typechecked
+    def show_menu(self, menu_list: List[Arg_MenuItem], destroy_last: bool = True):
+        items = []
+        for idx, item in enumerate(menu_list):
+            img_id = None
+            if item.img_path is not None:
+                img_id = register_file(item.img_path)
+            interactive = item.interactive
+            text = item.text if item.text is not None else "No text"
+            items.append(SelectionItem(id=idx, interactive=interactive, text=text, img_id=img_id))
+        menu = ShowTopMenu(
+            uuid=str(uuid.uuid4()),
+            items=items,
+            destroy_last=destroy_last
+        )
+        self.send(action=Action.SHOW_MENU, data=menu)

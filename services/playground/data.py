@@ -7,6 +7,7 @@ We define that:
 This is not defined by who is the sender or who is the receiver, please note.
 """
 from enum import Enum
+from typing import List
 
 from pydantic import BaseModel, Field
 
@@ -107,3 +108,23 @@ class AddChatHistory(BaseModel):
                                   "`system`: System info, warning, error, etc. \n")
     text: str = Field(description="The text content of the chat message.")
     username: str = Field(description="The username of the user who created the chat message.")
+
+
+class SelectionItem(BaseModel):
+    id: int = Field(description="The unique identifier of the selection item.")
+    interactive: bool = Field(description="Whether the selection item is interactive or not.")
+    text: str = Field(description="The content of the selection item.")
+    img_id: str | None = Field(None, description="The ID of the image of the selection item.")
+
+
+class ShowTopMenu(BaseModel):
+    uuid: str = Field(description="The unique identifier of the selection group.")
+    items: List[SelectionItem] = Field(description="The selection group. Contains all selection items.")
+    destroy_last: bool = Field(default=True,
+                               description="Whether the last selection group should be destroyed before the current one is shown.")
+
+
+class Arg_MenuItem(BaseModel):
+    img_path: str | None
+    text: str | None
+    interactive: bool = True
