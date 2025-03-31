@@ -24,6 +24,7 @@ class RestaurantBot:
     def __init__(self):
         super().__init__()
         self._config_manager = ConfigManager()
+        self.live2d_model = self._config_manager.config.service.playground.model_dir
         self._playground = PlaygroundBridge(self._config_manager.config.service.playground)
         self._res_server = ResourceServer(self._config_manager.config.service.res_server.host,
                                           self._config_manager.config.service.res_server.port, )
@@ -57,6 +58,14 @@ class RestaurantBot:
             tg.create_task(emitter.start())
 
     def init(self):
+        @emitter.on(EventKeyRegistry.Playground.PLAYGROUND_CONNECTED)
+        def on_playground_connected(_):
+            self._playground.load_live2d_model(
+                bot_id=self.bot_id,
+                bot_display_name=self.bot_name,
+                model_dir=self.live2d_model
+            )
+            logger.info(f"Live 2D model loaded: {self.live2d_model}")
 
         @emitter.on(EventKeyRegistry.Device.SERVICE_VAD_SPEECH_CHUNK)
         def handle_asr(event: SpeechEvent):
