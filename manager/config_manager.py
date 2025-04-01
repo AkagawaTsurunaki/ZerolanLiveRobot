@@ -7,7 +7,7 @@ from watchdog.observers import Observer
 
 from common.config import ZerolanLiveRobotConfig
 from common.decorator import log_run_time
-from common.gen import ConfigFileGenerator
+from common.generator.config_gen import ConfigFileGenerator
 from common.utils.file_util import read_yaml
 from event.event_data import ConfigFileModifiedEvent
 from event.event_emitter import emitter
