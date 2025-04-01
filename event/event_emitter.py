@@ -99,15 +99,23 @@ class AsyncCoro(BaseTask):
 class AsyncTaskExecutor:
     def __init__(self):
         self._async_tasks: Queue[AsyncCoro] = Queue()
+        # Pending tasks may be deleted by Python-GC,
+        # so use strong reference to avoid this issue!
+        self._submitted_tasks: List[asyncio.Task] = []
 
     async def start(self):
         await self._async_event_loop()
+
+    async def stop(self):
+        for task in self._submitted_tasks:
+            task.cancel()
 
     async def _async_event_loop(self):
         while True:
             task = await self._async_tasks.get()
             if task:
-                asyncio.create_task(task.execute())
+                t = asyncio.create_task(task.execute())
+                self._submitted_tasks.append(t)
 
     @typechecked
     def add_async_task(self, func: AsyncCoro):
@@ -121,6 +129,12 @@ class SyncTaskExecutor:
 
     def start(self):
         self._sync_event_loop()
+
+    def stop(self):
+        try:
+            self._thread_pool.shutdown(wait=False, cancel_futures=True)
+        except Exception as e:
+            logger.exception(e)
 
     def _sync_event_loop(self):
         while True:
@@ -141,6 +155,10 @@ class Listener:
 
 
 class TypedEventEmitter:
+    """
+    TypedEventEmitter Ver2
+    Github@AkagawaTsurunaki
+    """
     def __init__(self):
         self._sync_executor = SyncTaskExecutor()
         self._async_executor = AsyncTaskExecutor()
@@ -156,10 +174,12 @@ class TypedEventEmitter:
         await self._async_executor_task
         self.sync_executor_thread.join()
 
-    def stop(self):
+    async def stop(self):
         if self.sync_executor_thread:
+            self._sync_executor.stop()
             self.sync_executor_thread.kill()
         if self._async_executor_task:
+            await self._async_executor.stop()
             self._async_executor_task.cancel()
 
     def _add_task(self, func: Callable, event_data: BaseEvent):
