@@ -10,7 +10,7 @@ from manager.tts_prompt_manager import TTSPromptManager
 from services.browser.browser import Browser
 from devices.microphone import Microphone
 from devices.speaker import Speaker
-from services.filter.strategy import FirstMatchedFilter
+from character.filter.strategy import FirstMatchedFilter
 from services.game.minecraft.app import KonekoMinecraftAIAgent
 from services.live_stream.service import LiveStreamService
 from services.playground.bridge import PlaygroundBridge
