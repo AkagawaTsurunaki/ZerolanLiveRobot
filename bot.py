@@ -23,7 +23,7 @@ from event.event_data import ASREvent, SpeechEvent, ScreenCapturedEvent, LLMEven
     QQMessageEvent, SwitchVADEvent, TTSEvent
 from event.event_emitter import emitter
 from event.registry import EventKeyRegistry
-from manager.config import get_config
+from manager.config_manager import get_config
 from ump.pipeline.ocr import avg_confidence, stringify
 
 _config = get_config()

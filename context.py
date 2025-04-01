@@ -3,7 +3,7 @@ import os
 from agent.custom_agent import CustomAgent
 from agent.tool_agent import ToolAgent
 from event.speech_emitter import SpeechEmitter
-from manager.config import get_config
+from manager.config_manager import get_config
 from manager.llm_prompt_manager import LLMPromptManager
 from manager.model_manager import ModelManager
 from manager.tts_prompt_manager import TTSPromptManager

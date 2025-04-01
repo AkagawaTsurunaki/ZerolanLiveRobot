@@ -11,7 +11,7 @@ from common.utils.str_util import split_by_punc
 from event.event_data import SpeechEvent
 from event.event_emitter import emitter
 from event.registry import EventKeyRegistry
-from manager.config import get_config
+from manager.config_manager import get_config
 from manager.tts_prompt_manager import TTSPromptManager
 from services.playground.bridge import PlaygroundBridge
 from services.playground.data import Arg_MenuItem
