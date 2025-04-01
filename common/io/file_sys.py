@@ -1,25 +1,18 @@
 import hashlib
 import os
+import zipfile
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
-from typing import Literal, TypeVar
+from typing import Literal
 
 from typeguard import typechecked
 
 
 def calculate_path_md5(file_path):
-    """
-    计算文件路径的 MD5 值
-    :param file_path: 文件路径
-    :return: MD5 值的十六进制字符串
-    """
     md5 = hashlib.md5()
-    # 将路径编码为字节（通常是 UTF-8）
     path_bytes = file_path.encode('utf-8')
-    # 更新哈希对象
     md5.update(path_bytes)
-    # 返回十六进制的 MD5 值
     return md5.hexdigest()
 
 
@@ -78,7 +71,14 @@ class FileSystem:
         return self._temp_dir.absolute()
 
     @typechecked
-    def create_temp_file_descriptor(self, prefix: str, suffix: str, type: ResType):
+    def create_temp_file_descriptor(self, prefix: str, suffix: str, type: ResType) -> Path:
+        """
+        Create temp file descriptor.
+        :param prefix: Prefix that at the beginning of the file name.
+        :param suffix: Suffix that at the end of the file name. Usually file type. For example .wav
+        :param type: Temp resource type. See ResType.
+        :return:
+        """
         self.temp_dir.mkdir(exist_ok=True)
         if suffix[0] == '.':
             suffix = suffix[1:]
@@ -87,5 +87,31 @@ class FileSystem:
         typed_dir.mkdir(exist_ok=True)
         return typed_dir.joinpath(filename).absolute()
 
+    @typechecked
+    def find_dir(self, dir_path: str, tgt_dir_name: str) -> Path | None:
+        """
+        Walk in tgt_dir_name, and find if dir_path exists
+        :param dir_path: Directory path to walk.
+        :param tgt_dir_name: Target directory name to find.
+        :return: Path if found, else None
+        """
+        assert os.path.exists(dir_path), f"{dir_path} doesn't exist."
+        for dirpath, dirnames, filenames in os.walk(dir_path):
+            for dirname in dirnames:
+                if tgt_dir_name in dirname:
+                    path = os.path.join(dirpath, dirname)
+                    return Path(path).absolute()
+        return None
+
+    @typechecked
+    def compress(self, src_dir: str | Path, tgt_dir: str | Path) -> None:
+        src_dir = Path(src_dir)
+
+        with zipfile.ZipFile(tgt_dir, 'a', zipfile.ZIP_DEFLATED) as zipf:
+            for root, dirs, files in os.walk(src_dir):
+                for file in files:
+                    file_path = os.path.join(root, file)
+                    arcname = os.path.relpath(file_path, start=src_dir)
+                    zipf.write(file_path, arcname=arcname)
 
 fs = FileSystem()

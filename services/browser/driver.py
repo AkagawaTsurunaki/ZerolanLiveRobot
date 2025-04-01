@@ -6,6 +6,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.webdriver import WebDriver as ChromeWebDriver
 from selenium.webdriver.firefox.webdriver import WebDriver as FireFoxWebDriver
 
+from common.io.file_sys import fs
 from services.browser.config import BrowserConfig
 from common.utils import file_util
 
@@ -26,7 +27,7 @@ class DriverInitializer:
             logger.debug(f"Current user: {username}")
             if os.name == 'nt':
                 default_profile_dir = f"C:/Users/{username}/AppData/Roaming/Mozilla/Firefox/Profiles"
-                self._profile_dir = file_util.find_dir(default_profile_dir, ".default-release")
+                self._profile_dir = fs.find_dir(default_profile_dir, ".default-release")
 
             if self._profile_dir is None:
                 raise Exception("Can not find FireFox Profiles. Please set it in your config manually.")
