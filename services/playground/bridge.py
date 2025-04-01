@@ -1,14 +1,15 @@
 import os.path
 import uuid
 from enum import Enum
+from pathlib import Path
 from typing import List
 
 from loguru import logger
 from typeguard import typechecked
 from zerolan.data.protocol.protocol import ZerolanProtocol
 
+from common.utils.audio_util import get_audio_real_format, get_audio_info
 from common.io.file_sys import fs
-from common.utils.audio_util import check_audio_format, check_audio_info
 from common.utils.collection_util import to_value_list
 from common.utils.web_util import get_local_ip
 from common.web.zrl_ws import ZerolanProtocolWsServer
@@ -84,7 +85,7 @@ class PlaygroundBridge(ZerolanProtocolWsServer):
             self.gameobjects_info[go_info.instance_id] = go_info
         logger.debug("Local gameobjects cache is updated")
 
-    def play_speech(self, bot_id: str, audio_path: str, transcript: str, bot_name: str):
+    def play_speech(self, bot_id: str, audio_path: Path, transcript: str, bot_name: str):
         """
         Play a speech clip in the playground for specific bot with transcript subtitle.
         :param bot_id: The ID of the bot. You should configurate it in the `config.yaml`.
@@ -92,8 +93,8 @@ class PlaygroundBridge(ZerolanProtocolWsServer):
         :param transcript: The transcript to be shown as subtitle.
         :return:
         """
-        audio_type = check_audio_format(audio_path)
-        sample_rate, num_channels, duration = check_audio_info(audio_path)
+        audio_type = get_audio_real_format(audio_path)
+        sample_rate, num_channels, duration = get_audio_info(audio_path)
         audio_download_endpoint = get_temp_resource_endpoint(audio_path)
         self.send(action=Action.PLAY_SPEECH,
                   data=PlaySpeechResponse(bot_id=bot_id, audio_download_endpoint=audio_download_endpoint,

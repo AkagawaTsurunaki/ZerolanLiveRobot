@@ -1,14 +1,7 @@
-import asyncio
 import os
-
-from loguru import logger
 
 from agent.custom_agent import CustomAgent
 from agent.tool_agent import ToolAgent
-from common.killable_thread import KillableThread
-from common.utils.audio_util import save_tmp_audio
-from event.event_data import TTSEvent
-from event.event_emitter import emitter
 from event.speech_emitter import SpeechEmitter
 from manager.config import get_config
 from manager.llm_prompt_manager import LLMPromptManager
@@ -54,11 +47,11 @@ class ZerolanLiveRobotContext:
         self.vec_db: MilvusPipeline | None = None
 
         self.filter: FirstMatchedFilter | None = None
-        self.llm_prompt_manager: LLMPromptManager = None
+        self.llm_prompt_manager: LLMPromptManager | None = None
         self.tts_prompt_manager: TTSPromptManager | None = None
         self.live_stream: LiveStreamService | None = None
 
-        self.tool_agent: ToolAgent = None
+        self.tool_agent: ToolAgent | None = None
         self.microphone: Microphone | None = None
 
         if os.environ.get("DISPLAY", None) is not None:
@@ -68,14 +61,14 @@ class ZerolanLiveRobotContext:
             self.screen = None
 
         self.browser: Browser | None = None
-        self.speaker: Speaker = None
-        self.playground: PlaygroundBridge = None
-        self.qq: QQBotBridge = None
+        self.speaker: Speaker | None = None
+        self.playground: PlaygroundBridge | None = None
+        self.qq: QQBotBridge | None = None
 
-        self.bot_id: str = None
-        self.bot_name: str = None
+        self.bot_id: str | None = None
+        self.bot_name: str | None = None
         self.master_name: str = "AkagawaTsurunaki"
-        self.live2d_model: str = None
+        self.live2d_model: str | None = None
         self.res_server: ResourceServer | None = None
 
         assert _config.pipeline.llm.enable, f"At least LLMPipeline must be enabled in your config."
@@ -104,6 +97,7 @@ class ZerolanLiveRobotContext:
             self.browser = Browser(_config.external_tool.browser)
         if _config.service.game.enable:
             if _config.service.game.platform == "minecraft":
+                assert self.tool_agent is not None, f'Tool agent need!'
                 self.game_agent = KonekoMinecraftAIAgent(_config.service.game, self.tool_agent)
         if _config.service.live_stream.enable:
             self.live_stream = LiveStreamService(_config.service.live_stream)
@@ -122,44 +116,3 @@ class ZerolanLiveRobotContext:
 
         # Agents
         self.tool_agent = ToolAgent(_config.pipeline.llm)
-
-    async def start(self):
-
-        if self.model_manager is not None:
-            self.model_manager.scan()
-
-        threads = []
-        if _config.system.default_enable_microphone:
-            vad_thread = KillableThread(target=self.vad.start, daemon=True, name="VADThread")
-            threads.append(vad_thread)
-
-        speaker_thread = KillableThread(target=self.speaker.start, daemon=True, name="SpeakerThread")
-        threads.append(speaker_thread)
-
-        playground_thread = KillableThread(target=self.playground.start, daemon=True, name="PlaygroundThread")
-        threads.append(playground_thread)
-
-        res_server_thread = KillableThread(target=self.res_server.start, daemon=True, name="ResServerThread")
-        threads.append(res_server_thread)
-
-        for thread in threads:
-            thread.start()
-
-        async with asyncio.TaskGroup() as tg:
-            tg.create_task(emitter.start())
-            if self.live_stream is not None:
-                tg.create_task(self.live_stream.start())
-
-        for thread in threads:
-            thread.join()
-
-    def play_tts(self, event: TTSEvent):
-        prediction = event.prediction
-        if self.playground.is_connected:
-            audio_path = save_tmp_audio(prediction.wave_data)
-            self.playground.play_speech(bot_id=self.bot_id, audio_path=audio_path,
-                                        transcript=event.transcript, bot_name=self.bot_name)
-            logger.debug("Remote speaker enqueue speech data")
-        else:
-            self.speaker.enqueue_sound(prediction.wave_data)
-            logger.debug("Local speaker enqueue speech data")

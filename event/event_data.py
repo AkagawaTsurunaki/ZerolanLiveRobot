@@ -9,7 +9,7 @@ from zerolan.data.pipeline.ocr import OCRPrediction
 from zerolan.data.pipeline.tts import TTSPrediction
 
 from agent.tool_agent import Tool
-from common.io.audio import AudioFileType
+from common.utils.audio_util import AudioFileType
 from event.registry import EventKeyRegistry
 from services.game.minecraft.data import KonekoProtocol
 

@@ -5,8 +5,8 @@ from zerolan.data.pipeline.asr import ASRStreamQuery
 from zerolan.data.pipeline.tts import TTSQuery
 
 from common.enumerator import Language
+from common.utils.audio_util import save_audio
 from common.killable_thread import KillableThread
-from common.utils.audio_util import save_tmp_audio
 from common.utils.str_util import split_by_punc
 from event.event_data import SpeechEvent
 from event.event_emitter import emitter
@@ -115,7 +115,7 @@ class RestaurantBot:
             )
             prediction = self._tts.predict(query=query)
             logger.info(f"TTS: {query.text}")
-            audio_path = save_tmp_audio(prediction.wave_data)
+            audio_path = save_audio(wave_data=prediction.wave_data, prefix='tts')
             self._playground.play_speech(bot_id=self.bot_id, audio_path=audio_path,
                                          transcript=transcript, bot_name=self.bot_name)
 
