@@ -8,8 +8,8 @@ from manager.llm_prompt_manager import LLMPromptManager
 from manager.model_manager import ModelManager
 from manager.tts_prompt_manager import TTSPromptManager
 from services.browser.browser import Browser
-from services.device.microphone import Microphone
-from services.device.speaker import Speaker
+from devices.microphone import Microphone
+from devices.speaker import Speaker
 from services.filter.strategy import FirstMatchedFilter
 from services.game.minecraft.app import KonekoMinecraftAIAgent
 from services.live_stream.service import LiveStreamService
@@ -55,7 +55,7 @@ class ZerolanLiveRobotContext:
         self.microphone: Microphone | None = None
 
         if os.environ.get("DISPLAY", None) is not None:
-            from services.device.screen import Screen
+            from devices.screen import Screen
             self.screen: Screen | None = Screen()
         else:
             self.screen = None

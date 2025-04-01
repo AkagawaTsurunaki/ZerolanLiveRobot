@@ -9,7 +9,7 @@ from common.io.file_type import AudioFileType
 from common.collection.limit_list import LimitList
 from event.event_data import SpeechEvent
 from event.event_emitter import emitter
-from services.device.microphone import Microphone
+from devices.microphone import Microphone
 from services.vad.strategy import EasyEnergyVad
 
 
