@@ -7,7 +7,7 @@ from loguru import logger
 from typeguard import typechecked
 from zerolan.data.protocol.protocol import ZerolanProtocol
 
-from common.config import get_config
+from manager.config import get_config
 from common.utils.audio_util import check_audio_format, check_audio_info
 from common.utils.collection_util import to_value_list
 from common.utils.file_util import create_temp_file, compress_directory

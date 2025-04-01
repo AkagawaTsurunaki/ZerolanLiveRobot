@@ -9,7 +9,7 @@ from openai import BaseModel
 from typeguard import typechecked
 
 from common.abs_runnable import ThreadRunnable
-from common.config import get_config
+from manager.config import get_config
 from common.utils.audio_util import check_audio_format
 from common.utils.file_util import get_temp_data_dir, create_temp_file
 from event.event_data import ScreenCapturedEvent, SpeechEvent

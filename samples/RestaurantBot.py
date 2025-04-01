@@ -11,7 +11,7 @@ from common.utils.str_util import split_by_punc
 from event.event_data import SpeechEvent
 from event.event_emitter import emitter
 from event.registry import EventKeyRegistry
-from manager.config_manager import ConfigManager
+from manager.config import get_config
 from manager.tts_prompt_manager import TTSPromptManager
 from services.playground.bridge import PlaygroundBridge
 from services.playground.data import Arg_MenuItem
@@ -19,21 +19,22 @@ from services.res_server import ResourceServer
 from ump.pipeline.asr import ASRPipeline
 from ump.pipeline.tts import TTSPipeline
 
+_config = get_config()
+
 
 class RestaurantBot:
     def __init__(self):
         super().__init__()
-        self._config_manager = ConfigManager()
-        self.live2d_model = self._config_manager.config.service.playground.model_dir
-        self._playground = PlaygroundBridge(self._config_manager.config.service.playground)
-        self._res_server = ResourceServer(self._config_manager.config.service.res_server.host,
-                                          self._config_manager.config.service.res_server.port, )
+        self.live2d_model = _config.service.playground.model_dir
+        self._playground = PlaygroundBridge(_config.service.playground)
+        self._res_server = ResourceServer(_config.service.res_server.host,
+                                          _config.service.res_server.port, )
 
-        self._asr = ASRPipeline(self._config_manager.config.pipeline.asr)
-        self._tts = TTSPipeline(self._config_manager.config.pipeline.tts)
-        self.tts_prompt_manager = TTSPromptManager(self._config_manager.config.character.speech)
-        self.bot_id = self._config_manager.config.character.bot_name
-        self.bot_name = self._config_manager.config.character.bot_name
+        self._asr = ASRPipeline(_config.pipeline.asr)
+        self._tts = TTSPipeline(_config.pipeline.tts)
+        self.tts_prompt_manager = TTSPromptManager(_config.character.speech)
+        self.bot_id = _config.character.bot_name
+        self.bot_name = _config.character.bot_name
         self._scripts = [
             "那就让美食扫除您的坏心情吧！今天本店为您推荐这些好吃的甜品哦！",
             "当然可以。有以下菜品可以选择。",
@@ -46,7 +47,6 @@ class RestaurantBot:
     async def start(self):
 
         self.threads = []
-        self._config_manager.start()
         thread = KillableThread(target=self._playground.start, daemon=True)
         thread2 = KillableThread(target=self._res_server.start, daemon=True)
         thread.start()

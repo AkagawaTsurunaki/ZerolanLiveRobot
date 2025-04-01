@@ -5,7 +5,7 @@ from loguru import logger
 
 from agent.custom_agent import CustomAgent
 from agent.tool_agent import ToolAgent
-from common.config import get_config
+from manager.config import get_config
 from common.killable_thread import KillableThread
 from common.utils.audio_util import save_tmp_audio
 from event.event_data import TTSEvent

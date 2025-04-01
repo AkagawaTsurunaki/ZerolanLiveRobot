@@ -9,7 +9,9 @@ from common.config import ZerolanLiveRobotConfig
 from common.decorator import log_run_time
 from common.gen import ConfigFileGenerator
 from common.utils.file_util import read_yaml
+from event.event_data import ConfigFileModifiedEvent
 from event.event_emitter import emitter
+from event.registry import EventKeyRegistry
 
 
 class ConfigManager:
@@ -62,7 +64,7 @@ class ConfigManager:
 
             self._config = config
             if self._modified > 0:
-                emitter.emit("ConfigFileModified")
+                emitter.emit(EventKeyRegistry.System.CONFIG_FILE_MODIFIED, ConfigFileModifiedEvent())
                 logger.info("Config file was modified. Hot reload triggered.")
             self._modified += 1
         except Exception as e:
@@ -88,3 +90,12 @@ class ConfigManager:
         event_handler = ConfigFileModifiedHandler(self._config_path, self._load_config)
         self._observer = Observer()
         self._observer.schedule(event_handler, path='.', recursive=True)
+
+
+_config_manager = ConfigManager()
+# TODO: Need to manage the thread.
+_config_manager.start()
+
+
+def get_config():
+    return _config_manager.config

@@ -15,7 +15,7 @@ from zerolan.data.pipeline.llm import Conversation
 from zerolan.data.pipeline.ocr import RegionResult
 
 from agent.adaptor import LangChainAdaptedLLM
-from common.config import get_config
+from manager.config import get_config
 from services.playground.data import GameObject, ScaleOperationResponse
 from common.decorator import log_run_time
 from common.enumerator import Language
