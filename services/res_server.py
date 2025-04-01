@@ -10,7 +10,8 @@ from openai import BaseModel
 from typeguard import typechecked
 
 from common.abs_runnable import ThreadRunnable
-from common.utils.audio_util import get_audio_real_format, AudioFileType
+from common.utils.audio_util import get_audio_real_format
+from common.io.file_type import AudioFileType
 from manager.config_manager import get_config
 from event.event_data import ScreenCapturedEvent, SpeechEvent
 from event.event_emitter import emitter

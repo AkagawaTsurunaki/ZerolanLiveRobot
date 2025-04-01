@@ -1,5 +1,4 @@
 import io
-from enum import Enum
 from pathlib import Path
 
 import numpy as np
@@ -8,15 +7,7 @@ from pydub import AudioSegment
 from scipy.io import wavfile as wavfile
 from typeguard import typechecked
 
-from common.io.file_sys import fs
-
-
-class AudioFileType(str, Enum):
-    FLV = 'flv'
-    WAV = 'wav'
-    OGG = 'ogg'
-    MP3 = 'mp3'
-    RAW = 'raw'
+from common.io.file_type import AudioFileType
 
 
 @typechecked
@@ -104,20 +95,3 @@ def from_bytes_to_np_ndarray(bytes_data: bytes, dtype: str = "float32") -> (np.n
     wave_bytes_buf = io.BytesIO(bytes_data)
     data, samplerate = sf.read(wave_bytes_buf, dtype=dtype)
     return data, samplerate
-
-
-@typechecked
-def save_audio(wave_data: bytes, format: AudioFileType | None = None, prefix: str | None = None) -> Path:
-    """
-    Save audio data to the temp file.
-    :param wave_data: Bytes of audio data.
-    :param format: Format of the audio data.
-    :param prefix: Filename prefix.
-    :return: Saved audio path.
-    """
-    if format is None:
-        format = get_audio_real_format(wave_data)
-    wav_path = fs.create_temp_file_descriptor(prefix=prefix, suffix=f".{format}", type="audio")
-    with open(wav_path, "wb") as f:
-        f.write(wave_data)
-    return Path(wav_path)
