@@ -1,48 +1,68 @@
 import asyncio
 import time
+from asyncio import TaskGroup
 from dataclasses import dataclass
 
-from loguru import logger
+import aiohttp
+import pytest
 
 from event.event_data import BaseEvent
-from event.eventemitter import emitter
-from event.registry import EventKeyRegistry
+from event.event_emitter import emitter
+
+
+class TestEvent(BaseEvent):
+    content: str
+    type = "test.run_forever"
 
 
 @dataclass
-class TestEvent(BaseEvent):
+class ConnTest(BaseEvent):
     content: str
-    type = EventKeyRegistry.Dev.TEST
+    type = "test.conn"
 
 
-@emitter.on(EventKeyRegistry.Dev.TEST)
-def exit__(event: TestEvent):
-    print("To sleep!")
-    time.sleep(2)
-    print(f"time: {event.content}")
+@emitter.on("test.run_forever")
+async def some_task(event: TestEvent):
+    i = 0
+    while True:
+        await asyncio.sleep(1)
+        print(f"Async: {i} {event.content}")
+        i += 1
 
 
-@emitter.on(EventKeyRegistry.Dev.TEST)
-async def aexit(event: TestEvent):
-    print("To sleep!")
-    await asyncio.sleep(2)
-    print(f"time: {event.content}")
+@emitter.on("test.conn")
+async def connections(event: ConnTest):
+    async with aiohttp.ClientSession(base_url="http://127.0.0.1") as session:
+        async with TaskGroup() as tg:
+            tg.create_task(session.get("/asdasd"))
+            tg.create_task(session.get("/asdasd"))
+            tg.create_task(session.get("/asdasd"))
+            tg.create_task(session.get("/asdasd"))
+            tg.create_task(session.get("/asdasd"))
+            tg.create_task(session.get("/asdasd"))
+            tg.create_task(session.get("/asdasd"))
+            print(event.content)
 
 
-async def main():
-    task = asyncio.create_task(emitter.start())
-
-    await asyncio.sleep(1)
-
-    emitter.emit(TestEvent(content="Hello!"))
-
-    await asyncio.sleep(3)
-    logger.info("Emitter stop!")
-    await emitter.stop()
-
-    await task
-    # await emitter.stop()
+@emitter.on("test.run_forever")
+def some_sync_task(event: TestEvent):
+    i = 0
+    while True:
+        time.sleep(0.5)
+        print(f"Sync: {i} {event.content}")
+        i += 1
 
 
-def test_event_emitter():
-    asyncio.run(main())
+@emitter.on("test.conn")
+async def run_once(_):
+    print("You should see this content only once!")
+
+
+@pytest.mark.asyncio
+async def test_event_emitter():
+    async with asyncio.TaskGroup() as tg:
+        tg.create_task(emitter.start())
+        emitter.emit("test.conn", ConnTest(content="Ciallo"))
+        emitter.emit("test.run_forever", ConnTest(content="Ciallo"))
+        await asyncio.sleep(1)
+        await emitter.stop()
