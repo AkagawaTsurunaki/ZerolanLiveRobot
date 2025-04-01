@@ -118,7 +118,7 @@ class ZerolanLiveRobotContext:
             self.bot_id = _config.service.playground.bot_id
             self.live2d_model = _config.service.playground.model_dir
             self.custom_agent = CustomAgent(config=_config.pipeline.llm)
-            self.playground = PlaygroundBridge(config=_config.service.playground, res_server=self.res_server)
+            self.playground = PlaygroundBridge(config=_config.service.playground)
         if _config.service.qqbot.enable:
             self.qq = QQBotBridge(_config.service.qqbot)
         self.microphone = Microphone()
