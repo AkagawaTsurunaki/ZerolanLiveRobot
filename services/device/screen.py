@@ -57,7 +57,7 @@ class Screen:
 
         assert hasattr(pyautogui, "screenshot")
         # Note: If you have a problem that the screenshot cannot be found, try updating the `pyautogui` library
-        img = pyautogui.screenshot(region=region)
+        img = pyautogui.screenshot(region=region)  # noqa
 
         img_save_path = fs.create_temp_file_descriptor(prefix="screenshot", suffix=".png", type="image")
         img.save(img_save_path)

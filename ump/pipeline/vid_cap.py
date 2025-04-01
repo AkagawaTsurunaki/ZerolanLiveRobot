@@ -2,7 +2,6 @@ import os
 
 from pydantic import Field
 from requests import Response
-from zerolan.data.pipeline.abs_data import AbstractModelQuery
 from zerolan.data.pipeline.vid_cap import VidCapQuery, VidCapPrediction
 
 from ump.abs_pipeline import CommonModelPipeline, AbstractPipelineConfig

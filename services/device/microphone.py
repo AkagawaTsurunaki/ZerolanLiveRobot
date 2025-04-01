@@ -13,7 +13,7 @@ class Microphone:
             the dtype type of the numpy vector must match the format of the data format using the microphone,
             otherwise an exception may occur.
         """
-        self._stream: pyaudio.Stream = None
+        self._stream: pyaudio.Stream | None = None
         self._chunk_size = 4096  # The size of the audio data read at a time
         self._format = pyaudio.paFloat32  # TODO: The format in which the audio is recorded, temporarily hardcoded to Float32 format to prevent possible errors
         self.channels = 1

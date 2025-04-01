@@ -8,7 +8,6 @@ from selenium.webdriver.firefox.webdriver import WebDriver as FireFoxWebDriver
 
 from common.io.file_sys import fs
 from services.browser.config import BrowserConfig
-from common.utils import file_util
 
 
 class DriverInitializer:

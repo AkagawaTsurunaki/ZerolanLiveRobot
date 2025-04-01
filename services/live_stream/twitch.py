@@ -36,9 +36,9 @@ class TwitchService(AbstractRunnable):
         self._app_id: str = config.app_id
         self._app_secret: str = config.app_secret
         self._user_scope = [AuthScope.CHAT_READ, AuthScope.CHAT_EDIT]
-        self._twitch: Twitch = None
+        self._twitch: Twitch | None = None
 
-        self._service_task: Task = None
+        self._service_task: Task | None = None
 
     @log_start("TwitchService")
     async def start(self):
