@@ -9,7 +9,7 @@ from common.config import ZerolanLiveRobotConfig
 from common.decorator import log_run_time
 from common.gen import ConfigFileGenerator
 from common.utils.file_util import read_yaml
-from event.eventemitter import emitter
+from event.event_emitter import emitter
 
 
 class ConfigManager:

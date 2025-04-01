@@ -19,7 +19,7 @@ from common.utils.str_util import split_by_punc
 from context import ZerolanLiveRobotContext
 from event.event_data import ASREvent, SpeechEvent, ScreenCapturedEvent, LLMEvent, OCREvent, ImgCapEvent, \
     QQMessageEvent, SwitchVADEvent, TTSEvent
-from event.eventemitter import emitter
+from event.event_emitter import emitter
 from event.registry import EventKeyRegistry
 from services.device.speaker import withsound, SystemSoundEnum
 from ump.pipeline.ocr import avg_confidence, stringify

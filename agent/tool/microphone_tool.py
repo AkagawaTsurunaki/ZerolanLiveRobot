@@ -4,7 +4,7 @@ from langchain_core.tools import BaseTool
 from pydantic import BaseModel, Field
 
 from event.event_data import SwitchVADEvent
-from event.eventemitter import emitter
+from event.event_emitter import emitter
 
 
 class MicrophoneToolInput(BaseModel):

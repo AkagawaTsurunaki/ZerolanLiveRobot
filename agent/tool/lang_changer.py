@@ -7,7 +7,7 @@ from pydantic import BaseModel, Field
 from common.enumerator import Language
 from common.utils.enum_util import enum_members_to_list
 from event.event_data import LanguageChangeEvent
-from event.eventemitter import emitter
+from event.event_emitter import emitter
 
 
 class LangChangeInput(BaseModel):

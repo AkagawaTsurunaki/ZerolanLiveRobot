@@ -8,7 +8,7 @@ from services.live_stream.config import YoutubeServiceConfig
 from common.decorator import log_start, log_stop
 from common.utils.str_util import is_blank
 from event.event_data import DanmakuEvent, SuperChatEvent
-from event.eventemitter import emitter
+from event.event_emitter import emitter
 
 
 def get(url, token: str):

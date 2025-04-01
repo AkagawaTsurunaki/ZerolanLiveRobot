@@ -2,7 +2,7 @@ import asyncio
 
 from common.config import get_config
 from event.event_data import DanmakuEvent
-from event.eventemitter import emitter
+from event.event_emitter import emitter
 from event.registry import EventKeyRegistry
 from services.live_stream.bilibili import BilibiliService
 from services.live_stream.twitch import TwitchService

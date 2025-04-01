@@ -6,6 +6,7 @@ from typing import Callable, List, Dict, TypeVar, Coroutine, Any, Tuple
 from uuid import uuid4
 
 from loguru import logger
+from typing_extensions import deprecated
 
 from common.abs_runnable import AbstractRunnable
 from common.killable_thread import KillableThread
@@ -29,6 +30,7 @@ class Listener:
         self.once: bool = once
 
 
+@deprecated("Use event.event_emitter instead. This TypedEventEmitter may not work normally.")
 class TypedEventEmitter(AbstractRunnable):
 
     def name(self):

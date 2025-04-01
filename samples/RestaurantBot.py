@@ -9,7 +9,7 @@ from common.killable_thread import KillableThread
 from common.utils.audio_util import save_tmp_audio
 from common.utils.str_util import split_by_punc
 from event.event_data import SpeechEvent
-from event.eventemitter import emitter
+from event.event_emitter import emitter
 from event.registry import EventKeyRegistry
 from manager.config_manager import ConfigManager
 from manager.tts_prompt_manager import TTSPromptManager

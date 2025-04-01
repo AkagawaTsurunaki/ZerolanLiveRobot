@@ -6,7 +6,7 @@ from langchain_core.tools import BaseTool
 from loguru import logger
 from pydantic import BaseModel
 
-from event.eventemitter import emitter
+from event.event_emitter import emitter
 from event.registry import EventKeyRegistry
 from services.game.minecraft.data import KonekoProtocol
 

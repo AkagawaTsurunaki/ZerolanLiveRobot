@@ -14,7 +14,7 @@ from common.utils.file_util import create_temp_file, compress_directory
 from common.utils.web_util import get_local_ip
 from common.web.zrl_ws import ZerolanProtocolWsServer
 from event.event_data import PlaygroundConnectedEvent, PlaygroundDisconnectedEvent
-from event.eventemitter import emitter
+from event.event_emitter import emitter
 from services.playground.config import PlaygroundBridgeConfig
 from services.playground.data import FileInfo, ScaleOperationResponse, CreateGameObjectResponse, \
     GameObject, ShowUserTextInputResponse, ServerHello, AddChatHistory, ShowTopMenu, SelectionItem, Arg_MenuItem

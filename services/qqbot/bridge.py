@@ -4,7 +4,7 @@ from zerolan.data.protocol.protocol import ZerolanProtocol
 from services.qqbot.config import QQBotBridgeConfig
 from common.web.zrl_ws import ZerolanProtocolWsServer
 from event.event_data import QQMessageEvent
-from event.eventemitter import emitter
+from event.event_emitter import emitter
 
 
 class _QQBotAction:

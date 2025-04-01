@@ -9,7 +9,7 @@ from common.config import get_config
 from common.killable_thread import KillableThread
 from common.utils.audio_util import save_tmp_audio
 from event.event_data import TTSEvent
-from event.eventemitter import emitter
+from event.event_emitter import emitter
 from event.speech_emitter import SpeechEmitter
 from manager.llm_prompt_manager import LLMPromptManager
 from manager.model_manager import ModelManager

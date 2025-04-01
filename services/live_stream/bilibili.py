@@ -7,7 +7,7 @@ from common.abs_runnable import AbstractRunnable
 from services.live_stream.config import BilibiliServiceConfig
 from common.decorator import log_init, log_stop, log_start
 from event.event_data import LiveStreamConnectedEvent, DanmakuEvent, LiveStreamDisconnectedEvent
-from event.eventemitter import emitter
+from event.event_emitter import emitter
 
 
 class BilibiliService(AbstractRunnable):

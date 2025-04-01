@@ -13,7 +13,7 @@ from common.config import get_config
 from common.utils.audio_util import check_audio_format
 from common.utils.file_util import get_temp_data_dir, create_temp_file
 from event.event_data import ScreenCapturedEvent, SpeechEvent
-from event.eventemitter import emitter
+from event.event_emitter import emitter
 
 RESOURCE_TYPES = {
     "audio": "audio",
