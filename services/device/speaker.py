@@ -1,14 +1,12 @@
-import os
 import threading
 from enum import Enum
-from functools import wraps
+from pathlib import Path
 from queue import Queue
 
 import pygame
 
 from common.abs_runnable import ThreadRunnable
 from common.killable_thread import KillableThread
-from common.utils.audio_util import save_tmp_audio
 
 pygame.mixer.init()
 _system_sound = False
@@ -34,7 +32,7 @@ class Speaker(ThreadRunnable):
         self._stop_flag = False
         self._semaphore = threading.Event()
         self._speaker_thread = KillableThread(target=self._run)
-        self.audio_clips: Queue[str] = Queue()
+        self.audio_clips: Queue[Path] = Queue()
 
     def start(self):
         super().start()
@@ -58,10 +56,8 @@ class Speaker(ThreadRunnable):
             audio_clip = self.audio_clips.get()
             self.playsound(audio_clip, block=True)
 
-    def enqueue_sound(self, path_or_data: str | bytes):
+    def enqueue_sound(self, path_or_data: Path):
         self.activate_check()
-        if isinstance(path_or_data, bytes):
-            path_or_data = save_tmp_audio(path_or_data)
         self.audio_clips.put(path_or_data)
         self._semaphore.set()
 
@@ -70,16 +66,14 @@ class Speaker(ThreadRunnable):
         self.audio_clips = Queue()
 
     @staticmethod
-    def playsound(path_or_data: str | bytes, block: bool = True):
-        if isinstance(path_or_data, bytes):
-            path_or_data = save_tmp_audio(path_or_data)
+    def playsound(path: Path, block: bool = True):
         if block:
-            Speaker._sync_playsound(path_or_data)
+            Speaker._sync_playsound(path)
         else:
-            Speaker._async_playsound(path_or_data)
+            Speaker._async_playsound(path)
 
     @staticmethod
-    def _sync_playsound(path: str):
+    def _sync_playsound(path: Path):
         pygame.mixer.music.load(path)
         pygame.mixer.music.play()
         Speaker.wait()
@@ -90,28 +84,6 @@ class Speaker(ThreadRunnable):
             continue
 
     @staticmethod
-    def _async_playsound(path: str):
+    def _async_playsound(path: Path):
         sound = pygame.mixer.Sound(path)
         pygame.mixer.Sound.play(sound)
-
-    @staticmethod
-    def play_system_sound(key: SystemSoundEnum, block: bool = False):
-        if not _system_sound:
-            return
-        try:
-            Speaker.playsound(os.path.join("resources/static/sound/system", key.value), block=block)
-        except Exception as _:
-            pass
-
-
-def withsound(sound: SystemSoundEnum, block: bool = False):
-    def decorator(func):
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            Speaker.play_system_sound(sound, block)
-            ret = func(*args, **kwargs)
-            return ret
-
-        return wrapper
-
-    return decorator

@@ -21,7 +21,6 @@ from event.event_data import ASREvent, SpeechEvent, ScreenCapturedEvent, LLMEven
     QQMessageEvent, SwitchVADEvent, TTSEvent
 from event.event_emitter import emitter
 from event.registry import EventKeyRegistry
-from services.device.speaker import withsound, SystemSoundEnum
 from ump.pipeline.ocr import avg_confidence, stringify
 
 
@@ -244,7 +243,6 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
             return False
         return True
 
-    @withsound(SystemSoundEnum.exit, block=False)
     def exit(self):
         logger.info("Good bye!")
 

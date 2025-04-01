@@ -1,12 +1,10 @@
 from abc import ABC, abstractmethod
-from loguru import logger
 
-from services.device.speaker import withsound, SystemSoundEnum
+from loguru import logger
 
 
 class AbstractFilter(ABC):
 
-    @withsound(SystemSoundEnum.filtered)
     @abstractmethod
     def filter(self, content: str):
         pass

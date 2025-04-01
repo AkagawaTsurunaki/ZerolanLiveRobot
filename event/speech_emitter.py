@@ -5,7 +5,6 @@ from loguru import logger
 
 from common.abs_runnable import ThreadRunnable
 from common.io.audio import from_ndarray_to_bytes, AudioFileType
-from services.device.speaker import withsound, SystemSoundEnum
 from common.limit_list import LimitList
 from event.event_data import SpeechEvent
 from event.event_emitter import emitter
@@ -35,7 +34,6 @@ class SpeechEmitter(ThreadRunnable):
         self.mp.open()
         self.handler()
 
-    @withsound(SystemSoundEnum.enable_func)
     def resume(self):
         self._pause_event.set()
         self._stop_flag = False
@@ -46,7 +44,6 @@ class SpeechEmitter(ThreadRunnable):
         self._stop_flag = True
         self.mp.close()
 
-    @withsound(SystemSoundEnum.disable_func)
     def pause(self):
         self._pause_event.clear()
         self._stop_flag = True
