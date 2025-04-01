@@ -1,6 +1,5 @@
 from pydantic import Field
 from requests import Response
-from zerolan.data.pipeline.abs_data import AbstractModelQuery
 from zerolan.data.pipeline.img_cap import ImgCapQuery, ImgCapPrediction
 
 from ump.abs_pipeline import AbstractImagePipeline, AbstractPipelineConfig

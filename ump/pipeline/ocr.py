@@ -2,7 +2,6 @@ from typing import List
 
 from pydantic import Field
 from requests import Response
-from zerolan.data.pipeline.abs_data import AbstractModelQuery
 from zerolan.data.pipeline.ocr import OCRQuery, OCRPrediction, RegionResult
 
 from ump.abs_pipeline import AbstractImagePipeline, AbstractPipelineConfig
