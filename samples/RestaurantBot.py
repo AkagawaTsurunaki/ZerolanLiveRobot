@@ -6,7 +6,7 @@ from zerolan.data.pipeline.tts import TTSQuery
 
 from common.enumerator import Language
 from common.io.api import save_audio
-from common.killable_thread import KillableThread
+from common.concurrent.killable_thread import KillableThread
 from common.utils.str_util import split_by_punc
 from event.event_data import SpeechEvent
 from event.event_emitter import emitter

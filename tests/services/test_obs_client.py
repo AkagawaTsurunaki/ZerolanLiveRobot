@@ -2,7 +2,7 @@ import threading
 import time
 
 from common.config import get_config
-from common.killable_thread import KillableThread
+from common.concurrent.killable_thread import KillableThread
 from services.obs.client import ObsStudioWsClient
 
 s = """哈基米像一颗巨石按在胸口

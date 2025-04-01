@@ -5,8 +5,8 @@ from queue import Queue
 
 import pygame
 
-from common.abs_runnable import ThreadRunnable
-from common.killable_thread import KillableThread
+from common.concurrent.abs_runnable import ThreadRunnable
+from common.concurrent.killable_thread import KillableThread
 
 pygame.mixer.init()
 _system_sound = False

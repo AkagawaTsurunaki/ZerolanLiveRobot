@@ -12,7 +12,7 @@ from retry import retry
 from websockets import Subprotocol
 from websockets.sync.client import connect, ClientConnection
 
-from common.abs_runnable import ThreadRunnable
+from common.concurrent.abs_runnable import ThreadRunnable
 from services.obs.config import ObsStudioClientConfig
 
 

@@ -3,7 +3,7 @@ from typing import List, TypeVar
 
 from loguru import logger
 
-from common.abs_runnable import AbstractRunnable
+from common.concurrent.abs_runnable import AbstractRunnable
 from services.live_stream.config import LiveStreamConfig
 from common.decorator import log_start, log_stop
 from services.live_stream.bilibili import BilibiliService

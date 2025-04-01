@@ -11,9 +11,9 @@ from zerolan.data.pipeline.tts import TTSQuery
 from zerolan.data.pipeline.vla import ShowUiQuery
 
 from agent.api import sentiment_analyse, translate, summary_history, find_file, model_scale
-from common.abs_runnable import stop_all_runnable
+from common.concurrent.abs_runnable import stop_all_runnable
 from common.enumerator import Language
-from common.killable_thread import KillableThread, kill_all_threads
+from common.concurrent.killable_thread import KillableThread, kill_all_threads
 from common.io.file_type import AudioFileType
 from common.io.api import save_audio
 from common.utils.img_util import is_image_uniform

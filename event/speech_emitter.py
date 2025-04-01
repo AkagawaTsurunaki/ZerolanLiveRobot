@@ -3,7 +3,7 @@ import threading
 import numpy as np
 from loguru import logger
 
-from common.abs_runnable import ThreadRunnable
+from common.concurrent.abs_runnable import ThreadRunnable
 from common.utils.audio_util import from_ndarray_to_bytes
 from common.io.file_type import AudioFileType
 from common.collection.limit_list import LimitList

@@ -3,7 +3,7 @@ import asyncio
 import requests
 from zerolan.data.data.danmaku import Danmaku, SuperChat
 
-from common.abs_runnable import AbstractRunnable
+from common.concurrent.abs_runnable import AbstractRunnable
 from services.live_stream.config import YoutubeServiceConfig
 from common.decorator import log_start, log_stop
 from common.utils.str_util import is_blank

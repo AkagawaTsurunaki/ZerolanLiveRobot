@@ -12,7 +12,7 @@ from typing import Callable, Dict, List
 from loguru import logger
 from typeguard import typechecked
 
-from common.killable_thread import KillableThread
+from common.concurrent.killable_thread import KillableThread
 from event.event_data import BaseEvent
 
 

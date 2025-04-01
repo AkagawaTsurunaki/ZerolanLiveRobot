@@ -3,7 +3,7 @@ from bilibili_api.live import LiveDanmaku
 from loguru import logger
 from zerolan.data.data.danmaku import Danmaku
 
-from common.abs_runnable import AbstractRunnable
+from common.concurrent.abs_runnable import AbstractRunnable
 from services.live_stream.config import BilibiliServiceConfig
 from common.decorator import log_init, log_stop, log_start
 from event.event_data import LiveStreamConnectedEvent, DanmakuEvent, LiveStreamDisconnectedEvent

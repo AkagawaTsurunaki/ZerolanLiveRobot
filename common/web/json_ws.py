@@ -7,7 +7,7 @@ from websockets import ConnectionClosed
 from websockets.sync.connection import Connection
 from websockets.sync.server import serve, Server
 
-from common.abs_runnable import ThreadRunnable
+from common.concurrent.abs_runnable import ThreadRunnable
 
 
 ############################

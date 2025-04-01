@@ -4,7 +4,7 @@ from loguru import logger
 from websockets import ProtocolError
 from zerolan.data.protocol.protocol import ZerolanProtocol
 
-from common.abs_runnable import ThreadRunnable
+from common.concurrent.abs_runnable import ThreadRunnable
 from common.web.json_ws import JsonWsServer
 
 

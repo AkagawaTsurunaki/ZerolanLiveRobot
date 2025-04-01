@@ -8,8 +8,8 @@ from uuid import uuid4
 from loguru import logger
 from typing_extensions import deprecated
 
-from common.abs_runnable import AbstractRunnable
-from common.killable_thread import KillableThread
+from common.concurrent.abs_runnable import AbstractRunnable
+from common.concurrent.killable_thread import KillableThread
 from event.event_data import BaseEvent
 
 ##############################
