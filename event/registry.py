@@ -7,6 +7,7 @@ class EventKeyRegistry:
         TEST = "test"
 
     class System:
+        CONFIG_FILE_MODIFIED = "system.config_file_modified"
         LANG_CHANGE = "lang_change"
         SYSTEM_ERROR = "system.error"
         SYSTEM_CRASHED = "system.crashed"

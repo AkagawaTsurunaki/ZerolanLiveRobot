@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 from typing import List, Literal
 
-from PIL.Image import Image
 from zerolan.data.data.danmaku import Danmaku, SuperChat
 from zerolan.data.pipeline.asr import ASRPrediction
 from zerolan.data.pipeline.img_cap import ImgCapPrediction
@@ -142,3 +141,7 @@ class PlaygroundDisconnectedEvent(BaseEvent):
 @dataclass
 class WebSocketDisconnectedEvent(BaseEvent):
     type: str = EventKeyRegistry._Inner.WEBSOCKET_DISCONNECTED
+
+@dataclass
+class ConfigFileModifiedEvent(BaseEvent):
+    type: str = EventKeyRegistry.System.CONFIG_FILE_MODIFIED
