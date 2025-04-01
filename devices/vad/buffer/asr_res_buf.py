@@ -1,6 +1,6 @@
 import numpy as np
 
-from services.vad.buffer.asb_buf import AbstractBuffer
+from devices.vad.buffer.asb_buf import AbstractBuffer
 
 
 class AudioBuffer(AbstractBuffer):

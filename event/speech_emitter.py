@@ -10,7 +10,7 @@ from common.collection.limit_list import LimitList
 from event.event_data import SpeechEvent
 from event.event_emitter import emitter
 from devices.microphone import Microphone
-from services.vad.strategy import EasyEnergyVad
+from devices.vad.strategy import EasyEnergyVad
 
 
 class SpeechEmitter(ThreadRunnable):
