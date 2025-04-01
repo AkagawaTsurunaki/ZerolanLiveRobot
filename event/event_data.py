@@ -9,6 +9,7 @@ from zerolan.data.pipeline.ocr import OCRPrediction
 from zerolan.data.pipeline.tts import TTSPrediction
 
 from agent.tool_agent import Tool
+from common.io.audio import AudioFileType
 from event.registry import EventKeyRegistry
 from services.game.minecraft.data import KonekoProtocol
 
@@ -58,7 +59,7 @@ class ImgCapEvent(BaseEvent):
 @dataclass
 class SpeechEvent(BaseEvent):
     speech: bytes
-    audio_type: Literal['raw', 'wav', 'ogg']
+    audio_type: AudioFileType
     channels: int
     sample_rate: int
     type: str = EventKeyRegistry.Device.SERVICE_VAD_SPEECH_CHUNK

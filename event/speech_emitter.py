@@ -4,9 +4,9 @@ import numpy as np
 from loguru import logger
 
 from common.abs_runnable import ThreadRunnable
+from common.io.audio import from_ndarray_to_bytes, AudioFileType
 from services.device.speaker import withsound, SystemSoundEnum
 from common.limit_list import LimitList
-from common.utils.audio_util import from_ndarray_to_bytes
 from event.event_data import SpeechEvent
 from event.event_emitter import emitter
 from services.device.microphone import Microphone
@@ -70,7 +70,7 @@ class SpeechEmitter(ThreadRunnable):
                     emitter.emit(SpeechEvent(speech=combined_speech_bytes,
                                              channels=self.mp.channels,
                                              sample_rate=self.mp.sample_rate,
-                                             audio_type='raw'))
+                                             audio_type=AudioFileType.RAW))
 
                     self.speech_chunks.clear()
             else:

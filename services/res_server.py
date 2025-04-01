@@ -1,5 +1,6 @@
 import json
 import os
+from pathlib import Path
 from typing import Dict
 from uuid import uuid4
 
@@ -9,12 +10,11 @@ from openai import BaseModel
 from typeguard import typechecked
 
 from common.abs_runnable import ThreadRunnable
+from common.io.audio import get_audio_real_format, AudioFileType
 from manager.config import get_config
-from common.utils.audio_util import check_audio_format
 from event.event_data import ScreenCapturedEvent, SpeechEvent
 from event.event_emitter import emitter
 from common.io.file_sys import fs
-
 
 RESOURCE_TYPES = {
     "audio": "audio",
@@ -37,9 +37,9 @@ class _AudioMetadata(BaseModel):
     sample_rate: int
 
 
-def get_temp_resource_endpoint(path: str) -> str:
-    path = os.path.abspath(path).replace("\\", "/")
-    filename, res_dir = path.split("/")[-1], path.split("/")[-2]
+def get_temp_resource_endpoint(path: str | Path) -> str:
+    path = Path(path).absolute()
+    filename, res_dir = path.name, path.parent.name
     endpoint = f"/resource/temp/{res_dir}/{filename}"
     logger.debug(f"Convert to resource endpoint: {endpoint}")
     return endpoint
@@ -156,13 +156,13 @@ class ResourceServer(ThreadRunnable):
 
                 # Check audio data type
                 if file.content_type == "audio/mp3":
-                    audio_type = 'mp3'
+                    audio_type = AudioFileType.MP3
                 elif file.content_type == "audio/wav":
-                    audio_type = 'wav'
+                    audio_type = AudioFileType.WAV
                 elif file.content_type == "audio/ogg":
-                    audio_type = 'ogg'
+                    audio_type = AudioFileType.OGG
                 else:
-                    audio_type = check_audio_format(audio_data)
+                    audio_type = get_audio_real_format(audio_data)
 
                 emitter.emit(SpeechEvent(speech=audio_data,
                                          channels=audio_metadata.channels,

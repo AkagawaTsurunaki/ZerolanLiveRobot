@@ -2,11 +2,11 @@ import hashlib
 import os
 import zipfile
 from datetime import datetime
-from enum import Enum
 from pathlib import Path
 from typing import Literal
 
 from typeguard import typechecked
+
 
 
 def calculate_path_md5(file_path):
@@ -14,12 +14,6 @@ def calculate_path_md5(file_path):
     path_bytes = file_path.encode('utf-8')
     md5.update(path_bytes)
     return md5.hexdigest()
-
-
-class FileType(str, Enum):
-    WAV = 'wav'
-    OGG = 'ogg'
-    MP3 = 'mp3'
 
 
 def get_time_string():
@@ -113,5 +107,6 @@ class FileSystem:
                     file_path = os.path.join(root, file)
                     arcname = os.path.relpath(file_path, start=src_dir)
                     zipf.write(file_path, arcname=arcname)
+
 
 fs = FileSystem()
