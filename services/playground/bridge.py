@@ -20,7 +20,7 @@ from services.playground.config import PlaygroundBridgeConfig
 from services.playground.data import FileInfo, ScaleOperationResponse, CreateGameObjectResponse, \
     GameObject, ShowUserTextInputResponse, ServerHello, AddChatHistory, ShowTopMenu, SelectionItem, Arg_MenuItem
 from services.playground.data import PlaySpeechResponse, LoadLive2DModelResponse
-from services.res_server import get_temp_resource_endpoint, register_file
+from services.res.res_server import get_temp_resource_endpoint, register_file
 
 
 class Action(str, Enum):
