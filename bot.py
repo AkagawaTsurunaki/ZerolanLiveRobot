@@ -12,10 +12,9 @@ from zerolan.data.pipeline.vla import ShowUiQuery
 
 from agent.api import sentiment_analyse, translate, summary_history, find_file, model_scale
 from common.abs_runnable import stop_all_runnable
-from common.asyncio_util import sync_wait
 from common.enumerator import Language
+from common.killable_thread import KillableThread, kill_all_threads
 from common.utils.audio_util import save_audio, AudioFileType
-from common.killable_thread import kill_all_threads, KillableThread
 from common.utils.img_util import is_image_uniform
 from common.utils.str_util import split_by_punc
 from context import ZerolanLiveRobotContext
@@ -66,6 +65,12 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
         for thread in threads:
             thread.join()
 
+    async def stop(self):
+        emitter.stop()
+        kill_all_threads()
+        await stop_all_runnable()
+        logger.info("Good Bye!")
+
     def init(self):
         @emitter.on(EventKeyRegistry.Playground.PLAYGROUND_CONNECTED)
         def on_playground_connected(_):
@@ -113,9 +118,7 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
             logger.debug("`ASREvent` received.")
             prediction = event.prediction
             self.playground.add_history(role="user", text=prediction.transcript, username=self.master_name)
-            if "关机" in prediction.transcript:
-                sync_wait(self._exit())
-            elif "打开浏览器" in prediction.transcript:
+            if "打开浏览器" in prediction.transcript:
                 if self.browser is not None:
                     self.browser.open("https://www.bing.com")
             elif "关闭浏览器" in prediction.transcript:
@@ -127,7 +130,7 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
                     text = prediction.transcript[4:]
                     self.browser.send_keys_and_enter(text)
             elif "游戏" in prediction.transcript:
-                sync_wait(self.game_agent.exec_instruction(prediction.transcript))
+                self.game_agent.exec_instruction(prediction.transcript)
             elif "看见" in prediction.transcript:
                 img, img_save_path = self.screen.safe_capture(k=0.99)
                 if not self.check_img(img):
@@ -169,7 +172,7 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
                     logger.warning("No gameobjects info")
                     return
                 so = model_scale(info, prediction.transcript)
-                sync_wait(self.playground.modify_game_object_scale(so))
+                self.playground.modify_game_object_scale(so)
             else:
                 tool_called = self.custom_agent.run(prediction.transcript)
                 if tool_called:
@@ -262,24 +265,12 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
         self.cur_lang = lang.name()
         self.tts_prompt_manager.set_lang(self.cur_lang)
 
-    async def _exit(self):
-        await stop_all_runnable()
-        logger.info("Sent exit signal.")
-
-    async def _force_exit(self):
-        await stop_all_runnable()
-        kill_all_threads()
-        logger.info("Sent force-exit signal.")
-
     def check_img(self, img) -> bool:
         if is_image_uniform(img):
             logger.warning("Are you sure you capture the screen properly? The screen is black!")
             self.emit_llm_prediction("你忽然什么都看不见了！请向你的开发者求助！")
             return False
         return True
-
-    def exit(self):
-        logger.info("Good bye!")
 
     def save_memory(self):
         start = len(self.llm_prompt_manager.injected_history)
