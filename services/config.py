@@ -6,7 +6,7 @@ from services.live_stream.config import LiveStreamConfig
 from services.obs.config import ObsStudioClientConfig
 from services.playground.config import PlaygroundBridgeConfig
 from services.qqbot.config import QQBotBridgeConfig
-from services.res.config import ResourceServerConfig
+from services.playground.res.config import ResourceServerConfig
 
 
 class ServiceConfig(BaseModel):

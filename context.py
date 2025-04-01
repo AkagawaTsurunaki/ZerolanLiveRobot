@@ -15,7 +15,7 @@ from services.game.minecraft.app import KonekoMinecraftAIAgent
 from services.live_stream.service import LiveStreamService
 from services.playground.bridge import PlaygroundBridge
 from services.qqbot.bridge import QQBotBridge
-from services.res.res_server import ResourceServer
+from services.playground.res.res_server import ResourceServer
 from ump.pipeline.asr import ASRPipeline
 from ump.pipeline.database import MilvusPipeline
 from ump.pipeline.img_cap import ImgCapPipeline
