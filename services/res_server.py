@@ -11,9 +11,10 @@ from typeguard import typechecked
 from common.abs_runnable import ThreadRunnable
 from manager.config import get_config
 from common.utils.audio_util import check_audio_format
-from common.utils.file_util import get_temp_data_dir, create_temp_file
 from event.event_data import ScreenCapturedEvent, SpeechEvent
 from event.event_emitter import emitter
+from common.io.file_sys import fs
+
 
 RESOURCE_TYPES = {
     "audio": "audio",
@@ -88,7 +89,7 @@ class ResourceServer(ThreadRunnable):
 
             # 构造文件路径
             file_path = str(os.path.join(resource_type, filename))
-            file_path = os.path.join(get_temp_data_dir(), file_path)
+            file_path = os.path.join(fs.temp_dir, file_path)
 
             # 检查文件是否存在
             if not os.path.exists(file_path):
@@ -124,7 +125,7 @@ class ResourceServer(ThreadRunnable):
                 elif file.content_type == "image/jpg":
                     image_type = 'jpg'
 
-                img_path = create_temp_file(prefix="imgcap", suffix=f".{image_type}", tmpdir="image")
+                img_path = fs.create_temp_file_descriptor(prefix="imgcap", suffix=f".{image_type}", type="image")
                 file.save(img_path)
                 file.close()
 

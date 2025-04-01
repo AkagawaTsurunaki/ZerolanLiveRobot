@@ -9,7 +9,6 @@ import pygame
 from common.abs_runnable import ThreadRunnable
 from common.killable_thread import KillableThread
 from common.utils.audio_util import save_tmp_audio
-from common.utils.file_util import spath
 
 pygame.mixer.init()
 _system_sound = False
@@ -100,7 +99,7 @@ class Speaker(ThreadRunnable):
         if not _system_sound:
             return
         try:
-            Speaker.playsound(spath(os.path.join("resources/static/sound/system", key.value)), block=block)
+            Speaker.playsound(os.path.join("resources/static/sound/system", key.value), block=block)
         except Exception as _:
             pass
 

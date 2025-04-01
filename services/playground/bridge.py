@@ -7,14 +7,15 @@ from loguru import logger
 from typeguard import typechecked
 from zerolan.data.protocol.protocol import ZerolanProtocol
 
-from manager.config import get_config
+from common.io.file_sys import fs
 from common.utils.audio_util import check_audio_format, check_audio_info
 from common.utils.collection_util import to_value_list
-from common.utils.file_util import create_temp_file, compress_directory
+from common.utils.file_util import compress_directory
 from common.utils.web_util import get_local_ip
 from common.web.zrl_ws import ZerolanProtocolWsServer
 from event.event_data import PlaygroundConnectedEvent, PlaygroundDisconnectedEvent
 from event.event_emitter import emitter
+from manager.config import get_config
 from services.playground.config import PlaygroundBridgeConfig
 from services.playground.data import FileInfo, ScaleOperationResponse, CreateGameObjectResponse, \
     GameObject, ShowUserTextInputResponse, ServerHello, AddChatHistory, ShowTopMenu, SelectionItem, Arg_MenuItem
@@ -114,7 +115,7 @@ class PlaygroundBridge(ZerolanProtocolWsServer):
         :param bot_display_name:
         """
         assert os.path.exists(model_dir) and os.path.isdir(model_dir), f"{model_dir} is not a directory"
-        zip_path = create_temp_file("live2d", ".zip", "model")
+        zip_path = fs.create_temp_file_descriptor(prefix="live2d", suffix=".zip", type="model")
         compress_directory(model_dir, zip_path)
         model_download_endpoint = get_temp_resource_endpoint(zip_path)
         self.send(action=Action.LOAD_LIVE2D_MODEL, data=LoadLive2DModelResponse(

@@ -5,15 +5,14 @@ from loguru import logger
 
 from agent.custom_agent import CustomAgent
 from agent.tool_agent import ToolAgent
-from manager.config import get_config
 from common.killable_thread import KillableThread
 from common.utils.audio_util import save_tmp_audio
 from event.event_data import TTSEvent
 from event.event_emitter import emitter
 from event.speech_emitter import SpeechEmitter
+from manager.config import get_config
 from manager.llm_prompt_manager import LLMPromptManager
 from manager.model_manager import ModelManager
-from manager.temp_data_manager import TempDataManager
 from manager.tts_prompt_manager import TTSPromptManager
 from services.browser.browser import Browser
 from services.device.microphone import Microphone
@@ -79,14 +78,11 @@ class ZerolanLiveRobotContext:
         self.live2d_model: str = None
         self.res_server: ResourceServer | None = None
 
-        self.temp_data_manager: TempDataManager = TempDataManager()
-
         assert _config.pipeline.llm.enable, f"At least LLMPipeline must be enabled in your config."
         self.llm = LLMPipeline(_config.pipeline.llm)
         self.filter = FirstMatchedFilter(_config.character.chat.filter.bad_words)
         self.llm_prompt_manager = LLMPromptManager(_config.character.chat)
         self.speaker = Speaker()
-        self.temp_data_manager.create_temp_dir()
         self.bot_name = _config.character.bot_name
         self.res_server = ResourceServer(_config.service.res_server.host, _config.service.res_server.port)
 

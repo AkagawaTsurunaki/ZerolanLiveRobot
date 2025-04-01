@@ -6,7 +6,7 @@ from PIL.Image import Image
 from loguru import logger
 from pygetwindow import Win32Window
 
-from common.utils import file_util
+from common.io.file_sys import fs
 
 
 class Screen:
@@ -59,7 +59,7 @@ class Screen:
         # Note: If you have a problem that the screenshot cannot be found, try updating the `pyautogui` library
         img = pyautogui.screenshot(region=region)
 
-        img_save_path = file_util.create_temp_file(prefix="screenshot", suffix=".png", tmpdir="image")
+        img_save_path = fs.create_temp_file_descriptor(prefix="screenshot", suffix=".png", type="image")
         img.save(img_save_path)
 
         return img, img_save_path

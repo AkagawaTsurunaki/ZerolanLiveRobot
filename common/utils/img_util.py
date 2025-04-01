@@ -1,7 +1,6 @@
 from PIL.Image import Image
 
-from common.utils.file_util import create_temp_file
-
+from common.io.file_sys import fs
 
 def save_bytes_as_image(image_bytes: bytes, format="png") -> str:
     """
@@ -10,7 +9,7 @@ def save_bytes_as_image(image_bytes: bytes, format="png") -> str:
     :param format: png/jpg...
     :return:
     """
-    img_path = create_temp_file(prefix="imgcap", suffix=f".{format}", tmpdir="image")
+    img_path = fs.create_temp_file_descriptor(prefix="imgcap", suffix=f".{format}", type="image")
 
     with open(img_path, "wb") as image_file:
         image_file.write(image_bytes)

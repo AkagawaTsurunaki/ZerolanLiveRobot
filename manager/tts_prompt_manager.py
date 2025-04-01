@@ -7,7 +7,6 @@ from zerolan.data.data.prompt import TTSPrompt
 
 from character.config import SpeechConfig
 from common.enumerator import Language
-from common.utils.file_util import spath
 
 
 class TTSPromptManager:
@@ -34,7 +33,7 @@ class TTSPromptManager:
         self.sentiments = []
         self.default_tts_prompt = None
         try:
-            for dirpath, dirnames, filenames in os.walk(spath(prompts_dir)):
+            for dirpath, dirnames, filenames in os.walk(prompts_dir):
                 for filename in filenames:
                     try:
                         lang, sentiment, transcript = self.parse_tts_prompt_filename(filename)

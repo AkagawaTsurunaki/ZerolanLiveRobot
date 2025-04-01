@@ -3,8 +3,7 @@ from pathlib import Path
 import numpy as np
 from pydub import AudioSegment
 
-from common.utils.file_util import create_temp_file
-
+from common.io.file_sys import fs
 
 def from_bytes_to_np_ndarray(bytes_data: bytes, dtype: str = "float32") -> (np.ndarray, int):
     """
@@ -79,7 +78,7 @@ def check_audio_format(audio) -> str:
 
 def save_tmp_audio(wave_data: bytes):
     format = check_audio_format(wave_data)
-    wav_path = create_temp_file(prefix="tts", suffix=f".{format}", tmpdir="audio")
+    wav_path = fs.create_temp_file_descriptor(prefix="tts", suffix=f".{format}", type="audio")
     with open(wav_path, "wb") as f:
         f.write(wave_data)
     return wav_path
