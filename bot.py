@@ -55,6 +55,10 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
         res_server_thread = KillableThread(target=self.res_server.start, daemon=True, name="ResServerThread")
         threads.append(res_server_thread)
 
+        if self.game_agent:
+            game_agent_thread = KillableThread(target=self.game_agent.start, daemon=True, name="GameAgentThread")
+            threads.append(game_agent_thread)
+
         for thread in threads:
             thread.start()
 

@@ -5,9 +5,9 @@ from loguru import logger
 from zerolan.data.protocol.protocol import ZerolanProtocol
 
 from agent.tool_agent import Tool, ToolAgent
-from services.game.config import GameBridgeConfig
 from common.web.zrl_ws import ZerolanProtocolWsServer
 from event.registry import EventKeyRegistry
+from services.game.config import GameBridgeConfig
 from services.game.minecraft.instrcution.input import generate_model_from_args, FieldMetadata
 from services.game.minecraft.instrcution.tool import KonekoInstructionTool
 
@@ -19,7 +19,6 @@ class KonekoMinecraftAIAgent(ZerolanProtocolWsServer):
 
     def __init__(self, config: GameBridgeConfig, tool_agent: ToolAgent):
         super().__init__(config.host, config.port)
-        self.ws = ZerolanProtocolWsServer(host=config.host, port=config.port)
         self._instruction_tools: Dict[str, KonekoInstructionTool] = dict()
         self._tool_agent = tool_agent
 
@@ -73,10 +72,3 @@ class KonekoMinecraftAIAgent(ZerolanProtocolWsServer):
             tool_msg = selected_tool.invoke(tool_call)
             messages.append(tool_msg)
         logger.debug(messages)
-
-    def start(self):
-        self._init()
-        self.ws.start()
-
-    def stop(self):
-        self.ws.stop()

@@ -97,7 +97,8 @@ class ZerolanLiveRobotContext:
             self.browser = Browser(_config.external_tool.browser)
         if _config.service.game.enable:
             if _config.service.game.platform == "minecraft":
-                assert self.tool_agent is not None, f'Tool agent need!'
+                if self.tool_agent is None:
+                    self.tool_agent = ToolAgent(_config.pipeline.llm)
                 self.game_agent = KonekoMinecraftAIAgent(_config.service.game, self.tool_agent)
         if _config.service.live_stream.enable:
             self.live_stream = LiveStreamService(_config.service.live_stream)
