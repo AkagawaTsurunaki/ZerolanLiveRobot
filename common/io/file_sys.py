@@ -1,4 +1,3 @@
-import hashlib
 import os
 import zipfile
 from datetime import datetime
@@ -6,14 +5,6 @@ from pathlib import Path
 from typing import Literal
 
 from typeguard import typechecked
-
-
-
-def calculate_path_md5(file_path):
-    md5 = hashlib.md5()
-    path_bytes = file_path.encode('utf-8')
-    md5.update(path_bytes)
-    return md5.hexdigest()
 
 
 def get_time_string():
@@ -29,9 +20,6 @@ class FileSystem:
     def __init__(self):
         self._proj_dir: Path | None = None
         self._temp_dir: Path | None = None
-
-        self.temp_files = {}
-
         self._create_temp_dir()
 
     def _create_temp_dir(self):
@@ -76,7 +64,7 @@ class FileSystem:
         self.temp_dir.mkdir(exist_ok=True)
         if suffix[0] == '.':
             suffix = suffix[1:]
-        filename = f"{prefix}-{get_time_string()}{suffix}"
+        filename = f"{prefix}-{get_time_string()}.{suffix}"
         typed_dir = self.temp_dir.joinpath(type)
         typed_dir.mkdir(exist_ok=True)
         return typed_dir.joinpath(filename).absolute()
@@ -98,8 +86,8 @@ class FileSystem:
         return None
 
     @typechecked
-    def compress(self, src_dir: str | Path, tgt_dir: str | Path) -> None:
-        src_dir = Path(src_dir)
+    def compress(self, src_dir: str | Path, tgt_dir: str | Path):
+        src_dir = Path(src_dir).absolute()
 
         with zipfile.ZipFile(tgt_dir, 'a', zipfile.ZIP_DEFLATED) as zipf:
             for root, dirs, files in os.walk(src_dir):
