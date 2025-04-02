@@ -17,7 +17,7 @@ from common.utils.enum_util import enum_members_to_list
 class PlaySpeechResponse(BaseModel):
     bot_id: str = Field(description="The unique identifier of the bot.")
     bot_display_name: str = Field(description="The display name of the bot.")
-    audio_download_endpoint: str = Field(description="The endpoint of the audio file to be played. \n"
+    file_id: str = Field(description="The endpoint of the audio file to be played. \n"
                                                      "Note: Need to combine with something like `http://127.0.0.1`")
     transcript: str = Field(description="The text transcript of the audio.")
     audio_type: str = Field(description="The type of the audio. \n"
@@ -30,7 +30,7 @@ class PlaySpeechResponse(BaseModel):
 class LoadLive2DModelResponse(BaseModel):
     bot_id: str = Field(description="The unique identifier of the bot.")
     bot_display_name: str = Field(description="The display name of the bot.")
-    model_download_endpoint: str = Field(description="The endpoint of the Live2D model file. \n"
+    model_file_id: str = Field(description="The endpoint of the Live2D model file. \n"
                                                      "Note: Need to combine with something like `http://127.0.0.1`")
 
 

@@ -8,8 +8,8 @@ from loguru import logger
 from typeguard import typechecked
 from zerolan.data.protocol.protocol import ZerolanProtocol
 
-from common.utils.audio_util import get_audio_real_format, get_audio_info
 from common.io.file_sys import fs
+from common.utils.audio_util import get_audio_real_format, get_audio_info
 from common.utils.collection_util import to_value_list
 from common.utils.web_util import get_local_ip
 from common.web.zrl_ws import ZerolanProtocolWsServer
@@ -20,7 +20,7 @@ from services.playground.config import PlaygroundBridgeConfig
 from services.playground.data import FileInfo, ScaleOperationResponse, CreateGameObjectResponse, \
     GameObject, ShowUserTextInputResponse, ServerHello, AddChatHistory, ShowTopMenu, SelectionItem, Arg_MenuItem
 from services.playground.data import PlaySpeechResponse, LoadLive2DModelResponse
-from services.playground.res.res_server import get_temp_resource_endpoint, register_file
+from services.playground.res.res_server import register_file
 
 
 class Action(str, Enum):
@@ -50,6 +50,8 @@ class PlaygroundBridge(ZerolanProtocolWsServer):
         super().__init__(host=config.host, port=config.port)
         self.gameobjects_info = {}
         self.server_ipv6, self.server_ipv4 = get_local_ip(True), get_local_ip()
+        # Model dir => File ID
+        self.live2d_models = {}
 
     def name(self):
         return "PlaygroundBridge"
@@ -95,9 +97,9 @@ class PlaygroundBridge(ZerolanProtocolWsServer):
         """
         audio_type = get_audio_real_format(audio_path)
         sample_rate, num_channels, duration = get_audio_info(audio_path)
-        audio_download_endpoint = get_temp_resource_endpoint(audio_path)
+        file_id = register_file(audio_path)
         self.send(action=Action.PLAY_SPEECH,
-                  data=PlaySpeechResponse(bot_id=bot_id, audio_download_endpoint=audio_download_endpoint,
+                  data=PlaySpeechResponse(bot_id=bot_id, file_id=file_id,
                                           bot_display_name=bot_name,
                                           transcript=transcript,
                                           audio_type=audio_type,
@@ -115,14 +117,19 @@ class PlaygroundBridge(ZerolanProtocolWsServer):
         :param bot_display_name:
         """
         assert os.path.exists(model_dir) and os.path.isdir(model_dir), f"{model_dir} is not a directory"
-        zip_path = fs.create_temp_file_descriptor(prefix="live2d", suffix=".zip", type="model")
-        fs.compress(model_dir, zip_path)
-        model_download_endpoint = get_temp_resource_endpoint(zip_path)
+        file_id = self.live2d_models.get(model_dir, None)
+
+        if file_id is None:
+            zip_path = fs.create_temp_file_descriptor(prefix="live2d", suffix=".zip", type="model")
+            fs.compress(model_dir, zip_path)
+            file_id = register_file(zip_path)
+            self.live2d_models[model_dir] = file_id
+        assert file_id is not None
+
         self.send(action=Action.LOAD_LIVE2D_MODEL, data=LoadLive2DModelResponse(
             bot_id=bot_id,
             bot_display_name=bot_display_name,
-            model_dir=model_dir,
-            model_download_endpoint=model_download_endpoint
+            model_file_id=file_id
         ))
 
     def load_3d_model(self, file_info: FileInfo):
