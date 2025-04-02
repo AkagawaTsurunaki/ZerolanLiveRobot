@@ -10,12 +10,12 @@ from openai import BaseModel
 from typeguard import typechecked
 
 from common.concurrent.abs_runnable import ThreadRunnable
-from common.utils.audio_util import get_audio_real_format
+from common.io.file_sys import fs
 from common.io.file_type import AudioFileType
-from manager.config_manager import get_config
+from common.utils.audio_util import get_audio_real_format
 from event.event_data import ScreenCapturedEvent, SpeechEvent
 from event.event_emitter import emitter
-from common.io.file_sys import fs
+from manager.config_manager import get_config
 
 RESOURCE_TYPES = {
     "audio": "audio",
@@ -38,25 +38,17 @@ class _AudioMetadata(BaseModel):
     sample_rate: int
 
 
-def get_temp_resource_endpoint(path: str | Path) -> str:
-    path = Path(path).absolute()
-    filename, res_dir = path.name, path.parent.name
-    endpoint = f"/resource/temp/{res_dir}/{filename}"
-    logger.debug(f"Convert to resource endpoint: {endpoint}")
-    return endpoint
-
-
 # Path => file_id
 _files: Dict[str, str] = {}
 
 
 @typechecked
-def register_file(path: str) -> str:
+def register_file(path: str | Path) -> str:
     global _files
-    assert os.path.exists(path), f"No such file: {path}"
-    path = os.path.abspath(path).replace("\\", "/")
+    path = Path(path).absolute()
+    assert path.exists(), f"No such file: {path}"
 
-    file_id = _files.get(path, None)
+    file_id = _files.get(str(path), None)
     if file_id is None:
         file_id = str(uuid4())
         _files[str(path)] = file_id
