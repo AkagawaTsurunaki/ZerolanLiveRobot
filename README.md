@@ -133,7 +133,7 @@ Zerolan Live Robot 1.0 旧版本使用的是简单的按秒轮询，从各个服
 async def on_service_vad_speech_chunk(event: SpeechEvent):
     speech, channels, sample_rate = event.speech, event.channels, event.sample_rate
     prediction = ... # 假如调用了某个函数获得了 ASR 的结果
-    emitter.emit(EventEnum.PIPELINE_ASR, ASREvent(prediction=prediction)) # 发送自动语音识别事件
+    emitter.emit(ASREvent(prediction=prediction)) # 发送自动语音识别事件
 ```
 
 这里的监听器即 `on_service_vad_speech_chunk`，本质上是一个函数，它会在 `SpeechEvent` 发生时被调用。
