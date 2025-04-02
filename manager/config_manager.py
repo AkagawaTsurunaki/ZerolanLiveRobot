@@ -71,7 +71,6 @@ class ConfigManager:
             # When the `config.yaml` does not meet the criteria, an exception is thrown.
             logger.exception(e)
             logger.error("Please check your config file. Maybe there are some mistakes.")
-            emitter.emit("UnhandledError", e)
         logger.info(f"Loaded config file: {self._config_path}")
 
     def _register_watchdog(self):

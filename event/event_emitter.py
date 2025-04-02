@@ -222,8 +222,8 @@ class TypedEventEmitter:
         return decorator
 
     @typechecked
-    def emit(self, event: str, event_data: BaseEvent):
-        self._create_tasks(event, event_data)
+    def emit(self, event: BaseEvent):
+        self._create_tasks(event.type, event)
 
 
 emitter = TypedEventEmitter()

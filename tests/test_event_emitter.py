@@ -62,7 +62,7 @@ async def run_once(_):
 async def test_event_emitter():
     async with asyncio.TaskGroup() as tg:
         tg.create_task(emitter.start())
-        emitter.emit("test.conn", ConnTest(content="Ciallo"))
-        emitter.emit("test.run_forever", ConnTest(content="Ciallo"))
+        emitter.emit(TestEvent(content="Ciallo"))
+        emitter.emit(ConnTest(content="Ciallo"))
         await asyncio.sleep(1)
         await emitter.stop()
