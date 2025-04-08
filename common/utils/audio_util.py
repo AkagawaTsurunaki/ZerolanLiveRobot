@@ -20,6 +20,7 @@ def get_audio_info(path: Path | str) -> (int, int, float):
     suffix = Path(path).suffix
     if suffix[0] == '.':
         suffix = suffix[1:]
+    suffix = suffix.lower()
 
     if suffix == AudioFileType.OGG:
         audio = AudioSegment.from_ogg(path)
