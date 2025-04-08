@@ -1,3 +1,21 @@
+"""
+Typed Event Emitter v2
+Author: AkagawaTsurunaki
+
+Task:
+    When an event is emitted, the tasks will be loaded in real time according to the registered listeners.
+    BaseTask has 2 inherited class SyncFunc and AsyncCoro,
+    which correspond to a synchronous or asynchronous function that can be called.
+
+Executor:
+    AsyncTaskExecutor use event loop to handle AsyncCoros.
+    SyncTaskExecutor use thread pool to handle SyncFuncs.
+
+Timeout:
+    By default, the timeout duration of a task is 5 seconds,
+    and once this event is exceeded, it will be printed on the log.
+    The operation will not cancel the task, but only for the diagnosis of the function called.
+"""
 import asyncio
 import inspect
 import queue
@@ -73,8 +91,9 @@ class SyncFunc(BaseTask):
             self.exception = e
             logger.exception(e)
             raise e
-        self.timer.stop()
-        logger.debug(f"Function(id={self.id}) {self.name} execution costs {self.timer.elapsed} s")
+        finally:
+            self.timer.stop()
+            logger.debug(f"Function(id={self.id}) {self.name} execution costs {self.timer.elapsed} s")
 
     def __init__(self, target, name: str = None, timeout: int = None):
         super().__init__(target, name, timeout)
@@ -89,8 +108,9 @@ class AsyncCoro(BaseTask):
             self.exception = e
             logger.exception(e)
             raise e
-        self.timer.stop()
-        logger.debug(f"Coroutine(id={self.id}) {self.name} execution costs {self.timer.elapsed} s")
+        finally:
+            self.timer.stop()
+            logger.debug(f"Coroutine(id={self.id}) {self.name} execution costs {self.timer.elapsed} s")
 
     def __init__(self, target, name: str = None, timeout: int = None):
         super().__init__(target, name, timeout)
