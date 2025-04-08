@@ -64,7 +64,7 @@ class ConfigManager:
 
             self._config = config
             if self._modified > 0:
-                emitter.emit(EventKeyRegistry.System.CONFIG_FILE_MODIFIED, ConfigFileModifiedEvent())
+                emitter.emit(ConfigFileModifiedEvent())
                 logger.info("Config file was modified. Hot reload triggered.")
             self._modified += 1
         except Exception as e:
