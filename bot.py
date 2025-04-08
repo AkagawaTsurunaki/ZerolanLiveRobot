@@ -1,5 +1,6 @@
 import asyncio
 import os
+from pathlib import Path
 
 from loguru import logger
 from zerolan.data.pipeline.asr import ASRStreamQuery
@@ -189,6 +190,8 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
         @emitter.on(EventKeyRegistry.Device.SCREEN_CAPTURED)
         def on_device_screen_captured(event: ScreenCapturedEvent):
             img_path = event.img_path
+            if isinstance(event.img_path, Path):
+                img_path = str(event.img_path)
 
             ocr_prediction = self.ocr.predict(OCRQuery(img_path=img_path))
             # TODO: 0.6 is a hyperparameter that indicates the average confidence of the text contained in the image.
