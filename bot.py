@@ -3,6 +3,7 @@ import os
 from pathlib import Path
 
 from loguru import logger
+from zerolan.data.data.prompt import TTSPrompt
 from zerolan.data.pipeline.asr import ASRStreamQuery
 from zerolan.data.pipeline.img_cap import ImgCapQuery
 from zerolan.data.pipeline.llm import LLMQuery, LLMPrediction
@@ -233,20 +234,27 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
             logger.info("LLM: " + text)
             sentiment = sentiment_analyse(sentiments=self.tts_prompt_manager.sentiments, text=text)
             tts_prompt = self.tts_prompt_manager.get_tts_prompt(sentiment)
-            transcripts = split_by_punc(text, self.cur_lang)
             self.playground.add_history(role="assistant", text=text, username=self.bot_name)
-            for idx, transcript in enumerate(transcripts):
-                query = TTSQuery(
-                    text=transcript,
-                    text_language=self.cur_lang,
-                    refer_wav_path=tts_prompt.audio_path,
-                    prompt_text=tts_prompt.prompt_text,
-                    prompt_language=tts_prompt.lang,
-                    audio_type="wav"
-                )
-                prediction = self.tts.predict(query=query)
-                logger.info(f"TTS: {query.text}")
-                self.play_tts(TTSEvent(prediction=prediction, transcript=transcript))
+            transcripts = split_by_punc(text, self.cur_lang)
+            # Note that transcripts may be [] because we can not apply split in some cases.
+            if len(transcripts) > 0:
+                for idx, transcript in enumerate(transcripts):
+                    self._tts(tts_prompt, transcript)
+            else:
+                self._tts(tts_prompt, text)
+
+    def _tts(self, tts_prompt: TTSPrompt, text: str):
+        query = TTSQuery(
+            text=text,
+            text_language="auto",
+            refer_wav_path=tts_prompt.audio_path,
+            prompt_text=tts_prompt.prompt_text,
+            prompt_language=tts_prompt.lang,
+            audio_type="wav"
+        )
+        prediction = self.tts.predict(query=query)
+        logger.info(f"TTS: {query.text}")
+        self.play_tts(TTSEvent(prediction=prediction, transcript=text))
 
     def emit_llm_prediction(self, text, direct_return: bool = False) -> None | LLMPrediction:
         logger.debug("`emit_llm_prediction` called")
