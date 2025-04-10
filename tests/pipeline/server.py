@@ -86,10 +86,3 @@ class TestServer:
                 return flask.Response(gen(id))
             else:
                 raise NotImplementedError("Unsupported Content-Type.")
-
-
-if __name__ == '__main__':
-    # To test, start this first
-    test_server = TestServer()
-    test_server.init()
-    test_server.start()
