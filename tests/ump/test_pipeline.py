@@ -7,9 +7,10 @@ from zerolan.data.pipeline.tts import TTSStreamPrediction
 
 from common.decorator import log_run_time
 from common.utils.file_util import read_yaml
-from pipeline.synch.asr import ASRPipeline
+from pipeline.asr.sync.asr import ASRPipeline
 from pipeline.synch.llm import LLMPipeline
-from pipeline.config.config import LLMPipelineConfig, ASRPipelineConfig
+from pipeline.config.config import LLMPipelineConfig
+from pipeline.asr.config import ASRPipelineConfig
 from ump.test_tts import tts_stream_predict
 
 _config = read_yaml("./resources/config.test.yaml")

@@ -1,11 +1,12 @@
 import os
-from typing import Dict, BinaryIO, Literal, Generator
+from typing import Dict, BinaryIO, Generator
 
 from typeguard import typechecked
 from zerolan.data.pipeline.abs_data import AbstractModelQuery
 from zerolan.data.pipeline.asr import ASRQuery, ASRPrediction, ASRStreamQuery
 
-from pipeline.asynch.base import BaseAsyncPipeline, stream_generator
+from pipeline.asr.config import ASRPipelineConfig, ASRModelIdEnum
+from pipeline.asynch.base import BaseAsyncPipeline, stream_generator, get_base_url
 
 
 @typechecked
@@ -41,14 +42,11 @@ def _parse_asr_stream_query(query: ASRStreamQuery) -> Dict[str, BinaryIO | str]:
     return data
 
 
-ModelID = Literal['iic/speech_paraformer_asr_nat-zh-cn-16k-common-vocab8358-tensorflow1',
-'kotoba-tech/kotoba-whisper-v2.0']
-
-
 class ASRPipeline(BaseAsyncPipeline):
-    def __init__(self, model_id: ModelID, base_url: str):
-        super().__init__(base_url)
-        self._model_id: ModelID = model_id
+
+    def __init__(self, config: ASRPipelineConfig):
+        super().__init__(base_url=get_base_url(config.predict_url))
+        self._model_id: ASRModelIdEnum = config.model_id
         self._predict_endpoint = "/asr/predict"
         self._stream_predict_endpoint = "/asr/stream-predict"
 

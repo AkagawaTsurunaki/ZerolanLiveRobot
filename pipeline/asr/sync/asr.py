@@ -5,7 +5,7 @@ import requests
 from zerolan.data.pipeline.asr import ASRQuery, ASRPrediction, ASRStreamQuery
 
 from pipeline.synch.abs_pipeline import CommonModelPipeline
-from pipeline.config.config import ASRPipelineConfig
+from pipeline.asr.config import ASRPipelineConfig
 
 
 class ASRPipeline(CommonModelPipeline):

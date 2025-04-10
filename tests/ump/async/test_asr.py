@@ -3,11 +3,11 @@ import pytest
 from zerolan.data.pipeline.asr import ASRQuery, ASRStreamQuery
 
 from common.utils.audio_util import from_bytes_to_np_ndarray
-from private import base_url
-from pipeline.asynch.asr import ASRPipeline
+from manager.config_manager import get_config
+from pipeline.asr.asr import ASRPipeline
 
-_asr = ASRPipeline(model_id="iic/speech_paraformer_asr_nat-zh-cn-16k-common-vocab8358-tensorflow1",
-                   base_url=base_url)
+_config = get_config()
+_asr = ASRPipeline(_config.pipeline.asr)
 
 
 @pytest.mark.asyncio
