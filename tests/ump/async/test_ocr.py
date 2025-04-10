@@ -1,7 +1,7 @@
 import pytest
 from zerolan.data.pipeline.ocr import OCRQuery
 
-from pipeline.asynch.ocr import OCRPipeline
+from pipeline.ocr.ocr_async import OCRPipeline
 
 _ocr = OCRPipeline(model_id="paddlepaddle/PaddleOCR", base_url='http://127.0.0.1:11004')
 

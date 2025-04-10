@@ -21,7 +21,7 @@ from pipeline.asr.asr_sync import ASRPipeline
 from pipeline.synch.database import MilvusPipeline
 from pipeline.synch.img_cap import ImgCapPipeline
 from pipeline.llm.llm_sync import LLMSyncPipeline
-from pipeline.synch.ocr import OCRPipeline
+from pipeline.ocr.ocr_sync import OCRPipeline
 from pipeline.synch.tts import TTSPipeline
 from pipeline.synch.vid_cap import VidCapPipeline
 from pipeline.synch.vla import ShowUIPipeline

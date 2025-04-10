@@ -4,7 +4,7 @@ from requests import Response
 from zerolan.data.pipeline.ocr import OCRQuery, OCRPrediction, RegionResult
 
 from pipeline.synch.abs_pipeline import AbstractImagePipeline
-from pipeline.config.config import OCRPipelineConfig
+from pipeline.ocr.config import OCRPipelineConfig
 
 
 class OCRPipeline(AbstractImagePipeline):

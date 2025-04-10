@@ -1,8 +1,8 @@
 from zerolan.data.pipeline.ocr import OCRQuery
 
 from common.utils.file_util import read_yaml
-from pipeline.synch.ocr import OCRPipeline
-from pipeline.config.config import OCRPipelineConfig
+from pipeline.ocr.ocr_sync import OCRPipeline
+from pipeline.ocr.config import OCRPipelineConfig
 
 _config = read_yaml("./resources/config.test.yaml")
 _ocr = OCRPipeline(OCRPipelineConfig(
