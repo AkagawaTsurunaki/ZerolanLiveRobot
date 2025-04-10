@@ -1,6 +1,12 @@
-from typing import Literal
-
 from pydantic import BaseModel, Field
+
+from common.enumerator import BaseEnum
+from common.utils.enum_util import enum_to_markdown
+
+
+class DisplayModeEnum(BaseEnum):
+    AR: str = "ar"
+    Live2D: str = "live2D"
 
 
 class PlaygroundBridgeConfig(BaseModel):
@@ -10,8 +16,8 @@ class PlaygroundBridgeConfig(BaseModel):
                       description="The host address of the PlaygroundBridge server.")
     port: int = Field(default=11013,
                       description="The port number of the PlaygroundBridge server.")
-    mode: Literal["live2d", "ar"] = Field(default="live2d",
-                                          description="The mode type, either `live2d` or `ar`.")
+    mode: DisplayModeEnum = Field(default=DisplayModeEnum.Live2D,
+                                  description=f"The display mode of the client. {enum_to_markdown(DisplayModeEnum)}")
     bot_id: str = Field(default=f"<BOT_ID>",
                         description="The ID of the bot. \n"
                                     "You can set it to any value.")

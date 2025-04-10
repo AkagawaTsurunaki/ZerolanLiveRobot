@@ -1,18 +1,24 @@
 import os.path
-from typing import Literal, Tuple, Generator
+from typing import Tuple, Generator
 
 import requests
 from pydantic import Field
 from zerolan.data.pipeline.asr import ASRQuery, ASRPrediction, ASRStreamQuery
 
+from common.enumerator import BaseEnum
+from common.utils.enum_util import enum_to_markdown
 from ump.abs_pipeline import CommonModelPipeline, AbstractPipelineConfig
+
+
+class AudioFormatEnum(BaseEnum):
+    Float32: str = "float32"
 
 
 class ASRPipelineConfig(AbstractPipelineConfig):
     sample_rate: int = Field(16000, description="The sample rate for audio input.")
     channels: int = Field(1, description="The number of audio channels.")
-    format: Literal["float32"] = Field("float32",
-                                       description="The format of the audio data. Now `float32` supported only.")
+    format: AudioFormatEnum = Field(AudioFormatEnum.Float32,
+                                    description=f"The format of the audio data. {enum_to_markdown(AudioFormatEnum)}")
     model_id: str = Field(default="iic/speech_paraformer_asr_nat-zh-cn-16k-common-vocab8358-tensorflow1",
                           description="The ID of the model used for ASR.")
     predict_url: str = Field(default="http://127.0.0.1:11000/asr/predict",
