@@ -1,6 +1,7 @@
 import os
 from typing import Dict, BinaryIO, Generator
 
+from loguru import logger
 from typeguard import typechecked
 from zerolan.data.pipeline.abs_data import AbstractModelQuery
 from zerolan.data.pipeline.asr import ASRQuery, ASRPrediction, ASRStreamQuery
@@ -14,6 +15,8 @@ def _parse_asr_query(query: ASRQuery) -> Dict[str, BinaryIO | str]:
     data = {"json": query.model_dump_json()}
     if os.path.exists(query.audio_path):
         data['audio'] = open(query.audio_path, 'rb')
+    else:
+        logger.warning(f'Assume the remote server must have such file: {query.audio_path}')
 
     return data
 

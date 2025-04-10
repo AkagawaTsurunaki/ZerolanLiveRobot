@@ -17,7 +17,7 @@ from services.live_stream.service import LiveStreamService
 from services.playground.bridge import PlaygroundBridge
 from services.qqbot.bridge import QQBotBridge
 from services.playground.res.res_server import ResourceServer
-from pipeline.asr.sync.asr import ASRPipeline
+from pipeline.asr.asr_sync import ASRPipeline
 from pipeline.synch.database import MilvusPipeline
 from pipeline.synch.img_cap import ImgCapPipeline
 from pipeline.synch.llm import LLMPipeline
