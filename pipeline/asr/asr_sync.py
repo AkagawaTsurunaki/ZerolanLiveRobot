@@ -2,6 +2,7 @@ import os.path
 from typing import Tuple, Generator
 
 import requests
+from typeguard import typechecked
 from zerolan.data.pipeline.asr import ASRQuery, ASRPrediction, ASRStreamQuery
 
 from pipeline.synch.abs_pipeline import CommonModelPipeline
@@ -13,6 +14,7 @@ class ASRPipeline(CommonModelPipeline):
     def __init__(self, config: ASRPipelineConfig):
         super().__init__(config)
 
+    @typechecked
     def predict(self, query: ASRQuery) -> ASRPrediction | None:
         assert isinstance(query, ASRQuery)
         files, data = self.parse_query(query)
@@ -22,6 +24,7 @@ class ASRPipeline(CommonModelPipeline):
         prediction = self.parse_prediction(response.content)
         return prediction
 
+    @typechecked
     def stream_predict(self, query: ASRStreamQuery, chunk_size: int | None = None) -> Generator[
         ASRPrediction, None, None]:
         assert isinstance(query, ASRStreamQuery)

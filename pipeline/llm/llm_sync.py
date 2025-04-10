@@ -1,9 +1,10 @@
 from openai import OpenAI
 from requests import Response
+from typeguard import typechecked
 from zerolan.data.pipeline.llm import LLMQuery, LLMPrediction, RoleEnum, Conversation
 
 from pipeline.synch.abs_pipeline import CommonModelPipeline
-from pipeline.config.config import LLMPipelineConfig
+from pipeline.llm.config import LLMPipelineConfig
 
 
 def _to_openai_format(query: LLMQuery):
@@ -29,7 +30,7 @@ def _openai_predict(query: LLMQuery, wrapper):
     return LLMPrediction(response=resp, history=query.history)
 
 
-class LLMPipeline(CommonModelPipeline):
+class LLMSyncPipeline(CommonModelPipeline):
 
     def __init__(self, config: LLMPipelineConfig):
         super().__init__(config)
@@ -43,6 +44,7 @@ class LLMPipeline(CommonModelPipeline):
             base_url = config.predict_url if config.predict_url else config.stream_predict_url
             self._remote_model = OpenAI(api_key=config.api_key, base_url=base_url)
 
+    @typechecked
     def predict(self, query: LLMQuery) -> LLMPrediction | None:
         assert isinstance(query, LLMQuery)
         if self._is_openai_format:
@@ -69,6 +71,7 @@ class LLMPipeline(CommonModelPipeline):
         else:
             return super().predict(query)
 
+    @typechecked
     def stream_predict(self, query: LLMQuery, chunk_size: int | None = None):
         assert isinstance(query, LLMQuery)
         # TODO: Kimi and Deepseek stream prediction.

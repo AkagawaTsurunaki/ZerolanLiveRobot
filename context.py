@@ -20,7 +20,7 @@ from services.playground.res.res_server import ResourceServer
 from pipeline.asr.asr_sync import ASRPipeline
 from pipeline.synch.database import MilvusPipeline
 from pipeline.synch.img_cap import ImgCapPipeline
-from pipeline.synch.llm import LLMPipeline
+from pipeline.llm.llm_sync import LLMSyncPipeline
 from pipeline.synch.ocr import OCRPipeline
 from pipeline.synch.tts import TTSPipeline
 from pipeline.synch.vid_cap import VidCapPipeline
@@ -38,7 +38,7 @@ class ZerolanLiveRobotContext:
     """
 
     def __init__(self):
-        self.llm: LLMPipeline | None = None
+        self.llm: LLMSyncPipeline | None = None
         self.asr: ASRPipeline | None = None
         self.ocr: OCRPipeline | None = None
         self.tts: TTSPipeline | None = None
@@ -73,7 +73,7 @@ class ZerolanLiveRobotContext:
         self.res_server: ResourceServer | None = None
 
         assert _config.pipeline.llm.enable, f"At least LLMPipeline must be enabled in your config."
-        self.llm = LLMPipeline(_config.pipeline.llm)
+        self.llm = LLMSyncPipeline(_config.pipeline.llm)
         self.filter = FirstMatchedFilter(_config.character.chat.filter.bad_words)
         self.llm_prompt_manager = LLMPromptManager(_config.character.chat)
         self.speaker = Speaker()

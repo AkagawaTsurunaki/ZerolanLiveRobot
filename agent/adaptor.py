@@ -7,8 +7,8 @@ from langchain_core.messages import BaseMessage, AIMessage, HumanMessage, System
 from langchain_core.outputs import ChatResult, ChatGeneration
 from langchain_core.tools import BaseTool
 from zerolan.data.pipeline.llm import LLMQuery, Conversation, RoleEnum
-from pipeline.synch.llm import LLMPipeline
-from pipeline.config.config import LLMPipelineConfig
+from pipeline.llm.llm_sync import LLMSyncPipeline
+from pipeline.llm.config import LLMPipelineConfig
 
 
 def convert(messages: list[BaseMessage]) -> list[Conversation]:
@@ -56,7 +56,7 @@ class LangChainAdaptedLLM(BaseChatModel):
         super().__init__()
         self._tool_names = set[str]
         self._openai_tools: list[dict] = []
-        self._pipeline = LLMPipeline(config=config)
+        self._pipeline = LLMSyncPipeline(config=config)
         self._model_name = "CustomLLM"
         self._tools: Sequence[
             Union[typing.Dict[str, Any], type, Callable, BaseTool]  # noqa: UP006
