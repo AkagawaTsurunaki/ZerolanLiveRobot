@@ -19,7 +19,7 @@ from services.qqbot.bridge import QQBotBridge
 from services.playground.res.res_server import ResourceServer
 from pipeline.asr.asr_sync import ASRPipeline
 from pipeline.synch.database import MilvusPipeline
-from pipeline.synch.img_cap import ImgCapPipeline
+from pipeline.imgcap.imgcap_sync import ImgCapPipeline
 from pipeline.llm.llm_sync import LLMSyncPipeline
 from pipeline.ocr.ocr_sync import OCRPipeline
 from pipeline.synch.tts import TTSPipeline
