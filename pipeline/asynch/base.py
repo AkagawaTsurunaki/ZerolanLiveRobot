@@ -11,7 +11,7 @@ from zerolan.data.pipeline.abs_data import AbsractImageModelQuery
 @typechecked
 def get_base_url(url: str) -> str:
     uri = urllib3.util.parse_url(url)
-    base_url = f"{uri.scheme}//{uri.host}:{uri.port}"
+    base_url = f"{uri.scheme}://{uri.host}:{uri.port}"
     return base_url
 
 
