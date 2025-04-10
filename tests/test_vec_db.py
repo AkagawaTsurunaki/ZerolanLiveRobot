@@ -1,7 +1,7 @@
 from common.config import get_config
 from zerolan.data.pipeline.milvus import InsertRow, MilvusInsert, MilvusQuery
 
-from pipeline.db.milvus import MilvusPipeline
+from pipeline.db.milvus_sync import MilvusPipeline
 
 _config = get_config()
 pipeline = MilvusPipeline(config=_config.pipeline.vec_db.milvus)

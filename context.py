@@ -18,13 +18,13 @@ from services.playground.bridge import PlaygroundBridge
 from services.qqbot.bridge import QQBotBridge
 from services.playground.res.res_server import ResourceServer
 from pipeline.asr.asr_sync import ASRPipeline
-from pipeline.db.milvus import MilvusPipeline
+from pipeline.db.milvus_sync import MilvusPipeline
 from pipeline.imgcap.imgcap_sync import ImgCapPipeline
 from pipeline.llm.llm_sync import LLMSyncPipeline
 from pipeline.ocr.ocr_sync import OCRPipeline
 from pipeline.tts.tts_sync import TTSPipeline
-from pipeline.synch.vid_cap import VidCapPipeline
-from pipeline.synch.vla import ShowUIPipeline
+from pipeline.vidcap.vidcap_sync import VidCapPipeline
+from pipeline.vla.showui.showui_sync import ShowUIPipeline
 
 _config = get_config()
 

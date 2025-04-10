@@ -3,8 +3,8 @@ import os
 from requests import Response
 from zerolan.data.pipeline.vid_cap import VidCapQuery, VidCapPrediction
 
-from pipeline.synch.abs_pipeline import CommonModelPipeline
-from pipeline.config.config import VidCapPipelineConfig
+from pipeline.base.base_sync import CommonModelPipeline
+from pipeline.vidcap.config import VidCapPipelineConfig
 
 
 class VidCapPipeline(CommonModelPipeline):

@@ -5,7 +5,7 @@ import requests
 from typeguard import typechecked
 from zerolan.data.pipeline.asr import ASRQuery, ASRPrediction, ASRStreamQuery
 
-from pipeline.synch.abs_pipeline import CommonModelPipeline
+from pipeline.base.base_sync import CommonModelPipeline
 from pipeline.asr.config import ASRPipelineConfig
 
 

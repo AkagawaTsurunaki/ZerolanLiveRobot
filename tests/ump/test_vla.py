@@ -1,8 +1,8 @@
 from zerolan.data.pipeline.vla import ShowUiQuery, WebAction
 
 from common.utils.file_util import read_yaml
-from pipeline.synch.vla import ShowUIPipeline
-from pipeline.config.config import ShowUIConfig
+from pipeline.vla.showui.showui_sync import ShowUIPipeline
+from pipeline.vla.showui.config import ShowUIConfig
 
 _config = read_yaml("./resources/config.test.yaml")
 showui = ShowUIPipeline(ShowUIConfig(

@@ -3,7 +3,7 @@ from typing import Literal
 from typeguard import typechecked
 from zerolan.data.pipeline.ocr import OCRQuery, OCRPrediction
 
-from pipeline.asynch.base import BaseAsyncPipeline, _parse_imgcap_query
+from pipeline.base.base_async import BaseAsyncPipeline, _parse_imgcap_query
 
 ModelID = Literal['paddlepaddle/PaddleOCR']
 

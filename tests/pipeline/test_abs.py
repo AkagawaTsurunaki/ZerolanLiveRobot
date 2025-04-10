@@ -5,7 +5,7 @@ from zerolan.data.pipeline.llm import LLMQuery
 
 from common.concurrent.killable_thread import KillableThread
 from pipeline.server import TestServer
-from pipeline.synch.abs_pipeline import CommonModelPipeline, AbstractPipelineConfig, PipelineDisabledException
+from pipeline.base.base_sync import CommonModelPipeline, AbstractPipelineConfig, PipelineDisabledException
 
 base_url = "http://127.0.0.1:5889"
 

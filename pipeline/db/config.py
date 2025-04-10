@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field
 
-from pipeline.db.milvus import MilvusDatabaseConfig
+from pipeline.db.milvus_sync import MilvusDatabaseConfig
 
 
 #########

@@ -7,7 +7,7 @@ from zerolan.data.pipeline.abs_data import AbstractModelQuery
 from zerolan.data.pipeline.asr import ASRQuery, ASRPrediction, ASRStreamQuery
 
 from pipeline.asr.config import ASRPipelineConfig, ASRModelIdEnum
-from pipeline.asynch.base import BaseAsyncPipeline, stream_generator, get_base_url
+from pipeline.base.base_async import BaseAsyncPipeline, stream_generator, get_base_url
 
 
 @typechecked

@@ -1,7 +1,7 @@
 from typeguard import typechecked
 from zerolan.data.pipeline.milvus import MilvusQuery, MilvusQueryResult, MilvusInsert, MilvusInsertResult
 
-from pipeline.asynch.base import BaseAsyncPipeline
+from pipeline.base.base_async import BaseAsyncPipeline
 
 
 class MilvusPipeline(BaseAsyncPipeline):

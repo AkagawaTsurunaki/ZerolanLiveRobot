@@ -5,7 +5,7 @@ from zerolan.data.pipeline.abs_data import AbsractImageModelQuery
 
 from common.concurrent.killable_thread import KillableThread
 from pipeline.server import TestServer
-from pipeline.synch.abs_pipeline import AbstractPipelineConfig, AbstractImagePipeline
+from pipeline.base.base_sync import AbstractPipelineConfig, AbstractImagePipeline
 
 base_url = "http://127.0.0.1:5889"
 # To test, start this first

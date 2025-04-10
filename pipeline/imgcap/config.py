@@ -2,7 +2,7 @@ from pydantic import Field
 
 from common.enumerator import BaseEnum
 from common.utils.enum_util import enum_to_markdown
-from pipeline.synch.abs_pipeline import AbstractPipelineConfig
+from pipeline.base.base_sync import AbstractPipelineConfig
 
 
 ##########

@@ -3,7 +3,7 @@ from typing import Generator
 from typeguard import typechecked
 from zerolan.data.pipeline.llm import LLMQuery, LLMPrediction
 
-from pipeline.asynch.base import BaseAsyncPipeline, get_base_url
+from pipeline.base.base_async import BaseAsyncPipeline, get_base_url
 from pipeline.llm.config import LLMPipelineConfig, LLMModelIdEnum
 
 

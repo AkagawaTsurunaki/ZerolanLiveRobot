@@ -5,7 +5,7 @@ from http import HTTPStatus
 import requests
 from zerolan.data.pipeline.tts import TTSQuery, TTSPrediction, TTSStreamPrediction
 
-from pipeline.synch.abs_pipeline import CommonModelPipeline
+from pipeline.base.base_sync import CommonModelPipeline
 from pipeline.tts.config import TTSPipelineConfig
 
 

@@ -3,7 +3,7 @@ from typing import List
 from requests import Response
 from zerolan.data.pipeline.ocr import OCRQuery, OCRPrediction, RegionResult
 
-from pipeline.synch.abs_pipeline import AbstractImagePipeline
+from pipeline.base.base_sync import AbstractImagePipeline
 from pipeline.ocr.config import OCRPipelineConfig
 
 

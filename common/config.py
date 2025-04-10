@@ -2,7 +2,7 @@ from pydantic import BaseModel, Field
 
 from character.config import CharacterConfig
 from services.config import ServiceConfig
-from pipeline.config.config import PipelineConfig
+from pipeline.base.config import PipelineConfig
 
 
 class SystemConfig(BaseModel):

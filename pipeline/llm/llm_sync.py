@@ -3,7 +3,7 @@ from requests import Response
 from typeguard import typechecked
 from zerolan.data.pipeline.llm import LLMQuery, LLMPrediction, RoleEnum, Conversation
 
-from pipeline.synch.abs_pipeline import CommonModelPipeline
+from pipeline.base.base_sync import CommonModelPipeline
 from pipeline.llm.config import LLMPipelineConfig
 
 

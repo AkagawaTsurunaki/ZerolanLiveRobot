@@ -4,7 +4,7 @@ from typing import Literal
 from typeguard import typechecked
 from zerolan.data.pipeline.vid_cap import VidCapQuery, VidCapPrediction
 
-from pipeline.asynch.base import BaseAsyncPipeline
+from pipeline.base.base_async import BaseAsyncPipeline
 
 ModelID = Literal['multi-modal_hitea_video-captioning_base_en']
 
