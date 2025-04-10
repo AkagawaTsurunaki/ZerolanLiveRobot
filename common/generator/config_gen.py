@@ -2,6 +2,7 @@ from datetime import datetime
 
 from pydantic import BaseModel
 from pydantic.fields import FieldInfo
+from typeguard import typechecked
 
 from common.decorator import log_run_time
 
@@ -48,12 +49,12 @@ class ConfigFileGenerator:
         return header
 
     @log_run_time()
+    @typechecked
     def generate_yaml(self, model: BaseModel):
         """
         Generate yaml from BaseModel instance.
         :param model: An instance of BaseModel.
         :return: Yaml string.
         """
-        assert model, f"None can not be generated."
         self._gen(model, depth=0)
         return self._get_header() + "\n" + self._yaml_str
