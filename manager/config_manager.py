@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 from typing import Callable
 
 from loguru import logger
@@ -41,18 +42,24 @@ class ConfigManager:
     def config(self):
         return self._config
 
+    def generate_config_file(self):
+        res_dir = Path(self._config_path).parent
+        if not os.path.exists(res_dir):
+            res_dir.mkdir()
+        gen = ConfigFileGenerator()
+        config = gen.generate_yaml(ZerolanLiveRobotConfig())
+        with open(self._config_path, mode="w+", encoding="utf-8") as f:
+            f.write(config)
+        logger.warning(
+            "`resources/config.yaml` was not found. I have generated the file for you! \n"
+            "Please edit the config file and re-run the program.")
+        exit()
+
     @log_run_time()
     def _load_config(self):
         # Check if the config file exists
         if not os.path.exists(self._config_path):
-            gen = ConfigFileGenerator()
-            config = gen.generate_yaml(ZerolanLiveRobotConfig())
-            with open(self._config_path, mode="w+", encoding="utf-8") as f:
-                f.write(config)
-            logger.warning(
-                "`resources/config.yaml` was not found. I have generated the file for you! \n"
-                "Please edit the config file and re-run the program.")
-            exit()
+            self.generate_config_file()
         logger.info(f"Loading config file: {self._config_path}")
         try:
             cfg_dict = read_yaml(self._config_path)
