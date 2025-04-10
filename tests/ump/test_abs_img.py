@@ -2,7 +2,7 @@ import uuid
 
 from zerolan.data.pipeline.abs_data import AbsractImageModelQuery
 
-from ump.abs_pipeline import AbstractPipelineConfig, AbstractImagePipeline
+from pipeline.synch.abs_pipeline import AbstractPipelineConfig, AbstractImagePipeline
 
 base_url = "http://127.0.0.1:5889"
 

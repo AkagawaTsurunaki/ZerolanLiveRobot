@@ -3,8 +3,8 @@ from typing import List
 from requests import Response
 from zerolan.data.pipeline.ocr import OCRQuery, OCRPrediction, RegionResult
 
-from ump.abs_pipeline import AbstractImagePipeline
-from ump.config import OCRPipelineConfig
+from pipeline.synch.abs_pipeline import AbstractImagePipeline
+from pipeline.config.config import OCRPipelineConfig
 
 
 class OCRPipeline(AbstractImagePipeline):

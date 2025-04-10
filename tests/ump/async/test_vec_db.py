@@ -2,7 +2,7 @@ import pytest
 from zerolan.data.pipeline.milvus import InsertRow, MilvusInsert, MilvusQuery
 
 from private import base_url
-from ump.asyncio.pipeline.database import MilvusPipeline
+from pipeline.asynch.database import MilvusPipeline
 
 _milvus = MilvusPipeline(base_url=base_url)
 

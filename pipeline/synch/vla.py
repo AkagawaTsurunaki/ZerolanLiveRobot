@@ -1,7 +1,7 @@
 from zerolan.data.pipeline.vla import ShowUiQuery, ShowUiPrediction
 
-from ump.abs_pipeline import AbstractImagePipeline
-from ump.config import ShowUIConfig
+from pipeline.synch.abs_pipeline import AbstractImagePipeline
+from pipeline.config.config import ShowUIConfig
 
 
 class ShowUIPipeline(AbstractImagePipeline):

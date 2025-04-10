@@ -5,7 +5,7 @@ from typeguard import typechecked
 from zerolan.data.pipeline.abs_data import AbstractModelQuery
 from zerolan.data.pipeline.asr import ASRQuery, ASRPrediction, ASRStreamQuery
 
-from ump.asyncio.pipeline.base import BaseAsyncPipeline, stream_generator
+from pipeline.asynch.base import BaseAsyncPipeline, stream_generator
 
 
 @typechecked

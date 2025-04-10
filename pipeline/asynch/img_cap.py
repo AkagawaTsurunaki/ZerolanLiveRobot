@@ -3,7 +3,7 @@ from typing import Literal
 from typeguard import typechecked
 from zerolan.data.pipeline.img_cap import ImgCapQuery, ImgCapPrediction
 
-from ump.asyncio.pipeline.base import BaseAsyncPipeline, _parse_imgcap_query
+from pipeline.asynch.base import BaseAsyncPipeline, _parse_imgcap_query
 
 ModelID = Literal['Salesforce/blip-image-captioning-large']
 

@@ -8,7 +8,7 @@ from langchain_core.outputs import ChatResult, ChatGeneration
 from langchain_core.tools import BaseTool
 from zerolan.data.pipeline.llm import LLMQuery, Conversation, RoleEnum
 from pipeline.synch.llm import LLMPipeline
-from ump.config import LLMPipelineConfig
+from pipeline.config.config import LLMPipelineConfig
 
 
 def convert(messages: list[BaseMessage]) -> list[Conversation]:

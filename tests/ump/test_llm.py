@@ -2,7 +2,7 @@ from zerolan.data.pipeline.llm import LLMQuery, Conversation, RoleEnum
 
 from common.utils.file_util import read_yaml
 from pipeline.synch.llm import LLMPipeline
-from ump.config import LLMPipelineConfig
+from pipeline.config.config import LLMPipelineConfig
 
 _config = read_yaml("./resources/config.test.yaml")
 _llm = LLMPipeline(LLMPipelineConfig(

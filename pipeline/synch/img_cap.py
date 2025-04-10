@@ -1,8 +1,8 @@
 from requests import Response
 from zerolan.data.pipeline.img_cap import ImgCapQuery, ImgCapPrediction
 
-from ump.abs_pipeline import AbstractImagePipeline
-from ump.config import ImgCapPipelineConfig
+from pipeline.synch.abs_pipeline import AbstractImagePipeline
+from pipeline.config.config import ImgCapPipelineConfig
 
 
 class ImgCapPipeline(AbstractImagePipeline):

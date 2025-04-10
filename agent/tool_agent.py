@@ -16,7 +16,7 @@ from zerolan.data.pipeline.llm import LLMQuery
 
 from agent.adaptor import LangChainAdaptedLLM, convert
 from common.utils.json_util import smart_load_json_like
-from ump.config import LLMPipelineConfig
+from pipeline.config.config import LLMPipelineConfig
 
 
 class Property(BaseModel):

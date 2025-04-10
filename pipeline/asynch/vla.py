@@ -3,7 +3,7 @@ from typing import Literal
 from typeguard import typechecked
 from zerolan.data.pipeline.vla import ShowUiPrediction, ShowUiQuery
 
-from ump.asyncio.pipeline.base import BaseAsyncPipeline
+from pipeline.asynch.base import BaseAsyncPipeline
 
 ModelID = Literal['showlab/ShowUI-2B']
 

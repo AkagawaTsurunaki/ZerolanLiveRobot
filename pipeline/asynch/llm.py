@@ -3,7 +3,7 @@ from typing import Generator, Literal
 from typeguard import typechecked
 from zerolan.data.pipeline.llm import LLMQuery, LLMPrediction
 
-from ump.asyncio.pipeline.base import BaseAsyncPipeline
+from pipeline.asynch.base import BaseAsyncPipeline
 
 ModelID = Literal[
     "THUDM/chatglm3-6b", "THUDM/GLM-4",

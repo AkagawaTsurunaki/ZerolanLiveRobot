@@ -4,7 +4,7 @@ import requests
 from pydantic import BaseModel, Field
 from zerolan.data.pipeline.milvus import MilvusInsert, MilvusInsertResult, MilvusQuery, MilvusQueryResult
 
-from ump.abs_pipeline import AbstractPipeline, AbstractPipelineConfig
+from pipeline.synch.abs_pipeline import AbstractPipeline, AbstractPipelineConfig
 
 
 class MilvusDatabaseConfig(AbstractPipelineConfig):

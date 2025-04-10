@@ -2,7 +2,7 @@ import uuid
 
 from zerolan.data.pipeline.llm import LLMQuery
 
-from ump.abs_pipeline import CommonModelPipeline, AbstractPipelineConfig, PipelineDisabledException
+from pipeline.synch.abs_pipeline import CommonModelPipeline, AbstractPipelineConfig, PipelineDisabledException
 
 base_url = "http://127.0.0.1:5889"
 

@@ -9,7 +9,7 @@ from common.decorator import log_run_time
 from common.utils.file_util import read_yaml
 from pipeline.synch.asr import ASRPipeline
 from pipeline.synch.llm import LLMPipeline
-from ump.config import LLMPipelineConfig, ASRPipelineConfig
+from pipeline.config.config import LLMPipelineConfig, ASRPipelineConfig
 from ump.test_tts import tts_stream_predict
 
 _config = read_yaml("./resources/config.test.yaml")

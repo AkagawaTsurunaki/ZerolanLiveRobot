@@ -5,7 +5,7 @@ from typing import Literal, Generator
 from typeguard import typechecked
 from zerolan.data.pipeline.tts import TTSQuery, TTSPrediction, TTSStreamPrediction
 
-from ump.asyncio.pipeline.base import BaseAsyncPipeline, stream_generator
+from pipeline.asynch.base import BaseAsyncPipeline, stream_generator
 
 ModelID = Literal['AkagawaTsurunaki/GPT-SoVITS']
 

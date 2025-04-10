@@ -2,7 +2,7 @@ import pytest
 from zerolan.data.pipeline.tts import TTSQuery
 
 from common.enumerator import Language
-from ump.asyncio.pipeline.tts import TTSPipeline
+from pipeline.asynch.tts import TTSPipeline
 
 _tts = TTSPipeline(base_url="http://127.0.0.1:11006", model_id="AkagawaTsurunaki/GPT-SoVITS")
 

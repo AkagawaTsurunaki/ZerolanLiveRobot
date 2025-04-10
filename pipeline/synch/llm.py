@@ -2,8 +2,8 @@ from openai import OpenAI
 from requests import Response
 from zerolan.data.pipeline.llm import LLMQuery, LLMPrediction, RoleEnum, Conversation
 
-from ump.abs_pipeline import CommonModelPipeline
-from ump.config import LLMPipelineConfig
+from pipeline.synch.abs_pipeline import CommonModelPipeline
+from pipeline.config.config import LLMPipelineConfig
 
 
 def _to_openai_format(query: LLMQuery):

@@ -4,8 +4,8 @@ from typing import Tuple, Generator
 import requests
 from zerolan.data.pipeline.asr import ASRQuery, ASRPrediction, ASRStreamQuery
 
-from ump.abs_pipeline import CommonModelPipeline
-from ump.config import ASRPipelineConfig
+from pipeline.synch.abs_pipeline import CommonModelPipeline
+from pipeline.config.config import ASRPipelineConfig
 
 
 class ASRPipeline(CommonModelPipeline):
