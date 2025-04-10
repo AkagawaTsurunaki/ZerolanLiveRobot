@@ -1,14 +1,14 @@
+import typing
 from enum import Enum
-from typing import Any
+from typing import Any, Union
 
 import gradio as gr
+import pydantic.version
 from loguru import logger
 from pydantic import BaseModel
 
 from common.config import ZerolanLiveRobotConfig
 from common.utils.enum_util import enum_members_to_str_list
-
-global_theme = gr.themes.Soft()
 
 
 def _add_field_component(field_name: str, field_type: Any, field_desc, field_val: Any):
@@ -20,7 +20,7 @@ def _add_field_component(field_name: str, field_type: Any, field_desc, field_val
     :param field_type:
     :return:
     """
-    if field_type == str:
+    if field_type == str or (field_type == Union[str | None]):
         gr.Textbox(label=field_name, info=field_desc, value=field_val, interactive=True)
     elif field_type == int:
         gr.Number(label=field_name, info=field_desc, value=field_val, interactive=True)
@@ -31,38 +31,52 @@ def _add_field_component(field_name: str, field_type: Any, field_desc, field_val
     elif isinstance(field_val, Enum):
         choices = enum_members_to_str_list(type(field_val))
         gr.Dropdown(label=field_name, info=field_desc, choices=choices, interactive=True)
-    elif field_type == list:
+    elif field_type == list or field_type == typing.List[str]:
         assert isinstance(field_val, list)
         str_list = [[str(elm)] for elm in field_val]
         with gr.Row():
-            gr.List(label=field_name, value=str_list)
+            ls = gr.List(label=field_name, value=str_list)
             with gr.Column():
-                gr.Textbox(label=field_name, info=field_desc, interactive=True)
-                gr.Button("Add")
+                tb = gr.Textbox(label=field_name, info=field_desc, interactive=True)
+
+                def on_add_btn_click(text):
+                    str_list.append([text])
+                    return None, str_list
+
+                btn = gr.Button(value="Add")
+                btn.click(fn=on_add_btn_click, inputs=tb, outputs=[tb, ls])
     else:
         logger.warning(f"Field {field_name} with type {field_type} not supported.")
 
 
-def _add_block_components(blocks: gr.Blocks, model: BaseModel):
+def _add_block_components(model: BaseModel):
     """Add components based on model fields."""
+    # TODO: PydanticDeprecatedSince211: Accessing the 'model_fields' attribute on the instance is deprecated.
+    #       Instead, you should access this attribute from the model class.
+    #       Deprecated in Pydantic V2.11 to be removed in V3.0.
+    pydantic_ver = pydantic.version.VERSION.split(".")
+    if not (int(pydantic_ver[0]) <= 2 and int(pydantic_ver[1]) <= 11):
+        raise Exception("Too high version of Pydantic, try install pydantic<=2.11")
+
     fields = model.model_fields
 
     for field_name, field_info in fields.items():
         field_val = model.__getattribute__(field_name)
+        field_type = field_info.annotation
         if isinstance(field_val, BaseModel):
             with gr.Tab(f"{field_name}"):
-                with gr.Blocks() as child:
-                    # gr.Tab(f"{field_name}")
+                with gr.Blocks():
                     gr.Markdown(field_info.description)
-                    _add_block_components(child, field_val)
+                    _add_block_components(field_val)
         else:
-            _add_field_component(field_name, type(field_val), field_info.description, field_val)
+            _add_field_component(field_name, field_type, field_info.description, field_val)
 
 
 class DynamicConfigPage:
     def __init__(self, model: BaseModel):
         self.model: BaseModel = model
-        self.blocks = gr.Blocks(theme=global_theme)
+        self._theme = gr.themes.Soft()
+        self.blocks = gr.Blocks(theme=self._theme)
 
     def launch(self):
         """Launch the Gradio interface."""
@@ -72,7 +86,7 @@ class DynamicConfigPage:
             gr.Markdown(
                 "> This config page is generated from the config schema of the current version of ZerolanLiveRobot.\n"
                 "> You can also modify the saved config file at `resource/config.yaml` manually.")
-            _add_block_components(self.blocks, self.model)
+            _add_block_components(self.model)
         self.blocks.launch(share=False)
 
 
