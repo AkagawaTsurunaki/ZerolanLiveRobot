@@ -8,13 +8,13 @@ from zerolan.data.pipeline.tts import TTSStreamPrediction
 from common.decorator import log_run_time
 from common.utils.file_util import read_yaml
 from pipeline.asr.asr_sync import ASRPipeline
-from pipeline.synch.llm import LLMPipeline
-from pipeline.config.config import LLMPipelineConfig
+from pipeline.llm.llm_sync import LLMSyncPipeline
+from pipeline.llm.config import LLMPipelineConfig
 from pipeline.asr.config import ASRPipelineConfig
 from ump.test_tts import tts_stream_predict
 
 _config = read_yaml("./resources/config.test.yaml")
-_llm = LLMPipeline(LLMPipelineConfig(
+_llm = LLMSyncPipeline(LLMPipelineConfig(
     model_id="",
     predict_url=_config['llm']['predict_url'],
     stream_predict_url=_config['llm']['stream_predict_url'])
