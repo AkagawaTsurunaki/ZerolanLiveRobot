@@ -1,3 +1,4 @@
+from enum import Enum
 from typing import Any
 
 import gradio as gr
@@ -5,6 +6,7 @@ from loguru import logger
 from pydantic import BaseModel
 
 from common.config import ZerolanLiveRobotConfig
+from common.utils.enum_util import enum_members_to_str_list
 
 global_theme = gr.themes.Soft()
 
@@ -26,6 +28,9 @@ def _add_field_component(field_name: str, field_type: Any, field_desc, field_val
         gr.Number(label=field_name, info=field_desc, value=field_val, interactive=True)
     elif field_type == bool:
         gr.Checkbox(label=field_name, info=field_desc, value=field_val, interactive=True)
+    elif isinstance(field_val, Enum):
+        choices = enum_members_to_str_list(type(field_val))
+        gr.Dropdown(label=field_name, info=field_desc, choices=choices, interactive=True)
     elif field_type == list:
         assert isinstance(field_val, list)
         str_list = [[str(elm)] for elm in field_val]
