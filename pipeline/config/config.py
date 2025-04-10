@@ -3,11 +3,11 @@ from pydantic import BaseModel, Field
 from common.enumerator import BaseEnum
 from common.utils.enum_util import enum_to_markdown
 from pipeline.asr.config import ASRPipelineConfig
+from pipeline.db.config import VectorDBConfig
 from pipeline.imgcap.config import ImgCapPipelineConfig
 from pipeline.llm.config import LLMPipelineConfig
 from pipeline.ocr.config import OCRPipelineConfig
 from pipeline.synch.abs_pipeline import AbstractPipelineConfig
-from pipeline.synch.database import MilvusDatabaseConfig
 from pipeline.tts.config import TTSPipelineConfig
 
 
@@ -46,13 +46,6 @@ class VLAPipelineConfig(BaseModel):
     enable: bool = Field(default=True, description="Whether the Visual Language Action pipeline is enabled.")
 
 
-#########
-# VecDB #
-#########
-class VectorDBConfig(BaseModel):
-    enable: bool = Field(default=True, description="Whether the Vector Database is enabled.")
-    milvus: MilvusDatabaseConfig = Field(default=MilvusDatabaseConfig(),
-                                         description="Configuration for the Milvus Database.")
 
 
 class PipelineConfig(BaseModel):

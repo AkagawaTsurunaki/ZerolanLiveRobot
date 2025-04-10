@@ -1,7 +1,7 @@
 from zerolan.data.pipeline.milvus import InsertRow, MilvusInsert, MilvusQuery
 
 from common.utils.file_util import read_yaml
-from pipeline.synch.database import MilvusPipeline, MilvusDatabaseConfig
+from pipeline.db.milvus import MilvusPipeline, MilvusDatabaseConfig
 
 _config = read_yaml("./resources/config.test.yaml")
 pipeline = MilvusPipeline(
