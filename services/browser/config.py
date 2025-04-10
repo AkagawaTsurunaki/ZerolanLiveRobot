@@ -2,6 +2,13 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 
+from common.enumerator import BaseEnum
+from common.utils.enum_util import enum_to_markdown
+
+
+class SeleniumDriverEnum(BaseEnum):
+    Firefox: str = "Firefox"
+
 
 class BrowserConfig(BaseModel):
     enable: bool = Field(default=True, description="Enable selenium to controller your browser?\n"
@@ -11,5 +18,6 @@ class BrowserConfig(BaseModel):
                                                 "This is to ensure that under Selenium's control, \n"
                                                 "your account login and other information will not be lost. If the value is 'null', \n"
                                                 "the program will automatically detect the location (Windows only).")
-    driver: Literal["chrome", "firefox"] = Field(default="firefox",
-                                                 description="Browser drivers, for Selenium. Only Firefox is supported.")
+    driver: SeleniumDriverEnum = Field(default=SeleniumDriverEnum.Firefox,
+                                       description="Browser drivers, for Selenium. \n"
+                                                   f"{enum_to_markdown(SeleniumDriverEnum)}")

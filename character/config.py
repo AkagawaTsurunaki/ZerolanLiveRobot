@@ -2,6 +2,12 @@ from typing import List, Literal
 
 from pydantic import BaseModel, Field
 
+from common.enumerator import BaseEnum
+
+
+class FilterStrategyEnum(BaseEnum):
+    Default: str = "default"
+
 
 class FilterConfig(BaseModel):
     bad_words: List[str] = Field(default=[
@@ -10,7 +16,7 @@ class FilterConfig(BaseModel):
         "作为一个人工智能",
         "作为一个AI"
     ], description="List of words to be filtered out in conversations.")
-    strategy: Literal["default"] = Field("default",
+    strategy: FilterStrategyEnum = Field(FilterStrategyEnum.Default,
                                          description="The filtering strategy to use, currently only supports 'default'. \n"
                                                      "default: The word is filtered out as long as it matches.")
 
