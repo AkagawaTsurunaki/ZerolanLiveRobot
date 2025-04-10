@@ -17,14 +17,14 @@ from services.live_stream.service import LiveStreamService
 from services.playground.bridge import PlaygroundBridge
 from services.qqbot.bridge import QQBotBridge
 from services.playground.res.res_server import ResourceServer
-from ump.pipeline.asr import ASRPipeline
-from ump.pipeline.database import MilvusPipeline
-from ump.pipeline.img_cap import ImgCapPipeline
-from ump.pipeline.llm import LLMPipeline
-from ump.pipeline.ocr import OCRPipeline
-from ump.pipeline.tts import TTSPipeline
-from ump.pipeline.vid_cap import VidCapPipeline
-from ump.pipeline.vla import ShowUIPipeline
+from pipeline.synch.asr import ASRPipeline
+from pipeline.synch.database import MilvusPipeline
+from pipeline.synch.img_cap import ImgCapPipeline
+from pipeline.synch.llm import LLMPipeline
+from pipeline.synch.ocr import OCRPipeline
+from pipeline.synch.tts import TTSPipeline
+from pipeline.synch.vid_cap import VidCapPipeline
+from pipeline.synch.vla import ShowUIPipeline
 
 _config = get_config()
 

@@ -20,7 +20,7 @@ from services.playground.data import GameObject, ScaleOperationResponse
 from common.decorator import log_run_time
 from common.enumerator import Language
 from common.utils.json_util import smart_load_json_like
-from ump.pipeline.ocr import stringify
+from pipeline.synch.ocr import stringify
 
 _config = get_config()
 _model = LangChainAdaptedLLM(config=_config.pipeline.llm)

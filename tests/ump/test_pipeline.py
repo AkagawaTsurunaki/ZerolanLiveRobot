@@ -7,8 +7,8 @@ from zerolan.data.pipeline.tts import TTSStreamPrediction
 
 from common.decorator import log_run_time
 from common.utils.file_util import read_yaml
-from ump.pipeline.asr import ASRPipeline
-from ump.pipeline.llm import LLMPipeline
+from pipeline.synch.asr import ASRPipeline
+from pipeline.synch.llm import LLMPipeline
 from ump.config import LLMPipelineConfig, ASRPipelineConfig
 from ump.test_tts import tts_stream_predict
 

@@ -7,7 +7,7 @@ from langchain_core.messages import BaseMessage, AIMessage, HumanMessage, System
 from langchain_core.outputs import ChatResult, ChatGeneration
 from langchain_core.tools import BaseTool
 from zerolan.data.pipeline.llm import LLMQuery, Conversation, RoleEnum
-from ump.pipeline.llm import LLMPipeline
+from pipeline.synch.llm import LLMPipeline
 from ump.config import LLMPipelineConfig
 
 

@@ -16,8 +16,8 @@ from manager.tts_prompt_manager import TTSPromptManager
 from services.playground.bridge import PlaygroundBridge
 from services.playground.data import Arg_MenuItem
 from services.playground.res.res_server import ResourceServer
-from ump.pipeline.asr import ASRPipeline
-from ump.pipeline.tts import TTSPipeline
+from pipeline.synch.asr import ASRPipeline
+from pipeline.synch.tts import TTSPipeline
 
 _config = get_config()
 

@@ -3,7 +3,7 @@ from zerolan.data.pipeline.asr import ASRQuery, ASRStreamQuery
 
 from common.utils.audio_util import from_bytes_to_np_ndarray
 from common.utils.file_util import read_yaml
-from ump.pipeline.asr import ASRPipeline
+from pipeline.synch.asr import ASRPipeline
 from ump.config import ASRPipelineConfig
 
 _config = read_yaml("./resources/config.test.yaml")

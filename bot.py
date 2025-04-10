@@ -26,7 +26,7 @@ from event.event_data import ASREvent, SpeechEvent, ScreenCapturedEvent, LLMEven
 from event.event_emitter import emitter
 from event.registry import EventKeyRegistry
 from manager.config_manager import get_config
-from ump.pipeline.ocr import avg_confidence, stringify
+from pipeline.synch.ocr import avg_confidence, stringify
 
 _config = get_config()
 
