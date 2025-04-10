@@ -2,6 +2,7 @@
 # git+https://github.com/AkagawaTsurunaki/zerolan-data.git@dev
 git+https://github.com/AkagawaTsurunaki/zerolan-data.git
 pyaudio
+soundfile
 pydub
 pillow
 scipy
