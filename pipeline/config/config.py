@@ -8,24 +8,9 @@ from pipeline.llm.config import LLMPipelineConfig
 from pipeline.ocr.config import OCRPipelineConfig
 from pipeline.synch.abs_pipeline import AbstractPipelineConfig
 from pipeline.synch.database import MilvusDatabaseConfig
+from pipeline.tts.config import TTSPipelineConfig
 
 
-
-#######
-# TTS #
-#######
-class TTSModelIdEnum(BaseEnum):
-    GPT_SoVITS = "AkagawaTsurunaki/GPT-SoVITS"  # Forked repo
-
-
-class TTSPipelineConfig(AbstractPipelineConfig):
-    model_id: TTSModelIdEnum = Field(default=TTSModelIdEnum.GPT_SoVITS,
-                                     description=f"The ID of the model used for text-to-speech. \n"
-                                                 f"{enum_to_markdown(TTSModelIdEnum)}")
-    predict_url: str = Field(default="http://127.0.0.1:11000/tts/predict",
-                             description="The URL for TTS prediction requests.")
-    stream_predict_url: str = Field(default="http://127.0.0.1:11000/tts/stream-predict",
-                                    description="The URL for streaming TTS prediction requests.")
 
 
 ##########

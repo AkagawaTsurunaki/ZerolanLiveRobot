@@ -17,7 +17,7 @@ from services.playground.bridge import PlaygroundBridge
 from services.playground.data import Arg_MenuItem
 from services.playground.res.res_server import ResourceServer
 from pipeline.asr.asr_sync import ASRPipeline
-from pipeline.synch.tts import TTSPipeline
+from pipeline.tts.tts_sync import TTSPipeline
 
 _config = get_config()
 

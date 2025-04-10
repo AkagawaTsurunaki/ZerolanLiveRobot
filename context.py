@@ -22,7 +22,7 @@ from pipeline.synch.database import MilvusPipeline
 from pipeline.imgcap.imgcap_sync import ImgCapPipeline
 from pipeline.llm.llm_sync import LLMSyncPipeline
 from pipeline.ocr.ocr_sync import OCRPipeline
-from pipeline.synch.tts import TTSPipeline
+from pipeline.tts.tts_sync import TTSPipeline
 from pipeline.synch.vid_cap import VidCapPipeline
 from pipeline.synch.vla import ShowUIPipeline
 
