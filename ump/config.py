@@ -3,7 +3,6 @@ from pydantic import BaseModel, Field
 from common.enumerator import BaseEnum
 from common.utils.enum_util import enum_to_markdown
 from ump.abs_pipeline import AbstractPipelineConfig
-from ump.pipeline.asr import ASRPipelineConfig
 from ump.pipeline.database import MilvusDatabaseConfig
 from ump.pipeline.img_cap import ImgCapPipelineConfig
 from ump.pipeline.ocr import OCRPipelineConfig
@@ -70,3 +69,20 @@ class PipelineConfig(BaseModel):
     vla: VLAPipelineConfig = Field(default=VLAPipelineConfig(),
                                    description="Configuration for the Visual Language Action pipeline.")
     vec_db: VectorDBConfig = Field(default=VectorDBConfig(), description="Configuration for the Vector Database.")
+
+
+class AudioFormatEnum(BaseEnum):
+    Float32: str = "float32"
+
+
+class ASRPipelineConfig(AbstractPipelineConfig):
+    sample_rate: int = Field(16000, description="The sample rate for audio input.")
+    channels: int = Field(1, description="The number of audio channels.")
+    format: AudioFormatEnum = Field(AudioFormatEnum.Float32,
+                                    description=f"The format of the audio data. {enum_to_markdown(AudioFormatEnum)}")
+    model_id: str = Field(default="iic/speech_paraformer_asr_nat-zh-cn-16k-common-vocab8358-tensorflow1",
+                          description="The ID of the model used for ASR.")
+    predict_url: str = Field(default="http://127.0.0.1:11000/asr/predict",
+                             description="The URL for ASR prediction requests.")
+    stream_predict_url: str = Field(default="http://127.0.0.1:11000/asr/stream-predict",
+                                    description="The URL for streaming ASR prediction requests.")
