@@ -1,18 +1,10 @@
 from typing import List
 
-from pydantic import Field
 from requests import Response
 from zerolan.data.pipeline.ocr import OCRQuery, OCRPrediction, RegionResult
 
-from ump.abs_pipeline import AbstractImagePipeline, AbstractPipelineConfig
-
-
-class OCRPipelineConfig(AbstractPipelineConfig):
-    model_id: str = Field(default="paddlepaddle/PaddleOCR", description="The ID of the model used for OCR.")
-    predict_url: str = Field(default="http://127.0.0.1:11000/ocr/predict",
-                             description="The URL for OCR prediction requests.")
-    stream_predict_url: str = Field(default="http://127.0.0.1:11000/ocr/stream-predict",
-                                    description="The URL for streaming OCR prediction requests.")
+from ump.abs_pipeline import AbstractImagePipeline
+from ump.config import OCRPipelineConfig
 
 
 class OCRPipeline(AbstractImagePipeline):

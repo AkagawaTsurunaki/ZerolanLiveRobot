@@ -1,19 +1,10 @@
 import os
 
-from pydantic import Field
 from requests import Response
 from zerolan.data.pipeline.vid_cap import VidCapQuery, VidCapPrediction
 
-from ump.abs_pipeline import CommonModelPipeline, AbstractPipelineConfig
-
-
-class VidCapPipelineConfig(AbstractPipelineConfig):
-    model_id: str = Field(default="iic/multi-modal_hitea_video-captioning_base_en",
-                          description="The ID of the model used for video captioning.")
-    predict_url: str = Field(default="http://127.0.0.1:11000/vid_cap/predict",
-                             description="The URL for video captioning prediction requests.")
-    stream_predict_url: str = Field(default="http://127.0.0.1:11000/vid-cap/stream-predict",
-                                    description="The URL for streaming video captioning prediction requests.")
+from ump.abs_pipeline import CommonModelPipeline
+from ump.config import VidCapPipelineConfig
 
 
 class VidCapPipeline(CommonModelPipeline):

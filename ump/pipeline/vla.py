@@ -1,15 +1,7 @@
-from pydantic import Field
 from zerolan.data.pipeline.vla import ShowUiQuery, ShowUiPrediction
 
-from ump.abs_pipeline import AbstractImagePipeline, AbstractPipelineConfig
-
-
-class ShowUIConfig(AbstractPipelineConfig):
-    model_id: str = Field(default="showlab/ShowUI-2B", description="The ID of the model used for the UI.")
-    predict_url: str = Field(default="http://127.0.0.1:11000/vla/showui/predict",
-                             description="The URL for UI prediction requests.")
-    stream_predict_url: str = Field(default="http://127.0.0.1:11000/vla/showui/stream-predict",
-                                    description="The URL for streaming UI prediction requests.")
+from ump.abs_pipeline import AbstractImagePipeline
+from ump.config import ShowUIConfig
 
 
 class ShowUIPipeline(AbstractImagePipeline):

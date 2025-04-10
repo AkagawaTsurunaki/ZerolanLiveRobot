@@ -1,7 +1,8 @@
 from zerolan.data.pipeline.img_cap import ImgCapQuery
 
 from common.utils.file_util import read_yaml
-from ump.pipeline.img_cap import ImgCapPipeline, ImgCapPipelineConfig
+from ump.pipeline.img_cap import ImgCapPipeline
+from ump.config import ImgCapPipelineConfig
 
 _config = read_yaml("./resources/config.test.yaml")
 imgcap = ImgCapPipeline(ImgCapPipelineConfig(model_id=_config['imgcap']['model_id'],

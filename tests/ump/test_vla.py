@@ -1,7 +1,8 @@
 from zerolan.data.pipeline.vla import ShowUiQuery, WebAction
 
 from common.utils.file_util import read_yaml
-from ump.pipeline.vla import ShowUIPipeline, ShowUIConfig
+from ump.pipeline.vla import ShowUIPipeline
+from ump.config import ShowUIConfig
 
 _config = read_yaml("./resources/config.test.yaml")
 showui = ShowUIPipeline(ShowUIConfig(

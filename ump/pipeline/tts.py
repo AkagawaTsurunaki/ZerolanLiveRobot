@@ -3,19 +3,10 @@ import uuid
 from http import HTTPStatus
 
 import requests
-from pydantic import Field
 from zerolan.data.pipeline.tts import TTSQuery, TTSPrediction, TTSStreamPrediction
 
-from ump.abs_pipeline import CommonModelPipeline, AbstractPipelineConfig
-
-
-class TTSPipelineConfig(AbstractPipelineConfig):
-    model_id: str = Field(default="AkagawaTsurunaki/GPT-SoVITS",
-                          description="The ID of the model used for text-to-speech.")
-    predict_url: str = Field(default="http://127.0.0.1:11000/tts/predict",
-                             description="The URL for TTS prediction requests.")
-    stream_predict_url: str = Field(default="http://127.0.0.1:11000/tts/stream-predict",
-                                    description="The URL for streaming TTS prediction requests.")
+from ump.abs_pipeline import CommonModelPipeline
+from ump.config import TTSPipelineConfig
 
 
 class TTSPipeline(CommonModelPipeline):

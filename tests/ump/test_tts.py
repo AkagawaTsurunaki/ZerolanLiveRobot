@@ -7,7 +7,8 @@ from zerolan.data.pipeline.tts import TTSQuery, TTSStreamPrediction
 from common.decorator import log_run_time
 from common.enumerator import Language
 from common.utils.file_util import read_yaml
-from ump.pipeline.tts import TTSPipeline, TTSPipelineConfig
+from ump.pipeline.tts import TTSPipeline
+from ump.config import TTSPipelineConfig
 
 _config = read_yaml("./resources/config.test.yaml")
 tts_pipeline = TTSPipeline(TTSPipelineConfig(
