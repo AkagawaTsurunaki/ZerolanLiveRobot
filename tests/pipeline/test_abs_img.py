@@ -1,10 +1,19 @@
+import time
 import uuid
 
 from zerolan.data.pipeline.abs_data import AbsractImageModelQuery
 
+from common.concurrent.killable_thread import KillableThread
+from pipeline.server import TestServer
 from pipeline.synch.abs_pipeline import AbstractPipelineConfig, AbstractImagePipeline
 
 base_url = "http://127.0.0.1:5889"
+# To test, start this first
+test_server = TestServer()
+test_server.init()
+thread = KillableThread(target=test_server.start, daemon=True)
+thread.start()
+time.sleep(2)
 
 
 class MyPipelineConfig(AbstractPipelineConfig):
@@ -25,3 +34,7 @@ def test_abs_img_pipeline_stream_predict():
     p = AbstractImagePipeline(MyPipelineConfig())
     for r in p.stream_predict(AbsractImageModelQuery(id=id, img_path="resources/imgcap-test.png")):
         assert r.id == id, "Test failed."
+
+
+def test_stop_test_server():
+    thread.kill()
