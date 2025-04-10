@@ -11,6 +11,7 @@ from services.browser.browser import Browser
 from devices.microphone import Microphone
 from devices.speaker import Speaker
 from character.filter.strategy import FirstMatchedFilter
+from services.game.config import PlatformEnum
 from services.game.minecraft.app import KonekoMinecraftAIAgent
 from services.live_stream.service import LiveStreamService
 from services.playground.bridge import PlaygroundBridge
@@ -96,7 +97,7 @@ class ZerolanLiveRobotContext:
         if _config.service.browser.enable:
             self.browser = Browser(_config.external_tool.browser)
         if _config.service.game.enable:
-            if _config.service.game.platform == "minecraft":
+            if _config.service.game.platform == PlatformEnum.minecraft:
                 if self.tool_agent is None:
                     self.tool_agent = ToolAgent(_config.pipeline.llm)
                 self.game_agent = KonekoMinecraftAIAgent(_config.service.game, self.tool_agent)

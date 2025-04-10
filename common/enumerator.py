@@ -1,6 +1,10 @@
 from enum import Enum
 
 
+class BaseEnum(str, Enum):
+    pass
+
+
 class Language(str, Enum):
     ZH = "zh"
     EN = "en"
