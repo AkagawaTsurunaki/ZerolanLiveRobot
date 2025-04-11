@@ -5,7 +5,7 @@ from pipeline.base.base_sync import AbstractImagePipeline
 from pipeline.imgcap.config import ImgCapPipelineConfig
 
 
-class ImgCapPipeline(AbstractImagePipeline):
+class ImgCapSyncPipeline(AbstractImagePipeline):
 
     def __init__(self, config: ImgCapPipelineConfig):
         super().__init__(config)

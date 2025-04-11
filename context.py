@@ -19,7 +19,7 @@ from services.qqbot.bridge import QQBotBridge
 from services.playground.res.res_server import ResourceServer
 from pipeline.asr.asr_sync import ASRPipeline
 from pipeline.db.milvus.milvus_sync import MilvusPipeline
-from pipeline.imgcap.imgcap_sync import ImgCapPipeline
+from pipeline.imgcap.imgcap_sync import ImgCapSyncPipeline
 from pipeline.llm.llm_sync import LLMSyncPipeline
 from pipeline.ocr.ocr_sync import OCRPipeline
 from pipeline.tts.tts_sync import TTSPipeline
@@ -42,7 +42,7 @@ class ZerolanLiveRobotContext:
         self.asr: ASRPipeline | None = None
         self.ocr: OCRPipeline | None = None
         self.tts: TTSPipeline | None = None
-        self.img_cap: ImgCapPipeline | None = None
+        self.img_cap: ImgCapSyncPipeline | None = None
         self.vid_cap: VidCapPipeline | None = None
         self.showui: ShowUIPipeline | None = None
         self.vec_db: MilvusPipeline | None = None
@@ -88,7 +88,7 @@ class ZerolanLiveRobotContext:
             self.tts_prompt_manager = TTSPromptManager(_config.character.speech)
             self.tts = TTSPipeline(_config.pipeline.tts)
         if _config.pipeline.img_cap.enable:
-            self.img_cap = ImgCapPipeline(_config.pipeline.img_cap)
+            self.img_cap = ImgCapSyncPipeline(_config.pipeline.img_cap)
         if _config.pipeline.vid_cap.enable:
             self.vid_cap = VidCapPipeline(_config.pipeline.vid_cap)
         if _config.pipeline.vla.enable:

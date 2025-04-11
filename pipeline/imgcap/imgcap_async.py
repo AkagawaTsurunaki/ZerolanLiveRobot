@@ -3,15 +3,14 @@ from typing import Literal
 from typeguard import typechecked
 from zerolan.data.pipeline.img_cap import ImgCapQuery, ImgCapPrediction
 
-from pipeline.base.base_async import BaseAsyncPipeline, _parse_imgcap_query
+from pipeline.base.base_async import BaseAsyncPipeline, _parse_imgcap_query, get_base_url
+from pipeline.imgcap.config import ImgCapPipelineConfig, ImgCapModelIdEnum
 
-ModelID = Literal['Salesforce/blip-image-captioning-large']
 
-
-class ImgCapPipeline(BaseAsyncPipeline):
-    def __init__(self, model_id: ModelID, base_url: str):
-        super().__init__(base_url)
-        self._model_id: ModelID = model_id
+class ImgCapAsyncPipeline(BaseAsyncPipeline):
+    def __init__(self, config: ImgCapPipelineConfig):
+        super().__init__(base_url=get_base_url(config.predict_url))
+        self._model_id: ImgCapModelIdEnum = config.model_id
         self._predict_endpoint = "/img-cap/predict"
         self._stream_predict_endpoint = "/img-cap/stream-predict"
 
