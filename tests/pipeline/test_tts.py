@@ -2,20 +2,54 @@ import time
 from typing import Callable
 
 import pyaudio
+import pytest
 from zerolan.data.pipeline.tts import TTSQuery, TTSStreamPrediction
 
 from common.decorator import log_run_time
 from common.enumerator import Language
-from common.utils.file_util import read_yaml
-from pipeline.tts.tts_sync import TTSPipeline
-from pipeline.tts.config import TTSPipelineConfig
+from manager.config_manager import get_config
+from pipeline.tts.tts_async import TTSAsyncPipeline
+from pipeline.tts.tts_sync import TTSSyncPipeline
 
-_config = read_yaml("./resources/config.test.yaml")
-tts_pipeline = TTSPipeline(TTSPipelineConfig(
-    model_id=_config['tts']['model_id'],
-    predict_url=_config['tts']['predict_url'],
-    stream_predict_url=_config['tts']['stream_predict_url'],
-))
+_config = get_config()
+_tts = TTSAsyncPipeline(_config.pipeline.tts)
+
+
+@pytest.fixture(scope="session")
+def event_loop(event_loop_policy):
+    # Needed to work with asyncpg
+    loop = event_loop_policy.new_event_loop()
+    yield loop
+    loop.close()
+
+
+@pytest.mark.asyncio
+async def test_tts():
+    query = TTSQuery(text="这是一段测试音频",
+                     text_language=Language.ZH,
+                     refer_wav_path="resources/[zh][Default]喜欢游戏的人和擅长游戏的人有很多不一样的地方，老师属于哪一种呢？.wav",
+                     prompt_text="喜欢游戏的人和擅长游戏的人有很多不一样的地方，老师属于哪一种呢？",
+                     prompt_language=Language.ZH)
+    prediction = await _tts.predict(query=query)
+    assert prediction and len(prediction.wave_data) > 0, "Test failed: No response."
+    print(len(prediction.wave_data))
+
+
+@pytest.mark.asyncio
+async def test_stream_tts():
+    query = TTSQuery(text="这是一段测试音频。如果你能听见我的话。那么说明测试成功了。这是一段流式音频。",
+                     text_language=Language.ZH,
+                     refer_wav_path="resources/[zh][Default]喜欢游戏的人和擅长游戏的人有很多不一样的地方，老师属于哪一种呢？.wav",
+                     prompt_text="喜欢游戏的人和擅长游戏的人有很多不一样的地方，老师属于哪一种呢？",
+                     prompt_language=Language.ZH)
+    async for prediction in _tts.stream_predict(query=query):
+        if prediction.is_final:
+            break
+        assert prediction and len(prediction.wave_data) > 0, "Test failed: No response."
+        print(len(prediction.wave_data))
+
+
+_tts_sync = TTSSyncPipeline(_config.pipeline.tts)
 
 
 def create_pyaudio():
@@ -41,8 +75,8 @@ _tts_query = TTSQuery(text="",
                       prompt_language=Language.ZH)
 
 
-def tts_stream_predict(text: str | None, handler: Callable[[TTSStreamPrediction], None] | None,
-                       timer_handler: Callable[[float], None] | None = None):
+def _tts_stream_predict(text: str | None, handler: Callable[[TTSStreamPrediction], None] | None,
+                        timer_handler: Callable[[float], None] | None = None):
     text = text if text is not None else "这是一段随机生成的文字内容！我要喵喵叫！你听见了嘛？主人？"
     _tts_query.text = text
 
@@ -52,7 +86,7 @@ def tts_stream_predict(text: str | None, handler: Callable[[TTSStreamPrediction]
         t_start_post = time.time()
         print(f"Start post: {t_start_post}")
 
-        for prediction in tts_pipeline.stream_predict(_tts_query):
+        for prediction in _tts_sync.stream_predict(_tts_query):
             if not first_rcv:
                 first_rcv = True
                 t_first_chunk = time.time()
@@ -66,26 +100,26 @@ def tts_stream_predict(text: str | None, handler: Callable[[TTSStreamPrediction]
     return completed_tts_stream_predict()
 
 
-def tts_predict(text: str | None):
+def _tts_predict(text: str | None):
     text = text if text is not None else "这是一段随机生成的文字内容！我要喵喵叫！你听见了嘛？主人？"
     _tts_query.text = text
 
     @log_run_time()
     def predict():
-        return tts_pipeline.predict(_tts_query)
+        return _tts_sync.predict(_tts_query)
 
     return predict()
 
 
-def test_tts():
-    prediction = tts_predict("这是一段测试音频。是非流式的推理。意味着需要等待整段音频结束才能进行播放。")
+def test_tts_sync():
+    prediction = _tts_predict("这是一段测试音频。是非流式的推理。意味着需要等待整段音频结束才能进行播放。")
     assert prediction, f"No prediction from TTS pipeline."
     assert prediction.wave_data is not None and len(
         prediction.wave_data) > 0, f"No audio data returned from TTS pipeline."
 
 
 # Warning: Running this test case will call the speaker,
-#          you may hear a girl's voice, don't be afraid!
+#          you may hear a girl's voice!
 #          Take care to control your volume.
 #          What you will hear is: 这是一段随机生成的文字内容！我要喵喵叫！你听见了嘛？主人？
 def test_tts_with_sound_feedback():
@@ -94,6 +128,6 @@ def test_tts_with_sound_feedback():
     def handler(prediction: TTSStreamPrediction):
         stream.write(prediction.wave_data)
 
-    tts_stream_predict(None, handler)
+    _tts_stream_predict(None, handler)
     # The delay from sending a Post to receiving the first request is about 0.5s, which is about 3 times faster.
     close_pyaudio(p, stream)
