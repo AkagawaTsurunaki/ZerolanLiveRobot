@@ -1,10 +1,11 @@
 import typing
 from enum import Enum
-from typing import Any, Union
+from typing import Any, Union, List, Tuple, Callable
 
 import gradio as gr
 from loguru import logger
 from pydantic import BaseModel
+from pydantic.fields import FieldInfo
 from typeguard import typechecked
 
 from common import ver_check
@@ -16,33 +17,40 @@ Analyse config schema of the project and automatically generate config WebUI pag
 """
 
 
-def _add_field_component(field_name: str, field_type: Any, field_desc: str, field_val: Any):
+def _add_field_component(field_info: FieldInfo, field_name: str, field_val: Any) -> gr.Component:
     """
     Convert Pydantic field type to appropriate Gradio component.
     Note: Should not call component.add() method again, because the context manager will handle it automatically.
           Or it will cause duplicated components.
-    :param field_name:
-    :param field_type:
-    :return:
+    :param field_info: FieldInfo instance.
+    :param field_name: Field name.
+    :param field_val: Value of the field.
+    :return: Gradio component.
     """
+    comp = None
+    field_type = field_info.annotation
+    field_desc = field_info.description
+    interactive = not field_info.frozen
+
     if field_type == str or (field_type == Union[str | None]):
-        gr.Textbox(label=field_name, info=field_desc, value=field_val, interactive=True)
+        comp = gr.Textbox(label=field_name, info=field_desc, value=field_val, interactive=interactive)
     elif field_type == int:
-        gr.Number(label=field_name, info=field_desc, value=field_val, interactive=True)
+        comp = gr.Number(label=field_name, info=field_desc, value=field_val, interactive=interactive)
     elif field_type == float:
-        gr.Number(label=field_name, info=field_desc, value=field_val, interactive=True)
+        comp = gr.Number(label=field_name, info=field_desc, value=field_val, interactive=interactive)
     elif field_type == bool:
-        gr.Checkbox(label=field_name, info=field_desc, value=field_val, interactive=True)
+        comp = gr.Checkbox(label=field_name, info=field_desc, value=field_val, interactive=interactive)
     elif isinstance(field_val, Enum):
         choices = enum_members_to_str_list(type(field_val))
-        gr.Dropdown(label=field_name, info=field_desc, choices=choices, interactive=True)
+        comp = gr.Dropdown(label=field_name, info=field_desc, choices=choices, interactive=interactive)
     elif field_type == list or field_type == typing.List[str]:
         assert isinstance(field_val, list)
         str_list = [[str(elm)] for elm in field_val]
         with gr.Row():
             ls = gr.List(label=field_name, value=str_list)
+            comp = ls
             with gr.Column():
-                tb = gr.Textbox(label=field_name, info=field_desc, interactive=True)
+                tb = gr.Textbox(label=field_name, info=field_desc, interactive=interactive)
 
                 def on_add_btn_click(text):
                     str_list.append([text])
@@ -52,28 +60,7 @@ def _add_field_component(field_name: str, field_type: Any, field_desc: str, fiel
                 btn.click(fn=on_add_btn_click, inputs=tb, outputs=[tb, ls])
     else:
         logger.warning(f"Field {field_name} with type {field_type} not supported.")
-
-
-@typechecked
-def _add_block_components(model: BaseModel):
-    """
-    Add components base on model you provided.
-    :param model: Instance of BaseModel
-    """
-    ver_check.check_pydantic_ver()
-
-    fields = model.model_fields
-
-    for field_name, field_info in fields.items():
-        field_val = model.__getattribute__(field_name)
-        field_type = field_info.annotation
-        if isinstance(field_val, BaseModel):
-            with gr.Tab(f"{field_name}"):
-                with gr.Blocks():
-                    gr.Markdown(field_info.description)
-                    _add_block_components(field_val)
-        else:
-            _add_field_component(field_name, field_type, field_info.description, field_val)
+    return comp
 
 
 class DynamicConfigPage:
@@ -81,6 +68,9 @@ class DynamicConfigPage:
         self.model: BaseModel = model
         self._theme = gr.themes.Soft()
         self.blocks = gr.Blocks(theme=self._theme)
+        self.input_comps = []
+        self.assign_funcs: List[Tuple[Callable, BaseModel, str, FieldInfo]] = []
+        self._field_setters: List[FieldSetter] = []
 
     @typechecked
     def launch(self, share: bool = False):
@@ -95,9 +85,78 @@ class DynamicConfigPage:
                     "> This config page is generated from the config schema of the current version of ZerolanLiveRobot.\n"
                     "> You can also modify the saved config file at `resource/config.yaml` manually.")
                 btn = gr.Button("Save Config")
-                # btn.click()
-            _add_block_components(self.model)
+
+                def on_click(*args):
+                    assert len(args) == len(self.input_comps) == len(self._field_setters)
+                    for setter, arg in zip(self._field_setters, args):
+                        setter.set_field(arg)
+                    logger.info(f"Get config content: \n{self.model.model_dump_json(indent=2)}")
+
+                btn.click(on_click, inputs=self.input_comps)
+            self._add_block_components(self.model)
         self.blocks.launch(share)
+
+    @typechecked
+    def _add_block_components(self, model: BaseModel):
+        """
+        Add components base on model you provided.
+        :param model: Instance of BaseModel
+        """
+        ver_check.check_pydantic_ver()
+
+        fields = model.model_fields
+
+        for field_name, field_info in fields.items():
+            field_val = model.__getattribute__(field_name)
+            if isinstance(field_val, BaseModel):
+                with gr.Tab(f"{field_name}"):
+                    with gr.Blocks():
+                        gr.Markdown(field_info.description)
+                        self._add_block_components(field_val)
+            else:
+                frozen = field_info.frozen
+                comp = _add_field_component(field_info, field_name, field_val)
+                if not frozen:
+                    self.input_comps.append(comp)
+                    self._field_setters.append(FieldSetter(model, field_name))
+
+
+class FieldSetter:
+    def __init__(self, model: BaseModel, field_name: str):
+        ver_check.check_pydantic_ver()
+        self._model = model
+        self._field_name = field_name
+
+    def _field_convert(self, field_name: str, val: Union[str, List[List[str]]]):
+        """
+        Convert value to fit target type of field.
+        Note: This method will not really set the target field.
+        :param field_name: Field name.
+        :param val: Field value to convert.
+        :return: Converted value.
+        """
+        field_info = self._model.model_fields[field_name]
+        field_type = field_info.annotation
+        if issubclass(type(field_type), type(Enum)):
+            res = field_type(val)
+        elif field_type == List[str]:
+            res = []
+            for row in val:
+                for col in row:
+                    assert isinstance(col, str)
+                    res.append(col)
+        else:
+            res = val
+        return res
+
+    def set_field(self, val: Any):
+        # Convert value base on the type of the field.
+        field_name = self._field_name
+        val = self._field_convert(field_name, val)
+        # Set field.
+        self._model.__setattr__(field_name, val)
+        # Model Validate.
+        self._model.model_validate(self._model)
 
 
 # Create and launch the config page
