@@ -5,13 +5,18 @@ from typing import Any, Union
 import gradio as gr
 from loguru import logger
 from pydantic import BaseModel
+from typeguard import typechecked
 
 from common import ver_check
 from common.config import ZerolanLiveRobotConfig
 from common.utils.enum_util import enum_members_to_str_list
 
+"""
+Analyse config schema of the project and automatically generate config WebUI page using gradio.
+"""
 
-def _add_field_component(field_name: str, field_type: Any, field_desc, field_val: Any):
+
+def _add_field_component(field_name: str, field_type: Any, field_desc: str, field_val: Any):
     """
     Convert Pydantic field type to appropriate Gradio component.
     Note: Should not call component.add() method again, because the context manager will handle it automatically.
@@ -49,8 +54,12 @@ def _add_field_component(field_name: str, field_type: Any, field_desc, field_val
         logger.warning(f"Field {field_name} with type {field_type} not supported.")
 
 
+@typechecked
 def _add_block_components(model: BaseModel):
-    """Add components based on model fields."""
+    """
+    Add components base on model you provided.
+    :param model: Instance of BaseModel
+    """
     ver_check.check_pydantic_ver()
 
     fields = model.model_fields
@@ -73,16 +82,22 @@ class DynamicConfigPage:
         self._theme = gr.themes.Soft()
         self.blocks = gr.Blocks(theme=self._theme)
 
-    def launch(self):
-        """Launch the Gradio interface."""
+    @typechecked
+    def launch(self, share: bool = False):
+        """
+        Launch the Gradio interface.
+        """
         # Add components based on model fields
         with self.blocks:
             gr.Markdown("# Config Page")
-            gr.Markdown(
-                "> This config page is generated from the config schema of the current version of ZerolanLiveRobot.\n"
-                "> You can also modify the saved config file at `resource/config.yaml` manually.")
+            with gr.Row():
+                gr.Markdown(
+                    "> This config page is generated from the config schema of the current version of ZerolanLiveRobot.\n"
+                    "> You can also modify the saved config file at `resource/config.yaml` manually.")
+                btn = gr.Button("Save Config")
+                # btn.click()
             _add_block_components(self.model)
-        self.blocks.launch(share=False)
+        self.blocks.launch(share)
 
 
 # Create and launch the config page
