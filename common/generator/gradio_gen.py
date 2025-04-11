@@ -3,10 +3,10 @@ from enum import Enum
 from typing import Any, Union
 
 import gradio as gr
-import pydantic.version
 from loguru import logger
 from pydantic import BaseModel
 
+from common import ver_check
 from common.config import ZerolanLiveRobotConfig
 from common.utils.enum_util import enum_members_to_str_list
 
@@ -51,12 +51,7 @@ def _add_field_component(field_name: str, field_type: Any, field_desc, field_val
 
 def _add_block_components(model: BaseModel):
     """Add components based on model fields."""
-    # TODO: PydanticDeprecatedSince211: Accessing the 'model_fields' attribute on the instance is deprecated.
-    #       Instead, you should access this attribute from the model class.
-    #       Deprecated in Pydantic V2.11 to be removed in V3.0.
-    pydantic_ver = pydantic.version.VERSION.split(".")
-    if not (int(pydantic_ver[0]) <= 2 and int(pydantic_ver[1]) <= 11):
-        raise Exception("Too high version of Pydantic, try install pydantic<=2.11")
+    ver_check.check_pydantic_ver()
 
     fields = model.model_fields
 

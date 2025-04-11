@@ -4,6 +4,7 @@ from pydantic import BaseModel
 from pydantic.fields import FieldInfo
 from typeguard import typechecked
 
+from common import ver_check
 from common.decorator import log_run_time
 
 
@@ -56,5 +57,6 @@ class ConfigFileGenerator:
         :param model: An instance of BaseModel.
         :return: Yaml string.
         """
+        ver_check.check_pydantic_ver()
         self._gen(model, depth=0)
         return self._get_header() + "\n" + self._yaml_str
