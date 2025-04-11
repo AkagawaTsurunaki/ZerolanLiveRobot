@@ -1,4 +1,5 @@
 from datetime import datetime
+from enum import Enum
 
 from pydantic import BaseModel
 from pydantic.fields import FieldInfo
@@ -33,7 +34,9 @@ class ConfigFileGenerator:
                 self._gen(field_val, depth + 1)
             else:
                 self._add_comments(field_info, depth)
-                if isinstance(field_val, str):
+                if isinstance(type(field_val), type(Enum)):
+                    self._yaml_str += self._get_indent(depth) + f"{field_name}: '{field_val.value}'\n"
+                elif isinstance(field_val, str):
                     self._yaml_str += self._get_indent(depth) + f"{field_name}: '{field_val}'\n"
                 else:
                     self._yaml_str += self._get_indent(depth) + f"{field_name}: {field_val}\n"
