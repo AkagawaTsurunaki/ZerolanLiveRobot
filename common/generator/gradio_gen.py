@@ -9,9 +9,8 @@ from pydantic.fields import FieldInfo
 from typeguard import typechecked
 
 from common import ver_check
-from config import ZerolanLiveRobotConfig
 from common.utils.enum_util import enum_members_to_str_list
-from manager.config_manager import save_config
+from manager.config_manager import save_config, get_config
 
 """
 Analyse config schema of the project and automatically generate config WebUI page using gradio.
@@ -91,7 +90,12 @@ class DynamicConfigPage:
                     assert len(args) == len(self.input_comps) == len(self._field_setters)
                     for setter, arg in zip(self._field_setters, args):
                         setter.set_field(arg)
-                    save_config(self.model)
+                    try:
+                        save_config(self.model)
+                        gr.Info("Config file saved.")
+                    except Exception as e:
+                        logger.exception(e)
+                        gr.Error("Failed to save config file.")
 
                 btn.click(on_click, inputs=self.input_comps)
             self._add_block_components(self.model)
@@ -161,5 +165,6 @@ class FieldSetter:
 
 
 # Create and launch the config page
-config_page = DynamicConfigPage(ZerolanLiveRobotConfig())
+_config = get_config()
+config_page = DynamicConfigPage(_config)
 config_page.launch()
