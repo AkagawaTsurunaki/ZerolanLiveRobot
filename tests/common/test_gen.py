@@ -1,6 +1,12 @@
-from config import ZerolanLiveRobotConfig
+import yaml
+
 from common.generator.config_gen import ConfigFileGenerator
-from common.utils.file_util import read_yaml
+from config import ZerolanLiveRobotConfig
+
+
+def read_yaml(path: str):
+    with open(path, mode="r", encoding="utf-8") as f:
+        return yaml.safe_load(f)
 
 
 def test_gen():

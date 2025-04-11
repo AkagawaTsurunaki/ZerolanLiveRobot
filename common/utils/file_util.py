@@ -2,15 +2,9 @@ import os.path
 from pathlib import Path
 from uuid import uuid4
 
-import yaml
 from typeguard import typechecked
 
 from services.playground.data import FileInfo
-
-
-def read_yaml(path: str):
-    with open(path, mode="r", encoding="utf-8") as f:
-        return yaml.safe_load(f)
 
 
 @typechecked
