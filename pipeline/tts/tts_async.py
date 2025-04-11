@@ -1,13 +1,12 @@
 import os
 import uuid
-from typing import Literal, Generator
+from typing import Generator
 
 from typeguard import typechecked
 from zerolan.data.pipeline.tts import TTSQuery, TTSPrediction, TTSStreamPrediction
 
-from pipeline.base.base_async import BaseAsyncPipeline, stream_generator
-
-ModelID = Literal['AkagawaTsurunaki/GPT-SoVITS']
+from pipeline.base.base_async import BaseAsyncPipeline, stream_generator, get_base_url
+from pipeline.tts.config import TTSPipelineConfig, TTSModelIdEnum
 
 
 def _parse_tts_query(query: TTSQuery) -> TTSQuery:
@@ -16,10 +15,10 @@ def _parse_tts_query(query: TTSQuery) -> TTSQuery:
     return query
 
 
-class TTSPipeline(BaseAsyncPipeline):
-    def __init__(self, model_id: ModelID, base_url: str):
-        super().__init__(base_url)
-        self._model_id: ModelID = model_id
+class TTSAsyncPipeline(BaseAsyncPipeline):
+    def __init__(self, config: TTSPipelineConfig):
+        super().__init__(base_url=get_base_url(config.predict_url))
+        self._model_id: TTSModelIdEnum = config.model_id
         self._predict_endpoint = "/tts/predict"
         self._stream_predict_endpoint = "/tts/stream-predict"
 

@@ -9,7 +9,7 @@ from pipeline.base.base_sync import CommonModelPipeline
 from pipeline.tts.config import TTSPipelineConfig
 
 
-class TTSPipeline(CommonModelPipeline):
+class TTSSyncPipeline(CommonModelPipeline):
 
     def __init__(self, config: TTSPipelineConfig):
         super().__init__(config)
