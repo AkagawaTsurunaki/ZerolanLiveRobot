@@ -16,7 +16,7 @@ from manager.tts_prompt_manager import TTSPromptManager
 from services.playground.bridge import PlaygroundBridge
 from services.playground.data import Arg_MenuItem
 from services.playground.res.res_server import ResourceServer
-from pipeline.asr.asr_sync import ASRPipeline
+from pipeline.asr.asr_sync import ASRSyncPipeline
 from pipeline.tts.tts_sync import TTSSyncPipeline
 
 _config = get_config()
@@ -30,7 +30,7 @@ class RestaurantBot:
         self._res_server = ResourceServer(_config.service.res_server.host,
                                           _config.service.res_server.port, )
 
-        self._asr = ASRPipeline(_config.pipeline.asr)
+        self._asr = ASRSyncPipeline(_config.pipeline.asr)
         self._tts = TTSSyncPipeline(_config.pipeline.tts)
         self.tts_prompt_manager = TTSPromptManager(_config.character.speech)
         self.bot_id = _config.character.bot_name

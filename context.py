@@ -17,7 +17,7 @@ from services.live_stream.service import LiveStreamService
 from services.playground.bridge import PlaygroundBridge
 from services.qqbot.bridge import QQBotBridge
 from services.playground.res.res_server import ResourceServer
-from pipeline.asr.asr_sync import ASRPipeline
+from pipeline.asr.asr_sync import ASRSyncPipeline
 from pipeline.db.milvus.milvus_sync import MilvusPipeline
 from pipeline.imgcap.imgcap_sync import ImgCapSyncPipeline
 from pipeline.llm.llm_sync import LLMSyncPipeline
@@ -39,7 +39,7 @@ class ZerolanLiveRobotContext:
 
     def __init__(self):
         self.llm: LLMSyncPipeline | None = None
-        self.asr: ASRPipeline | None = None
+        self.asr: ASRSyncPipeline | None = None
         self.ocr: OCRSyncPipeline | None = None
         self.tts: TTSSyncPipeline | None = None
         self.img_cap: ImgCapSyncPipeline | None = None
@@ -81,7 +81,7 @@ class ZerolanLiveRobotContext:
         self.res_server = ResourceServer(_config.service.res_server.host, _config.service.res_server.port)
 
         if _config.pipeline.asr.enable:
-            self.asr = ASRPipeline(_config.pipeline.asr)
+            self.asr = ASRSyncPipeline(_config.pipeline.asr)
         if _config.pipeline.ocr.enable:
             self.ocr = OCRSyncPipeline(_config.pipeline.ocr)
         if _config.pipeline.tts.enable:

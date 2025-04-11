@@ -9,7 +9,7 @@ from pipeline.base.base_sync import CommonModelPipeline
 from pipeline.asr.config import ASRPipelineConfig
 
 
-class ASRPipeline(CommonModelPipeline):
+class ASRSyncPipeline(CommonModelPipeline):
 
     def __init__(self, config: ASRPipelineConfig):
         super().__init__(config)

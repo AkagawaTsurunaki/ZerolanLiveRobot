@@ -45,7 +45,7 @@ def _parse_asr_stream_query(query: ASRStreamQuery) -> Dict[str, BinaryIO | str]:
     return data
 
 
-class ASRPipeline(BaseAsyncPipeline):
+class ASRAsyncPipeline(BaseAsyncPipeline):
 
     def __init__(self, config: ASRPipelineConfig):
         super().__init__(base_url=get_base_url(config.predict_url))
