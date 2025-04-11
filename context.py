@@ -21,7 +21,7 @@ from pipeline.asr.asr_sync import ASRPipeline
 from pipeline.db.milvus.milvus_sync import MilvusPipeline
 from pipeline.imgcap.imgcap_sync import ImgCapSyncPipeline
 from pipeline.llm.llm_sync import LLMSyncPipeline
-from pipeline.ocr.ocr_sync import OCRPipeline
+from pipeline.ocr.ocr_sync import OCRSyncPipeline
 from pipeline.tts.tts_sync import TTSPipeline
 from pipeline.vidcap.vidcap_sync import VidCapPipeline
 from pipeline.vla.showui.showui_sync import ShowUIPipeline
@@ -40,7 +40,7 @@ class ZerolanLiveRobotContext:
     def __init__(self):
         self.llm: LLMSyncPipeline | None = None
         self.asr: ASRPipeline | None = None
-        self.ocr: OCRPipeline | None = None
+        self.ocr: OCRSyncPipeline | None = None
         self.tts: TTSPipeline | None = None
         self.img_cap: ImgCapSyncPipeline | None = None
         self.vid_cap: VidCapPipeline | None = None
@@ -83,7 +83,7 @@ class ZerolanLiveRobotContext:
         if _config.pipeline.asr.enable:
             self.asr = ASRPipeline(_config.pipeline.asr)
         if _config.pipeline.ocr.enable:
-            self.ocr = OCRPipeline(_config.pipeline.ocr)
+            self.ocr = OCRSyncPipeline(_config.pipeline.ocr)
         if _config.pipeline.tts.enable:
             self.tts_prompt_manager = TTSPromptManager(_config.character.speech)
             self.tts = TTSPipeline(_config.pipeline.tts)

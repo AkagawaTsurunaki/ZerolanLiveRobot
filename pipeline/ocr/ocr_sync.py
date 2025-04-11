@@ -7,7 +7,7 @@ from pipeline.base.base_sync import AbstractImagePipeline
 from pipeline.ocr.config import OCRPipelineConfig
 
 
-class OCRPipeline(AbstractImagePipeline):
+class OCRSyncPipeline(AbstractImagePipeline):
 
     def __init__(self, config: OCRPipelineConfig):
         super().__init__(config)
