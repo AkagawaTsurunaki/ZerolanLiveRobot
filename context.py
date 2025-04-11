@@ -97,7 +97,7 @@ class ZerolanLiveRobotContext:
         if _config.service.browser.enable:
             self.browser = Browser(_config.external_tool.browser)
         if _config.service.game.enable:
-            if _config.service.game.platform == PlatformEnum.minecraft:
+            if _config.service.game.platform == PlatformEnum.Minecraft:
                 if self.tool_agent is None:
                     self.tool_agent = ToolAgent(_config.pipeline.llm)
                 self.game_agent = KonekoMinecraftAIAgent(_config.service.game, self.tool_agent)
