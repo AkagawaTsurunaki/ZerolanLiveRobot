@@ -4,7 +4,7 @@ from pipeline.base.base_sync import AbstractImagePipeline
 from pipeline.vla.showui.config import ShowUIConfig
 
 
-class ShowUIPipeline(AbstractImagePipeline):
+class ShowUISyncPipeline(AbstractImagePipeline):
 
     def __init__(self, config: ShowUIConfig):
         super().__init__(config)

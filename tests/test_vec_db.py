@@ -1,10 +1,10 @@
 from config import get_config
 from zerolan.data.pipeline.milvus import InsertRow, MilvusInsert, MilvusQuery
 
-from pipeline.db.milvus.milvus_sync import MilvusPipeline
+from pipeline.db.milvus.milvus_sync import MilvusSyncPipeline
 
 _config = get_config()
-pipeline = MilvusPipeline(config=_config.pipeline.vec_db.milvus)
+pipeline = MilvusSyncPipeline(config=_config.pipeline.vec_db.milvus)
 
 
 def test_insert():
