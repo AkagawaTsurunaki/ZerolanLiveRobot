@@ -75,8 +75,8 @@ _tts_query = TTSQuery(text="",
                       prompt_language=Language.ZH)
 
 
-def _tts_stream_predict(text: str | None, handler: Callable[[TTSStreamPrediction], None] | None,
-                        timer_handler: Callable[[float], None] | None = None):
+def tts_stream_predict(text: str | None, handler: Callable[[TTSStreamPrediction], None] | None,
+                       timer_handler: Callable[[float], None] | None = None):
     text = text if text is not None else "这是一段随机生成的文字内容！我要喵喵叫！你听见了嘛？主人？"
     _tts_query.text = text
 
@@ -128,6 +128,6 @@ def test_tts_with_sound_feedback():
     def handler(prediction: TTSStreamPrediction):
         stream.write(prediction.wave_data)
 
-    _tts_stream_predict(None, handler)
+    tts_stream_predict(None, handler)
     # The delay from sending a Post to receiving the first request is about 0.5s, which is about 3 times faster.
     close_pyaudio(p, stream)

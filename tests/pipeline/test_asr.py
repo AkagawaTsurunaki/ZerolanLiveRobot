@@ -7,11 +7,11 @@ from zerolan.data.pipeline.asr import ASRQuery, ASRStreamQuery
 
 from common.utils.audio_util import from_bytes_to_np_ndarray
 from manager.config_manager import get_config, get_project_dir
-from pipeline.asr.asr_async import ASRPipeline
-from pipeline.asr.asr_sync import ASRPipeline as ASRPipelineSync
+from pipeline.asr.asr_async import ASRAsyncPipeline
+from pipeline.asr.asr_sync import ASRSyncPipeline as ASRPipelineSync
 
 _config = get_config()
-_asr = ASRPipeline(_config.pipeline.asr)
+_asr = ASRAsyncPipeline(_config.pipeline.asr)
 _asr_sync = ASRPipelineSync(_config.pipeline.asr)
 project_dir = get_project_dir()
 audio_path = project_dir.joinpath("tests/resources/tts-test.wav")
