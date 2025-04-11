@@ -3,7 +3,7 @@ from pathlib import Path
 from loguru import logger
 from typeguard import typechecked
 
-from common.config import ZerolanLiveRobotConfig
+from config import ZerolanLiveRobotConfig
 from common.generator.config_gen import ConfigFileGenerator
 from common.io.file_sys import fs
 from common.io.file_type import AudioFileType, ImageFileType

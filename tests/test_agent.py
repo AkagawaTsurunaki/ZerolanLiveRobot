@@ -5,7 +5,7 @@ from zerolan.data.pipeline.llm import Conversation, RoleEnum
 
 from agent.api import summary, summary_history, model_scale
 from agent.custom_agent import CustomAgent
-from common.config import get_config
+from config import get_config
 from common.data import GameObjectInfo
 
 _config = get_config()

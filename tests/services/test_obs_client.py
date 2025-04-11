@@ -1,7 +1,7 @@
 import threading
 import time
 
-from common.config import get_config
+from config import get_config
 from common.concurrent.killable_thread import KillableThread
 from services.obs.client import ObsStudioWsClient
 

@@ -4,7 +4,7 @@ from asyncio import TaskGroup
 
 import pytest
 
-from common.config import get_config
+from config import get_config
 from common.data import LoadLive2DModelDTO, CreateGameObjectDTO, GameObjectType, Transform, Position, ScaleOperationDTO
 from common.concurrent.killable_thread import KillableThread
 from manager.model_manager import ModelManager

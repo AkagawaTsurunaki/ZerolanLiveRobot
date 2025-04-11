@@ -9,7 +9,7 @@ from pydantic.fields import FieldInfo
 from typeguard import typechecked
 
 from common import ver_check
-from common.config import ZerolanLiveRobotConfig
+from config import ZerolanLiveRobotConfig
 from common.utils.enum_util import enum_members_to_str_list
 
 """

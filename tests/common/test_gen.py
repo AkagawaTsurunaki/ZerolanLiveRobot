@@ -1,4 +1,4 @@
-from common.config import ZerolanLiveRobotConfig
+from config import ZerolanLiveRobotConfig
 from common.generator.config_gen import ConfigFileGenerator
 from common.utils.file_util import read_yaml
 

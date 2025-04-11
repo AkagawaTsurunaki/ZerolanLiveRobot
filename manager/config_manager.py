@@ -5,7 +5,7 @@ import yaml
 from loguru import logger
 from typeguard import typechecked
 
-from common.config import ZerolanLiveRobotConfig
+from config import ZerolanLiveRobotConfig
 from common.generator.config_gen import ConfigFileGenerator
 
 

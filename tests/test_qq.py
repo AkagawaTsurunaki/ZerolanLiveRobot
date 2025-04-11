@@ -2,7 +2,7 @@ from asyncio import TaskGroup
 
 import pytest
 
-from common.config import get_config
+from config import get_config
 from services.qqbot.bridge import QQBotBridge
 from util import connect, syncwait
 
