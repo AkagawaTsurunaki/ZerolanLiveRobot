@@ -1,14 +1,10 @@
 from pathlib import Path
 
-from loguru import logger
 from typeguard import typechecked
 
-from config import ZerolanLiveRobotConfig
-from common.generator.config_gen import ConfigFileGenerator
 from common.io.file_sys import fs
 from common.io.file_type import AudioFileType, ImageFileType
 from common.utils.audio_util import get_audio_real_format
-from manager import config_manager
 
 
 @typechecked
@@ -42,20 +38,3 @@ def save_audio(wave_data: bytes, format: AudioFileType | None = None, prefix: st
     with open(wav_path, "wb") as f:
         f.write(wave_data)
     return Path(wav_path)
-
-
-@typechecked
-def save_config(config: ZerolanLiveRobotConfig, path: Path | None = None):
-    assert config is not None, f"None can not be saved to config file."
-    if path is None:
-        path = config_manager.get_default_config_path()
-    # Create dir if not exists
-    if not path.exists():
-        path.parent.mkdir(parents=True, exist_ok=True)
-    if path.exists():
-        logger.warning("Config file already exists. Overwriting...")
-    # Generate config file
-    gen = ConfigFileGenerator()
-    yaml_str = gen.generate_yaml(config)
-    with open(path, "w+", encoding="utf-8") as f:
-        f.write(yaml_str)
