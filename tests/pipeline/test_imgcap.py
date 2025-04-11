@@ -10,6 +10,14 @@ _imgcap_sync = ImgCapSyncPipeline(_config.pipeline.img_cap)
 _imgcap_async = ImgCapAsyncPipeline(_config.pipeline.img_cap)
 
 
+@pytest.fixture(scope="session")
+def event_loop(event_loop_policy):
+    # Needed to work with asyncpg
+    loop = event_loop_policy.new_event_loop()
+    yield loop
+    loop.close()
+
+
 def test_imgcap_sync():
     query = ImgCapQuery(img_path="resources/imgcap-test.png")
     prediction = _imgcap_sync.predict(query)
