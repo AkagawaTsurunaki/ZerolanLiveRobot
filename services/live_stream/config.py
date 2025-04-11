@@ -6,7 +6,8 @@ class BilibiliServiceConfig(BaseModel):
         sessdata: str = Field(default="<SESSDATA>", description="Value of the `SESSDATA` from the cookie.")
         bili_jct: str = Field(default="<bili_jct>", description="Value of the `bili_jct` from the cookie.")
         buvid3: str = Field(default="<buvid3>", description="Value of the `buvid3` from the cookie.")
-
+    enable: bool = Field(default=True,
+                         description="Enable live stream listening for Bilibili.")
     room_id: int = Field(default=-1,
                          description="Bilibili Room ID. \n"
                                      "Note: Must be a positive integer.")
@@ -16,6 +17,8 @@ class BilibiliServiceConfig(BaseModel):
 
 
 class TwitchServiceConfig(BaseModel):
+    enable: bool = Field(default=True,
+                         description="Enable live stream listening for Twitch.")
     channel_id: str = Field(default="<CHANNEL_ID>",
                             description="Your Twitch channel ID.")
     app_id: str = Field(default="<APP_ID>",
@@ -27,6 +30,8 @@ class TwitchServiceConfig(BaseModel):
 
 
 class YoutubeServiceConfig(BaseModel):
+    enable: bool = Field(default=True,
+                         description="Enable live stream listening for YouTube.")
     token: str = Field(default="<YOUTUBE_TOKEN>",
                        description="GCloud auth print access token. \n"
                                    "How to get: [Obtaining authorization credentials](https://developers.google.cn/youtube/registering_an_application?hl=en)")

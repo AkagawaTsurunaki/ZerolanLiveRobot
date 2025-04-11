@@ -67,9 +67,12 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
 
         async with asyncio.TaskGroup() as tg:
             tg.create_task(emitter.start())
-            if self.live_stream is not None:
-                bili = BilibiliService(_config.service.live_stream.bilibili)
-                tg.create_task(bili.start())
+            if self.bilibili:
+                tg.create_task(self.bilibili.start())
+            if self.youtube:
+                tg.create_task(self.youtube.start())
+            if self.twitch:
+                tg.create_task(self.twitch.start())
 
         for thread in threads:
             thread.join()

@@ -2,21 +2,14 @@ import os
 
 from agent.custom_agent import CustomAgent
 from agent.tool_agent import ToolAgent
+from character.filter.strategy import FirstMatchedFilter
+from devices.microphone import Microphone
+from devices.speaker import Speaker
 from event.speech_emitter import SpeechEmitter
 from manager.config_manager import get_config
 from manager.llm_prompt_manager import LLMPromptManager
 from manager.model_manager import ModelManager
 from manager.tts_prompt_manager import TTSPromptManager
-from services.browser.browser import Browser
-from devices.microphone import Microphone
-from devices.speaker import Speaker
-from character.filter.strategy import FirstMatchedFilter
-from services.game.config import PlatformEnum
-from services.game.minecraft.app import KonekoMinecraftAIAgent
-from services.live_stream.service import LiveStreamService
-from services.playground.bridge import PlaygroundBridge
-from services.qqbot.bridge import QQBotBridge
-from services.playground.res.res_server import ResourceServer
 from pipeline.asr.asr_sync import ASRSyncPipeline
 from pipeline.db.milvus.milvus_sync import MilvusSyncPipeline
 from pipeline.imgcap.imgcap_sync import ImgCapSyncPipeline
@@ -25,6 +18,15 @@ from pipeline.ocr.ocr_sync import OCRSyncPipeline
 from pipeline.tts.tts_sync import TTSSyncPipeline
 from pipeline.vidcap.vidcap_sync import VidCapPipeline
 from pipeline.vla.showui.showui_sync import ShowUISyncPipeline
+from services.browser.browser import Browser
+from services.game.config import PlatformEnum
+from services.game.minecraft.app import KonekoMinecraftAIAgent
+from services.live_stream.bilibili import BilibiliService
+from services.live_stream.twitch import TwitchService
+from services.live_stream.youtube import YouTubeService
+from services.playground.bridge import PlaygroundBridge
+from services.playground.res.res_server import ResourceServer
+from services.qqbot.bridge import QQBotBridge
 
 _config = get_config()
 
@@ -50,7 +52,6 @@ class ZerolanLiveRobotContext:
         self.filter: FirstMatchedFilter | None = None
         self.llm_prompt_manager: LLMPromptManager | None = None
         self.tts_prompt_manager: TTSPromptManager | None = None
-        self.live_stream: LiveStreamService | None = None
 
         self.tool_agent: ToolAgent | None = None
         self.microphone: Microphone | None = None
@@ -71,6 +72,10 @@ class ZerolanLiveRobotContext:
         self.master_name: str = "AkagawaTsurunaki"
         self.live2d_model: str | None = None
         self.res_server: ResourceServer | None = None
+
+        self.bilibili: BilibiliService | None = None
+        self.youtube: YouTubeService | None = None
+        self.twitch: TwitchService | None = None
 
         assert _config.pipeline.llm.enable, f"At least LLMPipeline must be enabled in your config."
         self.llm = LLMSyncPipeline(_config.pipeline.llm)
@@ -102,7 +107,12 @@ class ZerolanLiveRobotContext:
                     self.tool_agent = ToolAgent(_config.pipeline.llm)
                 self.game_agent = KonekoMinecraftAIAgent(_config.service.game, self.tool_agent)
         if _config.service.live_stream.enable:
-            self.live_stream = LiveStreamService(_config.service.live_stream)
+            if _config.service.live_stream.bilibili.enable:
+                self.bilibili = BilibiliService(_config.service.live_stream.bilibili)
+            if _config.service.live_stream.youtube.enable:
+                self.youtube = YouTubeService(_config.service.live_stream.youtube)
+            if _config.service.live_stream.twitch.enable:
+                self.twitch = TwitchService(_config.service.live_stream.twitch)
         if _config.pipeline.vec_db.enable:
             self.vec_db = MilvusSyncPipeline(_config.pipeline.vec_db.milvus)
         if _config.service.playground.enable:
