@@ -11,6 +11,7 @@ from typeguard import typechecked
 from common import ver_check
 from config import ZerolanLiveRobotConfig
 from common.utils.enum_util import enum_members_to_str_list
+from manager.config_manager import save_config
 
 """
 Analyse config schema of the project and automatically generate config WebUI page using gradio.
@@ -90,7 +91,7 @@ class DynamicConfigPage:
                     assert len(args) == len(self.input_comps) == len(self._field_setters)
                     for setter, arg in zip(self._field_setters, args):
                         setter.set_field(arg)
-                    logger.info(f"Get config content: \n{self.model.model_dump_json(indent=2)}")
+                    save_config(self.model)
 
                 btn.click(on_click, inputs=self.input_comps)
             self._add_block_components(self.model)
