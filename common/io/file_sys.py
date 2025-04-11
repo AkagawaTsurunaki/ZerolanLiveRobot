@@ -1,17 +1,11 @@
 import os
 import zipfile
-from datetime import datetime
 from pathlib import Path
 from typing import Literal
 
 from typeguard import typechecked
 
-
-def get_time_string():
-    current_time = datetime.now()
-    time_str = current_time.strftime("%Y%m%d%H%M%S")
-    return time_str
-
+from common.utils.time_util import get_time_string
 
 ResType = Literal["image", "video", "audio", "model"]
 
