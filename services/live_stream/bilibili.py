@@ -1,13 +1,16 @@
+from asyncio import TaskGroup
+
 from bilibili_api import Credential
 from bilibili_api.live import LiveDanmaku
 from loguru import logger
 from zerolan.data.data.danmaku import Danmaku
 
 from common.concurrent.abs_runnable import AbstractRunnable
-from services.live_stream.config import BilibiliServiceConfig
-from common.decorator import log_init, log_stop, log_start
-from event.event_data import LiveStreamConnectedEvent, DanmakuEvent, LiveStreamDisconnectedEvent
+from common.decorator import log_init, log_stop
+from event.event_data import LiveStreamConnectedEvent, DanmakuEvent, LiveStreamDisconnectedEvent, GiftEvent
 from event.event_emitter import emitter
+from services.live_stream.config import BilibiliServiceConfig
+from services.live_stream.data import Gift
 
 
 class BilibiliService(AbstractRunnable):
@@ -29,11 +32,12 @@ class BilibiliService(AbstractRunnable):
         self._monitor = LiveDanmaku(self._room_id, credential=credential, retry_after=3, max_retry=self._max_retry)
         self._init()
 
-    @log_start("BilibiliService")
     async def start(self):
         logger.info(f"{self.name()} start.")
-        await super().start()
-        await self._monitor.connect()
+        tasks = []
+        async with TaskGroup() as tg:
+            tasks.append(tg.create_task(super().start()))
+            tasks.append(tg.create_task(self._monitor.connect()))
         logger.info(f"{self.name()} exited.")
 
     def _init(self):
@@ -43,21 +47,22 @@ class BilibiliService(AbstractRunnable):
         """
 
         @self._monitor.on("VERIFICATION_SUCCESSFUL")
-        async def on_connect(event):
+        def on_connect(_):
             logger.info("Verification successful, connected to Bilibili server.")
             emitter.emit(LiveStreamConnectedEvent(platform="bilibili"))
 
-        @self._monitor.on("DANMU_MSG")
-        async def handle_recv(event):
-            danmaku = Danmaku(uid=event["data"]["info"][2][0],
-                              username=event["data"]["info"][2][1],
-                              content=event["data"]["info"][1],
-                              ts=event["data"]["info"][9]['ts'])
+        @self._monitor.on('DANMU_MSG')
+        def on_danmaku(event):
+            uid = str(event["data"]["info"][2][0])
+            username = event["data"]["info"][2][1]
+            content = event["data"]["info"][1]
+            ts = event["data"]["info"][9]['ts']
+            danmaku = Danmaku(uid=uid, username=username, content=content, ts=ts)
             # 注意没带粉丝牌的会导致越界
             # fans_band_level = event["data"]["info"][3][0]  # 粉丝牌的级别
             # fans_band_name = event["data"]["info"][3][1]  # 该粉丝牌的名字
             # live_host_name = event["data"]["info"][3][2]  # 该粉丝牌对应的主播名字
-            logger.info(f"Danmaku: [{danmaku.username}] {danmaku.msg}")
+            logger.info(f"Danmaku: [{danmaku.username}] {danmaku.content}")
             emitter.emit(DanmakuEvent(platform="bilibili", danmaku=danmaku))
 
         @self._monitor.on("DISCONNECT")
@@ -74,11 +79,11 @@ class BilibiliService(AbstractRunnable):
             logger.info("Disconnected from Bilibili server.")
 
         @self._monitor.on("SEND_GIFT")
-        async def handle_send_gift(event):
-            # TODO: Need to parse event
-            # emitter.emit("service.live_stream.gift")
-            logger.debug(event)
-            pass
+        def handle_send_gift(event):
+            info = event['data']['data']
+            uid, gift_name, num, username = info['uid'], info['giftName'], info['num'], info['uname']
+            gift = Gift(uid=uid, gift_name=gift_name, num=num, username=username)
+            emitter.emit(GiftEvent(gift=gift, platform="bilibili"))
 
         @self._monitor.on("SUPER_CHAT_MESSAGE")
         async def handle_super_chat_message(event):

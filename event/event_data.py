@@ -12,6 +12,7 @@ from agent.tool_agent import Tool
 from common.io.file_type import AudioFileType
 from event.registry import EventKeyRegistry
 from services.game.minecraft.data import KonekoProtocol
+from services.live_stream.data import Gift
 
 
 class BaseEvent:
@@ -93,6 +94,13 @@ class SuperChatEvent(BaseEvent):
 
 
 @dataclass
+class GiftEvent(BaseEvent):
+    platform: Literal["bilibili", "twitch", "youtube"]
+    gift: Gift
+    type: str = EventKeyRegistry.LiveStream.GIFT
+
+
+@dataclass
 class KonekoClientPushInstructionsEvent(BaseEvent):
     tools: List[Tool]
     type: str = EventKeyRegistry.Koneko.Client.PUSH_INSTRUCTIONS
@@ -142,6 +150,7 @@ class PlaygroundDisconnectedEvent(BaseEvent):
 @dataclass
 class WebSocketDisconnectedEvent(BaseEvent):
     type: str = EventKeyRegistry._Inner.WEBSOCKET_DISCONNECTED
+
 
 @dataclass
 class ConfigFileModifiedEvent(BaseEvent):

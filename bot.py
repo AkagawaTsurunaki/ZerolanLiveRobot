@@ -27,6 +27,7 @@ from event.event_emitter import emitter
 from event.registry import EventKeyRegistry
 from manager.config_manager import get_config
 from pipeline.ocr.ocr_sync import avg_confidence, stringify
+from services.live_stream.bilibili import BilibiliService
 
 _config = get_config()
 
@@ -67,7 +68,8 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
         async with asyncio.TaskGroup() as tg:
             tg.create_task(emitter.start())
             if self.live_stream is not None:
-                tg.create_task(self.live_stream.start())
+                bili = BilibiliService(_config.service.live_stream.bilibili)
+                tg.create_task(bili.start())
 
         for thread in threads:
             thread.join()
