@@ -5,8 +5,8 @@ from zerolan.data.pipeline.llm import Conversation, RoleEnum
 
 from agent.api import summary, summary_history, model_scale
 from agent.custom_agent import CustomAgent
-from config import get_config
-from common.data import GameObjectInfo
+from manager.config_manager import get_config
+from services.playground.data import GameObject
 
 _config = get_config()
 
@@ -58,7 +58,7 @@ def test_model_scale():
 
     go_info = []
     for info in go_info_json:
-        go_info.append(GameObjectInfo.model_validate(info))
+        go_info.append(GameObject.model_validate(info))
 
     result = model_scale(go_info, "帮我放大一下优香")
     print(f"{result.instance_id}: {result.target_scale}")

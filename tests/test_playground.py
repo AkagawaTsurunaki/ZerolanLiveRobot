@@ -4,11 +4,12 @@ from asyncio import TaskGroup
 
 import pytest
 
-from config import get_config
-from common.data import LoadLive2DModelDTO, CreateGameObjectDTO, GameObjectType, Transform, Position, ScaleOperationDTO
 from common.concurrent.killable_thread import KillableThread
+from manager.config_manager import get_config
 from manager.model_manager import ModelManager
 from services.playground.bridge import PlaygroundBridge
+from services.playground.data import LoadLive2DModelResponse, CreateGameObjectResponse, Transform, Position, \
+    BuiltinGameObjectType, ScaleOperationResponse
 from util import syncwait, connect
 
 _config = get_config()
@@ -63,14 +64,14 @@ def test_load_live2d_model():
     bot_id = _config.service.playground.bot_id
     bot_name = _config.character.bot_name
     wait_conn()
-    _bridge.load_live2d_model(LoadLive2DModelDTO(bot_id=bot_id, model_dir=model_dir, bot_display_name=bot_name))
+    _bridge.load_live2d_model(LoadLive2DModelResponse(bot_id=bot_id, model_dir=model_dir, bot_display_name=bot_name))
     block_forever()
 
 
 async def create_sphere():
     await _bridge.create_gameobject(
-        CreateGameObjectDTO(instance_id=114, game_object_name="MySphere", object_type=GameObjectType.SPHERE,
-                            color="#114514", transform=Transform(scale=5.0, position=Position(x=1, y=1, z=1))))
+        CreateGameObjectResponse(instance_id=114, game_object_name="MySphere", object_type=BuiltinGameObjectType.SPHERE,
+                                 color="#114514", transform=Transform(scale=5.0, position=Position(x=1, y=1, z=1))))
 
 
 @pytest.mark.asyncio
@@ -91,7 +92,8 @@ async def test_modify_game_object_scale():
         for e in _bridge.get_gameobjects_info():
             print(e.game_object_name)
             if e.game_object_name == "MySphere":
-                await _bridge.modify_game_object_scale(ScaleOperationDTO(instance_id=e.instance_id, target_scale=0.5))
+                await _bridge.modify_game_object_scale(
+                    ScaleOperationResponse(instance_id=e.instance_id, target_scale=0.5))
 
 
 @pytest.mark.asyncio
