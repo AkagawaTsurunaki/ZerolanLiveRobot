@@ -18,7 +18,7 @@ from services.playground.bridge import PlaygroundBridge
 from services.qqbot.bridge import QQBotBridge
 from services.playground.res.res_server import ResourceServer
 from pipeline.asr.asr_sync import ASRSyncPipeline
-from pipeline.db.milvus.milvus_sync import MilvusPipeline
+from pipeline.db.milvus.milvus_sync import MilvusSyncPipeline
 from pipeline.imgcap.imgcap_sync import ImgCapSyncPipeline
 from pipeline.llm.llm_sync import LLMSyncPipeline
 from pipeline.ocr.ocr_sync import OCRSyncPipeline
@@ -45,7 +45,7 @@ class ZerolanLiveRobotContext:
         self.img_cap: ImgCapSyncPipeline | None = None
         self.vid_cap: VidCapPipeline | None = None
         self.showui: ShowUIPipeline | None = None
-        self.vec_db: MilvusPipeline | None = None
+        self.vec_db: MilvusSyncPipeline | None = None
 
         self.filter: FirstMatchedFilter | None = None
         self.llm_prompt_manager: LLMPromptManager | None = None
@@ -104,7 +104,7 @@ class ZerolanLiveRobotContext:
         if _config.service.live_stream.enable:
             self.live_stream = LiveStreamService(_config.service.live_stream)
         if _config.pipeline.vec_db.enable:
-            self.vec_db = MilvusPipeline(_config.pipeline.vec_db.milvus)
+            self.vec_db = MilvusSyncPipeline(_config.pipeline.vec_db.milvus)
         if _config.service.playground.enable:
             self.model_manager = ModelManager()
             self.bot_id = _config.service.playground.bot_id

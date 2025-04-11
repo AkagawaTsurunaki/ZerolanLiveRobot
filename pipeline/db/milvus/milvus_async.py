@@ -1,12 +1,13 @@
 from typeguard import typechecked
 from zerolan.data.pipeline.milvus import MilvusQuery, MilvusQueryResult, MilvusInsert, MilvusInsertResult
 
-from pipeline.base.base_async import BaseAsyncPipeline
+from pipeline.base.base_async import BaseAsyncPipeline, get_base_url
+from pipeline.db.milvus.milvus_sync import MilvusDatabaseConfig
 
 
-class MilvusPipeline(BaseAsyncPipeline):
-    def __init__(self, base_url: str):
-        super().__init__(base_url)
+class MilvusAsyncPipeline(BaseAsyncPipeline):
+    def __init__(self, config: MilvusDatabaseConfig):
+        super().__init__(base_url=get_base_url(config.search_url))
         self._search_endpoint = "/milvus/search"
         self._insert_endpoint = "/milvus/insert"
 

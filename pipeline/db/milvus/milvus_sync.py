@@ -30,7 +30,7 @@ def _post(url: str, obj: any, return_type: any):
         return json.loads(json_val)
 
 
-class MilvusPipeline(AbstractPipeline):
+class MilvusSyncPipeline(AbstractPipeline):
     def __init__(self, config: MilvusDatabaseConfig):
         super().__init__(config)
         self.insert_url = config.insert_url
