@@ -24,7 +24,7 @@ from common.utils.img_util import is_image_uniform
 from common.utils.str_util import split_by_punc
 from context import ZerolanLiveRobotContext
 from event.event_data import ASREvent, SpeechEvent, ScreenCapturedEvent, LLMEvent, OCREvent, ImgCapEvent, \
-    QQMessageEvent, SwitchVADEvent, TTSEvent
+    QQMessageEvent, SwitchVADEvent, TTSEvent, DanmakuEvent
 from event.event_emitter import emitter
 from event.registry import EventKeyRegistry
 from manager.config_manager import get_config
@@ -103,8 +103,9 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
 
         @emitter.on(EventKeyRegistry.Playground.DISCONNECTED)
         def on_playground_disconnected(_):
-            self.vad.resume()
-            logger.info("Because ZerolanPlayground client disconnected, open the local microphone.")
+            # self.vad.resume()
+            # logger.info("Because ZerolanPlayground client disconnected, open the local microphone.")
+            pass
 
         @emitter.on(EventKeyRegistry.Device.SWITCH_VAD)
         def on_open_microphone(event: SwitchVADEvent):
@@ -200,6 +201,11 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
             if self.obs:
                 self.obs.subtitle(prediction.transcript, which="user")
             self.emit_llm_prediction(prediction.transcript)
+
+        @emitter.on(EventKeyRegistry.LiveStream.DANMAKU)
+        def on_danmaku(event: DanmakuEvent):
+            text = f"{event.danmaku.username} 说：\n{event.danmaku.content}"
+            self.emit_llm_prediction(text)
 
         @emitter.on(EventKeyRegistry.Device.SCREEN_CAPTURED)
         def on_device_screen_captured(event: ScreenCapturedEvent):
@@ -314,11 +320,14 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
         ai_msg = summary_history(history)
         row = InsertRow(id=1, text=ai_msg.content, subject="history")
         insert = MilvusInsert(collection_name="history_collection", texts=[row])
-        insert_res = self.vec_db.insert(insert)
-        if insert_res.insert_count == 1:
-            logger.info(f"Add a history memory: {row.text}")
-        else:
-            logger.warning(f"Failed to add a history memory.")
+        try:
+            insert_res = self.vec_db.insert(insert)
+            if insert_res.insert_count == 1:
+                logger.info(f"Add a history memory: {row.text}")
+            else:
+                logger.warning(f"Failed to add a history memory.")
+        except Exception as e:
+            logger.warning("Milvus pipeline failed!")
 
     def play_tts(self, event: TTSEvent):
         prediction = event.prediction
@@ -330,5 +339,4 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
             logger.debug("Remote speaker enqueue speech data")
         else:
             self.speaker.playsound(audio_path, block=True)
-            # self.speaker.enqueue_sound(audio_path)
             logger.debug("Local speaker enqueue speech data")
