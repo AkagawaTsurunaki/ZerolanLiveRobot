@@ -39,6 +39,10 @@ class SystemCrashedEvent(BaseEvent):
     type: str = EventKeyRegistry.System.SYSTEM_CRASHED
 
 
+class SecondEvent(BaseEvent):
+    elapsed: int = 0
+    type: str = EventKeyRegistry.System.SECOND
+
 ### Pipeline ###
 class PipelineASREvent(BaseEvent):
     prediction: ASRPrediction

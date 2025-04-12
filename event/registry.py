@@ -11,6 +11,7 @@ class EventKeyRegistry:
         LANG_CHANGE = "lang_change"
         SYSTEM_UNHANDLED_ERROR = "system.error"
         SYSTEM_CRASHED = "system.crashed"
+        SECOND = "system.second"
 
     class Pipeline:
         ASR = "pipeline.asr"

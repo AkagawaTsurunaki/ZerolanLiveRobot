@@ -23,8 +23,10 @@ from common.utils import audio_util, math_util
 from common.utils.img_util import is_image_uniform
 from common.utils.str_util import split_by_punc
 from context import ZerolanLiveRobotContext
-from event.event_data import DeviceMicrophoneVADEvent, DeviceScreenCapturedEvent, PipelineOutputLLMEvent, PipelineImgCapEvent, \
-    QQMessageEvent, DeviceMicrophoneSwitchEvent, PipelineOutputTTSEvent, LiveStreamDanmakuEvent, PipelineASREvent, PipelineOCREvent
+from event.event_data import DeviceMicrophoneVADEvent, DeviceScreenCapturedEvent, PipelineOutputLLMEvent, \
+    PipelineImgCapEvent, \
+    QQMessageEvent, DeviceMicrophoneSwitchEvent, PipelineOutputTTSEvent, PipelineASREvent, \
+    PipelineOCREvent, SecondEvent
 from event.event_emitter import emitter
 from event.registry import EventKeyRegistry
 from manager.config_manager import get_config
@@ -37,7 +39,9 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
     def __init__(self):
         super().__init__()
         self.cur_lang = Language.ZH
+        self._tts_processing: bool = False
         self.tts_prompt_manager.set_lang(self.cur_lang)
+        self._timer_flag = True
         self.init()
 
     async def start(self):
@@ -79,6 +83,11 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
                 tg.create_task(self.youtube.start())
             if self.twitch:
                 tg.create_task(self.twitch.start())
+            elapsed = 0
+            while self._timer_flag:
+                await asyncio.sleep(1)
+                emitter.emit(SecondEvent(elapsed=elapsed))
+                elapsed += 1
 
         for thread in threads:
             thread.join()
@@ -202,10 +211,20 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
                 self.obs.subtitle(prediction.transcript, which="user")
             self.emit_llm_prediction(prediction.transcript)
 
-        @emitter.on(EventKeyRegistry.LiveStream.DANMAKU)
-        def on_danmaku(event: LiveStreamDanmakuEvent):
-            text = f"你收到了一条弹幕，用户“{event.danmaku.username}”说：\n{event.danmaku.content}"
-            self.emit_llm_prediction(text)
+        # @emitter.on(EventKeyRegistry.LiveStream.DANMAKU)
+        # def on_danmaku(event: LiveStreamDanmakuEvent):
+        #     text = f"你收到了一条弹幕，用户“{event.danmaku.username}”说：\n{event.danmaku.content}"
+        #     self.emit_llm_prediction(text)
+
+        @emitter.on(EventKeyRegistry.System.SECOND)
+        async def on_second_danmaku_check(event: SecondEvent):
+            # Try select danmaku every 5 seconds.
+            if event.elapsed % 5 == 0:
+                danmaku = await self.bilibili.select_max_long_one()
+                if danmaku:
+                    logger.info(f"Selected danmaku: [{danmaku.username}] {danmaku.content}")
+                    text = f"你收到了一条弹幕，用户“{danmaku.username}”说：\n{danmaku.content}"
+                    self.emit_llm_prediction(text)
 
         @emitter.on(EventKeyRegistry.Device.SCREEN_CAPTURED)
         def on_device_screen_captured(event: DeviceScreenCapturedEvent):
