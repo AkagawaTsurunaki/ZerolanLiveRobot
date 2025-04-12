@@ -1,5 +1,7 @@
 from pathlib import Path
 
+from loguru import logger
+from retry import retry
 from typeguard import typechecked
 
 from common.io.file_sys import fs
@@ -18,7 +20,8 @@ def save_image(image_bytes: bytes, format: ImageFileType, prefix: str | None = N
     """
     img_path = fs.create_temp_file_descriptor(prefix=prefix, suffix=f".{format}", type="image")
 
-    with open(img_path, "wb") as image_file:
+    # Attention: DO NOT use built-in open function, this may cause PermissionDeniedError on Windows platform!
+    with img_path.open("wb+") as image_file:
         image_file.write(image_bytes)
         return img_path
 
@@ -34,7 +37,9 @@ def save_audio(wave_data: bytes, format: AudioFileType | None = None, prefix: st
     """
     if format is None:
         format = get_audio_real_format(wave_data)
-    wav_path = fs.create_temp_file_descriptor(prefix=prefix, suffix=f".{format}", type="audio")
-    with open(wav_path, "wb") as f:
+    wav_path = fs.create_temp_file_descriptor(prefix=prefix, suffix=f".{format.value}", type="audio")
+
+    # Attention: DO NOT use built-in open function, this may cause PermissionDeniedError on Windows platform!
+    with wav_path.open("wb+") as f:
         f.write(wave_data)
     return Path(wav_path)
