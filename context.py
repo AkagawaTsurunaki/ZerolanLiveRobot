@@ -24,6 +24,7 @@ from services.game.minecraft.app import KonekoMinecraftAIAgent
 from services.live_stream.bilibili import BilibiliService
 from services.live_stream.twitch import TwitchService
 from services.live_stream.youtube import YouTubeService
+from services.obs.client import ObsStudioWsClient
 from services.playground.bridge import PlaygroundBridge
 from services.playground.res.res_server import ResourceServer
 from services.qqbot.bridge import QQBotBridge
@@ -125,6 +126,7 @@ class ZerolanLiveRobotContext:
             self.qq = QQBotBridge(_config.service.qqbot)
         self.microphone = Microphone()
         self.vad = SpeechEmitter(self.microphone)
+        self.obs = ObsStudioWsClient(_config.service.obs)
 
         # Agents
         self.tool_agent = ToolAgent(_config.pipeline.llm)

@@ -18,6 +18,7 @@ from common.concurrent.killable_thread import KillableThread, kill_all_threads
 from common.enumerator import Language
 from common.io.api import save_audio
 from common.io.file_type import AudioFileType
+from common.utils import audio_util, math_util
 from common.utils.img_util import is_image_uniform
 from common.utils.str_util import split_by_punc
 from context import ZerolanLiveRobotContext
@@ -27,7 +28,6 @@ from event.event_emitter import emitter
 from event.registry import EventKeyRegistry
 from manager.config_manager import get_config
 from pipeline.ocr.ocr_sync import avg_confidence, stringify
-from services.live_stream.bilibili import BilibiliService
 
 _config = get_config()
 
@@ -57,6 +57,9 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
 
         res_server_thread = KillableThread(target=self.res_server.start, daemon=True, name="ResServerThread")
         threads.append(res_server_thread)
+
+        obs_client_thread = KillableThread(target=self.obs.start, daemon=True, name="ObsClientThread")
+        threads.append(obs_client_thread)
 
         if self.game_agent:
             game_agent_thread = KillableThread(target=self.game_agent.start, daemon=True, name="GameAgentThread")
@@ -118,7 +121,7 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
             logger.debug("`SpeechEvent` received.")
             speech, channels, sample_rate = event.speech, event.channels, event.sample_rate
             query = ASRStreamQuery(is_final=True, audio_data=speech, channels=channels, sample_rate=sample_rate,
-                                   media_type=event.audio_type)
+                                   media_type=event.audio_type.value)
 
             for prediction in self.asr.stream_predict(query):
                 logger.info(f"ASR: {prediction.transcript}")
@@ -259,6 +262,8 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
         )
         prediction = self.tts.predict(query=query)
         logger.info(f"TTS: {query.text}")
+        sample_rate, num_channels, duration = audio_util.get_audio_info(prediction.wave_data, prediction.audio_type)
+        self.obs.subtitle(text, which="assistant", duration=math_util.clamp(0, 20, duration - 1))
         self.play_tts(TTSEvent(prediction=prediction, transcript=text))
 
     def emit_llm_prediction(self, text, direct_return: bool = False) -> None | LLMPrediction:
