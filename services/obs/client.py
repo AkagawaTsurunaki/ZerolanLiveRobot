@@ -125,6 +125,9 @@ class ObsStudioWsClient(ThreadRunnable):
         :param duration: Default to None will display immediately.
                          Or it will display like a streaming subtitle in the duration.
         """
+        if not self.is_connected:
+            logger.warning("OBS client is not connected. This methods is called but nothing will happen.")
+            return
         if duration is None:
             self._subtitle(text, self._text_comps[which])
             return
