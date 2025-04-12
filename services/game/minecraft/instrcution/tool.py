@@ -29,6 +29,6 @@ class KonekoInstructionTool(BaseTool):
     async def _arun(self, **kwargs) -> str:
         tool_call = ToolCall(id=f"{uuid.uuid4()}", name=self.name, args=kwargs)
         protocol_obj = KonekoProtocol(event=EventKeyRegistry.Koneko.Server.CALL_INSTRUCTION, data=tool_call)
-        await emitter.emit(EventKeyRegistry.Koneko.Server.CALL_INSTRUCTION, protocol_obj=protocol_obj)
+        await emitter.emit(protocol_obj=protocol_obj)
         logger.info(f"Koneko instruction tool {self.name} was called, emitted")
         return f"Instruction {self.name} executed"
