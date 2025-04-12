@@ -68,10 +68,7 @@ class PlaygroundBridge(ZerolanProtocolWsServer):
 
     def _on_client_hello(self):
         logger.info(f"ZerolanPlayground client is found, prepare for connecting...")
-        local_ip = get_local_ip(True)
-        server_hello = ServerHello(ws_domain_or_ip=local_ip,
-                                   ws_port=_config.service.playground.port,
-                                   res_domain_or_ip=local_ip,
+        server_hello = ServerHello(ws_port=_config.service.playground.port,
                                    res_port=_config.service.res_server.port)
         logger.debug(server_hello.model_dump_json())
         self.send(action=Action.SERVER_HELLO,

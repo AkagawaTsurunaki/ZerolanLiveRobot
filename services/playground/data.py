@@ -92,12 +92,7 @@ class ShowUserTextInputResponse(BaseModel):
 
 
 class ServerHello(BaseModel):
-    ws_domain_or_ip: str = Field(
-        description="The domain name or the IP address of the ZerolanPlayground WebSocket server.")
     ws_port: int = Field(description="The port number of the ZerolanPlayground WebSocket server.")
-    res_domain_or_ip: str = Field(
-        description="The domain name or the IP address of the Resource HTTP server."
-    )
     res_port: int = Field(description="The resource port number of the Resource HTTP server.")
 
 
