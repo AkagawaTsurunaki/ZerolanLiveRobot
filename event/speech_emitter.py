@@ -68,7 +68,7 @@ class SpeechEmitter(ThreadRunnable):
                     emitter.emit(SpeechEvent(speech=combined_speech_bytes,
                                              channels=self.mp.channels,
                                              sample_rate=self.mp.sample_rate,
-                                             audio_type=AudioFileType.RAW))
+                                             audio_type=AudioFileType.WAV))
 
                     self.speech_chunks.clear()
             else:
