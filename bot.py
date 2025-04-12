@@ -204,7 +204,7 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
 
         @emitter.on(EventKeyRegistry.LiveStream.DANMAKU)
         def on_danmaku(event: LiveStreamDanmakuEvent):
-            text = f"{event.danmaku.username} 说：\n{event.danmaku.content}"
+            text = f"你收到了一条弹幕，用户“{event.danmaku.username}”说：\n{event.danmaku.content}"
             self.emit_llm_prediction(text)
 
         @emitter.on(EventKeyRegistry.Device.SCREEN_CAPTURED)
