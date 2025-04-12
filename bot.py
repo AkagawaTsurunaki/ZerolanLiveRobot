@@ -1,5 +1,6 @@
 import asyncio
 import os
+from concurrent.futures.thread import ThreadPoolExecutor
 from pathlib import Path
 
 from loguru import logger
@@ -60,6 +61,8 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
 
         obs_client_thread = KillableThread(target=self.obs.start, daemon=True, name="ObsClientThread")
         threads.append(obs_client_thread)
+
+        self.tts_thread_pool = ThreadPoolExecutor(max_workers=1)
 
         if self.game_agent:
             game_agent_thread = KillableThread(target=self.game_agent.start, daemon=True, name="GameAgentThread")
@@ -247,24 +250,29 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
             # Note that transcripts may be [] because we can not apply split in some cases.
             if len(transcripts) > 0:
                 for idx, transcript in enumerate(transcripts):
-                    self._tts(tts_prompt, transcript)
+                    self._tts_without_block(tts_prompt, transcript)
             else:
-                self._tts(tts_prompt, text)
+                self._tts_without_block(tts_prompt, text)
 
-    def _tts(self, tts_prompt: TTSPrompt, text: str):
-        query = TTSQuery(
-            text=text,
-            text_language="auto",
-            refer_wav_path=tts_prompt.audio_path,
-            prompt_text=tts_prompt.prompt_text,
-            prompt_language=tts_prompt.lang,
-            audio_type="wav"
-        )
-        prediction = self.tts.predict(query=query)
-        logger.info(f"TTS: {query.text}")
-        sample_rate, num_channels, duration = audio_util.get_audio_info(prediction.wave_data, prediction.audio_type)
-        self.obs.subtitle(text, which="assistant", duration=math_util.clamp(0, 20, duration - 1))
-        self.play_tts(TTSEvent(prediction=prediction, transcript=text))
+    def _tts_without_block(self, tts_prompt: TTSPrompt, text: str):
+        def wrapper():
+            query = TTSQuery(
+                text=text,
+                text_language="auto",
+                refer_wav_path=tts_prompt.audio_path,
+                prompt_text=tts_prompt.prompt_text,
+                prompt_language=tts_prompt.lang,
+                audio_type="wav"
+            )
+            prediction = self.tts.predict(query=query)
+            logger.info(f"TTS: {query.text}")
+            sample_rate, num_channels, duration = audio_util.get_audio_info(prediction.wave_data, prediction.audio_type)
+
+            self.obs.subtitle(text, which="assistant", duration=math_util.clamp(0, 5, duration - 1))
+            self.play_tts(TTSEvent(prediction=prediction, transcript=text))
+
+        # To sync audio playing and subtitle
+        self.tts_thread_pool.submit(wrapper)
 
     def emit_llm_prediction(self, text, direct_return: bool = False) -> None | LLMPrediction:
         logger.debug("`emit_llm_prediction` called")
@@ -319,5 +327,6 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
                                         transcript=event.transcript, bot_name=self.bot_name)
             logger.debug("Remote speaker enqueue speech data")
         else:
-            self.speaker.enqueue_sound(audio_path)
+            self.speaker.playsound(audio_path, block=True)
+            # self.speaker.enqueue_sound(audio_path)
             logger.debug("Local speaker enqueue speech data")
