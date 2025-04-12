@@ -1,4 +1,4 @@
-from asyncio import TaskGroup
+from asyncio import TaskGroup, Queue
 
 from bilibili_api import Credential
 from bilibili_api.live import LiveDanmaku
@@ -7,7 +7,8 @@ from zerolan.data.data.danmaku import Danmaku
 
 from common.concurrent.abs_runnable import AbstractRunnable
 from common.decorator import log_init, log_stop
-from event.event_data import LiveStreamConnectedEvent, LiveStreamDanmakuEvent, LiveStreamDisconnectedEvent, LiveStreamGiftEvent
+from event.event_data import LiveStreamConnectedEvent, LiveStreamDanmakuEvent, LiveStreamDisconnectedEvent, \
+    LiveStreamGiftEvent
 from event.event_emitter import emitter
 from services.live_stream.config import BilibiliServiceConfig
 from services.live_stream.data import Gift
@@ -30,6 +31,7 @@ class BilibiliService(AbstractRunnable):
                                 bili_jct=config.credential.bili_jct,
                                 buvid3=config.credential.buvid3)
         self._monitor = LiveDanmaku(self._room_id, credential=credential, retry_after=3, max_retry=self._max_retry)
+        self._danmakus = Queue()
         self._init()
 
     async def start(self):
@@ -52,7 +54,7 @@ class BilibiliService(AbstractRunnable):
             emitter.emit(LiveStreamConnectedEvent(platform="bilibili"))
 
         @self._monitor.on('DANMU_MSG')
-        def on_danmaku(event):
+        async def on_danmaku(event):
             uid = str(event["data"]["info"][2][0])
             username = event["data"]["info"][2][1]
             content = event["data"]["info"][1]
@@ -63,6 +65,7 @@ class BilibiliService(AbstractRunnable):
             # fans_band_name = event["data"]["info"][3][1]  # 该粉丝牌的名字
             # live_host_name = event["data"]["info"][3][2]  # 该粉丝牌对应的主播名字
             logger.info(f"Danmaku: [{danmaku.username}] {danmaku.content}")
+            await self._danmakus.put(danmaku)
             emitter.emit(LiveStreamDanmakuEvent(platform="bilibili", danmaku=danmaku))
 
         @self._monitor.on("DISCONNECT")
@@ -91,6 +94,17 @@ class BilibiliService(AbstractRunnable):
             # emitter.emit("service.live_stream.super_chat")
             logger.debug(event)
             pass
+
+    async def select_max_long_one(self) -> Danmaku | None:
+        if self._danmakus.qsize() == 0:
+            return None
+        max_size, max_danmaku = -1, None
+        while self._danmakus.qsize() > 1:
+            danmaku = await self._danmakus.get()
+            if len(danmaku.content) > max_size:
+                max_size = len(danmaku.content)
+                max_danmaku = danmaku
+        return max_danmaku
 
     @log_stop("BilibiliService")
     async def stop(self):
