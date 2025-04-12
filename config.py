@@ -1,6 +1,7 @@
 from pydantic import BaseModel, Field
 
 from character.config import CharacterConfig
+from devices.config import DeviceConfig
 from services.config import ServiceConfig
 from pipeline.base.config import PipelineConfig
 
@@ -27,4 +28,5 @@ class ZerolanLiveRobotConfig(BaseModel):
                                                "and the service controls the behavior of its sub-project instances.")
     character: CharacterConfig = Field(default=CharacterConfig(),
                                        description="Configuration for the character settings.")
+    device: DeviceConfig = Field(default=DeviceConfig(), description="Configuration for the device settings.")
     system: SystemConfig = Field(default=SystemConfig(), description="Configuration for the system settings.")
