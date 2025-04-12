@@ -7,7 +7,7 @@ from zerolan.data.data.danmaku import Danmaku
 
 from common.concurrent.abs_runnable import AbstractRunnable
 from common.decorator import log_init, log_stop
-from event.event_data import LiveStreamConnectedEvent, DanmakuEvent, LiveStreamDisconnectedEvent, GiftEvent
+from event.event_data import LiveStreamConnectedEvent, LiveStreamDanmakuEvent, LiveStreamDisconnectedEvent, LiveStreamGiftEvent
 from event.event_emitter import emitter
 from services.live_stream.config import BilibiliServiceConfig
 from services.live_stream.data import Gift
@@ -63,7 +63,7 @@ class BilibiliService(AbstractRunnable):
             # fans_band_name = event["data"]["info"][3][1]  # 该粉丝牌的名字
             # live_host_name = event["data"]["info"][3][2]  # 该粉丝牌对应的主播名字
             logger.info(f"Danmaku: [{danmaku.username}] {danmaku.content}")
-            emitter.emit(DanmakuEvent(platform="bilibili", danmaku=danmaku))
+            emitter.emit(LiveStreamDanmakuEvent(platform="bilibili", danmaku=danmaku))
 
         @self._monitor.on("DISCONNECT")
         async def handle_disconnect():
@@ -83,7 +83,7 @@ class BilibiliService(AbstractRunnable):
             info = event['data']['data']
             uid, gift_name, num, username = info['uid'], info['giftName'], info['num'], info['uname']
             gift = Gift(uid=uid, gift_name=gift_name, num=num, username=username)
-            emitter.emit(GiftEvent(gift=gift, platform="bilibili"))
+            emitter.emit(LiveStreamGiftEvent(gift=gift, platform="bilibili"))
 
         @self._monitor.on("SUPER_CHAT_MESSAGE")
         async def handle_super_chat_message(event):

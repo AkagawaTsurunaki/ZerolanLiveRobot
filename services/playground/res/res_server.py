@@ -13,7 +13,7 @@ from common.concurrent.abs_runnable import ThreadRunnable
 from common.io.file_sys import fs
 from common.io.file_type import AudioFileType
 from common.utils.audio_util import get_audio_real_format
-from event.event_data import ScreenCapturedEvent, SpeechEvent
+from event.event_data import DeviceScreenCapturedEvent, DeviceMicrophoneVADEvent
 from event.event_emitter import emitter
 from manager.config_manager import get_config
 
@@ -122,7 +122,7 @@ class ResourceServer(ThreadRunnable):
                 file.save(img_path)
                 file.close()
 
-                emitter.emit(ScreenCapturedEvent(img_path=img_path, is_camera=True))
+                emitter.emit(DeviceScreenCapturedEvent(img_path=img_path, is_camera=True))
                 return HTTPResponseBody(message="OK").model_dump()
             except Exception as e:
                 logger.exception(e)
@@ -157,10 +157,10 @@ class ResourceServer(ThreadRunnable):
                 else:
                     audio_type = get_audio_real_format(audio_data)
 
-                emitter.emit(SpeechEvent(speech=audio_data,
-                                         channels=audio_metadata.channels,
-                                         sample_rate=audio_metadata.sample_rate,
-                                         audio_type=audio_type))
+                emitter.emit(DeviceMicrophoneVADEvent(speech=audio_data,
+                                                      channels=audio_metadata.channels,
+                                                      sample_rate=audio_metadata.sample_rate,
+                                                      audio_type=audio_type))
 
                 return HTTPResponseBody(message="OK").model_dump()
             except Exception as e:

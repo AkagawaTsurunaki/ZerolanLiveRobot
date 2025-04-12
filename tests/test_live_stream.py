@@ -1,9 +1,9 @@
 import asyncio
 
-from config import get_config
-from event.event_data import DanmakuEvent
+from event.event_data import LiveStreamDanmakuEvent
 from event.event_emitter import emitter
 from event.registry import EventKeyRegistry
+from manager.config_manager import get_config
 from services.live_stream.bilibili import BilibiliService
 from services.live_stream.twitch import TwitchService
 from services.live_stream.youtube import YouTubeService
@@ -12,7 +12,7 @@ _config = get_config()
 
 
 @emitter.on(EventKeyRegistry.LiveStream.DANMAKU)
-async def handle(event: DanmakuEvent):
+async def handle(event: LiveStreamDanmakuEvent):
     print(event.danmaku.content)
 
 

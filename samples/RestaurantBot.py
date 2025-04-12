@@ -8,7 +8,7 @@ from common.enumerator import Language
 from common.io.api import save_audio
 from common.concurrent.killable_thread import KillableThread
 from common.utils.str_util import split_by_punc
-from event.event_data import SpeechEvent
+from event.event_data import DeviceMicrophoneVADEvent
 from event.event_emitter import emitter
 from event.registry import EventKeyRegistry
 from manager.config_manager import get_config
@@ -58,7 +58,7 @@ class RestaurantBot:
             tg.create_task(emitter.start())
 
     def init(self):
-        @emitter.on(EventKeyRegistry.Playground.PLAYGROUND_CONNECTED)
+        @emitter.on(EventKeyRegistry.Playground.CONNECTED)
         def on_playground_connected(_):
             self._playground.load_live2d_model(
                 bot_id=self.bot_id,
@@ -67,8 +67,8 @@ class RestaurantBot:
             )
             logger.info(f"Live 2D model loaded: {self.live2d_model}")
 
-        @emitter.on(EventKeyRegistry.Device.SERVICE_VAD_SPEECH_CHUNK)
-        def handle_asr(event: SpeechEvent):
+        @emitter.on(EventKeyRegistry.Device.MICROPHONE_VAD)
+        def handle_asr(event: DeviceMicrophoneVADEvent):
             speech, channels, sample_rate = event.speech, event.channels, event.sample_rate
             query = ASRStreamQuery(is_final=True, audio_data=speech, channels=channels, sample_rate=sample_rate,
                                    media_type=event.audio_type)

@@ -23,8 +23,8 @@ from common.utils import audio_util, math_util
 from common.utils.img_util import is_image_uniform
 from common.utils.str_util import split_by_punc
 from context import ZerolanLiveRobotContext
-from event.event_data import ASREvent, SpeechEvent, ScreenCapturedEvent, LLMEvent, OCREvent, ImgCapEvent, \
-    QQMessageEvent, SwitchVADEvent, TTSEvent, DanmakuEvent
+from event.event_data import DeviceMicrophoneVADEvent, DeviceScreenCapturedEvent, PipelineOutputLLMEvent, PipelineImgCapEvent, \
+    QQMessageEvent, DeviceMicrophoneSwitchEvent, PipelineOutputTTSEvent, LiveStreamDanmakuEvent, PipelineASREvent, PipelineOCREvent
 from event.event_emitter import emitter
 from event.registry import EventKeyRegistry
 from manager.config_manager import get_config
@@ -90,7 +90,7 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
         logger.info("Good Bye!")
 
     def init(self):
-        @emitter.on(EventKeyRegistry.Playground.PLAYGROUND_CONNECTED)
+        @emitter.on(EventKeyRegistry.Playground.CONNECTED)
         def on_playground_connected(_):
             self.mic.pause()
             logger.info("Because ZerolanPlayground client connected, close the local microphone.")
@@ -107,8 +107,8 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
             # logger.info("Because ZerolanPlayground client disconnected, open the local microphone.")
             pass
 
-        @emitter.on(EventKeyRegistry.Device.SWITCH_VAD)
-        def on_open_microphone(event: SwitchVADEvent):
+        @emitter.on(EventKeyRegistry.Device.MICROPHONE_SWITCH)
+        def on_open_microphone(event: DeviceMicrophoneSwitchEvent):
             if self.mic.is_recording:
                 if event.switch:
                     logger.warning("The microphone has already resumed.")
@@ -120,8 +120,8 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
                     return
                 self.mic.resume()
 
-        @emitter.on(EventKeyRegistry.Device.SERVICE_VAD_SPEECH_CHUNK)
-        def on_service_vad_speech_chunk(event: SpeechEvent):
+        @emitter.on(EventKeyRegistry.Device.MICROPHONE_VAD)
+        def on_service_vad_speech_chunk(event: DeviceMicrophoneVADEvent):
             logger.debug("`SpeechEvent` received.")
             speech, channels, sample_rate = event.speech, event.channels, event.sample_rate
             query = ASRStreamQuery(is_final=True, audio_data=speech, channels=channels, sample_rate=sample_rate,
@@ -129,11 +129,11 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
 
             for prediction in self.asr.stream_predict(query):
                 logger.info(f"ASR: {prediction.transcript}")
-                emitter.emit(ASREvent(prediction=prediction))
+                emitter.emit(PipelineASREvent(prediction=prediction))
                 logger.debug("ASREvent emitted.")
 
         @emitter.on(EventKeyRegistry.Pipeline.ASR)
-        def asr_handler(event: ASREvent):
+        def asr_handler(event: PipelineASREvent):
             logger.debug("`ASREvent` received.")
             prediction = event.prediction
             self.playground.add_history(role="user", text=prediction.transcript, username=self.master_name)
@@ -154,7 +154,7 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
                 img, img_save_path = self.screen.safe_capture(k=0.99)
                 if not self.check_img(img):
                     return
-                emitter.emit(ScreenCapturedEvent(img_path=img_save_path, is_camera=False))
+                emitter.emit(DeviceScreenCapturedEvent(img_path=img_save_path, is_camera=False))
             elif "点击" in prediction.transcript:
                 # If there is no display, then can not use this feature
                 if os.environ.get('DISPLAY', None) is None:
@@ -203,12 +203,12 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
             self.emit_llm_prediction(prediction.transcript)
 
         @emitter.on(EventKeyRegistry.LiveStream.DANMAKU)
-        def on_danmaku(event: DanmakuEvent):
+        def on_danmaku(event: LiveStreamDanmakuEvent):
             text = f"{event.danmaku.username} 说：\n{event.danmaku.content}"
             self.emit_llm_prediction(text)
 
         @emitter.on(EventKeyRegistry.Device.SCREEN_CAPTURED)
-        def on_device_screen_captured(event: ScreenCapturedEvent):
+        def on_device_screen_captured(event: DeviceScreenCapturedEvent):
             img_path = event.img_path
             if isinstance(event.img_path, Path):
                 img_path = str(event.img_path)
@@ -217,14 +217,14 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
             # TODO: 0.6 is a hyperparameter that indicates the average confidence of the text contained in the image.
             if avg_confidence(ocr_prediction) > 0.6:
                 logger.info("OCR: " + stringify(ocr_prediction.region_results))
-                emitter.emit(OCREvent(prediction=ocr_prediction))
+                emitter.emit(PipelineOCREvent(prediction=ocr_prediction))
             else:
                 img_cap_prediction = self.img_cap.predict(ImgCapQuery(prompt="There", img_path=img_path))
                 src_lang = Language.value_of(img_cap_prediction.lang)
                 caption = translate(src_lang, self.cur_lang, img_cap_prediction.caption)
                 img_cap_prediction.caption = caption
                 logger.info("ImgCap: " + caption)
-                emitter.emit(ImgCapEvent(prediction=img_cap_prediction))
+                emitter.emit(PipelineImgCapEvent(prediction=img_cap_prediction))
 
         @emitter.on(EventKeyRegistry.QQBot.QQ_MESSAGE)
         async def on_qq_message(event: QQMessageEvent):
@@ -235,19 +235,19 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
             await self.qq.send_plain_message(prediction.response, event.group_id)
 
         @emitter.on(EventKeyRegistry.Pipeline.OCR)
-        def on_pipeline_ocr(event: OCREvent):
+        def on_pipeline_ocr(event: PipelineOCREvent):
             prediction = event.prediction
             text = "你看见了" + stringify(prediction.region_results) + "\n请总结一下"
             self.emit_llm_prediction(text)
 
         @emitter.on(EventKeyRegistry.Pipeline.IMG_CAP)
-        def on_pipeline_img_cap(event: ImgCapEvent):
+        def on_pipeline_img_cap(event: PipelineImgCapEvent):
             prediction = event.prediction
             text = "你看见了" + prediction.caption
             self.emit_llm_prediction(text)
 
         @emitter.on(EventKeyRegistry.Pipeline.LLM)
-        def llm_query_handler(event: LLMEvent):
+        def llm_query_handler(event: PipelineOutputLLMEvent):
             prediction = event.prediction
             text = prediction.response
             logger.info("LLM: " + text)
@@ -277,7 +277,7 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
             sample_rate, num_channels, duration = audio_util.get_audio_info(prediction.wave_data, prediction.audio_type)
 
             self.obs.subtitle(text, which="assistant", duration=math_util.clamp(0, 5, duration - 1))
-            self.play_tts(TTSEvent(prediction=prediction, transcript=text))
+            self.play_tts(PipelineOutputTTSEvent(prediction=prediction, transcript=text))
 
         # To sync audio playing and subtitle
         self.tts_thread_pool.submit(wrapper)
@@ -299,7 +299,7 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
         logger.info(f"Length of current history: {len(self.llm_prompt_manager.current_history)}")
         self.llm_prompt_manager.reset_history(prediction.history, self.save_memory)
         if not direct_return:
-            emitter.emit(LLMEvent(prediction=prediction))
+            emitter.emit(PipelineOutputLLMEvent(prediction=prediction))
             logger.debug("LLMEvent emitted.")
         return prediction
 
@@ -329,7 +329,7 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
         except Exception as e:
             logger.warning("Milvus pipeline failed!")
 
-    def play_tts(self, event: TTSEvent):
+    def play_tts(self, event: PipelineOutputTTSEvent):
         prediction = event.prediction
         audio_path = save_audio(wave_data=prediction.wave_data, format=AudioFileType(prediction.audio_type),
                                 prefix='tts')

@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from typing import List, Literal
 
+from pydantic import BaseModel
 from zerolan.data.data.danmaku import Danmaku, SuperChat
 from zerolan.data.pipeline.asr import ASRPrediction
 from zerolan.data.pipeline.img_cap import ImgCapPrediction
@@ -15,143 +16,134 @@ from services.game.minecraft.data import KonekoProtocol
 from services.live_stream.data import Gift
 
 
-class BaseEvent:
+class BaseEvent(BaseModel):
     type: str
 
 
-@dataclass
-class ASREvent(BaseEvent):
+### System ###
+class ConfigFileModifiedEvent(BaseEvent):
+    type: str = EventKeyRegistry.System.CONFIG_FILE_MODIFIED
+
+
+class LanguageChangeEvent(BaseEvent):
+    target_lang: str
+    type: str = EventKeyRegistry.System.LANG_CHANGE
+
+
+class SystemUnhandledErrorEvent(BaseEvent):
+    msg: str
+    ex: any
+    type: str = EventKeyRegistry.System.SYSTEM_UNHANDLED_ERROR
+
+
+class SystemCrashedEvent(BaseEvent):
+    type: str = EventKeyRegistry.System.SYSTEM_CRASHED
+
+
+### Pipeline ###
+class PipelineASREvent(BaseEvent):
     prediction: ASRPrediction
     type: str = EventKeyRegistry.Pipeline.ASR
 
 
-@dataclass
-class QQMessageEvent(BaseEvent):
-    message: str
-    group_id: int | None
-    type: str = EventKeyRegistry.QQBot.QQ_MESSAGE
-
-
-@dataclass
-class LLMEvent(BaseEvent):
+class PipelineOutputLLMEvent(BaseEvent):
     prediction: LLMPrediction
     type: str = EventKeyRegistry.Pipeline.LLM
 
 
-@dataclass
-class OCREvent(BaseEvent):
-    prediction: OCRPrediction
-    type: str = EventKeyRegistry.Pipeline.OCR
-
-
-@dataclass
-class TTSEvent(BaseEvent):
+class PipelineOutputTTSEvent(BaseEvent):
     prediction: TTSPrediction
     transcript: str
     type: str = EventKeyRegistry.Pipeline.TTS
 
 
-@dataclass
-class ImgCapEvent(BaseEvent):
+class PipelineImgCapEvent(BaseEvent):
     prediction: ImgCapPrediction
     type: str = EventKeyRegistry.Pipeline.IMG_CAP
 
 
-@dataclass
-class SpeechEvent(BaseEvent):
+class PipelineOCREvent(BaseEvent):
+    prediction: OCRPrediction
+    type: str = EventKeyRegistry.Pipeline.OCR
+
+
+### Device ###
+class DeviceScreenCapturedEvent(BaseEvent):
+    img_path: str
+    is_camera: bool
+    type: str = EventKeyRegistry.Device.SCREEN_CAPTURED
+
+
+class DeviceMicrophoneVADEvent(BaseEvent):
     speech: bytes
     audio_type: AudioFileType
     channels: int
     sample_rate: int
-    type: str = EventKeyRegistry.Device.SERVICE_VAD_SPEECH_CHUNK
+    type: str = EventKeyRegistry.Device.MICROPHONE_VAD
 
 
-@dataclass
+class DeviceMicrophoneSwitchEvent(BaseEvent):
+    switch: bool
+    type: str = EventKeyRegistry.Device.MICROPHONE_SWITCH
+
+
+### Live streaming ###
 class LiveStreamConnectedEvent(BaseEvent):
     platform: Literal["bilibili", "twitch", "youtube"]
     type: str = EventKeyRegistry.LiveStream.CONNECTED
 
 
-@dataclass
 class LiveStreamDisconnectedEvent(BaseEvent):
     platform: Literal["bilibili", "twitch", "youtube"]
     reason: str
     type: str = EventKeyRegistry.LiveStream.DISCONNECTED
 
 
-@dataclass
-class DanmakuEvent(BaseEvent):
-    platform: Literal["bilibili", "twitch", "youtube"]
-    danmaku: Danmaku
-    type: str = EventKeyRegistry.LiveStream.DANMAKU
-
-
-@dataclass
-class SuperChatEvent(BaseEvent):
+class LiveStreamSuperChatEvent(BaseEvent):
     platform: Literal["bilibili", "twitch", "youtube"]
     superchat: SuperChat
     type: str = EventKeyRegistry.LiveStream.SUPER_CHAT
 
 
-@dataclass
-class GiftEvent(BaseEvent):
+class LiveStreamDanmakuEvent(BaseEvent):
+    platform: Literal["bilibili", "twitch", "youtube"]
+    danmaku: Danmaku
+    type: str = EventKeyRegistry.LiveStream.DANMAKU
+
+
+class LiveStreamGiftEvent(BaseEvent):
     platform: Literal["bilibili", "twitch", "youtube"]
     gift: Gift
     type: str = EventKeyRegistry.LiveStream.GIFT
 
 
-@dataclass
+### Koneko Minecraft Bot ###
 class KonekoClientPushInstructionsEvent(BaseEvent):
     tools: List[Tool]
     type: str = EventKeyRegistry.Koneko.Client.PUSH_INSTRUCTIONS
 
 
-@dataclass
 class KonekoClientHelloEvent(BaseEvent):
-    type = EventKeyRegistry.Koneko.Client.HELLO
+    type: str = EventKeyRegistry.Koneko.Client.HELLO
 
 
-@dataclass
 class KonekoServerCallInstruction(BaseEvent):
     protocol_obj: KonekoProtocol
-    type = EventKeyRegistry.Koneko.Server.CALL_INSTRUCTION
+    type: str = EventKeyRegistry.Koneko.Server.CALL_INSTRUCTION
 
 
-@dataclass
-class ScreenCapturedEvent(BaseEvent):
-    img_path: str
-    is_camera: bool
-    type: str = EventKeyRegistry.Device.SCREEN_CAPTURED
+### QQ ###
+class QQMessageEvent(BaseEvent):
+    message: str
+    group_id: int | None
+    type: str = EventKeyRegistry.QQBot.QQ_MESSAGE
 
 
-@dataclass
-class LanguageChangeEvent(BaseEvent):
-    target_lang: str
-    type: str = EventKeyRegistry.System.LANG_CHANGE
-
-
-@dataclass
-class SwitchVADEvent(BaseEvent):
-    switch: bool
-    type: str = EventKeyRegistry.Device.SWITCH_VAD
-
-
-@dataclass
+### Zerolan Playground ###
 class PlaygroundConnectedEvent(BaseEvent):
-    type: str = EventKeyRegistry.Playground.PLAYGROUND_CONNECTED
+    type: str = EventKeyRegistry.Playground.CONNECTED
 
 
-@dataclass
 class PlaygroundDisconnectedEvent(BaseEvent):
     ws_id: str
     type: str = EventKeyRegistry.Playground.DISCONNECTED
-
-
-@dataclass
-class WebSocketDisconnectedEvent(BaseEvent):
-    type: str = EventKeyRegistry._Inner.WEBSOCKET_DISCONNECTED
-
-
-@dataclass
-class ConfigFileModifiedEvent(BaseEvent):
-    type: str = EventKeyRegistry.System.CONFIG_FILE_MODIFIED

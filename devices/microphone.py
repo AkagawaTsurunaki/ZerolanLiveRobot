@@ -8,7 +8,7 @@ from loguru import logger
 
 from common.concurrent.abs_runnable import ThreadRunnable
 from common.io.file_type import AudioFileType
-from event.event_data import SpeechEvent
+from event.event_data import DeviceMicrophoneVADEvent
 from event.event_emitter import emitter
 
 
@@ -90,7 +90,7 @@ class SmartMicrophone(ThreadRunnable):
 
             # 将BytesIO对象的指针移到开始位置
             file.seek(0)
-            emitter.emit(SpeechEvent(
+            emitter.emit(DeviceMicrophoneVADEvent(
                 speech=file.read(),
                 audio_type=AudioFileType.WAV,
                 channels=self._channels,

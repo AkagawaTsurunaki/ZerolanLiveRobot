@@ -16,7 +16,7 @@ from common.concurrent.abs_runnable import AbstractRunnable
 from services.live_stream.config import TwitchServiceConfig
 from common.decorator import log_start, log_stop
 from common.utils.str_util import is_blank
-from event.event_data import SuperChatEvent, DanmakuEvent, LiveStreamConnectedEvent, LiveStreamDisconnectedEvent
+from event.event_data import LiveStreamSuperChatEvent, LiveStreamDanmakuEvent, LiveStreamConnectedEvent, LiveStreamDisconnectedEvent
 from event.event_emitter import emitter
 
 
@@ -65,10 +65,10 @@ class TwitchService(AbstractRunnable):
             if msg.bits is not None and msg.bits > 0:
                 sc = SuperChat(uid=msg.user.id, username=msg.user.name, content=msg.text, ts=msg.sent_timestamp,
                                money=f'{msg.bits}')
-                emitter.emit(SuperChatEvent(superchat=sc, platform="twitch"))
+                emitter.emit(LiveStreamSuperChatEvent(superchat=sc, platform="twitch"))
             else:
                 danmaku = Danmaku(uid=msg.user.id, username=msg.user.name, content=msg.text, ts=msg.sent_timestamp)
-                emitter.emit(DanmakuEvent(danmaku=danmaku, platform="twitch"))
+                emitter.emit(LiveStreamDanmakuEvent(danmaku=danmaku, platform="twitch"))
 
         async def on_ready(ready_event: EventData):
             await ready_event.chat.join_room(self._target_channel)

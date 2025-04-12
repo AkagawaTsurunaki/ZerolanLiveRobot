@@ -5,8 +5,9 @@ import pytest
 from zerolan.data.pipeline.asr import ASRStreamQuery
 
 from common.concurrent.killable_thread import KillableThread
-from event.event_data import SpeechEvent
+from event.event_data import DeviceMicrophoneVADEvent
 from event.event_emitter import emitter
+from event.registry import EventKeyRegistry
 from manager.config_manager import get_config
 from devices.microphone import SmartMicrophone
 from pipeline.asr.asr_sync import ASRSyncPipeline
@@ -29,8 +30,8 @@ tasks = []
 _flag = True
 
 
-@emitter.on(SpeechEvent.type)
-def _on_speech(event: SpeechEvent):
+@emitter.on(EventKeyRegistry.Device.MICROPHONE_VAD)
+def _on_speech(event: DeviceMicrophoneVADEvent):
     query = ASRStreamQuery(
         is_final=True,
         audio_data=event.speech,

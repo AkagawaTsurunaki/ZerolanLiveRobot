@@ -7,7 +7,7 @@ from common.concurrent.abs_runnable import AbstractRunnable
 from services.live_stream.config import YoutubeServiceConfig
 from common.decorator import log_start, log_stop
 from common.utils.str_util import is_blank
-from event.event_data import DanmakuEvent, SuperChatEvent
+from event.event_data import LiveStreamDanmakuEvent, LiveStreamSuperChatEvent
 from event.event_emitter import emitter
 
 
@@ -73,7 +73,7 @@ class YouTubeService(AbstractRunnable):
         updated_danmakus = self._danmakus.difference(danmakus)
         self._danmakus.update(updated_danmakus)
         for danmaku in updated_danmakus:
-            emitter.emit(DanmakuEvent(danmaku=danmaku, platform="youtube"))
+            emitter.emit(LiveStreamDanmakuEvent(danmaku=danmaku, platform="youtube"))
 
     def emit_super_chat_event(self):
         # https://developers.google.com/youtube/v3/live/docs/superChatEvents
@@ -82,7 +82,7 @@ class YouTubeService(AbstractRunnable):
         updated_superchats = self._superchats.difference(super_chats)
         self._superchats.update(updated_superchats)
         for superchat in updated_superchats:
-            emitter.emit(SuperChatEvent(superchat=superchat, platform="youtube"))
+            emitter.emit(LiveStreamSuperChatEvent(superchat=superchat, platform="youtube"))
 
     @log_start("YouTubeService")
     async def start(self):

@@ -3,7 +3,7 @@ from typing import Type, Any
 from langchain_core.tools import BaseTool
 from pydantic import BaseModel, Field
 
-from event.event_data import SwitchVADEvent
+from event.event_data import DeviceMicrophoneSwitchEvent
 from event.event_emitter import emitter
 
 
@@ -18,4 +18,4 @@ class MicrophoneTool(BaseTool):
     return_direct: bool = True
 
     def _run(self, switch: bool) -> Any:
-        emitter.emit(SwitchVADEvent(switch))
+        emitter.emit(DeviceMicrophoneSwitchEvent(switch=switch))
