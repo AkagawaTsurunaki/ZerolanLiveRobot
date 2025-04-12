@@ -3,13 +3,12 @@ import os
 from agent.custom_agent import CustomAgent
 from agent.tool_agent import ToolAgent
 from character.filter.strategy import FirstMatchedFilter
-from devices.microphone import Microphone
 from devices.speaker import Speaker
 from manager.config_manager import get_config
 from manager.llm_prompt_manager import LLMPromptManager
 from manager.model_manager import ModelManager
 from manager.tts_prompt_manager import TTSPromptManager
-from microphone import SmartMicrophone
+from devices.microphone import SmartMicrophone
 from pipeline.asr.asr_sync import ASRSyncPipeline
 from pipeline.db.milvus.milvus_sync import MilvusSyncPipeline
 from pipeline.imgcap.imgcap_sync import ImgCapSyncPipeline
@@ -55,7 +54,6 @@ class ZerolanLiveRobotContext:
         self.tts_prompt_manager: TTSPromptManager | None = None
 
         self.tool_agent: ToolAgent | None = None
-        self.microphone: Microphone | None = None
 
         if os.environ.get("DISPLAY", None) is not None:
             from devices.screen import Screen

@@ -8,7 +8,7 @@ from common.concurrent.killable_thread import KillableThread
 from event.event_data import SpeechEvent
 from event.event_emitter import emitter
 from manager.config_manager import get_config
-from microphone import SmartMicrophone
+from devices.microphone import SmartMicrophone
 from pipeline.asr.asr_sync import ASRSyncPipeline
 
 

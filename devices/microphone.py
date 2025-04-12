@@ -1,63 +1,114 @@
-from typing import Generator, Any
+import io
+import threading
+import wave
 
 import pyaudio
+import webrtcvad
 from loguru import logger
 
+from common.concurrent.abs_runnable import ThreadRunnable
+from common.io.file_type import AudioFileType
+from event.event_data import SpeechEvent
+from event.event_emitter import emitter
 
-class Microphone:
 
-    def __init__(self):
+class SmartMicrophone(ThreadRunnable):
+    def __init__(self, vad_mode=0, frame_duration=30):
         """
-        Note:
-            The bytes type is returned after the audio is sampled, but when converted with numpy,
-            the dtype type of the numpy vector must match the format of the data format using the microphone,
-            otherwise an exception may occur.
+        初始化智能麦克风类
+        :param vad_mode: Optionally, set its aggressiveness mode, which is an integer between 0 and 3.
+                         0 is the least aggressive about filtering out non-speech, 3 is the most aggressive.
+        :param frame_duration: A frame must be either 10, 20, or 30 ms in duration.
         """
-        self._stream: pyaudio.Stream | None = None
-        self._chunk_size = 4096  # The size of the audio data read at a time
-        self._format = pyaudio.paFloat32  # TODO: The format in which the audio is recorded, temporarily hardcoded to Float32 format to prevent possible errors
-        self.channels = 1
-        self.sample_rate = 16000
-        self._p = pyaudio.PyAudio()
-        self._chunk_stride: int = 960 * 10
-        self._is_recording: bool = False
+        super().__init__()
+        assert frame_duration in [10, 20, 30], f"A frame must be either 10, 20, or 30 ms in duration!"
 
-    def open(self):
-        logger.info("Open the microphone")
-        if self._is_recording:
-            logger.warning("Microphone recording...")
-            return
-        self._is_recording = True
-        self._stream = self._p.open(format=self._format,
-                                    channels=self.channels,
-                                    rate=self.sample_rate,
-                                    input=True,
-                                    frames_per_buffer=self._chunk_size)
+        # Audio parameters
+        self._format = pyaudio.paInt16
+        self._channels = 1
+        self._sample_rate = 16000
+        self._chunk_size = int(self._sample_rate * frame_duration / 1000)  # Bytes
 
-    def close(self):
-        self._is_recording = False
-        self._stream.stop_stream()
-        self._stream.close()
-        self._p.terminate()
-        logger.info("Close the microphone")
+        # Initialize microphone
+        self._audio = pyaudio.PyAudio()
+        self._vad = webrtcvad.Vad(vad_mode)
+        self._stream = self._audio.open(format=self._format,
+                                        channels=self._channels,
+                                        rate=self._sample_rate,
+                                        input=True,
+                                        frames_per_buffer=self._chunk_size)
 
-    def stream(self) -> Generator[bytes | None, Any, None]:
-        try:
-            while True:
-                data = self._stream.read(self._chunk_stride)
-                yield data
-        except Exception as e:
-            if isinstance(e, OSError):
-                if e.errno == 9988:
-                    if self._is_recording:
-                        logger.exception(e)
-                        logger.error("Microphone stream closed unexpectedly.")
-                    else:
-                        logger.info("Microphone stream closed.")
-            else:
-                logger.exception(e)
-            yield None
+        self._audio_frames = []
+        self._is_speaking = False
+
+        self._pause_event = threading.Event()
+        self._stop_flag = False
 
     @property
     def is_recording(self):
-        return self._is_recording
+        return self._pause_event.is_set() and (not self._stop_flag) and self._stream.is_active()
+
+    def start(self):
+        super().start()
+        self._pause_event.set()
+        self._stop_flag = False
+        try:
+            while not self._stop_flag:
+                self._pause_event.wait()
+                if self._stop_flag:
+                    break
+                data = self._stream.read(self._chunk_size, exception_on_overflow=False)
+                if self._vad.is_speech(data, self._sample_rate):
+                    if not self._is_speaking:
+                        logger.info("Voice detected: Beginning.")
+                        self._is_speaking = True
+                    self._audio_frames.append(data)
+                else:
+                    if self._is_speaking:
+                        logger.info("Voice detected: Ending.")
+                        self._is_speaking = False
+                        self._emit_event()
+                        self._audio_frames = []
+        except Exception as e:
+            logger.exception(e)
+        finally:
+            # Stop and close the microphone stream
+            self._stream.stop_stream()
+            self._stream.close()
+            self._audio.terminate()
+
+    def _emit_event(self):
+        if self._audio_frames:
+            # 创建一个BytesIO对象来存储WAV文件
+            file = io.BytesIO()
+            wf = wave.open(file, 'wb')
+            wf.setnchannels(self._channels)
+            wf.setsampwidth(self._audio.get_sample_size(self._format))
+            wf.setframerate(self._sample_rate)
+            wf.writeframes(b''.join(self._audio_frames))
+            wf.close()
+
+            # 将BytesIO对象的指针移到开始位置
+            file.seek(0)
+            emitter.emit(SpeechEvent(
+                speech=file.read(),
+                audio_type=AudioFileType.WAV,
+                channels=self._channels,
+                sample_rate=self._sample_rate,
+            ))
+
+    def pause(self):
+        self._pause_event.clear()
+        logger.info("Paused smart microphone.")
+
+    def resume(self):
+        self._pause_event.set()
+        logger.info("Resumed smart microphone.")
+
+    def stop(self):
+        self._stop_flag = True
+        self._pause_event.set()
+        logger.info("Stopped smart microphone.")
+
+    def name(self):
+        return "SmartMicrophone"
