@@ -1,9 +1,9 @@
 import base64
 import hashlib
 import json
-import threading
 import time
 import uuid
+from concurrent.futures.thread import ThreadPoolExecutor
 from typing import Literal, Dict
 
 import websockets
@@ -44,15 +44,16 @@ class ObsStudioWsClient(ThreadRunnable):
             "assistant": config.assistant_text_comp_name,
             "user": config.user_text_comp_name,
         }
+        self._thread_pool = ThreadPoolExecutor(max_workers=1)
 
     @retry(exceptions=websockets.exceptions.ConnectionClosed, tries=-1, delay=2)
     def start(self):
+        super().start()
         self._client = connect(uri=self._uri, subprotocols=[Subprotocol("obswebsocket.json"), ])
         try:
             logger.info("Connect to OBS Websocket server")
             while self._client.close_code is None:
                 msg = self._client.recv()
-                logger.debug(msg)
                 try:
                     json_dict = json.loads(msg)
                     self._handle_json(json_dict)
@@ -118,6 +119,7 @@ class ObsStudioWsClient(ThreadRunnable):
     def subtitle(self, text: str, which: Literal["user", "assistant"], duration: float = None):
         """
         Change specific Text (GDI+) input component text value.
+        Note: This method uses ThreadExecutorPool with max worker 1. So it may block until last one finished.
         :param text: The text value you want to display.
         :param which: Which Text (GDI+) input component.
         :param duration: Default to None will display immediately.
@@ -135,8 +137,9 @@ class ObsStudioWsClient(ThreadRunnable):
             for i in range(len(text)):
                 self._subtitle(text[0:i], self._text_comps[which])
                 time.sleep(sec_per_char)
+            self._subtitle(text, self._text_comps[which])
 
-        threading.Thread(target=stream_subtitle).start()
+        self._thread_pool.submit(stream_subtitle)
 
     def name(self):
         return "ObsStudioWsClient"
