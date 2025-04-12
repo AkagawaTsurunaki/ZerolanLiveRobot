@@ -126,7 +126,7 @@ class ObsStudioWsClient(ThreadRunnable):
                          Or it will display like a streaming subtitle in the duration.
         """
         if duration is None:
-            self._subtitle(text, which)
+            self._subtitle(text, self._text_comps[which])
             return
 
         if text is None or len(text) == 0:
