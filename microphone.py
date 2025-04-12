@@ -44,6 +44,10 @@ class SmartMicrophone(ThreadRunnable):
         self._pause_event = threading.Event()
         self._stop_flag = False
 
+    @property
+    def is_recording(self):
+        return self._pause_event.is_set() and (not self._stop_flag) and self._stream.is_active()
+
     def start(self):
         super().start()
         self._pause_event.set()

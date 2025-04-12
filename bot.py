@@ -47,7 +47,7 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
 
         threads = []
         if _config.system.default_enable_microphone:
-            vad_thread = KillableThread(target=self.vad.start, daemon=True, name="VADThread")
+            vad_thread = KillableThread(target=self.mic.start, daemon=True, name="VADThread")
             threads.append(vad_thread)
 
         speaker_thread = KillableThread(target=self.speaker.start, daemon=True, name="SpeakerThread")
@@ -92,7 +92,7 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
     def init(self):
         @emitter.on(EventKeyRegistry.Playground.PLAYGROUND_CONNECTED)
         def on_playground_connected(_):
-            self.vad.pause()
+            self.mic.pause()
             logger.info("Because ZerolanPlayground client connected, close the local microphone.")
             self.playground.load_live2d_model(
                 bot_id=self.bot_id,
@@ -109,16 +109,16 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
 
         @emitter.on(EventKeyRegistry.Device.SWITCH_VAD)
         def on_open_microphone(event: SwitchVADEvent):
-            if self.vad.is_recording:
+            if self.mic.is_recording:
                 if event.switch:
                     logger.warning("The microphone has already resumed.")
                     return
-                self.vad.pause()
+                self.mic.pause()
             else:
                 if not event.switch:
                     logger.warning("The microphone has already paused.")
                     return
-                self.vad.resume()
+                self.mic.resume()
 
         @emitter.on(EventKeyRegistry.Device.SERVICE_VAD_SPEECH_CHUNK)
         def on_service_vad_speech_chunk(event: SpeechEvent):

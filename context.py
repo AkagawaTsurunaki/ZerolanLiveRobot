@@ -5,11 +5,11 @@ from agent.tool_agent import ToolAgent
 from character.filter.strategy import FirstMatchedFilter
 from devices.microphone import Microphone
 from devices.speaker import Speaker
-from event.speech_emitter import SpeechEmitter
 from manager.config_manager import get_config
 from manager.llm_prompt_manager import LLMPromptManager
 from manager.model_manager import ModelManager
 from manager.tts_prompt_manager import TTSPromptManager
+from microphone import SmartMicrophone
 from pipeline.asr.asr_sync import ASRSyncPipeline
 from pipeline.db.milvus.milvus_sync import MilvusSyncPipeline
 from pipeline.imgcap.imgcap_sync import ImgCapSyncPipeline
@@ -124,8 +124,7 @@ class ZerolanLiveRobotContext:
             self.playground = PlaygroundBridge(config=_config.service.playground)
         if _config.service.qqbot.enable:
             self.qq = QQBotBridge(_config.service.qqbot)
-        self.microphone = Microphone()
-        self.vad = SpeechEmitter(self.microphone)
+        self.mic = SmartMicrophone()
         self.obs = ObsStudioWsClient(_config.service.obs)
 
         # Agents
