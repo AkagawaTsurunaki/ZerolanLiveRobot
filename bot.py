@@ -197,6 +197,8 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
                     logger.debug("Tool called.")
             if self.playground.is_connected:
                 self.playground.show_user_input_text(prediction.transcript)
+            if self.obs:
+                self.obs.subtitle(prediction.transcript, which="user")
             self.emit_llm_prediction(prediction.transcript)
 
         @emitter.on(EventKeyRegistry.Device.SCREEN_CAPTURED)
