@@ -1,4 +1,5 @@
 import io
+from io import BytesIO
 from pathlib import Path
 
 import numpy as np
@@ -11,27 +12,32 @@ from common.io.file_type import AudioFileType
 
 
 @typechecked
-def get_audio_info(path: Path | str) -> (int, int, float):
+def get_audio_info(file: Path | str | bytes | BytesIO, type: str | None = None) -> (int, int, float):
     """
     Get audio info from path. Supported OGG, WAV, MP3, FLV and RAW. Also see AudioFileType.
-    :param path: Audio file path.
+    :param file: Audio file path.
     :return: sample_rate, num_channels, duration
     """
-    suffix = Path(path).suffix
-    if suffix[0] == '.':
-        suffix = suffix[1:]
-    suffix = suffix.lower()
+    if isinstance(file, bytes):
+        file = BytesIO(file)
+    if type is None:
+        suffix = Path(file).suffix
+        if suffix[0] == '.':
+            suffix = suffix[1:]
+        suffix = suffix.lower()
+    else:
+        suffix = type
 
     if suffix == AudioFileType.OGG:
-        audio = AudioSegment.from_ogg(path)
+        audio = AudioSegment.from_ogg(file)
     elif suffix == AudioFileType.WAV:
-        audio = AudioSegment.from_wav(path)
+        audio = AudioSegment.from_wav(file)
     elif suffix == AudioFileType.MP3:
-        audio = AudioSegment.from_mp3(path)
+        audio = AudioSegment.from_mp3(file)
     elif suffix == AudioFileType.FLV:
-        audio = AudioSegment.from_flv(path)
+        audio = AudioSegment.from_flv(file)
     elif suffix == AudioFileType.RAW:
-        audio = AudioSegment.from_raw(path)
+        audio = AudioSegment.from_raw(file)
     else:
         raise NotImplementedError()
 
