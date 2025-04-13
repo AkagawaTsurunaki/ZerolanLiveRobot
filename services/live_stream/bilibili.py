@@ -5,7 +5,7 @@ from bilibili_api.live import LiveDanmaku
 from loguru import logger
 from zerolan.data.data.danmaku import Danmaku
 
-from common.concurrent.abs_runnable import AbstractRunnable
+from common.concurrent.abs_runnable import AsyncRunnable
 from common.decorator import log_init, log_stop
 from event.event_data import LiveStreamConnectedEvent, LiveStreamDanmakuEvent, LiveStreamDisconnectedEvent, \
     LiveStreamGiftEvent
@@ -14,7 +14,7 @@ from services.live_stream.config import BilibiliServiceConfig
 from services.live_stream.data import Gift
 
 
-class BilibiliService(AbstractRunnable):
+class BilibiliService(AsyncRunnable):
 
     def name(self):
         return "BilibiliService"

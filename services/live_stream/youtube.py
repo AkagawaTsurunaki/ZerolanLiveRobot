@@ -3,7 +3,7 @@ import asyncio
 import requests
 from zerolan.data.data.danmaku import Danmaku, SuperChat
 
-from common.concurrent.abs_runnable import AbstractRunnable
+from common.concurrent.abs_runnable import AsyncRunnable
 from services.live_stream.config import YoutubeServiceConfig
 from common.decorator import log_start, log_stop
 from common.utils.str_util import is_blank
@@ -47,7 +47,7 @@ def convert_superchats(super_chat_events: list[dict]):
     return result
 
 
-class YouTubeService(AbstractRunnable):
+class YouTubeService(AsyncRunnable):
     def name(self):
         return "YouTubeService"
 

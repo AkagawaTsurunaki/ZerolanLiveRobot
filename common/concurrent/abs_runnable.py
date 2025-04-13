@@ -5,7 +5,7 @@ from typing import Dict, List
 from loguru import logger
 
 
-class AbstractRunnable:
+class AsyncRunnable:
 
     def __init__(self):
         self._activate: bool = False
@@ -55,11 +55,11 @@ class ThreadRunnable:
 
 # 所有的可运行组件都应该在调用 `start` 方法的时候被注册在这里
 # All runnable components should be registered here when the `start` method is called
-_all: Dict[str, AbstractRunnable] = {}
+_all: Dict[str, AsyncRunnable] = {}
 _ids: List[str] = []
 
 
-def add_runnable(run: AbstractRunnable | ThreadRunnable):
+def add_runnable(run: AsyncRunnable | ThreadRunnable):
     _all[run.id] = run
     _ids.append(run.id)
     logger.debug(f"Runnable {run.name()}: {run.id}")
