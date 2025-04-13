@@ -8,6 +8,7 @@ from zerolan.data.pipeline.tts import TTSQuery, TTSStreamPrediction
 from common.decorator import log_run_time
 from common.enumerator import Language
 from manager.config_manager import get_config
+from manager.tts_prompt_manager import TTSPromptManager
 from pipeline.tts.tts_async import TTSAsyncPipeline
 from pipeline.tts.tts_sync import TTSSyncPipeline
 
@@ -73,6 +74,13 @@ _tts_query = TTSQuery(text="",
                       refer_wav_path="resources/[zh][Default]喜欢游戏的人和擅长游戏的人有很多不一样的地方，老师属于哪一种呢？.wav",
                       prompt_text="喜欢游戏的人和擅长游戏的人有很多不一样的地方，老师属于哪一种呢？",
                       prompt_language=Language.ZH)
+
+_tts_manager = TTSPromptManager(_config.character.speech)
+_tts_manager.set_lang(Language.ZH)
+_tts_prompt = _tts_manager.tts_prompts[0]
+_tts_query.refer_wav_path = _tts_prompt.audio_path
+_tts_query.prompt_text = _tts_prompt.prompt_text
+_tts_query.prompt_language = _tts_prompt.lang
 
 
 def tts_stream_predict(text: str | None, handler: Callable[[TTSStreamPrediction], None] | None,
