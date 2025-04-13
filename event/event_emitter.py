@@ -191,6 +191,7 @@ class TypedEventEmitter:
         self.sync_executor_thread = KillableThread(target=self._sync_executor.start, daemon=True)
         self._async_executor_task = asyncio.create_task(self._async_executor.start())
         self.sync_executor_thread.start()
+        logger.info("TypedEventEmitter is running...")
         await self._async_executor_task
         self.sync_executor_thread.join()
 
