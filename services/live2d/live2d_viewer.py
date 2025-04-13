@@ -42,8 +42,11 @@ class Live2DViewer(ThreadRunnable):
 
     def _sync_lip_loop(self):
         while self._sync_lip_loop_flag:
-            audio_path = self._audios.get(block=True)
-            self._canvas.wavHandler.Start(str(audio_path))
+            try:
+                audio_path = self._audios.get(block=True)
+                self._canvas.wavHandler.Start(str(audio_path))
+            except Exception as e:
+                logger.exception(e)
 
     def stop(self):
         super().stop()
