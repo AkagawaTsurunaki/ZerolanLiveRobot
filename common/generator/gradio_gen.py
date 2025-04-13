@@ -1,3 +1,4 @@
+import asyncio
 import typing
 from enum import Enum
 from typing import Any, Union, List, Tuple, Callable
@@ -10,7 +11,7 @@ from typeguard import typechecked
 
 from common import ver_check
 from common.utils.enum_util import enum_members_to_str_list
-from manager.config_manager import save_config, get_config
+from manager.config_manager import save_config
 
 """
 Analyse config schema of the project and automatically generate config WebUI page using gradio.
@@ -101,6 +102,12 @@ class DynamicConfigPage:
             self._add_block_components(self.model)
         self.blocks.launch(share)
 
+    async def start(self):
+        async def async_start():
+            self.launch()
+
+        await async_start()
+
     @typechecked
     def _add_block_components(self, model: BaseModel):
         """
@@ -162,9 +169,3 @@ class FieldSetter:
         self._model.__setattr__(field_name, val)
         # Model Validate.
         self._model.model_validate(self._model)
-
-
-# Create and launch the config page
-_config = get_config()
-config_page = DynamicConfigPage(_config)
-config_page.launch()
