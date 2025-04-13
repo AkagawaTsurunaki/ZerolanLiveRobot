@@ -7,7 +7,7 @@ from pipeline.base.base_sync import CommonModelPipeline
 from pipeline.vidcap.config import VidCapPipelineConfig
 
 
-class VidCapPipeline(CommonModelPipeline):
+class VidCapSyncPipeline(CommonModelPipeline):
 
     def __init__(self, config: VidCapPipelineConfig):
         """

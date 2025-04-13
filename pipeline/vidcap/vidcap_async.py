@@ -1,12 +1,10 @@
 import os.path
-from typing import Literal
 
 from typeguard import typechecked
 from zerolan.data.pipeline.vid_cap import VidCapQuery, VidCapPrediction
 
-from pipeline.base.base_async import BaseAsyncPipeline
-
-ModelID = Literal['multi-modal_hitea_video-captioning_base_en']
+from pipeline.base.base_async import BaseAsyncPipeline, get_base_url
+from pipeline.vidcap.config import VidCapPipelineConfig, VidCapModelIdEnum
 
 
 def _parse_vid_cap_query(query: VidCapQuery):
@@ -15,10 +13,10 @@ def _parse_vid_cap_query(query: VidCapQuery):
     return query
 
 
-class VidCapPipeline(BaseAsyncPipeline):
-    def __init__(self, model_id: ModelID, base_url: str):
-        super().__init__(base_url)
-        self._model_id: ModelID = model_id
+class VidCapAsyncPipeline(BaseAsyncPipeline):
+    def __init__(self, config: VidCapPipelineConfig):
+        super().__init__(base_url=get_base_url(config.predict_url))
+        self._model_id: VidCapModelIdEnum = config.model_id
         self._predict_endpoint = "/vid-cap/predict"
 
     @typechecked

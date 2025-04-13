@@ -1,17 +1,16 @@
-from typing import Literal
-
 from typeguard import typechecked
 from zerolan.data.pipeline.vla import ShowUiPrediction, ShowUiQuery
 
-from pipeline.base.base_async import BaseAsyncPipeline
+from pipeline.base.base_async import BaseAsyncPipeline, get_base_url
+from pipeline.vla.config import VLAModelIdEnum
+from pipeline.vla.showui.config import ShowUIConfig
 
-ModelID = Literal['showlab/ShowUI-2B']
 
-
-class ShowUIPipeline(BaseAsyncPipeline):
-    def __init__(self, model_id: ModelID, base_url: str):
-        super().__init__(base_url)
-        self._model_id: ModelID = model_id
+class ShowUIAsyncPipeline(BaseAsyncPipeline):
+    def __init__(self, config: ShowUIConfig):
+        super().__init__(base_url=get_base_url(config.predict_url))
+        assert str(config.model_id) == VLAModelIdEnum.ShowUI.value, f"Model ID is wrong."
+        self._model_id: VLAModelIdEnum = VLAModelIdEnum.ShowUI
         self._predict_endpoint = "/vla/showui/predict"
 
     @typechecked
