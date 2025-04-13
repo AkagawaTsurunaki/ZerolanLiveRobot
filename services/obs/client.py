@@ -49,8 +49,8 @@ class ObsStudioWsClient(ThreadRunnable):
     @retry(exceptions=websockets.exceptions.ConnectionClosed, tries=-1, delay=2)
     def start(self):
         super().start()
-        self._client = connect(uri=self._uri, subprotocols=[Subprotocol("obswebsocket.json"), ])
         try:
+            self._client = connect(uri=self._uri, subprotocols=[Subprotocol("obswebsocket.json"), ])
             logger.info("Connect to OBS Websocket server")
             while self._client.close_code is None:
                 msg = self._client.recv()
@@ -60,9 +60,14 @@ class ObsStudioWsClient(ThreadRunnable):
                 except Exception as e:
                     logger.exception(e)
                     continue
+        except ConnectionRefusedError as e:
+            logger.error("Are you sure you have started the OBS WebSocket server?")
+            raise e
         except websockets.exceptions.ConnectionClosed as e:
             logger.warning("Connection closed.")
             raise e
+        finally:
+            self._thread_pool.shutdown()
 
     @property
     def is_connected(self) -> bool:
@@ -150,3 +155,4 @@ class ObsStudioWsClient(ThreadRunnable):
     def stop(self):
         if self._client is not None:
             self._client.close()
+        self._thread_pool.shutdown()
