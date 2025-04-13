@@ -18,7 +18,7 @@ class Live2DCanvas(OpenGLCanvas):
         self._model_path = path
         self._lipSyncN = lip_sync_n
 
-        self._wavHandler = WavHandler()
+        self.wavHandler = WavHandler()
         self.model: None | live2d.LAppModel = None
         self.setWindowTitle("Live2DCanvas")
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
@@ -39,16 +39,13 @@ class Live2DCanvas(OpenGLCanvas):
 
     def on_draw(self):
         live2d.clearBuffer()
-        if self._wavHandler.Update():
+        if self.wavHandler.Update():
             # 利用 wav 响度更新 嘴部张合
             self.model.SetParameterValue(
-                StandardParams.ParamMouthOpenY, self._wavHandler.GetRms() * self._lipSyncN
+                StandardParams.ParamMouthOpenY, self.wavHandler.GetRms() * self._lipSyncN
             )
         self.model.Update()
         self.model.Draw()
-
-    def sync_lip(self, audio_path: str):
-        self._wavHandler.Start(audio_path)
 
     def on_resize(self, width: int, height: int):
         self.model.Resize(width, height)
