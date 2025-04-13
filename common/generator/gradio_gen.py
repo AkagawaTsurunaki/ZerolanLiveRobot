@@ -11,6 +11,8 @@ from typeguard import typechecked
 
 from common import ver_check
 from common.utils.enum_util import enum_members_to_str_list
+from event.event_data import ConfigFileModifiedEvent
+from event.event_emitter import emitter
 from manager.config_manager import save_config
 
 """
@@ -94,6 +96,7 @@ class DynamicConfigPage:
                     try:
                         save_config(self.model)
                         gr.Info("Config file saved.")
+                        emitter.emit(ConfigFileModifiedEvent())
                     except Exception as e:
                         logger.exception(e)
                         gr.Error("Failed to save config file.")
