@@ -24,4 +24,9 @@ class ServiceConfig(BaseModel):
                                        description="Configuration for the OBS Studio Client.")
     browser: BrowserConfig = Field(default=BrowserConfig(), description="Browser config.")
     live2d_viewer: Live2DViewerConfig = Field(default=Live2DViewerConfig(),
-                                              description="Configuration for the Live2DViewer service.")
+                                              description="Configuration for the Live2DViewer service. "
+                                                          "[!Attention]\n"
+                                                          "1. When use OBS to capture the window, you should use GameSource. "
+                                                          "Then enable `SLI/Cross` and `Allow window transparent` options."
+                                                          "Or the windows will not display.\n"
+                                                          "2. Use `Window capture` will leave black ground.")

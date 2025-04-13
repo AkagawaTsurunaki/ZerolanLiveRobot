@@ -8,3 +8,5 @@ class Live2DViewerConfig(BaseModel):
     auto_lip_sync: bool = Field(default=True, description="Auto lip sync.")
     auto_blink: bool = Field(default=True, description="Auto eye blink.")
     auto_breath: bool = Field(default=True, description="Audio eye blink.")
+    win_height: int = Field(default=True, description="Window height.")
+    win_width: int = Field(default=True, description="Window width.")

@@ -3,6 +3,7 @@ Copied and modified from https://github.com/Arkueid/live2d-py/blob/main/package/
 """
 
 import math
+from typing import Tuple
 
 import live2d.v3 as live2d
 from PyQt5.QtCore import Qt
@@ -13,8 +14,9 @@ from services.live2d.opengl_canvas import OpenGLCanvas
 
 
 class Live2DCanvas(OpenGLCanvas):
-    def __init__(self, path: str, lip_sync_n: int = 3):
+    def __init__(self, path: str, lip_sync_n: int = 3, win_size: Tuple[int, int] = (1920, 1080)):
         super().__init__()
+        self.setFixedSize(*win_size)
         self._model_path = path
         self._lipSyncN = lip_sync_n
 

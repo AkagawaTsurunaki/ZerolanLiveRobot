@@ -19,20 +19,22 @@ class Live2DViewer(ThreadRunnable):
 
     def __init__(self, config: Live2DViewerConfig):
         super().__init__()
-        self._model_path = config.model3_json_file
+        self._model_path: str = config.model3_json_file
         self._canvas: Live2DCanvas | None = None
         self._audios: Queue[Path] = Queue()
-        self._sync_lip_loop_thread = KillableThread(target=self._sync_lip_loop, daemon=True)
-        self._sync_lip_loop_flag = True
+        self._sync_lip_loop_thread: KillableThread = KillableThread(target=self._sync_lip_loop, daemon=True)
+        self._sync_lip_loop_flag: bool = True
         self._auto_lip_sync: bool = config.auto_lip_sync
         self._auto_blink: bool = config.auto_blink
         self._auto_breath: bool = config.auto_breath
+        self._win_h: int = config.win_height
+        self._win_w: int = config.win_width
 
     def start(self):
         super().start()
         live2d.init()
         app = QApplication(sys.argv)
-        self._canvas = Live2DCanvas(self._model_path)
+        self._canvas = Live2DCanvas(path=self._model_path, lip_sync_n=3, win_size=(self._win_w, self._win_h))
         self._sync_lip_loop_thread.start()
         self._canvas.show()
         self.set_auto_blink(self._auto_blink)
