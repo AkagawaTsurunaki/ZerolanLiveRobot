@@ -2,11 +2,12 @@ from pydantic import BaseModel, Field
 
 from services.browser.config import BrowserConfig
 from services.game.config import GameBridgeConfig
+from services.live2d.config import Live2DViewerConfig
 from services.live_stream.config import LiveStreamConfig
 from services.obs.config import ObsStudioClientConfig
 from services.playground.config import PlaygroundBridgeConfig
-from services.qqbot.config import QQBotBridgeConfig
 from services.playground.res.config import ResourceServerConfig
+from services.qqbot.config import QQBotBridgeConfig
 
 
 class ServiceConfig(BaseModel):
@@ -22,3 +23,5 @@ class ServiceConfig(BaseModel):
     obs: ObsStudioClientConfig = Field(default=ObsStudioClientConfig(),
                                        description="Configuration for the OBS Studio Client.")
     browser: BrowserConfig = Field(default=BrowserConfig(), description="Browser config.")
+    live2d_viewer: Live2DViewerConfig = Field(default=Live2DViewerConfig(),
+                                              description="Configuration for the Live2DViewer service.")

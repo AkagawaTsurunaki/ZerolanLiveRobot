@@ -21,6 +21,7 @@ from pipeline.vla.showui.showui_sync import ShowUISyncPipeline
 from services.browser.browser import Browser
 from services.game.config import PlatformEnum
 from services.game.minecraft.app import KonekoMinecraftAIAgent
+from services.live2d.live2d_viewer import Live2DViewer
 from services.live_stream.bilibili import BilibiliService
 from services.live_stream.twitch import TwitchService
 from services.live_stream.youtube import YouTubeService
@@ -128,3 +129,4 @@ class ZerolanLiveRobotContext:
         self.config_page = DynamicConfigPage(_config)
         # Agents
         self.tool_agent = ToolAgent(_config.pipeline.llm)
+        self.live2d_viewer = Live2DViewer(_config.service.live2d_viewer)
