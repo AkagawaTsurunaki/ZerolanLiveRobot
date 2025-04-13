@@ -1,4 +1,4 @@
-from typing import List, Literal
+from typing import List
 
 from pydantic import BaseModel, Field
 
@@ -42,6 +42,10 @@ class ChatConfig(BaseModel):
 
 
 class SpeechConfig(BaseModel):
+    is_remote: bool = Field(default=False,
+                           description="If this value is set to `True`, the system will assume that the TTS prompt files "
+                                       "already exist on the remote server, so `prompts_dir` is invalid and "
+                                       "will not be traversed and searched.")
     prompts_dir: str = Field("resources/static/prompts/tts",
                              description="Directory path for TTS prompts. (Absolute path is recommended)\n"
                                          "All files in the directory must conform to the file format: \n"
@@ -51,6 +55,8 @@ class SpeechConfig(BaseModel):
                                          "  1. `lang` only supports 'zh', 'en', 'ja'; \n"
                                          "  2. `sentiment_tag` are arbitrary, as long as they can be discriminated by LLM; \n"
                                          "  3. `text` is the transcription represented by the human voice in this audio.")
+    prompts: List[str] = Field(default=[],
+                               description="If you set `is_remote` to `True`, you must config this!")
 
 
 class CharacterConfig(BaseModel):
