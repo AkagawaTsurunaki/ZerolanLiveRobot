@@ -3,6 +3,7 @@ import os
 from agent.custom_agent import CustomAgent
 from agent.tool_agent import ToolAgent
 from character.filter.strategy import FirstMatchedFilter
+from common.generator.gradio_gen import DynamicConfigPage
 from devices.speaker import Speaker
 from manager.config_manager import get_config
 from manager.llm_prompt_manager import LLMPromptManager
@@ -124,6 +125,6 @@ class ZerolanLiveRobotContext:
             self.qq = QQBotBridge(_config.service.qqbot)
         self.mic = SmartMicrophone()
         self.obs = ObsStudioWsClient(_config.service.obs)
-
+        self.config_page = DynamicConfigPage(_config)
         # Agents
         self.tool_agent = ToolAgent(_config.pipeline.llm)

@@ -39,9 +39,9 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
     def __init__(self):
         super().__init__()
         self.cur_lang = Language.ZH
-        self._tts_processing: bool = False
         self.tts_prompt_manager.set_lang(self.cur_lang)
         self._timer_flag = True
+        self.tts_thread_pool = ThreadPoolExecutor(max_workers=1)
         self.init()
 
     async def start(self):
@@ -66,8 +66,6 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
         obs_client_thread = KillableThread(target=self.obs.start, daemon=True, name="ObsClientThread")
         threads.append(obs_client_thread)
 
-        self.tts_thread_pool = ThreadPoolExecutor(max_workers=1)
-
         if self.game_agent:
             game_agent_thread = KillableThread(target=self.game_agent.start, daemon=True, name="GameAgentThread")
             threads.append(game_agent_thread)
@@ -83,6 +81,8 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
                 tg.create_task(self.youtube.start())
             if self.twitch:
                 tg.create_task(self.twitch.start())
+            if self.config_page:
+                tg.create_task(self.config_page.start())
             elapsed = 0
             while self._timer_flag:
                 await asyncio.sleep(1)
@@ -93,6 +93,7 @@ class ZerolanLiveRobot(ZerolanLiveRobotContext):
             thread.join()
 
     async def stop(self):
+        self.tts_thread_pool.shutdown()
         emitter.stop()
         kill_all_threads()
         await stop_all_runnable()
