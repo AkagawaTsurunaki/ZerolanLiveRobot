@@ -16,7 +16,7 @@ from pipeline.imgcap.imgcap_sync import ImgCapSyncPipeline
 from pipeline.llm.llm_sync import LLMSyncPipeline
 from pipeline.ocr.ocr_sync import OCRSyncPipeline
 from pipeline.tts.tts_sync import TTSSyncPipeline
-from pipeline.vidcap.vidcap_sync import VidCapPipeline
+from pipeline.vidcap.vidcap_sync import VidCapSyncPipeline
 from pipeline.vla.showui.showui_sync import ShowUISyncPipeline
 from services.browser.browser import Browser
 from services.game.config import PlatformEnum
@@ -46,7 +46,7 @@ class ZerolanLiveRobotContext:
         self.ocr: OCRSyncPipeline | None = None
         self.tts: TTSSyncPipeline | None = None
         self.img_cap: ImgCapSyncPipeline | None = None
-        self.vid_cap: VidCapPipeline | None = None
+        self.vid_cap: VidCapSyncPipeline | None = None
         self.showui: ShowUISyncPipeline | None = None
         self.vec_db: MilvusSyncPipeline | None = None
 
@@ -95,7 +95,7 @@ class ZerolanLiveRobotContext:
         if _config.pipeline.img_cap.enable:
             self.img_cap = ImgCapSyncPipeline(_config.pipeline.img_cap)
         if _config.pipeline.vid_cap.enable:
-            self.vid_cap = VidCapPipeline(_config.pipeline.vid_cap)
+            self.vid_cap = VidCapSyncPipeline(_config.pipeline.vid_cap)
         if _config.pipeline.vla.enable:
             if _config.pipeline.vla.showui.enable:
                 self.showui = ShowUISyncPipeline(_config.pipeline.vla.showui)

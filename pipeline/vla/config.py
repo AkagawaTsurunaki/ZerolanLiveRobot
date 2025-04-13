@@ -1,6 +1,11 @@
 from pydantic import BaseModel, Field
 
+from common.enumerator import BaseEnum
 from pipeline.vla.showui.config import ShowUIConfig
+
+
+class VLAModelIdEnum(BaseEnum):
+    ShowUI: str = "howlab/ShowUI-2B"
 
 
 class VLAPipelineConfig(BaseModel):
