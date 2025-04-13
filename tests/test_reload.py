@@ -3,7 +3,7 @@ from asyncio import TaskGroup
 
 import pytest
 
-from bot import BaseBot
+from framework.base_bot import BaseBot
 from manager.config_manager import get_config
 
 
