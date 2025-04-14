@@ -165,14 +165,46 @@ print(prediction.response)
 
 ### Services
 
-| 模块        | 作用                       | 支持内容                                                     |
-| ----------- | -------------------------- | ------------------------------------------------------------ |
-| browser     | 基于 Selenium 的浏览器控制 | Firefox 的打开浏览器、搜索和关闭浏览器                       |
-| device      | 麦克风、截屏、扬声器控制   | 仅在 Windows 测试过                                          |
-| filter      | 对话屏蔽器                 | 简单的匹配过滤器                                             |
-| game        | 游戏控制插件               | 详见 [KonekoMinecraftBot](https://github.com/AkagawaTsurunaki/KonekoMinecraftBot) |
-| live_stream | 直播平台的弹幕读取         | Bilibili、Twitch、Youtube                                    |
-| vad         | 人声音频检测               | 基于能量阈值的音频检测机制                                   |
+### services.browser
+
+基于 Selenium 的简单的浏览器控制器。仅支持 `Firefox`。
+功能很简单，如果需要扩展需要自己实现。其中机器人可能会使用 ShowUI 的模型推理结果来调用并控制浏览器。
+
+### services.game
+
+用于与其它游戏进行连接和游玩的控制器。目前仅支持 Minecraft 平台。
+
+### services.live2d
+
+基于 [live2d-py](https://github.com/Arkueid/live2d-py)、[OpenGL](https://www.opengl.org/) 和 
+[PyQt5](https://pypi.org/project/PyQt5/) 开发的 Live2D 虚拟形象控制器。
+实现了窗口宽高控制、透明背景（可用于obs直播或桌宠），角色自动呼吸控制、自动眨眼控制，说话时嘴型控制。
+
+### services.live_stream
+
+连接到指定直播平台服务，获取弹幕、礼物消息等。支持 Bilibili、YouTube（实验）、Twitch（实验）直播间。
+
+### services.obs
+
+OBS 直播流式打字机字幕显示与控制，基于 [OBSWebSocket](https://github.com/obsproject/obs-websocket) 实现。
+
+> [!NOTE]
+> 您需要开启 OBS 的 WebSocket 服务器。步骤如下：
+> 1. 打开 OBS。
+> 2. 找到工具栏中的“工具”选项，选择“WebSocket 服务器设置”。
+> 3. 点击“生成密码”设置服务器密码。
+> 4. 点击“显示连接信息”。
+> 5. 将服务器 IP 、服务器端口和服务器密码填写入配置文件。
+
+### services.playground
+
+Zerolan Playground Server 是一个基于 ZerolanProtocol 的 WebSocket 服务器，用于与 Unity 实现的 Zerolan Playground 进行连接和交互。
+
+### services.qqbot
+
+正在开发中……
+
+
 
 ## License
 
