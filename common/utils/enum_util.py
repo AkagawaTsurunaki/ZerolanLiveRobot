@@ -30,3 +30,12 @@ def enum_to_markdown(enum: Type[Enum]) -> str:
     else:
         candidates = _enum_members_to_plain_text_with_comma(enum)
         return f"{candidates} are supported."
+
+@typechecked
+def enum_to_markdown_zh(enum: Type[Enum]) -> str:
+    num_of_enum = len(enum)
+    if num_of_enum == 1:
+        return f"仅支持 `{list(enum)[0].value}`。"
+    else:
+        candidates = _enum_members_to_plain_text_with_comma(enum)
+        return f"支持 {candidates}。"
