@@ -7,6 +7,7 @@ from typeguard import typechecked
 
 from common import ver_check
 from common.decorator import log_run_time
+from common.utils.time_util import get_time_iso_string
 
 
 class ConfigFileGenerator:
@@ -42,10 +43,7 @@ class ConfigFileGenerator:
                     self._yaml_str += self._get_indent(depth) + f"{field_name}: {field_val}\n"
 
     def _get_header(self):
-        now = datetime.now()
-        formatted_date = now.isoformat()
-
-        generated_info = f"# This file was generated at {formatted_date} #"
+        generated_info = f"# This file was generated at {get_time_iso_string()} #"
         header = "#" * len(generated_info) + "\n" \
                  + generated_info + "\n" \
                  + "#" * len(generated_info) + "\n"
