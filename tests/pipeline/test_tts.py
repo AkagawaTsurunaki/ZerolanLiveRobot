@@ -1,4 +1,5 @@
 import time
+from copy import deepcopy
 from typing import Callable
 
 import pyaudio
@@ -120,7 +121,15 @@ def _tts_predict(text: str | None):
 
 
 def test_tts_sync():
-    prediction = _tts_predict("这是一段测试音频。是非流式的推理。意味着需要等待整段音频结束才能进行播放。")
+    q = deepcopy(_tts_query)
+    q.text = "这是一段测试音频。是非流式的推理。意味着需要等待整段音频结束才能进行播放。"
+    q.audio_type = 'wav'
+
+    @log_run_time()
+    def predict():
+        return _tts_sync.predict(q)
+
+    prediction = predict()
     assert prediction, f"No prediction from TTS pipeline."
     assert prediction.wave_data is not None and len(
         prediction.wave_data) > 0, f"No audio data returned from TTS pipeline."

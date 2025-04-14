@@ -3,6 +3,7 @@ import uuid
 from http import HTTPStatus
 
 import requests
+from loguru import logger
 from zerolan.data.pipeline.tts import TTSQuery, TTSPrediction, TTSStreamPrediction
 
 from pipeline.base.base_sync import CommonModelPipeline
@@ -24,6 +25,7 @@ class TTSSyncPipeline(CommonModelPipeline):
             prediction = TTSPrediction(wave_data=response.content, audio_type=query.audio_type)
             return prediction
         else:
+            logger.error(response.content)
             response.raise_for_status()
 
     def stream_predict(self, query: TTSQuery, chunk_size: int | None = None):
