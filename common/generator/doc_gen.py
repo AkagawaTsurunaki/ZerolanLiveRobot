@@ -72,8 +72,12 @@ def doc_gen(package_name: str, author: str, file: str):
                         desc = ""
                     else:
                         desc = field_info.description.replace("\n", "<br>")
-
-                    line = f"|`{field_name}`|`{field_info.annotation}`|{desc}|\n"
+                    type = str(field_info.annotation)
+                    if type is None:
+                        desc = "?"
+                    else:
+                        type = type.replace("|", r"\|")
+                    line = f"|`{field_name}`|`{type}`|{desc}|\n"
                     lines.append(line)
                 lines.append("\n\n")
     # Save as a file
