@@ -14,13 +14,12 @@ class LLMPromptManager:
         self.current_history: list[Conversation] = deepcopy(self.injected_history)
         self.max_history = config.max_history
 
-    def reset_history(self, history: list[Conversation], callback: Callable[[], None]) -> None:
+    def reset_history(self, history: list[Conversation]) -> None:
         """
         Resets `current_history` with deepcopy.
         If the length of `current_history` is greater than the `max_history`,
         resets it to `injected_history` from the config file.
         :param history: List of instances of class Conversation
-        :param callback: Call when the length of `current_history` exceeds `max_history`.
         :return: None
         """
         if history is None:
@@ -29,7 +28,6 @@ class LLMPromptManager:
             if len(history) <= self.max_history:
                 self.current_history = deepcopy(history)
             else:
-                callback()
                 self.current_history = deepcopy(self.injected_history)
 
     @staticmethod

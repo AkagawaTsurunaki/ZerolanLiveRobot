@@ -60,6 +60,7 @@ def _add_field_component(field_info: FieldInfo, field_name: str, field_val: Any)
 
                 btn = gr.Button(value="Add")
                 btn.click(fn=on_add_btn_click, inputs=tb, outputs=[tb, ls])
+                rm_btn = gr.Button(value="Remove")
     else:
         logger.warning(f"Field {field_name} with type {field_type} not supported.")
     return comp

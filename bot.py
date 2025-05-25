@@ -13,7 +13,8 @@ from zerolan.data.pipeline.ocr import OCRQuery
 from zerolan.data.pipeline.tts import TTSQuery
 from zerolan.data.pipeline.vla import ShowUiQuery
 
-from agent.api import sentiment_analyse, translate, summary_history, find_file, model_scale
+from agent.api import sentiment_analyse, translate, summary_history, find_file, model_scale, sentiment_score, \
+    memory_score
 from common.concurrent.abs_runnable import stop_all_runnable
 from common.concurrent.killable_thread import KillableThread, kill_all_threads
 from common.enumerator import Language
@@ -25,7 +26,7 @@ from common.utils.str_util import split_by_punc
 from event.event_data import DeviceMicrophoneVADEvent, DeviceScreenCapturedEvent, PipelineOutputLLMEvent, \
     PipelineImgCapEvent, \
     QQMessageEvent, DeviceMicrophoneSwitchEvent, PipelineOutputTTSEvent, PipelineASREvent, \
-    PipelineOCREvent, SecondEvent, ConfigFileModifiedEvent
+    PipelineOCREvent, SecondEvent, ConfigFileModifiedEvent, LiveStreamDanmakuEvent
 from event.event_emitter import emitter
 from event.registry import EventKeyRegistry
 from framework.base_bot import BaseBot
@@ -82,7 +83,10 @@ class ZerolanLiveRobot(BaseBot):
 
             # tg.create_task(emitter.start())
             if self.bilibili:
-                tg.create_task(self.bilibili.start())
+                def start_bili():
+                    asyncio.run(self.bilibili.start())
+                bili_thread = KillableThread(target=start_bili, daemon=True, name="BilibiliThread")
+                bili_thread.start()
             if self.youtube:
                 tg.create_task(self.youtube.start())
             if self.twitch:
@@ -218,20 +222,20 @@ class ZerolanLiveRobot(BaseBot):
                 self.obs.subtitle(prediction.transcript, which="user")
             self.emit_llm_prediction(prediction.transcript)
 
-        # @emitter.on(EventKeyRegistry.LiveStream.DANMAKU)
-        # def on_danmaku(event: LiveStreamDanmakuEvent):
-        #     text = f"你收到了一条弹幕，用户“{event.danmaku.username}”说：\n{event.danmaku.content}"
-        #     self.emit_llm_prediction(text)
+        @emitter.on(EventKeyRegistry.LiveStream.DANMAKU)
+        def on_danmaku(event: LiveStreamDanmakuEvent):
+            text = f"你收到了一条弹幕，用户“{event.danmaku.username}”说：\n{event.danmaku.content}"
+            self.emit_llm_prediction(text)
 
-        @emitter.on(EventKeyRegistry.System.SECOND)
-        async def on_second_danmaku_check(event: SecondEvent):
-            # Try select danmaku every 5 seconds.
-            if event.elapsed % 5 == 0:
-                danmaku = await self.bilibili.select_max_long_one()
-                if danmaku:
-                    logger.info(f"Selected danmaku: [{danmaku.username}] {danmaku.content}")
-                    text = f"你收到了一条弹幕，用户“{danmaku.username}”说：\n{danmaku.content}"
-                    self.emit_llm_prediction(text)
+        # @emitter.on(EventKeyRegistry.System.SECOND)
+        # async def on_second_danmaku_check(event: SecondEvent):
+        #     # Try select danmaku every 5 seconds.
+        #     if event.elapsed % 5 == 0:
+        #         danmaku = await self.bilibili.select_max_long_one()
+        #         if danmaku:
+        #             logger.info(f"Selected danmaku: [{danmaku.username}] {danmaku.content}")
+        #             text = f"你收到了一条弹幕，用户“{danmaku.username}”说：\n{danmaku.content}"
+        #             self.emit_llm_prediction(text)
 
         @emitter.on(EventKeyRegistry.Device.SCREEN_CAPTURED)
         def on_device_screen_captured(event: DeviceScreenCapturedEvent):
@@ -319,15 +323,30 @@ class ZerolanLiveRobot(BaseBot):
 
         # Filter applied here
         is_filtered = self.filter.filter(prediction.response)
-        if is_filtered:
-            return
+
 
         # Remove \n start
         if prediction.response[0] == '\n':
             prediction.response = prediction.response[1:]
 
         logger.info(f"Length of current history: {len(self.llm_prompt_manager.current_history)}")
-        self.llm_prompt_manager.reset_history(prediction.history, self.save_memory)
+
+        l_max = get_config().character.chat.max_history
+        s = sentiment_score()
+
+        if not is_filtered:
+            b = 0
+        else:
+            b = self.filter.match(prediction.response)
+
+        r = memory_score(prediction.response)
+
+        t_memory = 0.3 * (l_max - len(prediction.history)) / l_max + 0.2 * s + 0.2 * b + 0.1 * r
+
+        if t_memory > 0.5:
+            self.llm_prompt_manager.reset_history(prediction.history)
+            self.save_memory()
+
         if not direct_return:
             emitter.emit(PipelineOutputLLMEvent(prediction=prediction))
             logger.debug("LLMEvent emitted.")

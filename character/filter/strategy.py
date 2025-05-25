@@ -39,3 +39,10 @@ class FirstMatchedFilter:
                 logger.warning(f"Filter detected bad word: {word}")
                 return True
         return False
+
+    def match(self, content: str | None) -> int:
+        result = 0
+        for word in self.words:
+            if word in content:
+                result += 1
+        return result

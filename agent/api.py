@@ -194,3 +194,39 @@ def model_scale(info: List[GameObject], question: str) -> ScaleOperationResponse
     response = model.invoke(result)
     json = smart_load_json_like(response.content)
     return ScaleOperationResponse.model_validate(json)
+
+
+@log_run_time()
+def sentiment_score(text: str) -> float:
+    system_template = "你的任务：你现在是一个情感分析助手，你将要对所给的文句进行情感分析，从-1到1内的一个浮点数，数字越小代表情感越负面，数字越大代表情感越正面\n输出格式：必须仅返回数字，不要输出多余内容。"
+
+    prompt_template = ChatPromptTemplate.from_messages(
+        [("system", system_template), ("user", "{text}")]
+    )
+
+    result = prompt_template.invoke({"text": text})
+    result.to_messages()
+    response = _model.invoke(result)
+
+    try:
+        return float(response)
+    except Exception:
+        return 0.0
+
+
+@log_run_time()
+def memory_score(text: str) -> float:
+    system_template = "你的任务：你现在是一个文本是否存储为记忆的价值分析助手，你将要对所给的文句进行分析，从-1到1内的一个浮点数，数字越小代表该段文字越没有价值，应该被丢弃，数字越大代表该段文字越有价值，应该被保留\n输出格式：必须仅返回数字，不要输出多余内容。\n"
+
+    prompt_template = ChatPromptTemplate.from_messages(
+        [("system", system_template), ("user", "{text}")]
+    )
+
+    result = prompt_template.invoke({"text": text})
+    result.to_messages()
+    response = _model.invoke(result)
+
+    try:
+        return float(response)
+    except Exception:
+        return 0.0
