@@ -16,9 +16,9 @@ class TTSSyncPipeline(CommonModelPipeline):
     def __init__(self, config: TTSPipelineConfig):
         super().__init__(config)
         # Support Baidu TTS API
-        if config.model_id == TTSModelIdEnum.BaiduTTS and config.baidu_api_config is not None:
-            self.baidu = BaiduTTSPipeline(api_key=config.baidu_api_config.api_key,
-                                          secret_key=config.baidu_api_config.secret_key)
+        if config.model_id == TTSModelIdEnum.BaiduTTS and config.baidu_tts_config is not None:
+            self.baidu = BaiduTTSPipeline(api_key=config.baidu_tts_config.api_key,
+                                          secret_key=config.baidu_tts_config.secret_key)
             self.predict = self.baidu.predict
             self.stream_predict = self.baidu.stream_predict
 
