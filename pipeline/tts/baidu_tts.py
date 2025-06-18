@@ -72,7 +72,7 @@ class BaiduTTSPipeline:
         payload = {
             'tex': query.text,
             'tok': self._access_token,
-            "cuid": "YhN4oOdpIeipjxiKZwds16No9Ll7EWqy",
+            "cuid": self._cuid,
             "ctp": 1,
             "lan": query.text_language,
             "spd": 5,
