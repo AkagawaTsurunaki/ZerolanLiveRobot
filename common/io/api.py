@@ -25,7 +25,7 @@ def save_image(image_bytes: bytes, format: ImageFileType, prefix: str | None = N
 
 
 @typechecked
-def save_audio(wave_data: bytes, format: AudioFileType | None = None, prefix: str | None = None) -> Path:
+def save_audio(wave_data: bytes, format: AudioFileType | None = None, prefix: str = "") -> Path:
     """
     Save audio data to the temp file.
     :param wave_data: Bytes of audio data.
