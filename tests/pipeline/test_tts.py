@@ -8,6 +8,8 @@ from zerolan.data.pipeline.tts import TTSQuery, TTSStreamPrediction
 
 from common.decorator import log_run_time
 from common.enumerator import Language
+from common.io.api import save_audio
+from common.io.file_type import AudioFileType
 from manager.config_manager import get_config
 from manager.tts_prompt_manager import TTSPromptManager
 from pipeline.tts.tts_async import TTSAsyncPipeline
@@ -133,6 +135,7 @@ def test_tts_sync():
     assert prediction, f"No prediction from TTS pipeline."
     assert prediction.wave_data is not None and len(
         prediction.wave_data) > 0, f"No audio data returned from TTS pipeline."
+    save_audio(prediction.wave_data, AudioFileType.WAV, "test-tts")
 
 
 # Warning: Running this test case will call the speaker,
