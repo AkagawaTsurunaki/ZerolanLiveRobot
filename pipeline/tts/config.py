@@ -29,7 +29,7 @@ class TTSPipelineConfig(AbstractPipelineConfig):
                              description="The URL for TTS prediction requests.")
     stream_predict_url: str = Field(default="http://127.0.0.1:11000/tts/stream-predict",
                                     description="The URL for streaming TTS prediction requests.")
-    baidu_api_config: BaiduTTSConfig = Field(default=BaiduTTSConfig(),
+    baidu_tts_config: BaiduTTSConfig = Field(default=BaiduTTSConfig(),
                                              description=f"Baidu TTS config. \n"
                                                          f"Only edit it when you set `model_id` to `{TTSModelIdEnum.BaiduTTS.value}`.\n"
                                                          f"For more details please see the [documents](https://cloud.baidu.com/doc/SPEECH/s/mlbxh7xie).")
