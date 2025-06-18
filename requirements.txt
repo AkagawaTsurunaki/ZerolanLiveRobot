@@ -33,6 +33,7 @@ gradio
 webrtcvad
 live2d-py
 PyQt5
+librosa
 # If you are not a developer, you can skip the following packages
 pytest
 pytest-asyncio

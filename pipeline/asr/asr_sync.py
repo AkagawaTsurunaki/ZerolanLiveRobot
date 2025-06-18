@@ -5,14 +5,20 @@ import requests
 from typeguard import typechecked
 from zerolan.data.pipeline.asr import ASRQuery, ASRPrediction, ASRStreamQuery
 
+from pipeline.asr.baidu_asr import BaiduASRPipeline
+from pipeline.asr.config import ASRPipelineConfig, ASRModelIdEnum
 from pipeline.base.base_sync import CommonModelPipeline
-from pipeline.asr.config import ASRPipelineConfig
 
 
 class ASRSyncPipeline(CommonModelPipeline):
 
     def __init__(self, config: ASRPipelineConfig):
         super().__init__(config)
+        if config.model_id == ASRModelIdEnum.BaiduASR and config.baidu_asr_config is not None:
+            baidu = BaiduASRPipeline(api_key=config.baidu_asr_config.api_key,
+                                     secret_key=config.baidu_asr_config.secret_key)
+            self.predict = baidu.predict
+            self.stream_predict = baidu.stream_predict
 
     @typechecked
     def predict(self, query: ASRQuery) -> ASRPrediction | None:
