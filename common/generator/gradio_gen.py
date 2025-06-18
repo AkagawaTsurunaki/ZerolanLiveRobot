@@ -131,9 +131,10 @@ class DynamicConfigPage:
             else:
                 frozen = field_info.frozen
                 comp = _add_field_component(field_info, field_name, field_val)
-                if not frozen:
-                    self.input_comps.append(comp)
-                    self._field_setters.append(FieldSetter(model, field_name))
+                if comp is not None:
+                    if not frozen:
+                        self.input_comps.append(comp)
+                        self._field_setters.append(FieldSetter(model, field_name))
 
 
 class FieldSetter:
