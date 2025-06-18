@@ -7,13 +7,20 @@ from loguru import logger
 from zerolan.data.pipeline.tts import TTSQuery, TTSPrediction, TTSStreamPrediction
 
 from pipeline.base.base_sync import CommonModelPipeline
-from pipeline.tts.config import TTSPipelineConfig
+from pipeline.tts.baidu_tts import BaiduTTSPipeline
+from pipeline.tts.config import TTSPipelineConfig, TTSModelIdEnum
 
 
 class TTSSyncPipeline(CommonModelPipeline):
 
     def __init__(self, config: TTSPipelineConfig):
         super().__init__(config)
+        # Support Baidu TTS API
+        if config.model_id == TTSModelIdEnum.BaiduTTS and config.baidu_api_config is not None:
+            self.baidu = BaiduTTSPipeline(api_key=config.baidu_api_config.api_key,
+                                          secret_key=config.baidu_api_config.secret_key)
+            self.predict = self.baidu.predict
+            self.stream_predict = self.baidu.stream_predict
 
     def predict(self, query: TTSQuery) -> TTSPrediction | None:
         assert isinstance(query, TTSQuery)
