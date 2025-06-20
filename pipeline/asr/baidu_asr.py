@@ -3,14 +3,17 @@ import json
 import os.path
 import uuid
 from io import BytesIO
-from typing import List
+from typing import List, Generator
 
 import librosa
 import requests
 import soundfile as sf
 from pydantic import BaseModel
 from typeguard import typechecked
-from zerolan.data.pipeline.asr import ASRQuery, ASRPrediction
+from zerolan.data.pipeline.asr import ASRQuery, ASRPrediction, ASRStreamQuery
+
+from common.io.api import save_audio
+from common.io.file_type import AudioFileType
 
 
 class BaiduTTSResponse(BaseModel):
@@ -79,5 +82,12 @@ class BaiduASRPipeline:
         params = {"grant_type": "client_credentials", "client_id": api_key, "client_secret": secret_key}
         return str(requests.post(url, params=params).json().get("access_token"))
 
-    def stream_predict(self, *args, **kwargs):
-        raise NotImplementedError("Unsupported")
+    def stream_predict(self, query: ASRStreamQuery, chunk_size: int | None = None) -> Generator[
+        ASRPrediction, None, None]:
+        audio_path = save_audio(query.audio_data, AudioFileType.WAV, prefix="asr")
+        yield self.predict(ASRQuery(
+            audio_path=str(audio_path),
+            media_type=query.media_type,
+            sample_rate=query.sample_rate,
+            channels=query.channels,
+        ))
