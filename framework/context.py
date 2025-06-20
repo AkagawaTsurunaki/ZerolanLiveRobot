@@ -73,6 +73,7 @@ class ZerolanLiveRobotContext:
         self.master_name: str = "AkagawaTsurunaki"
         self.live2d_model: str | None = None
         self.res_server: ResourceServer | None = None
+        self.game_agent = None
 
         self.bilibili: BilibiliService | None = None
         self.youtube: YouTubeService | None = None
