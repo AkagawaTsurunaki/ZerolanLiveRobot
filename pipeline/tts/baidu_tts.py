@@ -74,7 +74,7 @@ class BaiduTTSPipeline:
             'tok': self._access_token,
             "cuid": self._cuid,
             "ctp": 1,
-            "lan": query.text_language,
+            "lan": "zh", # Baidu TTS is not supported `auto`
             "spd": 5,
             "pit": 5,
             "vol": 5,
