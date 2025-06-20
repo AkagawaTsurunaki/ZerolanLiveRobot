@@ -22,7 +22,7 @@ from common.io.api import save_audio
 from common.io.file_type import AudioFileType
 from common.utils import audio_util, math_util
 from common.utils.img_util import is_image_uniform
-from common.utils.str_util import split_by_punc
+from common.utils.str_util import split_by_punc, is_blank
 from event.event_data import DeviceMicrophoneVADEvent, DeviceScreenCapturedEvent, PipelineOutputLLMEvent, \
     PipelineImgCapEvent, \
     QQMessageEvent, DeviceMicrophoneSwitchEvent, PipelineOutputTTSEvent, PipelineASREvent, \
@@ -149,6 +149,8 @@ class ZerolanLiveRobot(BaseBot):
 
             for prediction in self.asr.stream_predict(query):
                 logger.info(f"ASR: {prediction.transcript}")
+                if is_blank(prediction.transcript):
+                    continue
                 emitter.emit(PipelineASREvent(prediction=prediction))
                 logger.debug("ASREvent emitted.")
 
@@ -284,11 +286,13 @@ class ZerolanLiveRobot(BaseBot):
             sentiment = sentiment_analyse(sentiments=self.tts_prompt_manager.sentiments, text=text)
             tts_prompt = self.tts_prompt_manager.get_tts_prompt(sentiment)
             self.playground.add_history(role="assistant", text=text, username=self.bot_name)
-            transcripts = split_by_punc(text, self.cur_lang)
-            # Note that transcripts may be [] because we can not apply split in some cases.
-            if len(transcripts) > 0:
-                for idx, transcript in enumerate(transcripts):
-                    self._tts_without_block(tts_prompt, transcript)
+            self.split_by_punc = False
+            if self.split_by_punc:
+                transcripts = split_by_punc(text, self.cur_lang)
+                # Note that transcripts may be [] because we can not apply split in some cases.
+                if len(transcripts) > 0:
+                    for idx, transcript in enumerate(transcripts):
+                        self._tts_without_block(tts_prompt, transcript)
             else:
                 self._tts_without_block(tts_prompt, text)
 
@@ -324,7 +328,6 @@ class ZerolanLiveRobot(BaseBot):
         # Filter applied here
         is_filtered = self.filter.filter(prediction.response)
 
-
         # Remove \n start
         if prediction.response[0] == '\n':
             prediction.response = prediction.response[1:]
@@ -332,14 +335,22 @@ class ZerolanLiveRobot(BaseBot):
         logger.info(f"Length of current history: {len(self.llm_prompt_manager.current_history)}")
 
         l_max = get_config().character.chat.max_history
-        s = sentiment_score()
+        try:
+            s = sentiment_score(text)
+        except Exception as e:
+            logger.exception(e)
+            s = 1
 
         if not is_filtered:
             b = 0
         else:
             b = self.filter.match(prediction.response)
 
-        r = memory_score(prediction.response)
+        try:
+            r = memory_score(prediction.response)
+        except Exception as e:
+            logger.exception(e)
+            r = 1
 
         t_memory = 0.3 * (l_max - len(prediction.history)) / l_max + 0.2 * s + 0.2 * b + 0.1 * r
 
