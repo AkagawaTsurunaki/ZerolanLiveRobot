@@ -157,6 +157,8 @@ class ResourceServer(ThreadRunnable):
                 else:
                     audio_type = get_audio_real_format(audio_data)
 
+                if audio_metadata.channels > 2:
+                    logger.warning(f"Is that right? \n{audio_metadata}")
                 emitter.emit(DeviceMicrophoneVADEvent(speech=audio_data,
                                                       channels=audio_metadata.channels,
                                                       sample_rate=audio_metadata.sample_rate,
