@@ -72,6 +72,8 @@ class ZerolanLiveRobotContext:
         self.bot_name: str | None = None
         self.master_name: str = "AkagawaTsurunaki"
         self.live2d_model: str | None = None
+        self.live2d_viewer: Live2DViewer | None = None
+        self.obs: ObsStudioWsClient | None = None
         self.res_server: ResourceServer | None = None
         self.game_agent = None
 
@@ -126,8 +128,10 @@ class ZerolanLiveRobotContext:
         if _config.service.qqbot.enable:
             self.qq = QQBotBridge(_config.service.qqbot)
         self.mic = SmartMicrophone()
-        self.obs = ObsStudioWsClient(_config.service.obs)
+        if _config.service.obs.enable:
+            self.obs = ObsStudioWsClient(_config.service.obs)
         self.config_page = DynamicConfigPage(_config)
         # Agents
         self.tool_agent = ToolAgent(_config.pipeline.llm)
-        self.live2d_viewer = Live2DViewer(_config.service.live2d_viewer)
+        if _config.service.live2d_viewer.enable:
+            self.live2d_viewer = Live2DViewer(_config.service.live2d_viewer)

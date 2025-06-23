@@ -46,7 +46,6 @@ class ZerolanLiveRobot(BaseBot):
         self.init()
         logger.info("🤖 Zerolan Live Robot: Initialized services successfully.")
 
-
     async def start(self):
         logger.info("🤖 Zerolan Live Robot: Running...")
         async with asyncio.TaskGroup() as tg:
@@ -68,11 +67,14 @@ class ZerolanLiveRobot(BaseBot):
             res_server_thread = KillableThread(target=self.res_server.start, daemon=True, name="ResServerThread")
             threads.append(res_server_thread)
 
-            obs_client_thread = KillableThread(target=self.obs.start, daemon=True, name="ObsClientThread")
-            threads.append(obs_client_thread)
+            if self.obs is not None:
+                obs_client_thread = KillableThread(target=self.obs.start, daemon=True, name="ObsClientThread")
+                threads.append(obs_client_thread)
 
-            live2d_viewer_thread = KillableThread(target=self.live2d_viewer.start, daemon=True, name="Live2DViewerThread")
-            threads.append(live2d_viewer_thread)
+            if self.live2d_viewer is not None:
+                live2d_viewer_thread = KillableThread(target=self.live2d_viewer.start, daemon=True,
+                                                      name="Live2DViewerThread")
+                threads.append(live2d_viewer_thread)
 
             if self.game_agent:
                 game_agent_thread = KillableThread(target=self.game_agent.start, daemon=True, name="GameAgentThread")
@@ -85,6 +87,7 @@ class ZerolanLiveRobot(BaseBot):
             if self.bilibili:
                 def start_bili():
                     asyncio.run(self.bilibili.start())
+
                 bili_thread = KillableThread(target=start_bili, daemon=True, name="BilibiliThread")
                 bili_thread.start()
             if self.youtube:
