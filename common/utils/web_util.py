@@ -1,3 +1,5 @@
+import ipaddress
+
 import netifaces as ni
 
 
@@ -28,3 +30,18 @@ def get_local_ip(ipv6=False) -> str | None:
                 except KeyError:
                     continue
     return None
+
+
+def is_ipv6(host: str) -> bool:
+    """Check if the given host string is an IPv6 address."""
+    if not host:
+        return False
+
+    # Remove brackets if present (common in URLs like [::1])
+    host_clean = host.strip('[]')
+
+    try:
+        addr = ipaddress.ip_address(host_clean)
+        return isinstance(addr, ipaddress.IPv6Address)
+    except ValueError:
+        return False

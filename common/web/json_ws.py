@@ -1,4 +1,5 @@
 import json
+import socket
 from typing import Callable, Union, List, Dict
 
 from loguru import logger
@@ -8,6 +9,7 @@ from websockets.sync.connection import Connection
 from websockets.sync.server import serve, Server
 
 from common.concurrent.abs_runnable import ThreadRunnable
+from common.utils import web_util
 
 
 ############################
@@ -38,8 +40,11 @@ class JsonWsServer(ThreadRunnable):
 
     def start(self):
         super().start()
+        is_ipv6 = web_util.is_ipv6(self.host)
+        logger.info(f"This Websocket server will use {'IPv6' if is_ipv6 else 'IPv4'}.")
         with serve(handler=self._handle_json_recv, host=self.host, port=self.port,
-                   subprotocols=self.subprotocols) as ws:
+                   subprotocols=self.subprotocols,
+                   family=socket.AF_INET6 if is_ipv6 else socket.AF_INET) as ws:
             self.ws = ws
             logger.info(f"WebSocket server started at {self.host}:{self.port}")
             self.ws.serve_forever()
