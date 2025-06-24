@@ -12,7 +12,7 @@ from agent.tool_agent import Tool
 from common.io.file_type import AudioFileType
 from event.registry import EventKeyRegistry
 from services.game.minecraft.data import KonekoProtocol
-from services.live_stream.data import Gift
+from zerolan.data.data.danmaku import Gift
 
 
 class BaseEvent(BaseModel):

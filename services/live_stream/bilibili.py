@@ -11,7 +11,7 @@ from event.event_data import LiveStreamConnectedEvent, LiveStreamDanmakuEvent, L
     LiveStreamGiftEvent
 from event.event_emitter import emitter
 from services.live_stream.config import BilibiliServiceConfig
-from services.live_stream.data import Gift
+from zerolan.data.data.danmaku import Gift
 
 
 class BilibiliService(AsyncRunnable):
