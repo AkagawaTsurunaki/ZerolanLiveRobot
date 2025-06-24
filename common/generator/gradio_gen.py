@@ -44,7 +44,7 @@ def _add_field_component(field_info: FieldInfo, field_name: str, field_val: Any)
         comp = gr.Checkbox(label=field_name, info=field_desc, value=field_val, interactive=interactive)
     elif isinstance(field_val, Enum):
         choices = enum_members_to_str_list(type(field_val))
-        comp = gr.Dropdown(label=field_name, info=field_desc, choices=choices, interactive=interactive)
+        comp = gr.Dropdown(label=field_name, info=field_desc, value=field_val.value, choices=choices, interactive=interactive)
     elif field_type == list or field_type == typing.List[str]:
         assert isinstance(field_val, list)
         str_list = [[str(elm)] for elm in field_val]
