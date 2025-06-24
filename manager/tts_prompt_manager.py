@@ -11,9 +11,10 @@ from common.enumerator import Language
 
 def _get_all_files(prompts_dir: str):
     res = []
-    for dirpath, dirnames, filenames in os.walk(prompts_dir):
+    for dirpath, _, filenames in os.walk(prompts_dir):
         for filename in filenames:
-            res.append(filename)
+            filepath = os.path.join(dirpath, filename)
+            res.append(os.path.abspath(filepath))
     return res
 
 
@@ -108,7 +109,9 @@ class TTSPromptManager:
                 logger.warning(f"No suitable filename parsing strategy, the audio file will skip: {audio_path}")
                 continue
         if len(self.tts_prompts) <= 0:
-            raise RuntimeError("There are no eligible TTS prompts in the directory you provided.")
+            if self._is_remote:
+                raise Exception(f'You must provide remote path for TTS prompts in your config file.')
+            raise Exception(f"There are no eligible TTS prompts in the directory you provided: {self._prompts_dir}")
         # Output sentiments result
         sentiments = [tts_prompt.sentiment for tts_prompt in self.tts_prompts]
         logger.info(f"{len(self.tts_prompts)} TTS prompts ({self._lang}) loaded: {sentiments}")
