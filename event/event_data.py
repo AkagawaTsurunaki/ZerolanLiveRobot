@@ -1,4 +1,4 @@
-from typing import List, Literal
+from typing import Any, List, Literal
 
 from pydantic import BaseModel
 from zerolan.data.data.danmaku import Danmaku, SuperChat
@@ -31,7 +31,7 @@ class LanguageChangeEvent(BaseEvent):
 
 class SystemUnhandledErrorEvent(BaseEvent):
     msg: str
-    ex: any
+    ex: Any
     type: str = EventKeyRegistry.System.SYSTEM_UNHANDLED_ERROR
 
 
