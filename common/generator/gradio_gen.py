@@ -48,19 +48,7 @@ def _add_field_component(field_info: FieldInfo, field_name: str, field_val: Any)
     elif field_type == list or field_type == typing.List[str]:
         assert isinstance(field_val, list)
         str_list = [[str(elm)] for elm in field_val]
-        with gr.Row():
-            ls = gr.List(label=field_name, value=str_list)
-            comp = ls
-            with gr.Column():
-                tb = gr.Textbox(label=field_name, info=field_desc, interactive=interactive)
-
-                def on_add_btn_click(text):
-                    str_list.append([text])
-                    return None, str_list
-
-                btn = gr.Button(value="Add")
-                btn.click(fn=on_add_btn_click, inputs=tb, outputs=[tb, ls])
-                rm_btn = gr.Button(value="Remove")
+        gr.List(label=field_name, value=str_list)
     else:
         logger.warning(f"Field {field_name} with type {field_type} not supported.")
     return comp
