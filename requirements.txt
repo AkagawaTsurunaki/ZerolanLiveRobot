@@ -1,6 +1,6 @@
 # If dev branch, uncomment following
 # git+https://github.com/AkagawaTsurunaki/zerolan-data.git@dev
-git+https://github.com/AkagawaTsurunaki/zerolan-data.git
+git+https://github.com/AkagawaTsurunaki/zerolan-data.git@1.5.0
 pyaudio
 soundfile
 pydub
