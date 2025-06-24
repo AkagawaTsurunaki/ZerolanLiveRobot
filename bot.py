@@ -43,6 +43,9 @@ class ZerolanLiveRobot(BaseBot):
         self.tts_prompt_manager.set_lang(self.cur_lang)
         self._timer_flag = True
         self.tts_thread_pool = ThreadPoolExecutor(max_workers=1)
+        self.enable_exp_memory = False
+        self.enable_sentiment_analysis = False
+        self.enable_split_by_punc = False
         self.init()
         logger.info("🤖 Zerolan Live Robot: Initialized services successfully.")
 
@@ -286,11 +289,14 @@ class ZerolanLiveRobot(BaseBot):
             prediction = event.prediction
             text = prediction.response
             logger.info("LLM: " + text)
-            sentiment = sentiment_analyse(sentiments=self.tts_prompt_manager.sentiments, text=text)
-            tts_prompt = self.tts_prompt_manager.get_tts_prompt(sentiment)
+            if self.enable_sentiment_analysis:
+                sentiment = sentiment_analyse(sentiments=self.tts_prompt_manager.sentiments, text=text)
+                tts_prompt = self.tts_prompt_manager.get_tts_prompt(sentiment)
+            else:
+                tts_prompt = self.tts_prompt_manager.default_tts_prompt
             self.playground.add_history(role="assistant", text=text, username=self.bot_name)
-            self.split_by_punc = False
-            if self.split_by_punc:
+
+            if self.enable_split_by_punc:
                 transcripts = split_by_punc(text, self.cur_lang)
                 # Note that transcripts may be [] because we can not apply split in some cases.
                 if len(transcripts) > 0:
@@ -317,11 +323,35 @@ class ZerolanLiveRobot(BaseBot):
             logger.info(f"TTS: {query.text}")
             sample_rate, num_channels, duration = audio_util.get_audio_info(prediction.wave_data, prediction.audio_type)
 
-            self.obs.subtitle(text, which="assistant", duration=math_util.clamp(0, 5, duration - 1))
+            if self.obs is not None:
+                self.obs.subtitle(text, which="assistant", duration=math_util.clamp(0, 5, duration - 1))
+
             self.play_tts(PipelineOutputTTSEvent(prediction=prediction, transcript=text))
 
         # To sync audio playing and subtitle
         self.tts_thread_pool.submit(wrapper)
+
+    def exp_memory(self, text: str, is_filtered: bool, response: str, len_history: int):
+
+        l_max = get_config().character.chat.max_history
+        try:
+            s = sentiment_score(text)
+        except Exception as e:
+            logger.exception(e)
+            s = 1
+
+        if not is_filtered:
+            b = 0
+        else:
+            b = self.filter.match(response)
+
+        try:
+            r = memory_score(response)
+        except Exception as e:
+            logger.exception(e)
+            r = 1
+        t_memory = 0.3 * (l_max - len_history) / l_max + 0.2 * s + 0.2 * b + 0.1 * r
+        return t_memory > 0.5
 
     def emit_llm_prediction(self, text, direct_return: bool = False) -> None | LLMPrediction:
         logger.debug("`emit_llm_prediction` called")
@@ -337,29 +367,9 @@ class ZerolanLiveRobot(BaseBot):
 
         logger.info(f"Length of current history: {len(self.llm_prompt_manager.current_history)}")
 
-        l_max = get_config().character.chat.max_history
-        try:
-            s = sentiment_score(text)
-        except Exception as e:
-            logger.exception(e)
-            s = 1
-
-        if not is_filtered:
-            b = 0
-        else:
-            b = self.filter.match(prediction.response)
-
-        try:
-            r = memory_score(prediction.response)
-        except Exception as e:
-            logger.exception(e)
-            r = 1
-
-        t_memory = 0.3 * (l_max - len(prediction.history)) / l_max + 0.2 * s + 0.2 * b + 0.1 * r
-
-        if t_memory > 0.5:
-            self.llm_prompt_manager.reset_history(prediction.history)
-            self.save_memory()
+        if self.enable_exp_memory:
+            if self.exp_memory(text, is_filtered, prediction.response, len(prediction.response)):
+                self.llm_prompt_manager.reset_history(prediction.history)
 
         if not direct_return:
             emitter.emit(PipelineOutputLLMEvent(prediction=prediction))
