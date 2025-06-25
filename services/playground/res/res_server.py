@@ -1,7 +1,7 @@
 import json
 import os
 from pathlib import Path
-from typing import Dict
+from typing import Any, Dict
 from uuid import uuid4
 
 from flask import Flask, abort, send_file, request
@@ -30,7 +30,7 @@ _config = get_config()
 class HTTPResponseBody(BaseModel):
     code: int = 0  # 0 means successful operation
     message: str
-    data: any = None
+    data: Any = None
 
 
 class _AudioMetadata(BaseModel):
@@ -122,7 +122,7 @@ class ResourceServer(ThreadRunnable):
                 file.save(img_path)
                 file.close()
 
-                emitter.emit(DeviceScreenCapturedEvent(img_path=img_path, is_camera=True))
+                emitter.emit(DeviceScreenCapturedEvent(img_path=str(img_path), is_camera=True))
                 return HTTPResponseBody(message="OK").model_dump()
             except Exception as e:
                 logger.exception(e)
