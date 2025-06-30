@@ -6,7 +6,7 @@
 
 Zerolan Live Robot 是一款多功能的直播机器人（AI VTuber），它可以听懂你所说的话，也可以自动在直播间中读取弹幕，观察电脑屏幕的指定窗口，理解其画面内容和文字信息，操纵 Minecraft 中的游戏角色，做出带情感的语音聊天回应。
 
-相关项目：[KonekoMinecraftBot](https://github.com/AkagawaTsurunaki/KonekoMinecraftBot)、[ZerolanCore](https://github.com/AkagawaTsurunaki/zerolan-core)、[ZerolanData](https://github.com/AkagawaTsurunaki/zerolan-data)、[ZerolanUI](https://github.com/AkagawaTsurunaki/zerolan-ui)、[ZerolanPlayground (Archived)]()。
+相关项目：[KonekoMinecraftBot](https://github.com/AkagawaTsurunaki/KonekoMinecraftBot)、[ZerolanCore](https://github.com/AkagawaTsurunaki/zerolan-core)、[ZerolanData](https://github.com/AkagawaTsurunaki/zerolan-data)、[ZerolanUI](https://github.com/AkagawaTsurunaki/zerolan-ui)、[ZerolanPlayground]()。
 
 > [!Note]
 >
@@ -29,7 +29,7 @@ Zerolan Live Robot 是一款多功能的直播机器人（AI VTuber），它可�
 - [x] 🎞️ OBS 直播流式打字机字幕显示与控制
 - [x] ⚙️ 系统配置和实时控制器的 WebUI 界面
 - [x] 🥳 Live2D 形象控制，嘴型同步、自动眨眼和自主呼吸
-- [x] 基于 Unity 的 Live2D 形象控制和 3D 模型控制的展示应用（已归档）
+- [x] 基于 Unity 的 Live2D 形象控制和 3D 模型控制的展示应用
 
 ## 安装并运行
 
@@ -52,11 +52,11 @@ Zerolan Project 由 [ZerolanLiveRobot](https://github.com/AkagawaTsurunaki/Zerol
 
 如果你希望将 AI 模型服务部署在自己的电脑上，请移步至[此处](https://github.com/AkagawaTsurunaki/zerolan-core)进完成 ZerolanCore 的相关部署工作。
 
-如果您使用的是第三方提供的 API 接口，请根据文档实现自己的统一模型管线（Pipeline）。
+本项目提供了一些第三方提供的 API 接口的支持，但如果其中没有你想要的，请根据文档实现自己的统一模型管线（Pipeline）。
 
 当然，您可以根据需求混合使用第三方接口和 ZerolanCore 服务，后续您可以在配置文件中设置。
 
-你必须至少配置**大语言模型**才能驱动整个项目，它是驱动本项目的核心。
+无论如何，你必须至少配置**大语言模型**才能驱动整个项目，它是驱动本项目的核心。
 
 ### 安装本项目依赖
 
@@ -66,14 +66,6 @@ Zerolan Project 由 [ZerolanLiveRobot](https://github.com/AkagawaTsurunaki/Zerol
 conda create --name ZerolanLiveRobot python=3.11
 conda activate ZerolanLiveRobot
 pip install -r requirements.txt
-```
-
-如果您在 `main` 主分支，那么上述指令会自动安装对应的依赖。
-
-而如果您在 `dev` 开发分支，您还需要额外手动安装：
-
-```shell
-pip install git+https://github.com/AkagawaTsurunaki/zerolan-data.git@dev
 ```
 
 ### 配置并启动本项目
@@ -88,8 +80,8 @@ python main.py
 
 这样，你有两种方式修改你的配置文件：
 
-1. **（推荐）**运行 `python webui.py` 将会启动一个 WebUI 的配置界面，你可以在浏览器中房屋内它（通常是`http://127.0.0.1:7860`），然后根据配置项中的描述和提示进行填写，填写完毕后，可以单击右上角的 Save Config 按钮，这将保存配置到 `./resources/config.yaml`。
-2. 直接找到 `./resources/config.yaml` 文件并按照文件内的注释引导填写对应的配置。
+1. WebUI配置：运行 `python webui.py` 将会启动一个 WebUI 的配置界面，你可以在浏览器中房屋内它（通常是`http://127.0.0.1:7860`），然后根据配置项中的描述和提示进行填写，填写完毕后，可以单击右上角的 Save Config 按钮，这将保存配置到 `./resources/config.yaml`。
+2. 手动修改：直接找到 `./resources/config.yaml` 文件并按照文件内的注释引导填写对应的配置。
 
 若在此期间出现任何报错或问题，都可以通过新建 Issue 获取帮助，届时还恳请您提供完整的日志和复现流程。
 
