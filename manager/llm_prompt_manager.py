@@ -1,8 +1,9 @@
 from copy import deepcopy
+from typing import Callable
 
 from zerolan.data.pipeline.llm import Conversation, RoleEnum
 
-from common.config import ChatConfig
+from character.config import ChatConfig
 
 
 class LLMPromptManager:

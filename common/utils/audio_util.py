@@ -1,33 +1,104 @@
 import io
+from io import BytesIO
+from pathlib import Path
+
+import numpy as np
+import soundfile as sf
+from pydub import AudioSegment
+from scipy.io import wavfile as wavfile
+from typeguard import typechecked
+
+from common.io.file_type import AudioFileType
 
 
+@typechecked
+def get_audio_info(file: Path | str | bytes | BytesIO, type: str | None = None) -> (int, int, float):
+    """
+    Get audio info from path. Supported OGG, WAV, MP3, FLV and RAW. Also see AudioFileType.
+    :param file: Audio file path.
+    :return: sample_rate, num_channels, duration
+    """
+    if isinstance(file, bytes):
+        file = BytesIO(file)
+    if type is None:
+        suffix = Path(file).suffix
+        if suffix[0] == '.':
+            suffix = suffix[1:]
+        suffix = suffix.lower()
+    else:
+        suffix = type
+
+    if suffix == AudioFileType.OGG:
+        audio = AudioSegment.from_ogg(file)
+    elif suffix == AudioFileType.WAV:
+        audio = AudioSegment.from_wav(file)
+    elif suffix == AudioFileType.MP3:
+        audio = AudioSegment.from_mp3(file)
+    elif suffix == AudioFileType.FLV:
+        audio = AudioSegment.from_flv(file)
+    elif suffix == AudioFileType.RAW:
+        audio = AudioSegment.from_raw(file)
+    else:
+        raise NotImplementedError()
+
+    sample_rate = audio.frame_rate
+    num_channels = audio.channels
+    duration_ms = len(audio)
+    duration = duration_ms / 1000.0
+
+    return sample_rate, num_channels, duration
+
+
+@typechecked
+def get_audio_real_format(audio: bytes | str | Path) -> str:
+    """
+    Get real format of the audio.
+    :param audio: Bytes data of the audio or the path of the audio file.
+    :return: Real format of the audio.
+    """
+    if isinstance(audio, bytes):
+        audio_bytes = audio
+    elif isinstance(audio, str) or isinstance(audio, Path):
+        with open(audio, "rb") as f:
+            audio_bytes = f.read()
+    else:
+        raise TypeError("audio must be bytes or str type.")
+
+    if audio_bytes.startswith(b'RIFF') and audio_bytes.find(b'WAVE') != -1:
+        return AudioFileType.WAV
+    elif audio_bytes.startswith(b'OggS'):
+        return AudioFileType.OGG
+    elif audio_bytes.startswith(b'FLV'):
+        return AudioFileType.FLV
+    elif audio_bytes.startswith(b'\xFF\xFB') or audio_bytes.startswith(b'\xFF\xF3'):
+        return AudioFileType.MP3
+    elif len(audio_bytes) > 0:
+        return AudioFileType.RAW
+    else:
+        raise NotImplementedError("Unknown audio format.")
+
+
+@typechecked
 def from_ndarray_to_bytes(speech_chunk, sample_rate):
-    from scipy.io import wavfile as wavfile
-
+    """
+    Convert numpy.ndarray data to bytes.
+    :param speech_chunk: numpy.array.
+    :param sample_rate: Sample rate of the speech chunk.
+    :return:
+    """
     wave_file = io.BytesIO()
     wavfile.write(filename=wave_file, rate=sample_rate, data=speech_chunk)
     return wave_file.getvalue()
 
 
-def check_wav_info(file_path) -> (int, int, float):
-    import wave
-    # 打开WAV文件
-    wav_file = wave.open(file_path, mode='rb')
-    # 获取采样率
-    sample_rate = wav_file.getframerate()
-    # 获取通道数
-    num_channels = wav_file.getnchannels()
-    # 获取时长
-    duration = wav_file.getnframes() / sample_rate
-    # 关闭文件
-    wav_file.close()
-    return sample_rate, num_channels, duration
-
-
-def check_audio_format(audio_bytes) -> str:
-    if audio_bytes.startswith(b'RIFF') and audio_bytes.find(b'WAVE') != -1:
-        return 'wav'
-    elif audio_bytes.startswith(b'OggS'):
-        return 'ogg'
-    else:
-        raise NotImplementedError()
+@typechecked
+def from_bytes_to_np_ndarray(bytes_data: bytes, dtype: str = "float32") -> (np.ndarray, int):
+    """
+    Convert byte data to numpy.ndarray format.
+    :param bytes_data: Audio bytes of data.
+    :param dtype: Default is float32.
+    :return: The converted np.ndarray format data, sample rate.
+    """
+    wave_bytes_buf = io.BytesIO(bytes_data)
+    data, samplerate = sf.read(wave_bytes_buf, dtype=dtype)
+    return data, samplerate

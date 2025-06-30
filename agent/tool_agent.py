@@ -1,8 +1,6 @@
 import json
-import re
 import typing
 import uuid
-from json import JSONDecodeError
 from typing import Optional, Any, Sequence, Union, Callable
 
 from langchain_core.callbacks import CallbackManagerForLLMRun
@@ -17,7 +15,8 @@ from pydantic import BaseModel
 from zerolan.data.pipeline.llm import LLMQuery
 
 from agent.adaptor import LangChainAdaptedLLM, convert
-from common.config import LLMPipelineConfig
+from common.utils.json_util import smart_load_json_like
+from pipeline.llm.config import LLMPipelineConfig
 
 
 class Property(BaseModel):
@@ -48,18 +47,13 @@ class ToolAgent(LangChainAdaptedLLM):
 
     def _parse_tool_call_intent(self, content: str) -> list[ToolCall] | None:
         try:
-            content = extract_json_from_markdown(content)
-            try:
-                tool_call = json.loads(content)
-            except JSONDecodeError:
-                content = remove_extra_braces(content)
-                tool_call = json.loads(content)
+            tool_call = smart_load_json_like(content)
 
             if isinstance(tool_call, dict):
                 try:
                     if tool_call["name"] in self._tool_names:
                         return [ToolCall(name=tool_call["name"], args=tool_call["args"], id=f'{uuid.uuid4()}')]
-                except Exception as e:
+                except Exception as _:
                     return None
             elif isinstance(tool_call, list):
                 result = []
@@ -138,14 +132,3 @@ class ToolAgent(LangChainAdaptedLLM):
                                      + "现在根据工具和用户输入，返回JSON格式的输出以调用其他工具。你只能输出JSON内容，不要带Markdown，并检查你的大括号，遵循严格的JSON格式！")
 
 
-def extract_json_from_markdown(markdown_text: str) -> str:
-    cleaned_text = re.sub(r'```.*?\n(.*?)\n```', r'\1', markdown_text, flags=re.DOTALL)
-    return cleaned_text
-
-
-def remove_extra_braces(json_string):
-    for i in range(len(json_string) - 1, 0, -1):
-        print(i)
-        if json_string[i] == '}':
-            json_string = json_string[:i] + json_string[i + 1:]
-            return json_string

@@ -2,14 +2,21 @@ from selenium.webdriver import Firefox, Chrome, Keys
 from selenium.webdriver.common.actions.action_builder import ActionBuilder
 from selenium.webdriver.common.by import By
 
-from common.config import BrowserConfig
+from services.browser.config import BrowserConfig
 from services.browser import driver
 from services.browser.driver import DriverInitializer
 
 
 class Browser:
     def __init__(self, config: BrowserConfig):
-        self.driver: Firefox | Chrome = DriverInitializer(config).get_driver()
+        self._initzr = DriverInitializer(config)
+        self._driver: Firefox | Chrome | None = None
+
+    @property
+    def driver(self):
+        if self._driver is None:
+            self._driver = self._initzr.get_driver()
+        return self._driver
 
     def open(self, url: str):
         self.driver.get(url)

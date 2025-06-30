@@ -1,14 +1,13 @@
-import asyncio
 import uuid
 from typing import Type
-from loguru import logger
 
 from langchain_core.messages import ToolCall
 from langchain_core.tools import BaseTool
+from loguru import logger
 from pydantic import BaseModel
 
-from common.enumerator import EventEnum
-from event.eventemitter import emitter
+from event.event_emitter import emitter
+from event.registry import EventKeyRegistry
 from services.game.minecraft.data import KonekoProtocol
 
 
@@ -29,7 +28,7 @@ class KonekoInstructionTool(BaseTool):
 
     async def _arun(self, **kwargs) -> str:
         tool_call = ToolCall(id=f"{uuid.uuid4()}", name=self.name, args=kwargs)
-        protocol_obj = KonekoProtocol(event=EventEnum.KONEKO_SERVER_CALL_INSTRUCTION, data=tool_call)
-        await emitter.emit(EventEnum.KONEKO_SERVER_CALL_INSTRUCTION, protocol_obj=protocol_obj)
+        protocol_obj = KonekoProtocol(event=EventKeyRegistry.Koneko.Server.CALL_INSTRUCTION, data=tool_call)
+        await emitter.emit(protocol_obj=protocol_obj)
         logger.info(f"Koneko instruction tool {self.name} was called, emitted")
         return f"Instruction {self.name} executed"

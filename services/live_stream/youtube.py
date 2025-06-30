@@ -3,10 +3,12 @@ import asyncio
 import requests
 from zerolan.data.data.danmaku import Danmaku, SuperChat
 
-from common.config import YoutubeServiceConfig
+from common.concurrent.abs_runnable import AsyncRunnable
+from services.live_stream.config import YoutubeServiceConfig
 from common.decorator import log_start, log_stop
-from common.enumerator import EventEnum
-from event.eventemitter import emitter
+from common.utils.str_util import is_blank
+from event.event_data import LiveStreamDanmakuEvent, LiveStreamSuperChatEvent
+from event.event_emitter import emitter
 
 
 def get(url, token: str):
@@ -45,10 +47,14 @@ def convert_superchats(super_chat_events: list[dict]):
     return result
 
 
-class YouTubeService:
+class YouTubeService(AsyncRunnable):
+    def name(self):
+        return "YouTubeService"
+
     def __init__(self, config: YoutubeServiceConfig):
         # TODO: Need test!
-        assert config.token is not None or config.token == "", f"No token provided."
+        super().__init__()
+        assert not is_blank(config.token), f"No token provided."
         self._token = config.token
         self._danmakus = set()
         self._superchats = set()
@@ -67,7 +73,7 @@ class YouTubeService:
         updated_danmakus = self._danmakus.difference(danmakus)
         self._danmakus.update(updated_danmakus)
         for danmaku in updated_danmakus:
-            emitter.emit(EventEnum.SERVICE_LIVE_STREAM_DANMAKU, danmaku)
+            emitter.emit(LiveStreamDanmakuEvent(danmaku=danmaku, platform="youtube"))
 
     def emit_super_chat_event(self):
         # https://developers.google.com/youtube/v3/live/docs/superChatEvents
@@ -76,12 +82,14 @@ class YouTubeService:
         updated_superchats = self._superchats.difference(super_chats)
         self._superchats.update(updated_superchats)
         for superchat in updated_superchats:
-            emitter.emit(EventEnum.SERVICE_LIVE_STREAM_SUPER_CHAT, superchat)
+            emitter.emit(LiveStreamSuperChatEvent(superchat=superchat, platform="youtube"))
 
     @log_start("YouTubeService")
-    def start(self):
-        asyncio.run(self._run())
+    async def start(self):
+        await super().start()
+        await self._run()
 
     @log_stop("YouTubeService")
-    def stop(self):
+    async def stop(self):
+        await super().stop()
         self._stop_flag = True
