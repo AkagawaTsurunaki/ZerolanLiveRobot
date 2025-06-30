@@ -37,22 +37,21 @@ Zerolan Live Robot 是一款多功能的直播机器人（AI VTuber），它可�
 >
 > Zerolan Live Robot 2.x 版本与旧版本 1.x 不兼容，因此您可能需要重新配置环境、安装依赖。
 
-Zerolan Project 由 [ZerolanLiveRobot](https://github.com/AkagawaTsurunaki/ZerolanLiveRobot)、[ZerolanCore](https://github.com/AkagawaTsurunaki/zerolan-core)、[ZerolanData](https://github.com/AkagawaTsurunaki/zerolan-data)、[ZerolanUI](https://github.com/AkagawaTsurunaki/zerolan-ui)、[ZerolanPlayground]()、[KonekoMinecraftBot](https://github.com/AkagawaTsurunaki/KonekoMinecraftBot) 等项目同组成。下表简要地介绍了各个项目的用途，您可以根据需要使用：
+Zerolan Project 由 [ZerolanLiveRobot](https://github.com/AkagawaTsurunaki/ZerolanLiveRobot)、[ZerolanCore](https://github.com/AkagawaTsurunaki/zerolan-core)、[ZerolanData](https://github.com/AkagawaTsurunaki/zerolan-data)、[ZerolanUI](https://github.com/AkagawaTsurunaki/zerolan-ui)、[ZerolanPlayground]()、[KonekoMinecraftBot](https://github.com/AkagawaTsurunaki/KonekoMinecraftBot) 等项目共同组成。下表简要地介绍了各个项目的用途，您可以根据需要使用：
 
 | 项目名                                                       | 用途                                                         |
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
 | [ZerolanLiveRobot](https://github.com/AkagawaTsurunaki/ZerolanLiveRobot) | 直播机器人的控制框架，通过采集各类数据，并综合分析做出动作响应。 |
 | [ZerolanCore](https://github.com/AkagawaTsurunaki/zerolan-core) | 为直播机器人提供 AI 推理服务的核心模块，例如大语言模型、语音识别、语音合成等 Web API 服务。 |
 | [ZerolanData](https://github.com/AkagawaTsurunaki/zerolan-data) | 定义了各个项目或服务之间沟通与交换的数据格式。               |
-| [ZerolanUI](https://github.com/AkagawaTsurunaki/zerolan-ui)  | 基于 PyQT6 的 GUI 界面，包括顶部弹窗和提示音等。**（可能在将来弃用）** |
-| [ZerolanPlayground]()                                        | 使用 Unity 引擎和 Vuforia 引擎开发的 AR 虚拟形象展示器，兼容 Live2D 模型的展示。**（该项目即将归档）** |
+| [ZerolanPlayground]()                                        | 使用 Unity 引擎和 Vuforia 引擎开发的 AR 虚拟形象展示器，兼容 Live2D 模型的展示。|
 | [KonekoMinecraftBot](https://github.com/AkagawaTsurunaki/KonekoMinecraftBot) | 基于 mineflayer 的 Minecraft 智能体，使用有限状态机控制行为（打怪、砍树、睡觉等），支持语音控制。 |
 
 ### 部署核心服务
 
 如果你希望将 AI 模型服务部署在自己的电脑上，请移步至[此处](https://github.com/AkagawaTsurunaki/zerolan-core)进完成 ZerolanCore 的相关部署工作。
 
-本项目提供了一些第三方提供的 API 接口的支持，但如果其中没有你想要的，请根据文档实现自己的统一模型管线（Pipeline）。
+本项目提供了一些第三方提供的 API 接口的支持，但如果其中没有你想要的，请根据文档实现自己的统一模型管线（Unified Model Pipeline, UMP）。
 
 当然，您可以根据需求混合使用第三方接口和 ZerolanCore 服务，后续您可以在配置文件中设置。
 
@@ -80,7 +79,7 @@ python main.py
 
 这样，你有两种方式修改你的配置文件：
 
-1. WebUI配置：运行 `python webui.py` 将会启动一个 WebUI 的配置界面，你可以在浏览器中房屋内它（通常是`http://127.0.0.1:7860`），然后根据配置项中的描述和提示进行填写，填写完毕后，可以单击右上角的 Save Config 按钮，这将保存配置到 `./resources/config.yaml`。
+1. WebUI配置：运行 `python webui.py` 将会启动一个 WebUI 的配置界面，你可以在浏览器中访问它（通常是`http://127.0.0.1:7860`），然后根据配置项中的描述和提示进行填写，填写完毕后，可以单击右上角的 Save Config 按钮，这将保存配置到 `./resources/config.yaml`。
 2. 手动修改：直接找到 `./resources/config.yaml` 文件并按照文件内的注释引导填写对应的配置。
 
 若在此期间出现任何报错或问题，都可以通过新建 Issue 获取帮助，届时还恳请您提供完整的日志和复现流程。
@@ -101,7 +100,7 @@ python main.py
 
 下载对应平台的安装包进行安装，然后在右上角填写你开启本 ZerolanLiveRobot 的服务器地址。
 
-例如，你将 ZerolanLiveRobot 的服务开启在你的电脑的 11013 端口，且你的电脑 IP 为 `192.168.1.114`，那么在服务器地址一栏填写 `ws://192.168.1.114:11013`，最后单击“连接”即可。
+例如，你将 ZerolanLiveRobot 主程序开启在你的电脑的 11013 端口，且你的电脑 IP 为 `192.168.1.114`，那么在服务器地址一栏填写 `ws://192.168.1.114:11013`，最后单击“连接”即可。
 
 
 ## 自定义设计机器人
@@ -153,7 +152,7 @@ print(prediction.response)
 # 这样就应该可以得到模型的回复
 ```
 
-如果你想知道更多实现细节，可以查看 [ZerolanData](https://github.com/AkagawaTsurunaki/zerolan-data) 中的数据定义，可能也需要结合管线的实现和 Zerolan Core 中 `app.py` 文件中的内容进行理解。
+如果你想知道更多实现细节，可以查看 [ZerolanData](https://github.com/AkagawaTsurunaki/zerolan-data) 中的数据定义，可能也需要结合管线的实现和 [ZerolanCore](https://github.com/AkagawaTsurunaki/zerolan-core) 中 `app.py` 文件中的内容进行理解。
 
 ### Services
 
@@ -170,7 +169,7 @@ print(prediction.response)
 
 基于 [live2d-py](https://github.com/Arkueid/live2d-py)、[OpenGL](https://www.opengl.org/) 和 
 [PyQt5](https://pypi.org/project/PyQt5/) 开发的 Live2D 虚拟形象控制器。
-实现了窗口宽高控制、透明背景（可用于obs直播或桌宠），角色自动呼吸控制、自动眨眼控制，说话时嘴型控制。
+实现了窗口宽高控制、透明背景（可用于 OBS 直播或桌宠），角色自动呼吸控制、自动眨眼控制，说话时嘴型控制。
 
 ### services.live_stream
 
