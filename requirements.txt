@@ -34,6 +34,9 @@ webrtcvad
 live2d-py
 PyQt5
 librosa
+PyPDF2
+docx2txt
+python-pptx
 # If you are not a developer, you can skip the following packages
 pytest
 pytest-asyncio
