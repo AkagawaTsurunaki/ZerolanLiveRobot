@@ -411,7 +411,7 @@ class ZerolanLiveRobot(BaseBot):
         history = self.llm_prompt_manager.current_history[start:]
         ai_msg = summary_history(history)
         row = InsertRow(id=1, text=ai_msg.content, subject="history")
-        insert = MilvusInsert(collection_name="history_collection", texts=[row])
+        insert = MilvusInsert(collection_name=f"{self.bot_id}:history", texts=[row])
         try:
             insert_res = self.vec_db.insert(insert)
             if insert_res.insert_count == 1:
