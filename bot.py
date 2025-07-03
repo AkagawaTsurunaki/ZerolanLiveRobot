@@ -20,13 +20,13 @@ from common.concurrent.killable_thread import KillableThread, kill_all_threads
 from common.enumerator import Language
 from common.io.api import save_audio
 from common.io.file_type import AudioFileType
-from common.utils import audio_util, math_util
+from common.utils import audio_util, math_util, str_util
 from common.utils.img_util import is_image_uniform
 from common.utils.str_util import split_by_punc, is_blank
 from event.event_data import DeviceMicrophoneVADEvent, DeviceScreenCapturedEvent, PipelineOutputLLMEvent, \
     PipelineImgCapEvent, \
     QQMessageEvent, DeviceMicrophoneSwitchEvent, PipelineOutputTTSEvent, PipelineASREvent, \
-    PipelineOCREvent, SecondEvent, ConfigFileModifiedEvent, LiveStreamDanmakuEvent
+    PipelineOCREvent, SecondEvent, ConfigFileModifiedEvent, LiveStreamDanmakuEvent, SystemUnhandledErrorEvent
 from event.event_emitter import emitter
 from event.registry import EventKeyRegistry
 from framework.base_bot import BaseBot
@@ -46,6 +46,7 @@ class ZerolanLiveRobot(BaseBot):
         self.enable_exp_memory = False
         self.enable_sentiment_analysis = False
         self.enable_split_by_punc = False
+        self.llm_max_characters = 10000
         self.init()
         logger.info("🤖 Zerolan Live Robot: Initialized services successfully.")
 
@@ -309,6 +310,10 @@ class ZerolanLiveRobot(BaseBot):
         def on_config_modified(_: ConfigFileModifiedEvent):
             config = get_config()
 
+        @emitter.on(EventKeyRegistry.System.SYSTEM_UNHANDLED_ERROR)
+        def on_system_unhandled_error(event: SystemUnhandledErrorEvent):
+            logger.error(f"System unhandled error: {event.msg}")
+
     def _tts_without_block(self, tts_prompt: TTSPrompt, text: str):
         def wrapper():
             query = TTSQuery(
@@ -331,8 +336,15 @@ class ZerolanLiveRobot(BaseBot):
         # To sync audio playing and subtitle
         self.tts_thread_pool.submit(wrapper)
 
-    def exp_memory(self, text: str, is_filtered: bool, response: str, len_history: int):
-
+    def _exp_memory(self, text: str, is_filtered: bool, response: str, len_history: int):
+        """
+        A more complex implementation that decide whether to save memory.
+        :param text:
+        :param is_filtered:
+        :param response:
+        :param len_history:
+        :return:
+        """
         l_max = get_config().character.chat.max_history
         try:
             s = sentiment_score(text)
@@ -358,6 +370,13 @@ class ZerolanLiveRobot(BaseBot):
         query = LLMQuery(text=text, history=self.llm_prompt_manager.current_history)
         prediction = self.llm.predict(query)
 
+        # Check for llm_max_characters
+        # NOTE: We may do not know the maximum tokens given arbitrary LLM, so only the number of character will be checked.
+        characters = len([elm.content for elm in prediction.history])
+        if characters > self.llm_max_characters:
+            self.llm_prompt_manager.reset_history()
+            return
+
         # Filter applied here
         is_filtered = self.filter.filter(prediction.response)
 
@@ -368,7 +387,7 @@ class ZerolanLiveRobot(BaseBot):
         logger.info(f"Length of current history: {len(self.llm_prompt_manager.current_history)}")
 
         if self.enable_exp_memory:
-            if self.exp_memory(text, is_filtered, prediction.response, len(prediction.response)):
+            if self._exp_memory(text, is_filtered, prediction.response, len(prediction.response)):
                 self.llm_prompt_manager.reset_history(prediction.history)
 
         if not direct_return:
