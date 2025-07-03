@@ -57,7 +57,7 @@ def extract_text(path: str):
     :return:
     """
     assert os.path.exists(path), f"File not found: {path}"
-    suffix = path.split(".")[-1]
+    suffix = path.split(".")[-1].lower()
     if suffix == "pdf":
         return _pdf_to_text_pypdf2(path)
     elif suffix == "docx":
