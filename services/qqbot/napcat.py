@@ -1,5 +1,8 @@
-from ncatbot.core import BaseMessageEvent, BotClient
+import time
+from ncatbot.core import BotClient, GroupMessageEvent
 from loguru import logger
+from typeguard import typechecked
+from bot import QQMessageEvent, emitter
 from services.qqbot.config import QQBotServiceConfig
 from ncatbot.plugin_system import command_registry
 
@@ -11,13 +14,39 @@ class QQBotService:
                                           ws_token=config.ws_token, debug=False)
         self._root_user = config.root
         logger.info("QQ bot!")
+        self._last_sent_time = time.time()
 
-        @command_registry.command("hello")
-        async def hello_cmd(self, event: BaseMessageEvent):
-            await event.reply("hello")
+        @self._bot.on_group_message
+        async def echo_cmd(event: GroupMessageEvent):
+            text = "".join(seg.text for seg in event.message.filter_text())
+            if "echo" in text:
+                if self.can_send():
+                    await event.reply(text[4:])
+
+        @self._bot.on_group_message
+        async def emit_plain_text_msg(event: GroupMessageEvent):
+            text = "".join(seg.text for seg in event.message.filter_text())
+            logger.debug(f"Received QQ message: {text}")
+            if self.can_send():
+                emitter.emit(QQMessageEvent(
+                    message=text, group_id=int(event.group_id)))
+
+    def can_send(self):
+        now = time.time()
+        if now - self._last_sent_time > 5:
+            return True
+        logger.warning("Limit sending QQ message.")
+        return False
+
+    @typechecked
+    def send_plain_message(self, group_id: int, text: str):
+        if self.can_send():
+            self._api.send_group_text_sync(group_id, text)
+            logger.info(f"Sent QQ message: {text}")
 
     def start(self):
-        self._api.send_private_text_sync(self._root_user, "hello")
+        # self._api.send_private_text_sync(self._root_user, "hello")
+        pass
 
     def stop(self):
         pass

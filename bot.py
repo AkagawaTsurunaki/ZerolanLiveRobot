@@ -270,12 +270,12 @@ class ZerolanLiveRobot(BaseBot):
                 emitter.emit(PipelineImgCapEvent(prediction=img_cap_prediction))
 
         @emitter.on(EventKeyRegistry.QQBot.QQ_MESSAGE)
-        async def on_qq_message(event: QQMessageEvent):
+        def on_qq_message(event: QQMessageEvent):
             prediction = self.emit_llm_prediction(event.message, direct_return=True)
             if prediction is None:
                 logger.warning("No response from LLM remote service and will not send QQ message.")
                 return
-            await self.qq.send_plain_message(prediction.response, event.group_id)
+            self.qq.send_plain_message(event.group_id, prediction.response)
 
         @emitter.on(EventKeyRegistry.Pipeline.OCR)
         def on_pipeline_ocr(event: PipelineOCREvent):
