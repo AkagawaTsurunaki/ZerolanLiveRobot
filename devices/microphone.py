@@ -3,7 +3,7 @@ import threading
 import wave
 
 import pyaudio
-import webrtcvad
+
 from loguru import logger
 
 from common.concurrent.abs_runnable import ThreadRunnable
@@ -31,6 +31,7 @@ class SmartMicrophone(ThreadRunnable):
 
         # Initialize microphone
         self._audio = pyaudio.PyAudio()
+        import webrtcvad
         self._vad = webrtcvad.Vad(vad_mode)
         self._stream = self._audio.open(format=self._format,
                                         channels=self._channels,
