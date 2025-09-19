@@ -66,7 +66,7 @@ class ZerolanLiveRobotContext:
         self.browser: Browser | None = None
         self.speaker: Speaker | None = None
         self.playground: PlaygroundBridge | None = None
-        self.qq: QQBotService | None = None
+        self.qq: QQBotService = None
 
         self.bot_id: str | None = None
         self.bot_name: str | None = None
@@ -83,18 +83,21 @@ class ZerolanLiveRobotContext:
 
         assert _config.pipeline.llm.enable, f"At least LLMPipeline must be enabled in your config."
         self.llm = LLMSyncPipeline(_config.pipeline.llm)
-        self.filter = FirstMatchedFilter(_config.character.chat.filter.bad_words)
+        self.filter = FirstMatchedFilter(
+            _config.character.chat.filter.bad_words)
         self.llm_prompt_manager = LLMPromptManager(_config.character.chat)
         self.speaker = Speaker()
         self.bot_name = _config.character.bot_name
-        self.res_server = ResourceServer(_config.service.res_server.host, _config.service.res_server.port)
+        self.res_server = ResourceServer(
+            _config.service.res_server.host, _config.service.res_server.port)
 
         if _config.pipeline.asr.enable:
             self.asr = ASRSyncPipeline(_config.pipeline.asr)
         if _config.pipeline.ocr.enable:
             self.ocr = OCRSyncPipeline(_config.pipeline.ocr)
         if _config.pipeline.tts.enable:
-            self.tts_prompt_manager = TTSPromptManager(_config.character.speech)
+            self.tts_prompt_manager = TTSPromptManager(
+                _config.character.speech)
             self.tts = TTSSyncPipeline(_config.pipeline.tts)
         if _config.pipeline.img_cap.enable:
             self.img_cap = ImgCapSyncPipeline(_config.pipeline.img_cap)
@@ -109,12 +112,15 @@ class ZerolanLiveRobotContext:
             if _config.service.game.platform == PlatformEnum.Minecraft:
                 if self.tool_agent is None:
                     self.tool_agent = ToolAgent(_config.pipeline.llm)
-                self.game_agent = KonekoMinecraftAIAgent(_config.service.game, self.tool_agent)
+                self.game_agent = KonekoMinecraftAIAgent(
+                    _config.service.game, self.tool_agent)
         if _config.service.live_stream.enable:
             if _config.service.live_stream.bilibili.enable:
-                self.bilibili = BilibiliService(_config.service.live_stream.bilibili)
+                self.bilibili = BilibiliService(
+                    _config.service.live_stream.bilibili)
             if _config.service.live_stream.youtube.enable:
-                self.youtube = YouTubeService(_config.service.live_stream.youtube)
+                self.youtube = YouTubeService(
+                    _config.service.live_stream.youtube)
             if _config.service.live_stream.twitch.enable:
                 self.twitch = TwitchService(_config.service.live_stream.twitch)
         if _config.pipeline.vec_db.enable:
@@ -124,7 +130,8 @@ class ZerolanLiveRobotContext:
             self.bot_id = _config.service.playground.bot_id
             self.live2d_model = _config.service.playground.model_dir
             self.custom_agent = CustomAgent(config=_config.pipeline.llm)
-            self.playground = PlaygroundBridge(config=_config.service.playground)
+            self.playground = PlaygroundBridge(
+                config=_config.service.playground)
         if _config.service.qqbot.enable:
             self.qq = QQBotService(_config.service.qqbot)
         if _config.system.default_enable_microphone:

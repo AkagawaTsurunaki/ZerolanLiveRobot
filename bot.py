@@ -59,20 +59,25 @@ class ZerolanLiveRobot(BaseBot):
 
             threads = []
             if _config.system.default_enable_microphone:
-                vad_thread = KillableThread(target=self.mic.start, daemon=True, name="VADThread")
+                vad_thread = KillableThread(
+                    target=self.mic.start, daemon=True, name="VADThread")
                 threads.append(vad_thread)
 
-            speaker_thread = KillableThread(target=self.speaker.start, daemon=True, name="SpeakerThread")
+            speaker_thread = KillableThread(
+                target=self.speaker.start, daemon=True, name="SpeakerThread")
             threads.append(speaker_thread)
 
-            playground_thread = KillableThread(target=self.playground.start, daemon=True, name="PlaygroundThread")
+            playground_thread = KillableThread(
+                target=self.playground.start, daemon=True, name="PlaygroundThread")
             threads.append(playground_thread)
 
-            res_server_thread = KillableThread(target=self.res_server.start, daemon=True, name="ResServerThread")
+            res_server_thread = KillableThread(
+                target=self.res_server.start, daemon=True, name="ResServerThread")
             threads.append(res_server_thread)
 
             if self.obs is not None:
-                obs_client_thread = KillableThread(target=self.obs.start, daemon=True, name="ObsClientThread")
+                obs_client_thread = KillableThread(
+                    target=self.obs.start, daemon=True, name="ObsClientThread")
                 threads.append(obs_client_thread)
 
             if self.live2d_viewer is not None:
@@ -81,11 +86,13 @@ class ZerolanLiveRobot(BaseBot):
                 threads.append(live2d_viewer_thread)
 
             if self.game_agent:
-                game_agent_thread = KillableThread(target=self.game_agent.start, daemon=True, name="GameAgentThread")
+                game_agent_thread = KillableThread(
+                    target=self.game_agent.start, daemon=True, name="GameAgentThread")
                 threads.append(game_agent_thread)
-            
+
             if self.qq is not None:
-                game_agent_thread = KillableThread(target=self.qq.start, daemon=True, name="QQBotThread")
+                game_agent_thread = KillableThread(
+                    target=self.qq.start, daemon=True, name="QQBotThread")
                 threads.append(game_agent_thread)
 
             for thread in threads:
@@ -96,7 +103,8 @@ class ZerolanLiveRobot(BaseBot):
                 def start_bili():
                     asyncio.run(self.bilibili.start())
 
-                bili_thread = KillableThread(target=start_bili, daemon=True, name="BilibiliThread")
+                bili_thread = KillableThread(
+                    target=start_bili, daemon=True, name="BilibiliThread")
                 bili_thread.start()
             if self.youtube:
                 tg.create_task(self.youtube.start())
@@ -124,7 +132,8 @@ class ZerolanLiveRobot(BaseBot):
         @emitter.on(EventKeyRegistry.Playground.CONNECTED)
         def on_playground_connected(_):
             self.mic.pause()
-            logger.info("Because ZerolanPlayground client connected, close the local microphone.")
+            logger.info(
+                "Because ZerolanPlayground client connected, close the local microphone.")
             self.playground.load_live2d_model(
                 bot_id=self.bot_id,
                 bot_display_name=self.bot_name,
@@ -169,7 +178,8 @@ class ZerolanLiveRobot(BaseBot):
         def asr_handler(event: PipelineASREvent):
             logger.debug("`ASREvent` received.")
             prediction = event.prediction
-            self.playground.add_history(role="user", text=prediction.transcript, username=self.master_name)
+            self.playground.add_history(
+                role="user", text=prediction.transcript, username=self.master_name)
             if "打开浏览器" in prediction.transcript:
                 if self.browser is not None:
                     self.browser.open("https://www.bing.com")
@@ -187,7 +197,8 @@ class ZerolanLiveRobot(BaseBot):
                 img, img_save_path = self.screen.safe_capture(k=0.99)
                 if not self.check_img(img):
                     return
-                emitter.emit(DeviceScreenCapturedEvent(img_path=img_save_path, is_camera=False))
+                emitter.emit(DeviceScreenCapturedEvent(
+                    img_path=img_save_path, is_camera=False))
             elif "点击" in prediction.transcript:
                 # If there is no display, then can not use this feature
                 if os.environ.get('DISPLAY', None) is None:
@@ -196,14 +207,16 @@ class ZerolanLiveRobot(BaseBot):
                 if not self.check_img(img):
                     return
 
-                query = ShowUiQuery(query=prediction.transcript, env="web", img_path=img_save_path)
+                query = ShowUiQuery(query=prediction.transcript,
+                                    env="web", img_path=img_save_path)
                 prediction = self.showui.predict(query)
                 logger.debug("ShowUI: " + prediction.model_dump_json())
                 action = prediction.actions[0]
                 if action.action == "CLICK":
                     import pyautogui
                     logger.info("Click action triggered.")
-                    x, y = action.position[0] * img.width, action.position[1] * img.height
+                    x, y = action.position[0] * \
+                        img.width, action.position[1] * img.height
                     pyautogui.moveTo(x, y)
                     pyautogui.click()
             elif "记得" in prediction.transcript:
@@ -213,9 +226,11 @@ class ZerolanLiveRobot(BaseBot):
                 memory = result.result[0][0]
                 memory = memory.entity["text"]
                 logger.debug(f"Memory found: {memory}")
-                self.emit_llm_prediction(f"{memory}\n\n请根据上文回答：{prediction.transcript} \n")
+                self.emit_llm_prediction(
+                    f"{memory}\n\n请根据上文回答：{prediction.transcript} \n")
             elif "加载模型" in prediction.transcript:
-                file_id = find_file(self.model_manager.get_files(), prediction.transcript)
+                file_id = find_file(
+                    self.model_manager.get_files(), prediction.transcript)
                 file_info = self.model_manager.get_file_by_id(file_id)
                 self.playground.load_3d_model(file_info)
             elif "调整模型" in prediction.transcript:
@@ -262,20 +277,40 @@ class ZerolanLiveRobot(BaseBot):
                 logger.info("OCR: " + stringify(ocr_prediction.region_results))
                 emitter.emit(PipelineOCREvent(prediction=ocr_prediction))
             else:
-                img_cap_prediction = self.img_cap.predict(ImgCapQuery(prompt="There", img_path=img_path))
+                img_cap_prediction = self.img_cap.predict(
+                    ImgCapQuery(prompt="There", img_path=img_path))
                 src_lang = Language.value_of(img_cap_prediction.lang)
-                caption = translate(src_lang, self.cur_lang, img_cap_prediction.caption)
+                caption = translate(src_lang, self.cur_lang,
+                                    img_cap_prediction.caption)
                 img_cap_prediction.caption = caption
                 logger.info("ImgCap: " + caption)
-                emitter.emit(PipelineImgCapEvent(prediction=img_cap_prediction))
+                emitter.emit(PipelineImgCapEvent(
+                    prediction=img_cap_prediction))
 
         @emitter.on(EventKeyRegistry.QQBot.QQ_MESSAGE)
         def on_qq_message(event: QQMessageEvent):
-            prediction = self.emit_llm_prediction(event.message, direct_return=True)
+            prediction = self.emit_llm_prediction(
+                event.message, direct_return=True)
             if prediction is None:
-                logger.warning("No response from LLM remote service and will not send QQ message.")
+                logger.warning(
+                    "No response from LLM remote service and will not send QQ message.")
                 return
-            self.qq.send_plain_message(event.group_id, prediction.response)
+
+            if "语音" in event.message:
+                tts_prompt = self.tts_prompt_manager.default_tts_prompt
+                query = TTSQuery(
+                    text=prediction.response,
+                    text_language="auto",
+                    refer_wav_path=tts_prompt.audio_path,
+                    prompt_text=tts_prompt.prompt_text,
+                    prompt_language=tts_prompt.lang,
+                    audio_type="wav"
+                )
+                prediction = self.tts.predict(query=query)
+                file_path = save_audio(prediction.wave_data, prefix="tts")
+                self.qq.send_speech(event.group_id, str(file_path))
+            else:
+                self.qq.send_plain_message(event.group_id, prediction.response)
 
         @emitter.on(EventKeyRegistry.Pipeline.OCR)
         def on_pipeline_ocr(event: PipelineOCREvent):
@@ -295,11 +330,13 @@ class ZerolanLiveRobot(BaseBot):
             text = prediction.response
             logger.info("LLM: " + text)
             if self.enable_sentiment_analysis:
-                sentiment = sentiment_analyse(sentiments=self.tts_prompt_manager.sentiments, text=text)
+                sentiment = sentiment_analyse(
+                    sentiments=self.tts_prompt_manager.sentiments, text=text)
                 tts_prompt = self.tts_prompt_manager.get_tts_prompt(sentiment)
             else:
                 tts_prompt = self.tts_prompt_manager.default_tts_prompt
-            self.playground.add_history(role="assistant", text=text, username=self.bot_name)
+            self.playground.add_history(
+                role="assistant", text=text, username=self.bot_name)
 
             if self.enable_split_by_punc:
                 transcripts = split_by_punc(text, self.cur_lang)
@@ -330,12 +367,15 @@ class ZerolanLiveRobot(BaseBot):
             )
             prediction = self.tts.predict(query=query)
             logger.info(f"TTS: {query.text}")
-            sample_rate, num_channels, duration = audio_util.get_audio_info(prediction.wave_data, prediction.audio_type)
+            sample_rate, num_channels, duration = audio_util.get_audio_info(
+                prediction.wave_data, prediction.audio_type)
 
             if self.obs is not None:
-                self.obs.subtitle(text, which="assistant", duration=math_util.clamp(0, 5, duration - 1))
+                self.obs.subtitle(text, which="assistant",
+                                  duration=math_util.clamp(0, 5, duration - 1))
 
-            self.play_tts(PipelineOutputTTSEvent(prediction=prediction, transcript=text))
+            self.play_tts(PipelineOutputTTSEvent(
+                prediction=prediction, transcript=text))
 
         # To sync audio playing and subtitle
         self.tts_thread_pool.submit(wrapper)
@@ -366,12 +406,14 @@ class ZerolanLiveRobot(BaseBot):
         except Exception as e:
             logger.exception(e)
             r = 1
-        t_memory = 0.3 * (l_max - len_history) / l_max + 0.2 * s + 0.2 * b + 0.1 * r
+        t_memory = 0.3 * (l_max - len_history) / l_max + \
+            0.2 * s + 0.2 * b + 0.1 * r
         return t_memory > 0.5
 
     def emit_llm_prediction(self, text, direct_return: bool = False) -> None | LLMPrediction:
         logger.debug("`emit_llm_prediction` called")
-        query = LLMQuery(text=text, history=self.llm_prompt_manager.current_history)
+        query = LLMQuery(
+            text=text, history=self.llm_prompt_manager.current_history)
         prediction = self.llm.predict(query)
 
         # Check for llm_max_characters
@@ -388,11 +430,10 @@ class ZerolanLiveRobot(BaseBot):
         if prediction.response[0] == '\n':
             prediction.response = prediction.response[1:]
 
-        logger.info(f"Length of current history: {len(self.llm_prompt_manager.current_history)}")
+        logger.info(
+            f"Length of current history: {len(self.llm_prompt_manager.current_history)}")
 
-        if self.enable_exp_memory:
-            if self._exp_memory(text, is_filtered, prediction.response, len(prediction.response)):
-                self.llm_prompt_manager.reset_history(prediction.history)
+        self.llm_prompt_manager.reset_history(prediction.history)
 
         if not direct_return:
             emitter.emit(PipelineOutputLLMEvent(prediction=prediction))
@@ -405,7 +446,8 @@ class ZerolanLiveRobot(BaseBot):
 
     def check_img(self, img) -> bool:
         if is_image_uniform(img):
-            logger.warning("Are you sure you capture the screen properly? The screen is black!")
+            logger.warning(
+                "Are you sure you capture the screen properly? The screen is black!")
             self.emit_llm_prediction("你忽然什么都看不见了！请向你的开发者求助！")
             return False
         return True
@@ -415,7 +457,8 @@ class ZerolanLiveRobot(BaseBot):
         history = self.llm_prompt_manager.current_history[start:]
         ai_msg = summary_history(history)
         row = InsertRow(id=1, text=ai_msg.content, subject="history")
-        insert = MilvusInsert(collection_name=f"{self.bot_id}:history", texts=[row])
+        insert = MilvusInsert(
+            collection_name=f"{self.bot_id}:history", texts=[row])
         try:
             insert_res = self.vec_db.insert(insert)
             if insert_res.insert_count == 1:

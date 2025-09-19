@@ -1,3 +1,4 @@
+import os
 import time
 from ncatbot.core import BotClient, GroupMessageEvent
 from loguru import logger
@@ -22,6 +23,7 @@ class QQBotService:
             if "echo" in text:
                 if self.can_send():
                     await event.reply(text[4:])
+                    self.set_timer()
 
         @self._bot.on_group_message
         async def emit_plain_text_msg(event: GroupMessageEvent):
@@ -30,9 +32,14 @@ class QQBotService:
             if self.can_send():
                 emitter.emit(QQMessageEvent(
                     message=text, group_id=int(event.group_id)))
+                self.set_timer()
+
+    def set_timer(self):
+        self._last_sent_time = time.time()
 
     def can_send(self):
         now = time.time()
+        print(now - self._last_sent_time)
         if now - self._last_sent_time > 5:
             return True
         logger.warning("Limit sending QQ message.")
@@ -40,9 +47,13 @@ class QQBotService:
 
     @typechecked
     def send_plain_message(self, group_id: int, text: str):
-        if self.can_send():
-            self._api.send_group_text_sync(group_id, text)
-            logger.info(f"Sent QQ message: {text}")
+        self._api.send_group_text_sync(group_id, text)
+        logger.info(f"Sent QQ message: {text}")
+
+    @typechecked
+    def send_speech(self, group_id: int, audio_path: str):
+        assert os.path.exists(audio_path)
+        self._api.send_group_record_sync(group_id, audio_path)
 
     def start(self):
         # self._api.send_private_text_sync(self._root_user, "hello")
