@@ -7,7 +7,7 @@ from services.live_stream.config import LiveStreamConfig
 from services.obs.config import ObsStudioClientConfig
 from services.playground.config import PlaygroundBridgeConfig
 from services.playground.res.config import ResourceServerConfig
-from services.qqbot.config import QQBotBridgeConfig
+from services.qqbot.config import QQBotServiceConfig
 
 
 class ServiceConfig(BaseModel):
@@ -18,7 +18,7 @@ class ServiceConfig(BaseModel):
     game: GameBridgeConfig = Field(default=GameBridgeConfig(), description="Configuration for the Game Bridge service.")
     playground: PlaygroundBridgeConfig = Field(default=PlaygroundBridgeConfig(),
                                                description="Configuration for the Playground Bridge service.")
-    qqbot: QQBotBridgeConfig = Field(default=QQBotBridgeConfig(),
+    qqbot: QQBotServiceConfig = Field(default=QQBotServiceConfig(),
                                      description="Configuration for the QQBot Bridge service.")
     obs: ObsStudioClientConfig = Field(default=ObsStudioClientConfig(),
                                        description="Configuration for the OBS Studio Client.")

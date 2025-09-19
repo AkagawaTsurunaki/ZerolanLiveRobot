@@ -83,6 +83,10 @@ class ZerolanLiveRobot(BaseBot):
             if self.game_agent:
                 game_agent_thread = KillableThread(target=self.game_agent.start, daemon=True, name="GameAgentThread")
                 threads.append(game_agent_thread)
+            
+            if self.qq is not None:
+                game_agent_thread = KillableThread(target=self.qq.start, daemon=True, name="QQBotThread")
+                threads.append(game_agent_thread)
 
             for thread in threads:
                 thread.start()
