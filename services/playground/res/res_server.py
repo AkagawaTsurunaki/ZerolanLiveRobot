@@ -171,4 +171,4 @@ class ResourceServer(ThreadRunnable):
 
     def start(self):
         super().start()
-        self.app.run(host=self.host, port=self.port, debug=True, use_reloader=False)
+        self.app.run(host=self.host, port=self.port, debug=False, use_reloader=False)
