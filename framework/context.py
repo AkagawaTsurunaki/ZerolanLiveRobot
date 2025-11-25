@@ -1,4 +1,5 @@
 import os
+import platform
 
 from agent.custom_agent import CustomAgent
 from agent.tool_agent import ToolAgent
@@ -58,8 +59,10 @@ class ZerolanLiveRobotContext:
         self.tool_agent: ToolAgent | None = None
 
         if os.environ.get("DISPLAY", None) is not None:
-            from devices.screen import Screen
-            self.screen: Screen | None = Screen()
+            os_name = platform.system()
+            if os_name == "Windows":
+                from devices.screen import Screen
+                self.screen: Screen | None = Screen()
         else:
             self.screen = None
 
