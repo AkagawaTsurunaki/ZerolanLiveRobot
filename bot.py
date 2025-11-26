@@ -131,9 +131,10 @@ class ZerolanLiveRobot(BaseBot):
     def init(self):
         @emitter.on(EventKeyRegistry.Playground.CONNECTED)
         def on_playground_connected(_):
-            self.mic.pause()
-            logger.info(
-                "Because ZerolanPlayground client connected, close the local microphone.")
+            if self.mic is not None:
+                self.mic.pause()
+                logger.info(
+                    "Because ZerolanPlayground client connected, close the local microphone.")
             self.playground.load_live2d_model(
                 bot_id=self.bot_id,
                 bot_display_name=self.bot_name,
