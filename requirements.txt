@@ -31,7 +31,7 @@ watchdog
 openai
 gradio
 webrtcvad
-live2d-py
+live2d-py==0.5.0
 PyQt5
 librosa
 # If you are not a developer, you can skip the following packages
