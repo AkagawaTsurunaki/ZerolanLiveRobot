@@ -6,7 +6,7 @@
 
 Zerolan Live Robot 是一款多功能的直播机器人（AI VTuber），它可以听懂你所说的话，也可以自动在直播间中读取弹幕，观察电脑屏幕的指定窗口，理解其画面内容和文字信息，操纵 Minecraft 中的游戏角色，做出带情感的语音聊天回应。
 
-相关项目：[KonekoMinecraftBot](https://github.com/AkagawaTsurunaki/KonekoMinecraftBot)、[ZerolanCore](https://github.com/AkagawaTsurunaki/zerolan-core)、[ZerolanData](https://github.com/AkagawaTsurunaki/zerolan-data)、[ZerolanUI](https://github.com/AkagawaTsurunaki/zerolan-ui)、[ZerolanPlayground]()。
+相关项目：[KonekoMinecraftBot](https://github.com/AkagawaTsurunaki/KonekoMinecraftBot)、[ZerolanCore](https://github.com/AkagawaTsurunaki/zerolan-core)、[ZerolanData](https://github.com/AkagawaTsurunaki/zerolan-data)、[ZerolanPlayground](https://github.com/AkagawaTsurunaki/ZerolanPlayground)。
 
 > [!Note]
 >
@@ -37,14 +37,14 @@ Zerolan Live Robot 是一款多功能的直播机器人（AI VTuber），它可�
 >
 > Zerolan Live Robot 2.x 版本与旧版本 1.x 不兼容，因此您可能需要重新配置环境、安装依赖。
 
-Zerolan Project 由 [ZerolanLiveRobot](https://github.com/AkagawaTsurunaki/ZerolanLiveRobot)、[ZerolanCore](https://github.com/AkagawaTsurunaki/zerolan-core)、[ZerolanData](https://github.com/AkagawaTsurunaki/zerolan-data)、[ZerolanUI](https://github.com/AkagawaTsurunaki/zerolan-ui)、[ZerolanPlayground]()、[KonekoMinecraftBot](https://github.com/AkagawaTsurunaki/KonekoMinecraftBot) 等项目共同组成。下表简要地介绍了各个项目的用途，您可以根据需要使用：
+Zerolan Project 由 [ZerolanLiveRobot](https://github.com/AkagawaTsurunaki/ZerolanLiveRobot)、[ZerolanCore](https://github.com/AkagawaTsurunaki/zerolan-core)、[ZerolanData](https://github.com/AkagawaTsurunaki/zerolan-data)、[ZerolanPlayground](https://github.com/AkagawaTsurunaki/ZerolanPlayground)、[KonekoMinecraftBot](https://github.com/AkagawaTsurunaki/KonekoMinecraftBot) 等项目共同组成。下表简要地介绍了各个项目的用途，您可以根据需要使用：
 
 | 项目名                                                       | 用途                                                         |
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
 | [ZerolanLiveRobot](https://github.com/AkagawaTsurunaki/ZerolanLiveRobot) | 直播机器人的控制框架，通过采集各类数据，并综合分析做出动作响应。 |
 | [ZerolanCore](https://github.com/AkagawaTsurunaki/zerolan-core) | 为直播机器人提供 AI 推理服务的核心模块，例如大语言模型、语音识别、语音合成等 Web API 服务。 |
 | [ZerolanData](https://github.com/AkagawaTsurunaki/zerolan-data) | 定义了各个项目或服务之间沟通与交换的数据格式。               |
-| [ZerolanPlayground]()                                        | 使用 Unity 引擎和 Vuforia 引擎开发的 AR 虚拟形象展示器，兼容 Live2D 模型的展示。|
+| [ZerolanPlayground](https://github.com/AkagawaTsurunaki/ZerolanPlayground)                                        | 使用 Unity 引擎和 Vuforia 引擎开发的 AR 虚拟形象展示器，兼容 Live2D 模型的展示。|
 | [KonekoMinecraftBot](https://github.com/AkagawaTsurunaki/KonekoMinecraftBot) | 基于 mineflayer 的 Minecraft 智能体，使用有限状态机控制行为（打怪、砍树、睡觉等），支持语音控制。 |
 
 ### 部署核心服务
