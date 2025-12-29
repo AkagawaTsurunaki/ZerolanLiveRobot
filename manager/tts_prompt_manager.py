@@ -110,7 +110,10 @@ class TTSPromptManager:
                 continue
         if len(self.tts_prompts) <= 0:
             if self._is_remote:
-                raise Exception(f'You must provide remote path for TTS prompts in your config file.')
+                msg = 'You must provide a remote path for TTS prompts in your config file. '
+                if len(audio_paths) > 0:
+                    msg += f'{len(audio_paths)} paths were provided, but none of them match the required naming style.'
+                raise Exception(msg)
             raise Exception(f"There are no eligible TTS prompts in the directory you provided: {self._prompts_dir}")
         # Output sentiments result
         sentiments = [tts_prompt.sentiment for tts_prompt in self.tts_prompts]
