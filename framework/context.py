@@ -88,6 +88,7 @@ class ZerolanLiveRobotContext:
         self.speaker = Speaker()
         self.bot_name = _config.character.bot_name
         self.res_server = ResourceServer(_config.service.res_server.host, _config.service.res_server.port)
+        self.model_manager = None
 
         if _config.pipeline.asr.enable:
             self.asr = ASRSyncPipeline(_config.pipeline.asr)
@@ -104,7 +105,7 @@ class ZerolanLiveRobotContext:
             if _config.pipeline.vla.showui.enable:
                 self.showui = ShowUISyncPipeline(_config.pipeline.vla.showui)
         if _config.service.browser.enable:
-            self.browser = Browser(_config.external_tool.browser)
+            self.browser = Browser(_config.service.browser)
         if _config.service.game.enable:
             if _config.service.game.platform == PlatformEnum.Minecraft:
                 if self.tool_agent is None:
