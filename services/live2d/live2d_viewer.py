@@ -1,3 +1,4 @@
+import os.path
 import sys
 from pathlib import Path
 from queue import Queue
@@ -20,6 +21,7 @@ class Live2DViewer(ThreadRunnable):
     def __init__(self, config: Live2DViewerConfig):
         super().__init__()
         self._model_path: str = config.model3_json_file
+        assert os.path.exists(self._model_path), f'The specified Live2D model file does not exist: {self._model_path}'
         self._canvas: Live2DCanvas | None = None
         self._audios: Queue[Path] = Queue()
         self._sync_lip_loop_thread: KillableThread = KillableThread(target=self._sync_lip_loop, daemon=True)
@@ -27,8 +29,8 @@ class Live2DViewer(ThreadRunnable):
         self._auto_lip_sync: bool = config.auto_lip_sync
         self._auto_blink: bool = config.auto_blink
         self._auto_breath: bool = config.auto_breath
-        self._win_h: int = config.win_height
-        self._win_w: int = config.win_width
+        self._win_h: int = int(config.win_height)
+        self._win_w: int = int(config.win_width)
 
     def start(self):
         super().start()
