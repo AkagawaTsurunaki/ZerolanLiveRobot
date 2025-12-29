@@ -55,6 +55,7 @@ class Live2DViewer(ThreadRunnable):
     def stop(self):
         super().stop()
         self._sync_lip_loop_flag = False
+        self._canvas.close()
         self._sync_lip_loop_thread.kill()
 
     @typechecked
