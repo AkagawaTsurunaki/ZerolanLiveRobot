@@ -64,11 +64,13 @@ class ZerolanLiveRobot(BaseBot):
             speaker_thread = KillableThread(target=self.speaker.start, daemon=True, name="SpeakerThread")
             threads.append(speaker_thread)
 
-            playground_thread = KillableThread(target=self.playground.start, daemon=True, name="PlaygroundThread")
-            threads.append(playground_thread)
+            if self.playground:
+                playground_thread = KillableThread(target=self.playground.start, daemon=True, name="PlaygroundThread")
+                threads.append(playground_thread)
 
-            res_server_thread = KillableThread(target=self.res_server.start, daemon=True, name="ResServerThread")
-            threads.append(res_server_thread)
+            if self.res_server:
+                res_server_thread = KillableThread(target=self.res_server.start, daemon=True, name="ResServerThread")
+                threads.append(res_server_thread)
 
             if self.obs is not None:
                 obs_client_thread = KillableThread(target=self.obs.start, daemon=True, name="ObsClientThread")
