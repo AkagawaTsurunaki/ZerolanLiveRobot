@@ -122,11 +122,12 @@ class ZerolanLiveRobot(BaseBot):
         def on_playground_connected(_):
             self.mic.pause()
             logger.info("Because ZerolanPlayground client connected, close the local microphone.")
-            self.playground.load_live2d_model(
-                bot_id=self.bot_id,
-                bot_display_name=self.bot_name,
-                model_dir=self.live2d_model
-            )
+            if self.playground:
+                self.playground.load_live2d_model(
+                    bot_id=self.bot_id,
+                    bot_display_name=self.bot_name,
+                    model_dir=self.live2d_model
+                )
             logger.info(f"Live 2D model loaded: {self.live2d_model}")
 
         @emitter.on(EventKeyRegistry.Playground.DISCONNECTED)
@@ -166,7 +167,8 @@ class ZerolanLiveRobot(BaseBot):
         def asr_handler(event: PipelineASREvent):
             logger.debug("`ASREvent` received.")
             prediction = event.prediction
-            self.playground.add_history(role="user", text=prediction.transcript, username=self.master_name)
+            if self.playground:
+                self.playground.add_history(role="user", text=prediction.transcript, username=self.master_name)
             if "打开浏览器" in prediction.transcript:
                 if self.browser is not None:
                     self.browser.open("https://www.bing.com")
@@ -214,20 +216,23 @@ class ZerolanLiveRobot(BaseBot):
             elif "加载模型" in prediction.transcript:
                 file_id = find_file(self.model_manager.get_files(), prediction.transcript)
                 file_info = self.model_manager.get_file_by_id(file_id)
-                self.playground.load_3d_model(file_info)
+                if self.playground:
+                    self.playground.load_3d_model(file_info)
             elif "调整模型" in prediction.transcript:
-                info = self.playground.get_gameobjects_info()
-                if not info:
-                    logger.warning("No gameobjects info")
-                    return
-                so = model_scale(info, prediction.transcript)
-                self.playground.modify_game_object_scale(so)
+                if self.playground:
+                    info = self.playground.get_gameobjects_info()
+                    if not info:
+                        logger.warning("No gameobjects info")
+                        return
+                    so = model_scale(info, prediction.transcript)
+                    self.playground.modify_game_object_scale(so)
             else:
                 tool_called = self.custom_agent.run(prediction.transcript)
                 if tool_called:
                     logger.debug("Tool called.")
-            if self.playground.is_connected:
-                self.playground.show_user_input_text(prediction.transcript)
+            if self.playground:
+                if self.playground.is_connected:
+                    self.playground.show_user_input_text(prediction.transcript)
             if self.obs:
                 self.obs.subtitle(prediction.transcript, which="user")
             self.emit_llm_prediction(prediction.transcript)
@@ -296,7 +301,8 @@ class ZerolanLiveRobot(BaseBot):
                 tts_prompt = self.tts_prompt_manager.get_tts_prompt(sentiment)
             else:
                 tts_prompt = self.tts_prompt_manager.default_tts_prompt
-            self.playground.add_history(role="assistant", text=text, username=self.bot_name)
+            if self.playground:
+                self.playground.add_history(role="assistant", text=text, username=self.bot_name)
 
             if self.enable_split_by_punc:
                 transcripts = split_by_punc(text, self.cur_lang)
@@ -408,10 +414,13 @@ class ZerolanLiveRobot(BaseBot):
         prediction = event.prediction
         audio_path = save_audio(wave_data=prediction.wave_data, format=AudioFileType(prediction.audio_type),
                                 prefix='tts')
-        if self.playground.is_connected:
-            self.playground.play_speech(bot_id=self.bot_id, audio_path=audio_path,
-                                        transcript=event.transcript, bot_name=self.bot_name)
-            logger.debug("Remote speaker enqueue speech data")
+        if self.live2d_viewer:
+            self.live2d_viewer.sync_lip(audio_path)
+        if self.playground:
+            if self.playground.is_connected:
+                self.playground.play_speech(bot_id=self.bot_id, audio_path=audio_path,
+                                            transcript=event.transcript, bot_name=self.bot_name)
+                logger.debug("Remote speaker enqueue speech data")
         else:
             self.speaker.playsound(audio_path, block=True)
             logger.debug("Local speaker enqueue speech data")
