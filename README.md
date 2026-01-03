@@ -8,9 +8,7 @@ Zerolan Live Robot 是一款多功能的直播机器人（AI VTuber），它可�
 
 相关项目：[KonekoMinecraftBot](https://github.com/AkagawaTsurunaki/KonekoMinecraftBot)、[ZerolanCore](https://github.com/AkagawaTsurunaki/zerolan-core)、[ZerolanData](https://github.com/AkagawaTsurunaki/zerolan-data)、[ZerolanPlayground](https://github.com/AkagawaTsurunaki/ZerolanPlayground)。
 
-> [!Note]
->
-> 本项目持续开发中，当前的版本为 `2.1`，您可以关注开发者的 Bilibili 账号[赤川鹤鸣_Channel](https://space.bilibili.com/1076299680)，正在根据此项目调教 AI 猫娘，不定时直播展示最新进展。
+本项目持续开发中，当前的版本为 `2.1.2`，您可以关注开发者的 Bilibili 账号[赤川鹤鸣_Channel](https://space.bilibili.com/1076299680)，正在根据此项目调教 AI 猫娘，不定时直播展示最新进展。
 
 ## 特点与功能
 
@@ -58,6 +56,8 @@ Zerolan Project 由 [ZerolanLiveRobot](https://github.com/AkagawaTsurunaki/Zerol
 无论如何，你必须至少配置**大语言模型**才能驱动整个项目，它是驱动本项目的核心。
 
 ### 安装本项目依赖
+
+如果你使用的是 Windows 操作系统，且正在使用较高版本的 Python，请检查您是否已经安装了 [Visual C++ Build Tools](https://visualstudio.microsoft.com/zh-hans/visual-cpp-build-tools/)，部分 Python 依赖的库可能会需要在您的操作系统上编译后安装。当然，更推荐您使用较低版本的 Python，例如 `3.10` 和 `3.11`。
 
 运行指令，这会创建一个虚拟环境并激活，然后自动安装本项目需要的依赖包：
 
