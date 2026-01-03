@@ -7,9 +7,10 @@ from loguru import logger
 from pygetwindow import Win32Window
 
 from common.io.file_sys import fs
+from devices.screen.base_screen import BaseScreen
 
 
-class Screen:
+class WindowsScreen(BaseScreen):
 
     def __init__(self):
         os_name = platform.system()
