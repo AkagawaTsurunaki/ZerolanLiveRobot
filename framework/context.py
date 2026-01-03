@@ -1,5 +1,4 @@
-import os
-
+import devices.headless
 from agent.custom_agent import CustomAgent
 from agent.tool_agent import ToolAgent
 from character.filter.strategy import FirstMatchedFilter
@@ -57,9 +56,9 @@ class ZerolanLiveRobotContext:
 
         self.tool_agent: ToolAgent | None = None
 
-        if os.environ.get("DISPLAY", None) is not None:
-            from devices.screen import Screen
-            self.screen: Screen | None = Screen()
+        if not devices.headless.is_headless():
+            from devices.screen.base_screen import Screen
+            self.screen: Screen | None = None
         else:
             self.screen = None
 
