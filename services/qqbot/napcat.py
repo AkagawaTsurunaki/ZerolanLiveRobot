@@ -33,7 +33,7 @@ def _set_napcat_env():
 _set_napcat_env()
 
 from loguru import logger
-from ncatbot.core import BotClient, GroupMessageEvent, PrivateMessageEvent
+from ncatbot.core import BotClient, GroupMessageEvent, PrivateMessageEvent, MessageArray
 
 from typeguard import typechecked
 
@@ -49,11 +49,16 @@ class QQBotService:
         self._api = self._bot.run_backend(bt_uin=config.qq_num, ws_uri=config.ws_uri,
                                           ws_token=config.ws_token, debug=False)
         self._root_user = config.root
+        self._self_qq = config.qq_num
         self._groups = config.groups if config.groups is not None else []
         logger.info("QQ bot started with Napcat backend.")
+
+        # 自由发言机制
         self._last_sent_time = time.time()
         self._sent_interval = 120  # 间隔多长时间才被允许重新发言
+        self._free_talk_in_group = True
 
+        # 自动设精机制
         self._single_img_only: bool = True  # 是否只取一条消息中的一张图片
         self._auto_set_essence_msg = True  # 自动设精 :)
         self._prob_set_essence_msg = 2  # 设精概率，大于 1 表示不设概率限制
@@ -61,6 +66,9 @@ class QQBotService:
         self._trigger_num_history = 2  # 多少条记录触发模型的精华消息检查
         self._max_history = 5  # 群内记录的最大条数是多少，可认为是窗口大小
         self._history = {}
+
+        # at 发言机制
+        self._at_reply = True # 是否立刻回复 at 你的人
 
         self._essence_dir = _napcat_dir.joinpath('essence')
         self._essence_dir.mkdir(parents=True, exist_ok=True)
@@ -85,9 +93,12 @@ class QQBotService:
             text = "".join(seg.text for seg in event.message.filter_text())
             images = event.message.filter_image()
             logger.debug(f"Received QQ message: {text}")
-            if self.can_send():
+            if self._free_talk_in_group and self.can_send():
                 await self._emit_qq_msg(images, text, sender_id=str(event.sender.user_id), group_id=str(event.group_id))
                 self.set_timer()
+
+            if self._at_reply and self._is_at_me(event.message):
+                await self._emit_qq_msg(images, text, sender_id=str(event.sender.user_id), group_id=str(event.group_id))
 
             await self.attempt_add_essence_msg(group_id=event.group_id, sender_id=event.sender.user_id,
                                                text=text, msg_id=event.message_id)
@@ -117,6 +128,13 @@ class QQBotService:
                                             text='指令格式错误：/清除精华 <群ID>')
             else:
                 await self._emit_qq_msg(images, text, sender_id=str(event.sender.user_id), group_id=None)
+
+    def _is_at_me(self, msg_arr: MessageArray):
+        ats = msg_arr.filter_at()
+        for at in ats:
+            if at.qq == self._self_qq:
+                return True
+        return False
 
     async def attempt_add_essence_msg(self, group_id: Union[str, int], sender_id: Union[str, int],
                                       text: str, msg_id: Union[str, int]):
