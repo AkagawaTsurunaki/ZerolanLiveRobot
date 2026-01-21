@@ -1,18 +1,23 @@
+import asyncio
 import os
 import time
+from typing import Union
+
 from common.io.file_sys import fs
+from services.qqbot.util import _essence_msg_to_json
+
+_napcat_dir = fs.temp_dir.joinpath('napcat')
 
 
 def _set_napcat_env():
     # Prevent ncatbot from creating default directories directly in the project directory.
     # WebUI, plugins are disabled.
-    napcat_dir = fs.temp_dir.joinpath('napcat')
-    napcat_dir.mkdir(parents=True, exist_ok=True)
-    napcat_log_dir = napcat_dir.joinpath('logs')
+    _napcat_dir.mkdir(parents=True, exist_ok=True)
+    napcat_log_dir = _napcat_dir.joinpath('logs')
     napcat_log_dir.mkdir(parents=True, exist_ok=True)
-    napcat_plugin_dir = napcat_dir.joinpath('plugins')
+    napcat_plugin_dir = _napcat_dir.joinpath('plugins')
     napcat_plugin_dir.mkdir(parents=True, exist_ok=True)
-    os.environ['NCATBOT_CONFIG_PATH'] = str(napcat_dir.joinpath('config.yaml'))
+    os.environ['NCATBOT_CONFIG_PATH'] = str(_napcat_dir.joinpath('config.yaml'))
     os.environ['LOG_FILE_PATH'] = str(napcat_log_dir)
 
     from ncatbot.utils import ncatbot_config
@@ -46,11 +51,16 @@ class QQBotService:
         self._last_sent_time = time.time()
         self._single_img_only: bool = True
 
+        self._essence_dir = _napcat_dir.joinpath('essence')
+        self._essence_dir.mkdir(parents=True, exist_ok=True)
+
         self._init()
 
     def _init(self):
         @self._bot.on_group_message()
         async def echo_cmd(event: GroupMessageEvent):
+            if str(event.sender.user_id) != str(self._root_user):
+                return
             text = "".join(seg.text for seg in event.message.filter_text())
             if "echo" in text:
                 if self.can_send():
@@ -75,7 +85,42 @@ class QQBotService:
             text = "".join(seg.text for seg in event.message.filter_text())
             images = event.message.filter_image()
             logger.debug(f"Received private QQ message: {text}")
-            await self._emit_qq_msg(images, text, sender_id=str(event.sender.user_id), group_id=None)
+            if '/导出精华' in text:
+                subactions = text.split(' ')
+                if len(subactions) == 2:
+                    group_id = subactions[1]
+                    await self._export_essence_messages_by_group(group_id)
+                else:
+                    self.send_plain_message(group_id=None, receiver_id=event.sender.user_id,
+                                            text='指令格式错误：/导出精华 <群ID>')
+            elif '/清除精华' in text:
+                subactions = text.split(' ')
+                if len(subactions) == 2:
+                    group_id = subactions[1]
+                    await self._remove_essence_messages_by_group(group_id)
+                else:
+                    self.send_plain_message(group_id=None, receiver_id=event.sender.user_id,
+                                            text='指令格式错误：/清除精华 <群ID>')
+            else:
+                await self._emit_qq_msg(images, text, sender_id=str(event.sender.user_id), group_id=None)
+
+    async def _export_essence_messages_by_group(self, group_id: Union[str, int]):
+        jsonl_path = self._essence_dir.joinpath(f'{group_id}-{time.time()}.jsonl')
+        with open(jsonl_path, mode='w+', encoding='utf-8') as f:
+            logger.info(f'Saving essence messages from group {group_id}...')
+            emsg_list = await self._bot.api.get_essence_msg_list(group_id)
+            for emsg in emsg_list:
+                emsg_json_line = _essence_msg_to_json(emsg)
+                logger.debug(emsg_json_line)
+                f.write(emsg_json_line + '\n')
+
+    async def _remove_essence_messages_by_group(self, group_id: Union[str, int]):
+        emsg_list = await self._bot.api.get_essence_msg_list(group_id)
+        for emsg in emsg_list:
+            await self._bot.api.delete_essence_msg(emsg.message_id)
+            emsg_json_line = _essence_msg_to_json(emsg)
+            logger.debug(f'Remove essence message: {emsg_json_line}')
+            await asyncio.sleep(1)
 
     async def _emit_qq_msg(self, images, text, sender_id: str | None, group_id: str | None):
         if len(images) > 0:
