@@ -6,7 +6,7 @@ These APIs are memory-free. Therefore, it is suitable for single use.
 """
 import random
 import re
-from typing import List
+from typing import List, Dict, Tuple
 
 from langchain_core.messages import AIMessage
 from langchain_core.prompts import ChatPromptTemplate
@@ -230,3 +230,23 @@ def memory_score(text: str) -> float:
         return float(response)
     except Exception:
         return 0.0
+
+
+def rank_essence_messages(conversations: List[str]) -> List[Tuple[int, float]]:
+    system_template = ("你现在是一个用于审查言论的助手，你需要根据上下文对话中的内容来给出得分。"
+                       "其中越涉及到色情、淫秽、乱伦等不当内容分数越高（不超过100），用于后续的删除评论任务，每一条对话都要严格打分。\n"
+                       "你的返回格式是：\n[对话编号] 分数\n"
+                       "举例：[0] 1\n[1] 31\n[2] 99\n"
+                       "严格控制你的输出内容，除了该格式以外不要输出其他内容！\n\n")
+    prompt_template = ChatPromptTemplate.from_messages(
+        [("system", system_template), ("user", "{text}")]
+    )
+    text = ''.join([f'[{i}] {c} \n\n' for i, c in enumerate(conversations)])
+    result = prompt_template.invoke({"text": system_template + text})
+    result.to_messages()
+    response = _model.invoke(result)
+
+    matches = re.findall(r'\[(\d+)\]\s+(\d+\.\d+)', response.text)
+    result_dict = [(int(idx), float(val)) for idx, val in matches]
+
+    return result_dict

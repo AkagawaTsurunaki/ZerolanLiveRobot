@@ -1,8 +1,11 @@
 import asyncio
 import os
+import random
 import time
 from typing import Union
 
+from agent.api import rank_essence_messages
+from common.collection.limit_list import LimitList
 from common.io.file_sys import fs
 from services.qqbot.util import _essence_msg_to_json
 
@@ -49,7 +52,15 @@ class QQBotService:
         self._groups = config.groups if config.groups is not None else []
         logger.info("QQ bot started with Napcat backend.")
         self._last_sent_time = time.time()
-        self._single_img_only: bool = True
+        self._sent_interval = 120  # 间隔多长时间才被允许重新发言
+
+        self._single_img_only: bool = True  # 是否只取一条消息中的一张图片
+        self._auto_set_essence_msg = True  # 自动设精 :)
+        self._prob_set_essence_msg = 2  # 设精概率，大于 1 表示不设概率限制
+        self._thr_set_essence_msg = 99  # 设精阈值，模型根据对话打分，超过该阈值的认为是精华消息
+        self._trigger_num_history = 2  # 多少条记录触发模型的精华消息检查
+        self._max_history = 5  # 群内记录的最大条数是多少，可认为是窗口大小
+        self._history = {}
 
         self._essence_dir = _napcat_dir.joinpath('essence')
         self._essence_dir.mkdir(parents=True, exist_ok=True)
@@ -78,6 +89,9 @@ class QQBotService:
                 await self._emit_qq_msg(images, text, sender_id=str(event.sender.user_id), group_id=str(event.group_id))
                 self.set_timer()
 
+            await self.attempt_add_essence_msg(group_id=event.group_id, sender_id=event.sender.user_id,
+                                               text=text, msg_id=event.message_id)
+
         @self._bot.on_private_message()
         async def on_private_message(event: PrivateMessageEvent):
             if str(event.sender.user_id) != str(self._root_user):
@@ -103,6 +117,32 @@ class QQBotService:
                                             text='指令格式错误：/清除精华 <群ID>')
             else:
                 await self._emit_qq_msg(images, text, sender_id=str(event.sender.user_id), group_id=None)
+
+    async def attempt_add_essence_msg(self, group_id: Union[str, int], sender_id: Union[str, int],
+                                      text: str, msg_id: Union[str, int]):
+        if group_id not in self._history.keys():
+            self._history[group_id] = LimitList(self._max_history)
+            history = self._history[group_id]
+            history.append(
+                {
+                    "user_id": str(sender_id),
+                    "msg": text,
+                    'msg_id': str(msg_id),
+                    "essence_score": 0
+                }
+            )
+
+            if len(history) >= self._trigger_num_history:
+                if self._prob_set_essence_msg > random.random():
+                    conversations = [item['msg'] for item in history]
+                    cand_msgs = rank_essence_messages(conversations)
+                    cand_msgs.sort(key=lambda x: x[1], reverse=True)
+                    essence_msg_indices = [msg[0] for msg in cand_msgs if msg[1] > self._thr_set_essence_msg]
+                    logger.info(f'Essence messages are checked: Indices are {essence_msg_indices}.')
+                    if len(essence_msg_indices) >= 1:
+                        await self._bot.api.setessence(essence_msg_indices[0])
+                    else:
+                        logger.info(f"Skip due to partial detection of essence messages")
 
     async def _export_essence_messages_by_group(self, group_id: Union[str, int]):
         jsonl_path = self._essence_dir.joinpath(f'{group_id}-{time.time()}.jsonl')
@@ -148,7 +188,7 @@ class QQBotService:
     def can_send(self):
         now = time.time()
         print(now - self._last_sent_time)
-        if now - self._last_sent_time > 5:
+        if now - self._last_sent_time > self._sent_interval:
             return True
         logger.warning("Limit sending QQ message.")
         return False
