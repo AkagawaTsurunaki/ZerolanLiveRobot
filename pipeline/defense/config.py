@@ -13,7 +13,7 @@ class DefenseModelIdEnum(BaseEnum):
 
 
 class DefenseModelPipelineConfig(AbstractPipelineConfig):
-    enable: bool = Field(default=True, description="Whether the Defense Model is enabled. '❌' This part is still under development, just set 'False'.")
+    enable: bool = Field(default=False, description="Whether the Defense Model is enabled. '❌' This part is still under development, just set 'False'.")
     api_key: str | None = Field(default=None, description="The API key for accessing the LLM service. \n" \
                                                           "No Supported model for now.")
     openai_format: bool = Field(default=False, description="Whether the output format is compatible with OpenAI. \n"
