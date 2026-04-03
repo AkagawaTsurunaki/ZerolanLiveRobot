@@ -4,13 +4,19 @@ from requests import Response
 from zerolan.data.pipeline.ocr import OCRQuery, OCRPrediction, RegionResult
 
 from pipeline.base.base_sync import AbstractImagePipeline
-from pipeline.ocr.config import OCRPipelineConfig
+from pipeline.ocr.config import OCRPipelineConfig, OCRModelIdEnum
+from pipeline.ocr.openai_ocr import OpenAIOCRPipeline
 
 
 class OCRSyncPipeline(AbstractImagePipeline):
 
     def __init__(self, config: OCRPipelineConfig):
         super().__init__(config)
+        # Check if using OpenAI format
+        if config.model_id == OCRModelIdEnum.OtherOpenAIFormat and config.openai_format_config is not None:
+            openai_pipeline = OpenAIOCRPipeline(config.openai_format_config)
+            self.predict = openai_pipeline.predict
+            self.stream_predict = openai_pipeline.stream_predict
 
     def predict(self, query: OCRQuery) -> OCRPrediction | None:
         assert isinstance(query, OCRQuery)

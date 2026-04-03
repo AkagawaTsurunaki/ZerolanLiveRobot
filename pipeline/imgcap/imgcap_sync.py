@@ -2,13 +2,19 @@ from requests import Response
 from zerolan.data.pipeline.img_cap import ImgCapQuery, ImgCapPrediction
 
 from pipeline.base.base_sync import AbstractImagePipeline
-from pipeline.imgcap.config import ImgCapPipelineConfig
+from pipeline.imgcap.config import ImgCapPipelineConfig, ImgCapModelIdEnum
+from pipeline.imgcap.openai_imgcap import OpenAIImgCapPipeline
 
 
 class ImgCapSyncPipeline(AbstractImagePipeline):
 
     def __init__(self, config: ImgCapPipelineConfig):
         super().__init__(config)
+        # Check if using OpenAI format
+        if config.model_id == ImgCapModelIdEnum.OtherOpenAIFormat and config.openai_format_config is not None:
+            openai_pipeline = OpenAIImgCapPipeline(config.openai_format_config)
+            self.predict = openai_pipeline.predict
+            self.stream_predict = openai_pipeline.stream_predict
 
     def predict(self, query: ImgCapQuery) -> ImgCapPrediction | None:
         assert isinstance(query, ImgCapQuery)

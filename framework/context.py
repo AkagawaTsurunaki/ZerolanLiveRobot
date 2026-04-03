@@ -4,12 +4,12 @@ from agent.tool_agent import ToolAgent
 from character.filter.strategy import FirstMatchedFilter
 from common.generator.gradio_gen import DynamicConfigPage
 from devices.headless import is_headless
+from devices.microphone import SmartMicrophone
 from devices.speaker import Speaker
 from manager.config_manager import get_config
 from manager.llm_prompt_manager import LLMPromptManager
 from manager.model_manager import ModelManager
 from manager.tts_prompt_manager import TTSPromptManager
-from devices.microphone import SmartMicrophone
 from pipeline.asr.asr_sync import ASRSyncPipeline
 from pipeline.db.milvus.milvus_sync import MilvusSyncPipeline
 from pipeline.imgcap.imgcap_sync import ImgCapSyncPipeline
@@ -87,6 +87,7 @@ class ZerolanLiveRobotContext:
         self.bot_name = _config.character.bot_name
         self.res_server = ResourceServer(_config.service.res_server.host, _config.service.res_server.port)
         self.model_manager = None
+        self.sound_effect = None
 
         if _config.pipeline.asr.enable:
             self.asr = ASRSyncPipeline(_config.pipeline.asr)
@@ -143,3 +144,7 @@ class ZerolanLiveRobotContext:
         if _config.service.live2d_viewer.enable:
             from services.live2d.live2d_viewer import Live2DViewer
             self.live2d_viewer = Live2DViewer(_config.service.live2d_viewer)
+
+        if _config.service.sound_effect.enable:
+            from services.sound_effect.service import SoundEffectService
+            self.sound_effect = SoundEffectService(_config.service.sound_effect)
