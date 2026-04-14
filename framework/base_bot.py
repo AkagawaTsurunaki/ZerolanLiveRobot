@@ -7,8 +7,7 @@ from pipeline.db.milvus.milvus_async import MilvusAsyncPipeline
 from pipeline.db.milvus.milvus_sync import MilvusSyncPipeline
 from pipeline.imgcap.imgcap_async import ImgCapAsyncPipeline
 from pipeline.imgcap.imgcap_sync import ImgCapSyncPipeline
-from pipeline.llm.llm_async import LLMAsyncPipeline
-from pipeline.llm.llm_sync import LLMSyncPipeline
+from zerolan.pipeline.llm.llm_sync import LLMPipeline
 from pipeline.ocr.ocr_async import OCRAsyncPipeline
 from pipeline.ocr.ocr_sync import OCRSyncPipeline
 from pipeline.tts.tts_async import TTSAsyncPipeline
@@ -56,12 +55,7 @@ class BaseBot(ZerolanLiveRobotContext):
 
         # LLM Pipeline
         if self.llm is not None:
-            if isinstance(self.llm, LLMSyncPipeline):
-                self.llm = LLMSyncPipeline(config.pipeline.llm)
-            elif isinstance(self.llm, LLMAsyncPipeline):
-                self.llm = LLMAsyncPipeline(config.pipeline.llm)
-            else:
-                logger.error(f"Unsupported pipeline type: {type(self.llm)}")
+            self.llm = LLMPipeline(config.pipeline.llm)
         else:
             logger.warning("Pipeline llm will not reload because it has not been established.")
 

@@ -14,7 +14,7 @@ from devices.microphone import SmartMicrophone
 from zerolan.pipeline.asr.asr_sync import ASRPipeline
 from pipeline.db.milvus.milvus_sync import MilvusSyncPipeline
 from pipeline.imgcap.imgcap_sync import ImgCapSyncPipeline
-from pipeline.llm.llm_sync import LLMSyncPipeline
+from zerolan.pipeline.llm.llm_sync import LLMPipeline
 from pipeline.ocr.ocr_sync import OCRSyncPipeline
 from pipeline.tts.tts_sync import TTSSyncPipeline
 from pipeline.vidcap.vidcap_sync import VidCapSyncPipeline
@@ -41,7 +41,7 @@ class ZerolanLiveRobotContext:
     """
 
     def __init__(self):
-        self.llm: LLMSyncPipeline | None = None
+        self.llm: LLMPipeline | None = None
         self.asr: ASRPipeline | None = None
         self.ocr: OCRSyncPipeline | None = None
         self.tts: TTSSyncPipeline | None = None
@@ -81,7 +81,7 @@ class ZerolanLiveRobotContext:
         self.twitch: TwitchService | None = None
 
         assert _config.pipeline.llm.enable, f"At least LLMPipeline must be enabled in your config."
-        self.llm = LLMSyncPipeline(_config.pipeline.llm)
+        self.llm = LLMPipeline(_config.pipeline.llm)
         self.filter = FirstMatchedFilter(_config.character.chat.filter.bad_words)
         self.llm_prompt_manager = LLMPromptManager(_config.character.chat)
         self.speaker = Speaker()
