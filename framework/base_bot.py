@@ -11,7 +11,7 @@ from zerolan.pipeline.ocr.ocr_sync import OCRPipeline
 from zerolan.pipeline.tts.tts_sync import TTSPipeline
 from zerolan.pipeline.vidcap.vidcap_sync import VidCapPipeline
 from pipeline.vla.showui.showui_async import ShowUIAsyncPipeline
-from pipeline.vla.showui.showui_sync import ShowUISyncPipeline
+from zerolan.pipeline.vla.showui.showui_sync import ShowUIPipeline
 
 
 class BaseBot(ZerolanLiveRobotContext):
@@ -51,8 +51,8 @@ class BaseBot(ZerolanLiveRobotContext):
 
         # Show UI Pipeline
         if self.showui is not None:
-            if isinstance(self.showui, ShowUISyncPipeline):
-                self.showui = ShowUISyncPipeline(config.pipeline.showui)
+            if isinstance(self.showui, ShowUIPipeline):
+                self.showui = ShowUIPipeline(config.pipeline.showui)
             elif isinstance(self.showui, ShowUIAsyncPipeline):
                 self.showui = ShowUIAsyncPipeline(config.pipeline.showui)
             else:

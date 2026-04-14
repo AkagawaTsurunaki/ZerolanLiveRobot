@@ -18,7 +18,7 @@ from manager.model_manager import ModelManager
 from manager.tts_prompt_manager import TTSPromptManager
 from pipeline.db.milvus.milvus_sync import MilvusSyncPipeline
 from zerolan.pipeline.vidcap.vidcap_sync import VidCapPipeline
-from pipeline.vla.showui.showui_sync import ShowUISyncPipeline
+from zerolan.pipeline.vla.showui.showui_sync import ShowUIPipeline
 from services.browser.browser import Browser
 from services.game.config import PlatformEnum
 from services.game.minecraft.app import KonekoMinecraftAIAgent
@@ -45,7 +45,7 @@ class ZerolanLiveRobotContext:
         self.tts: TTSPipeline | None = None
         self.img_cap: ImgCapPipeline | None = None
         self.vid_cap: VidCapPipeline | None = None
-        self.showui: ShowUISyncPipeline | None = None
+        self.showui: ShowUIPipeline | None = None
         self.vec_db: MilvusSyncPipeline | None = None
 
         self.filter: FirstMatchedFilter | None = None
@@ -101,7 +101,7 @@ class ZerolanLiveRobotContext:
             self.vid_cap = VidCapPipeline(_config.pipeline.vid_cap)
         if _config.pipeline.vla.enable:
             if _config.pipeline.vla.showui.enable:
-                self.showui = ShowUISyncPipeline(_config.pipeline.vla.showui)
+                self.showui = ShowUIPipeline(_config.pipeline.vla.showui)
         if _config.service.browser.enable:
             self.browser = Browser(_config.service.browser)
         if _config.service.game.enable:
