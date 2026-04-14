@@ -17,7 +17,7 @@ from manager.llm_prompt_manager import LLMPromptManager
 from manager.model_manager import ModelManager
 from manager.tts_prompt_manager import TTSPromptManager
 from pipeline.db.milvus.milvus_sync import MilvusSyncPipeline
-from pipeline.vidcap.vidcap_sync import VidCapSyncPipeline
+from zerolan.pipeline.vidcap.vidcap_sync import VidCapPipeline
 from pipeline.vla.showui.showui_sync import ShowUISyncPipeline
 from services.browser.browser import Browser
 from services.game.config import PlatformEnum
@@ -34,9 +34,7 @@ _config = get_config()
 
 class ZerolanLiveRobotContext:
     """
-    ZerolanLiveRobotContext 应只包括初始化上下文资源的工作，
-    事件监听器注册和各类事件的发送逻辑不应该体现在这里。
-    ZerolanLiveRobotContext here should only include initializing the context resource,
+    `ZerolanLiveRobotContext` here should only include initializing the context resource,
     The logic for registering listeners and sending events shouldn't be reflected here.
     """
 
@@ -46,7 +44,7 @@ class ZerolanLiveRobotContext:
         self.ocr: OCRPipeline | None = None
         self.tts: TTSPipeline | None = None
         self.img_cap: ImgCapPipeline | None = None
-        self.vid_cap: VidCapSyncPipeline | None = None
+        self.vid_cap: VidCapPipeline | None = None
         self.showui: ShowUISyncPipeline | None = None
         self.vec_db: MilvusSyncPipeline | None = None
 
@@ -100,7 +98,7 @@ class ZerolanLiveRobotContext:
         if _config.pipeline.img_cap.enable:
             self.img_cap = ImgCapPipeline(_config.pipeline.img_cap)
         if _config.pipeline.vid_cap.enable:
-            self.vid_cap = VidCapSyncPipeline(_config.pipeline.vid_cap)
+            self.vid_cap = VidCapPipeline(_config.pipeline.vid_cap)
         if _config.pipeline.vla.enable:
             if _config.pipeline.vla.showui.enable:
                 self.showui = ShowUISyncPipeline(_config.pipeline.vla.showui)

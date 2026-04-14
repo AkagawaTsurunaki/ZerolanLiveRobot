@@ -9,8 +9,7 @@ from pipeline.db.milvus.milvus_async import MilvusAsyncPipeline
 from pipeline.db.milvus.milvus_sync import MilvusSyncPipeline
 from zerolan.pipeline.ocr.ocr_sync import OCRPipeline
 from zerolan.pipeline.tts.tts_sync import TTSPipeline
-from pipeline.vidcap.vidcap_async import VidCapAsyncPipeline
-from pipeline.vidcap.vidcap_sync import VidCapSyncPipeline
+from zerolan.pipeline.vidcap.vidcap_sync import VidCapPipeline
 from pipeline.vla.showui.showui_async import ShowUIAsyncPipeline
 from pipeline.vla.showui.showui_sync import ShowUISyncPipeline
 
@@ -48,14 +47,7 @@ class BaseBot(ZerolanLiveRobotContext):
             self.tts = TTSPipeline(config.pipeline.tts)
 
         if self.vid_cap is not None:
-            if isinstance(self.vid_cap, VidCapSyncPipeline):
-                self.vid_cap = VidCapSyncPipeline(config.pipeline.vid_cap)
-            elif isinstance(self.vid_cap, VidCapAsyncPipeline):
-                self.vid_cap = VidCapAsyncPipeline(config.pipeline.vid_cap)
-            else:
-                logger.error(f"Unsupported pipeline type: {type(self.vid_cap)}")
-        else:
-            logger.warning("Pipeline vid_cap will not reload because it has not been established.")
+            self.vid_cap = VidCapPipeline(config.pipeline.vid_cap)
 
         # Show UI Pipeline
         if self.showui is not None:
