@@ -8,8 +8,7 @@ from manager.config_manager import get_config
 from pipeline.db.milvus.milvus_async import MilvusAsyncPipeline
 from pipeline.db.milvus.milvus_sync import MilvusSyncPipeline
 from zerolan.pipeline.ocr.ocr_sync import OCRPipeline
-from pipeline.tts.tts_async import TTSAsyncPipeline
-from pipeline.tts.tts_sync import TTSSyncPipeline
+from zerolan.pipeline.tts.tts_sync import TTSPipeline
 from pipeline.vidcap.vidcap_async import VidCapAsyncPipeline
 from pipeline.vidcap.vidcap_sync import VidCapSyncPipeline
 from pipeline.vla.showui.showui_async import ShowUIAsyncPipeline
@@ -26,8 +25,6 @@ class BaseBot(ZerolanLiveRobotContext):
         # ASR Pipeline
         if self.asr is not None:
             self.asr = ASRPipeline(config.pipeline.asr)
-        else:
-            logger.warning("Pipeline asr will not reload because it has not been established.")
 
         # Vector Database Pipeline
         if self.vec_db is not None:
@@ -37,39 +34,19 @@ class BaseBot(ZerolanLiveRobotContext):
                 self.vec_db = MilvusAsyncPipeline(config.pipeline.vec_db.milvus)
             else:
                 logger.error(f"Unsupported pipeline type: {type(self.vec_db)}")
-        else:
-            logger.warning("Pipeline vec_db will not reload because it has not been established.")
 
-        # Image Captioning Pipeline
         if self.img_cap is not None:
             self.img_cap = ImgCapPipeline(config.pipeline.img_cap)
-        else:
-            logger.warning("Pipeline img_cap will not reload because it has not been established.")
 
-        # LLM Pipeline
         if self.llm is not None:
             self.llm = LLMPipeline(config.pipeline.llm)
-        else:
-            logger.warning("Pipeline llm will not reload because it has not been established.")
 
-        # OCR Pipeline
         if self.ocr is not None:
             self.ocr = OCRPipeline(config.pipeline.ocr)
-        else:
-            logger.warning("Pipeline ocr will not reload because it has not been established.")
 
-        # TTS Pipeline
         if self.tts is not None:
-            if isinstance(self.tts, TTSSyncPipeline):
-                self.tts = TTSSyncPipeline(config.pipeline.tts)
-            elif isinstance(self.tts, TTSAsyncPipeline):
-                self.tts = TTSAsyncPipeline(config.pipeline.tts)
-            else:
-                logger.error(f"Unsupported pipeline type: {type(self.tts)}")
-        else:
-            logger.warning("Pipeline tts will not reload because it has not been established.")
+            self.tts = TTSPipeline(config.pipeline.tts)
 
-        # Video Captioning Pipeline
         if self.vid_cap is not None:
             if isinstance(self.vid_cap, VidCapSyncPipeline):
                 self.vid_cap = VidCapSyncPipeline(config.pipeline.vid_cap)

@@ -1,3 +1,9 @@
+from zerolan.pipeline.asr.asr_sync import ASRPipeline
+from zerolan.pipeline.imgcap.imgcap_sync import ImgCapPipeline
+from zerolan.pipeline.llm.llm_sync import LLMPipeline
+from zerolan.pipeline.ocr.ocr_sync import OCRPipeline
+from zerolan.pipeline.tts.tts_sync import TTSPipeline
+
 import devices.headless
 from agent.custom_agent import CustomAgent
 from agent.tool_agent import ToolAgent
@@ -10,13 +16,7 @@ from manager.config_manager import get_config
 from manager.llm_prompt_manager import LLMPromptManager
 from manager.model_manager import ModelManager
 from manager.tts_prompt_manager import TTSPromptManager
-from devices.microphone import SmartMicrophone
-from zerolan.pipeline.asr.asr_sync import ASRPipeline
 from pipeline.db.milvus.milvus_sync import MilvusSyncPipeline
-from zerolan.pipeline.imgcap.imgcap_sync import ImgCapPipeline
-from zerolan.pipeline.llm.llm_sync import LLMPipeline
-from zerolan.pipeline.ocr.ocr_sync import OCRPipeline
-from pipeline.tts.tts_sync import TTSSyncPipeline
 from pipeline.vidcap.vidcap_sync import VidCapSyncPipeline
 from pipeline.vla.showui.showui_sync import ShowUISyncPipeline
 from services.browser.browser import Browser
@@ -44,7 +44,7 @@ class ZerolanLiveRobotContext:
         self.llm: LLMPipeline | None = None
         self.asr: ASRPipeline | None = None
         self.ocr: OCRPipeline | None = None
-        self.tts: TTSSyncPipeline | None = None
+        self.tts: TTSPipeline | None = None
         self.img_cap: ImgCapPipeline | None = None
         self.vid_cap: VidCapSyncPipeline | None = None
         self.showui: ShowUISyncPipeline | None = None
@@ -96,7 +96,7 @@ class ZerolanLiveRobotContext:
             self.ocr = OCRPipeline(_config.pipeline.ocr)
         if _config.pipeline.tts.enable:
             self.tts_prompt_manager = TTSPromptManager(_config.character.speech)
-            self.tts = TTSSyncPipeline(_config.pipeline.tts)
+            self.tts = TTSPipeline(_config.pipeline.tts)
         if _config.pipeline.img_cap.enable:
             self.img_cap = ImgCapPipeline(_config.pipeline.img_cap)
         if _config.pipeline.vid_cap.enable:
