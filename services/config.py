@@ -8,6 +8,7 @@ from services.obs.config import ObsStudioClientConfig
 from services.playground.config import PlaygroundBridgeConfig
 from services.playground.res.config import ResourceServerConfig
 from services.qqbot.config import QQBotServiceConfig
+from services.sound_effect.config import SoundEffectConfig
 
 
 class ServiceConfig(BaseModel):
@@ -30,3 +31,5 @@ class ServiceConfig(BaseModel):
                                                           "Then enable `SLI/Cross` and `Allow window transparent` options."
                                                           "Or the windows will not display.\n"
                                                           "2. Use `Window capture` will leave black ground.")
+    sound_effect: SoundEffectConfig = Field(default=SoundEffectConfig(),
+                                            description="Configuration for the SoundEffect service.")

@@ -1,4 +1,5 @@
-from typing import List
+import re
+from typing import List, Optional
 
 from common.enumerator import Language
 
@@ -29,3 +30,21 @@ def split_by_punc(text: str, lang: Language) -> List[str]:
         return texts
 
     return punc_cut(text, cut_punc)
+
+
+def remove_md_blocks(text: Optional[str]) -> Optional[str]:
+    """
+    Remove Markdown blocks from a string.
+    More cases in `tests/common/test_str_util.py`
+    """
+    if not text:
+        return text
+
+    text = text.strip()
+
+    pattern = r'^```[\w]*\n?(.*?)\n?```$'
+    match = re.match(pattern, text, re.DOTALL)
+
+    if match:
+        return match.group(1).strip()
+    return text

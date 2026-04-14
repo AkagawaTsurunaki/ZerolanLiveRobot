@@ -187,6 +187,24 @@ napcat
 
 本项目与 [KonekoMinecraftBot](https://github.com/AkagawaTsurunaki/KonekoMinecraftBot) 共同实现了一套 ZerolanProtocol 协议接口，可以从本项目控制在 Minecraft 游戏中的机器人。如有需要请移步至[此处](https://github.com/AkagawaTsurunaki/KonekoMinecraftBot)查看详细。
 
+### 音效播放
+
+机器人可以在恰当的时机播放你指定的音效，以增加交互的趣味性。默认情况下，在 `resources/static/sounds/effect` 目录下放置音频文件，然后修改你的系统提示词，例如：
+
+```
+## 音效系统
+你可以在回答中任意位置插入音效标记，格式为：`{"sound_effect_id": "xxx"}`
+音效会在对应位置播放，适用于增强表达效果。例如："哈哈{"sound_effect_id": "bruh"}你真逗！"
+
+可用的音效 ID：
+(填写你的 resources/static/sounds/effect 目录下不含后缀的 mp3 文件名，以逗号和空格分隔。)
+
+使用建议：
+- **在需要强调或搞笑的时候使用**
+- **非必要不玩音效，只有被观众触发了才要放音效**
+- 音效会在对应位置播放，不影响文字内容
+```
+
 ## 自定义设计机器人
 
 本项目也提供了一种基于**事件驱动**设计模式的机器人开发框架。它的核心是 `TypedEventEmitter`。
@@ -251,6 +269,10 @@ Feel free to enjoy open-source!
 MIT License
 
 Copyright (c) 2024 AkagawaTsurunaki
+
+## Contributor
+
+...
 
 ## Contact with Me
 

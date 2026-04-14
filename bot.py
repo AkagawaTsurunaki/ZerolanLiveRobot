@@ -396,14 +396,31 @@ class ZerolanLiveRobot(BaseBot):
             if self.playground:
                 self.playground.add_history(role="assistant", text=text, username=self.bot_name)
 
-            if self.enable_split_by_punc:
-                transcripts = split_by_punc(text, self.cur_lang)
-                # Note that transcripts may be [] because we can not apply split in some cases.
-                if len(transcripts) > 0:
-                    for idx, transcript in enumerate(transcripts):
-                        self._tts_without_block(tts_prompt, transcript)
+            def process_tts(text: str):
+                # Process text with TTS (skip empty text)
+                if self.enable_split_by_punc:
+                    transcripts = split_by_punc(text, self.cur_lang)
+                    # Note that transcripts may be [] because we can not apply split in some cases.
+                    if len(transcripts) > 0:
+                        for idx, transcript in enumerate(transcripts):
+                            self._tts_without_block(tts_prompt, transcript)
+                else:
+                    self._tts_without_block(tts_prompt, text)
+
+            def process_sound_effect_and_tts(text: str):
+                segments = self.sound_effect.parse_sound_effect_markers(text)
+                for segment in segments:
+                    if segment.is_sound_effect:
+                        # Play sound effect
+                        self._play_sound_effect(segment.sound_effect_id)
+                    elif segment.text and segment.text.strip():
+                        process_tts(segment.text)
+
+            # Parse sound effect markers and process text segments
+            if self.sound_effect is not None:
+                process_sound_effect_and_tts(text)
             else:
-                self._tts_without_block(tts_prompt, text)
+                process_tts(text)
 
         @emitter.on(EventKeyRegistry.System.CONFIG_FILE_MODIFIED)
         def on_config_modified(_: ConfigFileModifiedEvent):
@@ -413,14 +430,32 @@ class ZerolanLiveRobot(BaseBot):
         def on_speaker_play(event: DeviceSpeakerPlayEvent):
             if self.obs is not None:
                 assert event.audio_path.exists()
-                sample_rate, num_channels, duration = audio_util.get_audio_info(event.audio_path)
-                text = self.subtitles_queue.get()
-                self.obs.subtitle(text, which="assistant", duration=math_util.clamp(0, 5, duration - 1))
+                # Skip sound effects - they don't need subtitles
+                if "effect" in str(event.audio_path).lower() and "sounds" in str(event.audio_path).lower():
+                    return
+                
+                try:
+                    sample_rate, num_channels, duration = audio_util.get_audio_info(event.audio_path)
+                    text = self.subtitles_queue.get()
+                    self.obs.subtitle(text, which="assistant", duration=math_util.clamp(0, 5, duration - 1))
+                except (FileNotFoundError, Exception) as e:
+                    # If ffprobe is not installed or other errors occur, log and continue
+                    logger.warning(f"Failed to get audio info for {event.audio_path}: {e}")
 
     def _tts_without_block(self, tts_prompt: TTSPrompt, text: str):
         def wrapper():
+            # Remove any sound effect JSON markers from text before sending to TTS
+            # This ensures clean text is sent to TTS even if JSON markers somehow slip through
+            import re
+            cleaned_text = re.sub(r'\{\s*"sound_effect_id"\s*:\s*"[^"]+"\s*\}', '', text).strip()
+            
+            # Skip if text becomes empty after cleaning
+            if not cleaned_text:
+                logger.debug(f"Skipping TTS for empty text after cleaning JSON markers: {text}")
+                return
+            
             query = TTSQuery(
-                text=text,
+                text=cleaned_text,
                 text_language="auto",
                 refer_wav_path=tts_prompt.audio_path,
                 prompt_text=tts_prompt.prompt_text,
@@ -428,11 +463,26 @@ class ZerolanLiveRobot(BaseBot):
                 audio_type="wav"
             )
             prediction = self.tts.predict(query=query)
-            logger.info(f"TTS: {query.text}")
+            logger.info(f"TTS: {cleaned_text}")
 
             self.play_tts(PipelineOutputTTSEvent(prediction=prediction, transcript=text))
 
         # To sync audio playing and subtitle
+        self.tts_thread_pool.submit(wrapper)
+
+    def _play_sound_effect(self, sound_effect_id: str):
+        """Play a sound effect."""
+        def wrapper():
+            if self.sound_effect is None:
+                return
+            sound_path = self.sound_effect.get_sound_effect_path(sound_effect_id)
+            if sound_path and sound_path.exists():
+                logger.info(f"Playing sound effect: {sound_effect_id}")
+                self.speaker.enqueue_sound(sound_path)
+            else:
+                logger.warning(f"Sound effect file not found: {sound_effect_id} (expected at {sound_path})")
+        
+        # Play sound in thread pool to maintain order with TTS
         self.tts_thread_pool.submit(wrapper)
 
     def exp_memory(self, text: str, is_filtered: bool, response: str, len_history: int):
