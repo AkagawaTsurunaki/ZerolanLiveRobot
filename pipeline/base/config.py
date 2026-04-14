@@ -2,7 +2,7 @@ from pydantic import BaseModel, Field
 
 from zerolan.pipeline.asr.config import ASRPipelineConfig
 from pipeline.db.milvus.config import VectorDBConfig
-from pipeline.imgcap.config import ImgCapPipelineConfig
+from zerolan.pipeline.imgcap.config import ImgCapPipelineConfig
 from zerolan.pipeline.llm.config import LLMPipelineConfig
 from pipeline.ocr.config import OCRPipelineConfig
 from pipeline.tts.config import TTSPipelineConfig

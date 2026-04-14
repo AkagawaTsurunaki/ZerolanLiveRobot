@@ -1,13 +1,12 @@
 from loguru import logger
 from zerolan.pipeline.asr.asr_sync import ASRPipeline
+from zerolan.pipeline.imgcap.imgcap_sync import ImgCapPipeline
+from zerolan.pipeline.llm.llm_sync import LLMPipeline
 
 from framework.context import ZerolanLiveRobotContext
 from manager.config_manager import get_config
 from pipeline.db.milvus.milvus_async import MilvusAsyncPipeline
 from pipeline.db.milvus.milvus_sync import MilvusSyncPipeline
-from pipeline.imgcap.imgcap_async import ImgCapAsyncPipeline
-from pipeline.imgcap.imgcap_sync import ImgCapSyncPipeline
-from zerolan.pipeline.llm.llm_sync import LLMPipeline
 from pipeline.ocr.ocr_async import OCRAsyncPipeline
 from pipeline.ocr.ocr_sync import OCRSyncPipeline
 from pipeline.tts.tts_async import TTSAsyncPipeline
@@ -44,12 +43,7 @@ class BaseBot(ZerolanLiveRobotContext):
 
         # Image Captioning Pipeline
         if self.img_cap is not None:
-            if isinstance(self.img_cap, ImgCapSyncPipeline):
-                self.img_cap = ImgCapSyncPipeline(config.pipeline.img_cap)
-            elif isinstance(self.img_cap, ImgCapAsyncPipeline):
-                self.img_cap = ImgCapAsyncPipeline(config.pipeline.img_cap)
-            else:
-                logger.error(f"Unsupported pipeline type: {type(self.img_cap)}")
+            self.img_cap = ImgCapPipeline(config.pipeline.img_cap)
         else:
             logger.warning("Pipeline img_cap will not reload because it has not been established.")
 

@@ -13,7 +13,7 @@ from manager.tts_prompt_manager import TTSPromptManager
 from devices.microphone import SmartMicrophone
 from zerolan.pipeline.asr.asr_sync import ASRPipeline
 from pipeline.db.milvus.milvus_sync import MilvusSyncPipeline
-from pipeline.imgcap.imgcap_sync import ImgCapSyncPipeline
+from zerolan.pipeline.imgcap.imgcap_sync import ImgCapPipeline
 from zerolan.pipeline.llm.llm_sync import LLMPipeline
 from pipeline.ocr.ocr_sync import OCRSyncPipeline
 from pipeline.tts.tts_sync import TTSSyncPipeline
@@ -45,7 +45,7 @@ class ZerolanLiveRobotContext:
         self.asr: ASRPipeline | None = None
         self.ocr: OCRSyncPipeline | None = None
         self.tts: TTSSyncPipeline | None = None
-        self.img_cap: ImgCapSyncPipeline | None = None
+        self.img_cap: ImgCapPipeline | None = None
         self.vid_cap: VidCapSyncPipeline | None = None
         self.showui: ShowUISyncPipeline | None = None
         self.vec_db: MilvusSyncPipeline | None = None
@@ -98,7 +98,7 @@ class ZerolanLiveRobotContext:
             self.tts_prompt_manager = TTSPromptManager(_config.character.speech)
             self.tts = TTSSyncPipeline(_config.pipeline.tts)
         if _config.pipeline.img_cap.enable:
-            self.img_cap = ImgCapSyncPipeline(_config.pipeline.img_cap)
+            self.img_cap = ImgCapPipeline(_config.pipeline.img_cap)
         if _config.pipeline.vid_cap.enable:
             self.vid_cap = VidCapSyncPipeline(_config.pipeline.vid_cap)
         if _config.pipeline.vla.enable:
