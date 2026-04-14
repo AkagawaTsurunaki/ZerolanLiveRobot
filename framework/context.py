@@ -1,4 +1,5 @@
 from zerolan.pipeline.asr.asr_sync import ASRPipeline
+from zerolan.pipeline.db.milvus.milvus_sync import MilvusPipeline
 from zerolan.pipeline.imgcap.imgcap_sync import ImgCapPipeline
 from zerolan.pipeline.llm.llm_sync import LLMPipeline
 from zerolan.pipeline.ocr.ocr_sync import OCRPipeline
@@ -16,7 +17,6 @@ from manager.config_manager import get_config
 from manager.llm_prompt_manager import LLMPromptManager
 from manager.model_manager import ModelManager
 from manager.tts_prompt_manager import TTSPromptManager
-from pipeline.db.milvus.milvus_sync import MilvusSyncPipeline
 from zerolan.pipeline.vidcap.vidcap_sync import VidCapPipeline
 from zerolan.pipeline.vla.showui.showui_sync import ShowUIPipeline
 from services.browser.browser import Browser
@@ -46,7 +46,7 @@ class ZerolanLiveRobotContext:
         self.img_cap: ImgCapPipeline | None = None
         self.vid_cap: VidCapPipeline | None = None
         self.showui: ShowUIPipeline | None = None
-        self.vec_db: MilvusSyncPipeline | None = None
+        self.vec_db: MilvusPipeline | None = None
 
         self.filter: FirstMatchedFilter | None = None
         self.llm_prompt_manager: LLMPromptManager | None = None
@@ -117,7 +117,7 @@ class ZerolanLiveRobotContext:
             if _config.service.live_stream.twitch.enable:
                 self.twitch = TwitchService(_config.service.live_stream.twitch)
         if _config.pipeline.vec_db.enable:
-            self.vec_db = MilvusSyncPipeline(_config.pipeline.vec_db.milvus)
+            self.vec_db = MilvusPipeline(_config.pipeline.vec_db.milvus)
         if _config.service.playground.enable:
             self.model_manager = ModelManager()
             self.bot_id = _config.service.playground.bot_id

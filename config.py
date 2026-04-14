@@ -1,9 +1,43 @@
 from pydantic import BaseModel, Field
+from zerolan.pipeline.asr.config import ASRPipelineConfig
+from zerolan.pipeline.db.milvus.config import MilvusPipelineConfig
+from zerolan.pipeline.imgcap.config import ImgCapPipelineConfig
+from zerolan.pipeline.llm.config import LLMPipelineConfig
+from zerolan.pipeline.ocr.config import OCRPipelineConfig
+from zerolan.pipeline.tts.config import TTSPipelineConfig
+from zerolan.pipeline.vidcap.config import VidCapPipelineConfig
+from zerolan.pipeline.vla.showui.config import ShowUIPipelineConfig
 
 from character.config import CharacterConfig
 from common.utils.enum_util import try_get_pynput_key_enum_str
-from pipeline.base.config import PipelineConfig
 from services.config import ServiceConfig
+
+
+class VLAPipelineConfig:
+    showui = Field(default=ShowUIPipelineConfig(), description="Configuration for the ShowUI pipeline.")
+
+
+class VectorDBConfig(BaseModel):
+    milvus: MilvusPipelineConfig = Field(default=MilvusPipelineConfig(),
+                                         description="Configuration for the Milvus Database pipeline.")
+
+
+class PipelineConfig(BaseModel):
+    asr: ASRPipelineConfig = Field(default=ASRPipelineConfig(),
+                                   description="Configuration for the Automatic Speech Recognition pipeline.")
+    llm: LLMPipelineConfig = Field(default=LLMPipelineConfig(),
+                                   description="Configuration for the Large Language Model pipeline.")
+    img_cap: ImgCapPipelineConfig = Field(default=ImgCapPipelineConfig(),
+                                          description="Configuration for the Image Captioning pipeline.")
+    ocr: OCRPipelineConfig = Field(default=OCRPipelineConfig(),
+                                   description="Configuration for the Optical Character Recognition pipeline.")
+    vid_cap: VidCapPipelineConfig = Field(default=VidCapPipelineConfig(),
+                                          description="Configuration for the Video Captioning pipeline.")
+    tts: TTSPipelineConfig = Field(default=TTSPipelineConfig(),
+                                   description="Configuration for the Text-to-Speech pipeline.")
+    vla: VLAPipelineConfig = Field(default=VLAPipelineConfig(),
+                                   description="Configuration for the Visual Language Action pipeline.")
+    vec_db: VectorDBConfig = Field(default=VectorDBConfig(), description="Configuration for the Vector Database.")
 
 
 class SystemConfig(BaseModel):
@@ -21,8 +55,9 @@ class SystemConfig(BaseModel):
                                       description='If `True`, splits LLM responses into smaller clauses before sending to TTS service. '
                                                   'This enables faster audio generation and reduced latency for real-time applications. \n'
                                                   'Set to `False` to send full sentences as a single unit for more natural speech flow at the cost of longer wait times.')
-    enable_sentiment_analysis: bool = Field(default=False, description='Automatically analyzes sentiment to select appropriate TTS prompts. '
-                                                                      'This also increases token consumption and adds slight latency due to extra processing.')
+    enable_sentiment_analysis: bool = Field(default=False,
+                                            description='Automatically analyzes sentiment to select appropriate TTS prompts. '
+                                                        'This also increases token consumption and adds slight latency due to extra processing.')
     enable_intelligent_memory: bool = Field(default=False,
                                             description='🧪 EXPERIMENTAL: Automatically scores and filters conversation history entries based on sentiment, relevance, and safety.')
 

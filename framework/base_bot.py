@@ -1,16 +1,14 @@
 from loguru import logger
 from zerolan.pipeline.asr.asr_sync import ASRPipeline
+from zerolan.pipeline.db.milvus.milvus_sync import MilvusPipeline
 from zerolan.pipeline.imgcap.imgcap_sync import ImgCapPipeline
 from zerolan.pipeline.llm.llm_sync import LLMPipeline
 
 from framework.context import ZerolanLiveRobotContext
 from manager.config_manager import get_config
-from pipeline.db.milvus.milvus_async import MilvusAsyncPipeline
-from pipeline.db.milvus.milvus_sync import MilvusSyncPipeline
 from zerolan.pipeline.ocr.ocr_sync import OCRPipeline
 from zerolan.pipeline.tts.tts_sync import TTSPipeline
 from zerolan.pipeline.vidcap.vidcap_sync import VidCapPipeline
-from pipeline.vla.showui.showui_async import ShowUIAsyncPipeline
 from zerolan.pipeline.vla.showui.showui_sync import ShowUIPipeline
 
 
@@ -27,12 +25,7 @@ class BaseBot(ZerolanLiveRobotContext):
 
         # Vector Database Pipeline
         if self.vec_db is not None:
-            if isinstance(self.vec_db, MilvusSyncPipeline):
-                self.vec_db = MilvusSyncPipeline(config.pipeline.vec_db.milvus)
-            elif isinstance(self.vec_db, MilvusAsyncPipeline):
-                self.vec_db = MilvusAsyncPipeline(config.pipeline.vec_db.milvus)
-            else:
-                logger.error(f"Unsupported pipeline type: {type(self.vec_db)}")
+            self.vec_db = MilvusPipeline(config.pipeline.vec_db.milvus)
 
         if self.img_cap is not None:
             self.img_cap = ImgCapPipeline(config.pipeline.img_cap)
@@ -51,12 +44,7 @@ class BaseBot(ZerolanLiveRobotContext):
 
         # Show UI Pipeline
         if self.showui is not None:
-            if isinstance(self.showui, ShowUIPipeline):
-                self.showui = ShowUIPipeline(config.pipeline.showui)
-            elif isinstance(self.showui, ShowUIAsyncPipeline):
-                self.showui = ShowUIAsyncPipeline(config.pipeline.showui)
-            else:
-                logger.error(f"Unsupported pipeline type: {type(self.showui)}")
+            self.showui = ShowUIPipeline(config.pipeline.showui)
         else:
             logger.warning("Pipeline showui will not reload because it has not been established.")
 
