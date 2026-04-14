@@ -6,21 +6,21 @@ These APIs are memory-free. Therefore, it is suitable for single use.
 """
 import random
 import re
-from typing import List, Dict, Tuple
+from typing import List, Tuple
 
 from langchain_core.messages import AIMessage
 from langchain_core.prompts import ChatPromptTemplate
 from loguru import logger
 from zerolan.data.pipeline.llm import Conversation
 from zerolan.data.pipeline.ocr import RegionResult
+from zerolan.pipeline.ocr.ocr_sync import OCRPipeline
 
 from agent.adaptor import LangChainAdaptedLLM
-from manager.config_manager import get_config
-from services.playground.data import GameObject, ScaleOperationResponse
 from common.decorator import log_run_time
 from common.enumerator import Language
 from common.utils.json_util import smart_load_json_like
-from pipeline.ocr.ocr_sync import stringify
+from manager.config_manager import get_config
+from services.playground.data import GameObject, ScaleOperationResponse
 
 _config = get_config()
 _model = LangChainAdaptedLLM(config=_config.pipeline.llm)
@@ -53,7 +53,7 @@ def find_focus(region_results: List[RegionResult]) -> RegionResult:
         [("system", system_template), ("user", "{region_results}")]
     )
 
-    result = prompt_template.invoke({"region_results": stringify(region_results)})
+    result = prompt_template.invoke({"region_results": OCRPipeline.stringify(region_results)})
     result.to_messages()
     response = _model.invoke(result)
 

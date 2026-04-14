@@ -7,8 +7,7 @@ from framework.context import ZerolanLiveRobotContext
 from manager.config_manager import get_config
 from pipeline.db.milvus.milvus_async import MilvusAsyncPipeline
 from pipeline.db.milvus.milvus_sync import MilvusSyncPipeline
-from pipeline.ocr.ocr_async import OCRAsyncPipeline
-from pipeline.ocr.ocr_sync import OCRSyncPipeline
+from zerolan.pipeline.ocr.ocr_sync import OCRPipeline
 from pipeline.tts.tts_async import TTSAsyncPipeline
 from pipeline.tts.tts_sync import TTSSyncPipeline
 from pipeline.vidcap.vidcap_async import VidCapAsyncPipeline
@@ -55,12 +54,7 @@ class BaseBot(ZerolanLiveRobotContext):
 
         # OCR Pipeline
         if self.ocr is not None:
-            if isinstance(self.ocr, OCRSyncPipeline):
-                self.ocr = OCRSyncPipeline(config.pipeline.ocr)
-            elif isinstance(self.ocr, OCRAsyncPipeline):
-                self.ocr = OCRAsyncPipeline(config.pipeline.ocr)
-            else:
-                logger.error(f"Unsupported pipeline type: {type(self.ocr)}")
+            self.ocr = OCRPipeline(config.pipeline.ocr)
         else:
             logger.warning("Pipeline ocr will not reload because it has not been established.")
 

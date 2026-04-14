@@ -4,9 +4,9 @@ from zerolan.pipeline.asr.config import ASRPipelineConfig
 from pipeline.db.milvus.config import VectorDBConfig
 from zerolan.pipeline.imgcap.config import ImgCapPipelineConfig
 from zerolan.pipeline.llm.config import LLMPipelineConfig
-from pipeline.ocr.config import OCRPipelineConfig
-from pipeline.tts.config import TTSPipelineConfig
-from pipeline.vidcap.config import VidCapPipelineConfig
+from zerolan.pipeline.ocr.config import OCRPipelineConfig
+from zerolan.pipeline.tts.config import TTSPipelineConfig
+from zerolan.pipeline.vidcap.config import VidCapPipelineConfig
 from pipeline.vla.config import VLAPipelineConfig
 
 

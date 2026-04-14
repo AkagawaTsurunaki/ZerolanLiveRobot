@@ -14,6 +14,7 @@ from zerolan.data.pipeline.milvus import MilvusInsert, InsertRow, MilvusQuery
 from zerolan.data.pipeline.ocr import OCRQuery
 from zerolan.data.pipeline.tts import TTSQuery
 from zerolan.data.pipeline.vla import ShowUiQuery
+from zerolan.pipeline.ocr.ocr_sync import OCRPipeline
 
 from agent.api import sentiment_analyse, translate, summary_history, find_file, model_scale, sentiment_score, \
     memory_score
@@ -34,7 +35,6 @@ from event.event_emitter import emitter
 from event.registry import EventKeyRegistry
 from framework.base_bot import BaseBot
 from manager.config_manager import get_config
-from pipeline.ocr.ocr_sync import avg_confidence, stringify
 
 _config = get_config()
 
@@ -309,8 +309,8 @@ class ZerolanLiveRobot(BaseBot):
 
             ocr_prediction = self.ocr.predict(OCRQuery(img_path=img_path))
             # TODO: 0.6 is a hyperparameter that indicates the average confidence of the text contained in the image.
-            if avg_confidence(ocr_prediction) > 0.6:
-                logger.info("OCR: " + stringify(ocr_prediction.region_results))
+            if OCRPipeline.avg_confidence(ocr_prediction.region_results) > 0.6:
+                logger.info("OCR: " + OCRPipeline.stringify(ocr_prediction.region_results))
                 emitter.emit(PipelineOCREvent(prediction=ocr_prediction))
             else:
                 img_cap_prediction = self.img_cap.predict(ImgCapQuery(prompt="There", img_path=img_path))
@@ -325,7 +325,7 @@ class ZerolanLiveRobot(BaseBot):
             for image in images:
                 if image.exists():
                     ocr_prediction = self.ocr.predict(OCRQuery(img_path=str(image)))
-                    ocr_text = stringify(ocr_prediction.region_results)
+                    ocr_text = OCRPipeline.stringify(ocr_prediction.region_results)
                     img_cap_prediction = self.img_cap.predict(ImgCapQuery(prompt="There", img_path=str(image)))
                     img_cap_text = img_cap_prediction.caption
                     results.append({
@@ -374,7 +374,7 @@ class ZerolanLiveRobot(BaseBot):
         @emitter.on(EventKeyRegistry.Pipeline.OCR)
         def on_pipeline_ocr(event: PipelineOCREvent):
             prediction = event.prediction
-            text = "你看见了" + stringify(prediction.region_results) + "\n请总结一下"
+            text = "你看见了" + OCRPipeline.stringify(prediction.region_results) + "\n请总结一下"
             self.emit_llm_prediction(text)
 
         @emitter.on(EventKeyRegistry.Pipeline.IMG_CAP)
