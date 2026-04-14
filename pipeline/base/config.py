@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field
 
-from pipeline.asr.config import ASRPipelineConfig
+from zerolan.pipeline.asr.config import ASRPipelineConfig
 from pipeline.db.milvus.config import VectorDBConfig
 from pipeline.imgcap.config import ImgCapPipelineConfig
 from pipeline.llm.config import LLMPipelineConfig

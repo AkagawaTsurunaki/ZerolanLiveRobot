@@ -1,9 +1,8 @@
 from loguru import logger
+from zerolan.pipeline.asr.asr_sync import ASRPipeline
 
 from framework.context import ZerolanLiveRobotContext
 from manager.config_manager import get_config
-from pipeline.asr.asr_async import ASRAsyncPipeline
-from pipeline.asr.asr_sync import ASRSyncPipeline
 from pipeline.db.milvus.milvus_async import MilvusAsyncPipeline
 from pipeline.db.milvus.milvus_sync import MilvusSyncPipeline
 from pipeline.imgcap.imgcap_async import ImgCapAsyncPipeline
@@ -29,12 +28,7 @@ class BaseBot(ZerolanLiveRobotContext):
 
         # ASR Pipeline
         if self.asr is not None:
-            if isinstance(self.asr, ASRSyncPipeline):
-                self.asr = ASRSyncPipeline(config.pipeline.asr)
-            elif isinstance(self.asr, ASRAsyncPipeline):
-                self.asr = ASRAsyncPipeline(config.pipeline.asr)
-            else:
-                logger.error(f"Unsupported pipeline type: {type(self.asr)}")
+            self.asr = ASRPipeline(config.pipeline.asr)
         else:
             logger.warning("Pipeline asr will not reload because it has not been established.")
 

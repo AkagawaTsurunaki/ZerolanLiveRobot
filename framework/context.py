@@ -10,7 +10,7 @@ from manager.llm_prompt_manager import LLMPromptManager
 from manager.model_manager import ModelManager
 from manager.tts_prompt_manager import TTSPromptManager
 from devices.microphone import SmartMicrophone
-from pipeline.asr.asr_sync import ASRSyncPipeline
+from zerolan.pipeline.asr.asr_sync import ASRPipeline
 from pipeline.db.milvus.milvus_sync import MilvusSyncPipeline
 from pipeline.imgcap.imgcap_sync import ImgCapSyncPipeline
 from pipeline.llm.llm_sync import LLMSyncPipeline
@@ -41,7 +41,7 @@ class ZerolanLiveRobotContext:
 
     def __init__(self):
         self.llm: LLMSyncPipeline | None = None
-        self.asr: ASRSyncPipeline | None = None
+        self.asr: ASRPipeline | None = None
         self.ocr: OCRSyncPipeline | None = None
         self.tts: TTSSyncPipeline | None = None
         self.img_cap: ImgCapSyncPipeline | None = None
@@ -89,7 +89,7 @@ class ZerolanLiveRobotContext:
         self.model_manager = None
 
         if _config.pipeline.asr.enable:
-            self.asr = ASRSyncPipeline(_config.pipeline.asr)
+            self.asr = ASRPipeline(_config.pipeline.asr)
         if _config.pipeline.ocr.enable:
             self.ocr = OCRSyncPipeline(_config.pipeline.ocr)
         if _config.pipeline.tts.enable:
