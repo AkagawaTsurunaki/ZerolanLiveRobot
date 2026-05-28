@@ -75,6 +75,16 @@ class LLMSyncPipeline(CommonModelPipeline):
                     )
 
                 return _openai_predict(query, wrapper_doubao)
+            elif self.model_id == "gemini-2.5-flash":
+                # predict_url: 'https://generativelanguage.googleapis.com/v1beta/openai/'
+                def wrapper_gemini(messages):
+                    return self._remote_model.chat.completions.create(
+                        model=self.model_id,
+                        messages=messages,
+                        stream=False
+                    )
+
+                return _openai_predict(query, wrapper_gemini)
             else:
                 raise NotImplementedError(f"Unsupported model {self.model_id}")
         else:
