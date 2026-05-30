@@ -18,6 +18,8 @@ from pipeline.vidcap.vidcap_async import VidCapAsyncPipeline
 from pipeline.vidcap.vidcap_sync import VidCapSyncPipeline
 from pipeline.vla.showui.showui_async import ShowUIAsyncPipeline
 from pipeline.vla.showui.showui_sync import ShowUISyncPipeline
+from pipeline.defense.defense_async import DefenseLLMAsyncPipeline
+from pipeline.defense.defense_sync import DefenseLLMSyncPipeline
 
 
 class BaseBot(ZerolanLiveRobotContext):
@@ -114,6 +116,17 @@ class BaseBot(ZerolanLiveRobotContext):
                 logger.error(f"Unsupported pipeline type: {type(self.showui)}")
         else:
             logger.warning("Pipeline showui will not reload because it has not been established.")
+
+        # Defense Model Pipeline
+        if self.defense is not None:
+            if isinstance(self.defense, DefenseLLMSyncPipeline):
+                self.defense = DefenseLLMSyncPipeline(config.pipeline.defense)
+            elif isinstance(self.defense, DefenseLLMAsyncPipeline):
+                self.defense = DefenseLLMAsyncPipeline(config.pipeline.defense)
+            else:
+                logger.error(f"Unsupported pipeline type: {type(self.defense)}")
+        else:
+            logger.warning("Pipeline defense will not reload because it has not been established.")
 
         logger.info("Reloaded pipelines.")
 

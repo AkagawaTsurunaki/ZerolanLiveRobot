@@ -18,6 +18,7 @@ from pipeline.ocr.ocr_sync import OCRSyncPipeline
 from pipeline.tts.tts_sync import TTSSyncPipeline
 from pipeline.vidcap.vidcap_sync import VidCapSyncPipeline
 from pipeline.vla.showui.showui_sync import ShowUISyncPipeline
+from pipeline.defense.defense_sync import DefenseLLMSyncPipeline
 from services.browser.browser import Browser
 from services.game.config import PlatformEnum
 from services.game.minecraft.app import KonekoMinecraftAIAgent
@@ -48,6 +49,7 @@ class ZerolanLiveRobotContext:
         self.vid_cap: VidCapSyncPipeline | None = None
         self.showui: ShowUISyncPipeline | None = None
         self.vec_db: MilvusSyncPipeline | None = None
+        self.defense: DefenseLLMSyncPipeline | None = None
 
         self.filter: FirstMatchedFilter | None = None
         self.llm_prompt_manager: LLMPromptManager | None = None
@@ -102,6 +104,8 @@ class ZerolanLiveRobotContext:
         if _config.pipeline.vla.enable:
             if _config.pipeline.vla.showui.enable:
                 self.showui = ShowUISyncPipeline(_config.pipeline.vla.showui)
+        if _config.pipeline.defense.enable:
+            self.defense = DefenseLLMSyncPipeline(_config.pipeline.defense)
         if _config.service.browser.enable:
             self.browser = Browser(_config.service.browser)
         if _config.service.game.enable:

@@ -21,6 +21,8 @@ class LLMModelIdEnum(BaseEnum):
     Yi_6B_Chat: str = "01-ai/Yi-6B-Chat"
     DeepSeek_R1_Distill: str = "deepseek-ai/DeepSeek-R1-Distill-Llama-8B"
 
+    GeminiAPI: str = "gemini-2.5-flash"
+
 
 class LLMPipelineConfig(AbstractPipelineConfig):
     api_key: str | None = Field(default=None, description="The API key for accessing the LLM service.　\n"

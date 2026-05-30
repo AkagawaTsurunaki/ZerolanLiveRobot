@@ -8,6 +8,7 @@ from pipeline.ocr.config import OCRPipelineConfig
 from pipeline.tts.config import TTSPipelineConfig
 from pipeline.vidcap.config import VidCapPipelineConfig
 from pipeline.vla.config import VLAPipelineConfig
+from pipeline.defense.config import DefenseModelPipelineConfig
 
 
 class PipelineConfig(BaseModel):
@@ -26,3 +27,5 @@ class PipelineConfig(BaseModel):
     vla: VLAPipelineConfig = Field(default=VLAPipelineConfig(),
                                    description="Configuration for the Visual Language Action pipeline.")
     vec_db: VectorDBConfig = Field(default=VectorDBConfig(), description="Configuration for the Vector Database.")
+    defense: DefenseModelPipelineConfig = Field(default=DefenseModelPipelineConfig(), 
+                                                description="Configuration for the Defense Model pipeline.")

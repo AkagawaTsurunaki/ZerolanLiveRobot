@@ -43,7 +43,8 @@ class ZerolanLiveRobot(BaseBot):
     def __init__(self):
         super().__init__()
         self.cur_lang = Language.ZH
-        self.tts_prompt_manager.set_lang(self.cur_lang)
+        if self.tts_prompt_manager:
+            self.tts_prompt_manager.set_lang(self.cur_lang)
         self._timer_flag = True
         self.tts_thread_pool = ThreadPoolExecutor(max_workers=1)
         self.enable_exp_memory = _config.system.enable_intelligent_memory
@@ -388,22 +389,28 @@ class ZerolanLiveRobot(BaseBot):
             prediction = event.prediction
             text = prediction.response
             logger.info("LLM: " + text)
-            if self.enable_sentiment_analysis:
-                sentiment = sentiment_analyse(sentiments=self.tts_prompt_manager.sentiments, text=text)
-                tts_prompt = self.tts_prompt_manager.get_tts_prompt(sentiment)
-            else:
-                tts_prompt = self.tts_prompt_manager.default_tts_prompt
-            if self.playground:
-                self.playground.add_history(role="assistant", text=text, username=self.bot_name)
+            try:
+                if self.enable_sentiment_analysis:
+                    sentiment = sentiment_analyse(sentiments=self.tts_prompt_manager.sentiments, text=text)
+                    tts_prompt = self.tts_prompt_manager.get_tts_prompt(sentiment)
+                else:
+                    tts_prompt = self.tts_prompt_manager.default_tts_prompt
+                if self.playground:
+                    self.playground.add_history(role="assistant", text=text, username=self.bot_name)
 
-            if self.enable_split_by_punc:
-                transcripts = split_by_punc(text, self.cur_lang)
-                # Note that transcripts may be [] because we can not apply split in some cases.
-                if len(transcripts) > 0:
-                    for idx, transcript in enumerate(transcripts):
-                        self._tts_without_block(tts_prompt, transcript)
-            else:
-                self._tts_without_block(tts_prompt, text)
+                if self.enable_split_by_punc:
+                    transcripts = split_by_punc(text, self.cur_lang)
+                    # Note that transcripts may be [] because we can not apply split in some cases.
+                    if len(transcripts) > 0:
+                        for idx, transcript in enumerate(transcripts):
+                            self._tts_without_block(tts_prompt, transcript)
+                else:
+                    self._tts_without_block(tts_prompt, text)
+            except Exception as e:
+                if self.tts_prompt_manager is None:
+                    logger.warning(f'tts pipeline is disable at config.yaml.')
+                else:
+                    logger.exception(e)
 
         @emitter.on(EventKeyRegistry.System.CONFIG_FILE_MODIFIED)
         def on_config_modified(_: ConfigFileModifiedEvent):
@@ -460,6 +467,12 @@ class ZerolanLiveRobot(BaseBot):
     def emit_llm_prediction(self, text, direct_return: bool = False) -> None | LLMPrediction:
         logger.debug("`emit_llm_prediction` called")
         query = LLMQuery(text=text, history=self.llm_prompt_manager.current_history)
+
+        # TODO: 预处理阶段 - 筛除危险和刷屏消息
+        if self.defense:
+            judgement = self.defense.predict(query)
+            logger.info(f'Defense Model Output: {judgement.response}')
+
         prediction = self.llm.predict(query)
 
         # Filter applied here

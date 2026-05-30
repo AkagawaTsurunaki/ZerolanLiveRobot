@@ -4,7 +4,7 @@ from typeguard import typechecked
 from zerolan.data.pipeline.llm import LLMQuery, LLMPrediction, RoleEnum, Conversation
 
 from pipeline.base.base_sync import CommonModelPipeline
-from pipeline.llm.config import LLMPipelineConfig
+from pipeline.defense.config import DefenseModelPipelineConfig
 
 
 def _to_openai_format(query: LLMQuery):
@@ -30,14 +30,13 @@ def _openai_predict(query: LLMQuery, wrapper):
     return LLMPrediction(response=resp, history=query.history)
 
 
-class LLMSyncPipeline(CommonModelPipeline):
+"""
+命名方式: 该类默认为防御大语言模型 DefenseLLM 的管道，若为非大语言模型架构可自行创建新类 Defense
+"""
+class DefenseLLMSyncPipeline(CommonModelPipeline):
 
-    def __init__(self, config: LLMPipelineConfig):
+    def __init__(self, config: DefenseModelPipelineConfig):
         super().__init__(config)
-        # Kimi API supported
-        # Reference: https://platform.moonshot.cn/docs/guide/start-using-kimi-api
-        # Deepseek API supported
-        # Reference: https://api-docs.deepseek.com/zh-cn/
         self._is_openai_format = config.openai_format
         if self._is_openai_format:
             assert config.predict_url and config.stream_predict_url, "Please provide `predict_url` or `stream_predict_url`"
@@ -48,43 +47,16 @@ class LLMSyncPipeline(CommonModelPipeline):
     def predict(self, query: LLMQuery) -> LLMPrediction | None:
         assert isinstance(query, LLMQuery)
         if self._is_openai_format:
-            if self.model_id == "moonshot-v1-8k":
-                def wrapper_kimi(messages):
-                    return self._remote_model.chat.completions.create(
-                        model=self.model_id,
-                        messages=messages,
-                        temperature=0.3
-                    )
-
-                return _openai_predict(query, wrapper_kimi)
-            elif self.model_id == "deepseek-chat":
-                def wrapper_deepseek(messages):
+            # example
+            if self.model_id == "xxx":
+                def wrapper_xxx(messages):
                     return self._remote_model.chat.completions.create(
                         model=self.model_id,
                         messages=messages,
                         stream=False
                     )
 
-                return _openai_predict(query, wrapper_deepseek)
-            elif self.model_id == "doubao-seed-1-6-flash-250715":
-                def wrapper_doubao(messages):
-                    return self._remote_model.chat.completions.create(
-                        model=self.model_id,
-                        messages=messages,
-                        stream=False
-                    )
-
-                return _openai_predict(query, wrapper_doubao)
-            elif self.model_id == "gemini-2.5-flash":
-                # predict_url: 'https://generativelanguage.googleapis.com/v1beta/openai/'
-                def wrapper_gemini(messages):
-                    return self._remote_model.chat.completions.create(
-                        model=self.model_id,
-                        messages=messages,
-                        stream=False
-                    )
-
-                return _openai_predict(query, wrapper_gemini)
+                return _openai_predict(query, wrapper_xxx)
             else:
                 raise NotImplementedError(f"Unsupported model {self.model_id}")
         else:
@@ -93,7 +65,6 @@ class LLMSyncPipeline(CommonModelPipeline):
     @typechecked
     def stream_predict(self, query: LLMQuery, chunk_size: int | None = None):
         assert isinstance(query, LLMQuery)
-        # TODO: Kimi and Deepseek stream prediction.
         return super().stream_predict(query)
 
     def parse_prediction(self, response: Response) -> LLMPrediction:
